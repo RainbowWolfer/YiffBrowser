@@ -93,7 +93,7 @@ namespace YB.E621.Controls {
 			} else {
 				LoadingProgressBar!.Visibility = Visibility.Visible;
 				LoadingProgressBar!.IsIndeterminate = false;
-				LoadingProgressBar!.Value = args.Progress;
+				LoadingProgressBar!.Value = CommonHelper.Remap(args.Progress, 0, 100, 5, 95);
 			}
 		}
 

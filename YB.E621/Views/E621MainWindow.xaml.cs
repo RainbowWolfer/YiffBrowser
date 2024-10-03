@@ -22,6 +22,7 @@ using YB.E621.Services;
 
 namespace YB.E621.Views {
 	public partial class E621MainWindow : WindowBase {
+
 		public E621MainWindow() {
 			InitializeComponent();
 		}
@@ -39,6 +40,7 @@ namespace YB.E621.Views {
 			PostsViewModel = new(siteType);
 			View.Title = $"{siteType}";
 		}
+
 	}
 
 }

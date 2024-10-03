@@ -1,9 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using BaseFramework.Helpers;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace YB.E621.Models.E621{
+namespace YB.E621.Models.E621 {
 	public class E621Wiki {
 		[JsonProperty("id")]
 		public int ID { get; set; }
@@ -33,7 +35,7 @@ namespace YB.E621.Models.E621{
 		public static Dictionary<string, E621Wiki> Pool { get; } = [];
 
 
-		public static readonly Dictionary<string, string> wikiDictionary = new Dictionary<string, string>() {
+		public static readonly FrozenDictionary<string, string> wikiDictionary = new Dictionary<string, string>() {
 			{ "order:score", "Highest score first" },
 			{ "order:id", "Oldest to newest" },
 			{ "order:favcount", "Most favorites first" },
@@ -55,7 +57,7 @@ namespace YB.E621.Models.E621{
 			{ "order:duration_asc", "Video duration shortest to longest" },
 			{ "order:rank", "Hot Posts" },
 			{ "votedup:anything", "The Voted Post" },
-		}.Where(p => !string.IsNullOrWhiteSpace(p.Key)).ToDictionary(x => x.Key, y => y.Value);
+		}.Where(p => p.Key.IsNotBlank()).ToFrozenDictionary(x => x.Key, y => y.Value);
 
 	}
 }

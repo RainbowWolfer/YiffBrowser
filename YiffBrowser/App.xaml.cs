@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Navigation;
 using YB.E621.Views;
 
 namespace YiffBrowser {
@@ -24,6 +25,7 @@ namespace YiffBrowser {
 			(Window_E621.View as IWindowBase).Window.Show();
 
 		}
+
 	}
 
 }

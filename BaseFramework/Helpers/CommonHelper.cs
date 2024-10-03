@@ -160,5 +160,10 @@ namespace BaseFramework.Helpers {
 		//	//emailMessage.To.Add(new EmailRecipient(email, name));
 		//	//await EmailManager.ShowComposeNewEmailAsync(emailMessage);
 		//}
+
+		public static double Remap(this double value, double fromMin, double fromMax, double toMin, double toMax) {
+			return (value - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
+		}
+
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using BaseFramework.Helpers;
 using Newtonsoft.Json;
+using System.Collections.Concurrent;
 using System.Windows.Media;
 
 namespace YB.E621.Models.E621 {
@@ -25,7 +26,7 @@ namespace YB.E621.Models.E621 {
 
 		public string PostCountInK => PostCount.NumberToK();
 
-		public static Dictionary<string, E621Tag> Pool { get; } = [];
+		public static ConcurrentDictionary<string, E621Tag> Pool { get; } = [];
 
 		public override string ToString() {
 			return $"E621Tags:({ID})({Name})({RelatedTags})({PostCount})({Category})";

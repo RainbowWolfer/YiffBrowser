@@ -218,9 +218,9 @@ namespace BaseFramework.Services {
 		public DateTime StartTime { get; private set; } = startTime;
 	}
 
-	public class DataResult<T>(HttpResultType resultType, T data) {
+	public class DataResult<T>(HttpResultType resultType, T? data) {
 		public HttpResultType ResultType { get; set; } = resultType;
-		public T Data { get; set; } = data;
+		public T? Data { get; set; } = data;
 	}
 
 	public class HttpResultTypeNotFoundException : Exception {

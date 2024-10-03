@@ -9,6 +9,9 @@
 	xmlns:c1="clr-namespace:BaseFramework.Controls;assembly=BaseFramework"
 	mc:Ignorable="d">
 
+	<ResourceDictionary.MergedDictionaries>
+		<ResourceDictionary Source="pack://application:,,,/BaseFramework;component/Resources/Generic.xaml" />
+	</ResourceDictionary.MergedDictionaries>
 
 	<Style TargetType="c:PostCardControl">
 		<Setter Property="BorderBrush" Value="LightGray"/>
@@ -45,6 +48,8 @@
 
 									<TextBlock Text="{Binding}"/>
 
+									<c1:FontIcon Text="&#xE8CE;" Grid.Column="1"/>
+
 								</Grid>
 							</Border>
 
@@ -62,7 +67,7 @@
 								</Border>
 
 								<Border VerticalAlignment="Top" HorizontalAlignment="Stretch">
-									<ProgressBar Name="LoadingProgressBar" Value="50" Height="6" BorderThickness="0"/>
+									<ProgressBar Name="LoadingProgressBar" Height="6" BorderThickness="0" IsIndeterminate="True"/>
 								</Border>
 
 							</Grid>
@@ -81,5 +86,6 @@
 			</Setter.Value>
 		</Setter>
 	</Style>
+
 
 </ResourceDictionary>

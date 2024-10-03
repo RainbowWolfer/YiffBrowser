@@ -37,20 +37,20 @@ namespace YB.E621.Services {
 			HttpResult<string> result = await NetCode.ReadURLAsync(url, token);
 
 			if (result.Result == HttpResultType.Success) {
-				return JsonDeserialize<E621PostsRoot>(result.Content)?.Posts.ToArray() ?? [];
+				return JsonDeserialize<E621PostsRoot>(result.Content)?.Posts?.ToArray() ?? [];
 			} else {
 				return [];
 			}
 		}
 
-		public static async ValueTask<E621Post> GetPostAsync(int? postID, CancellationToken? token = null) {
+		public static async ValueTask<E621Post?> GetPostAsync(int? postID, CancellationToken? token = null) {
 			if (postID == null) {
 				return null;
 			}
 			string url = $"https://{GetHost()}/posts/{postID.Value}.json";
 			HttpResult<string> result = await NetCode.ReadURLAsync(url, token);
 			if (result.Result == HttpResultType.Success) {
-				E621Post post = JsonDeserialize<E621PostsRoot>(result.Content).Post;
+				E621Post? post = JsonDeserialize<E621PostsRoot?>(result.Content)?.Post;
 				return post;
 			} else {
 				return null;
@@ -64,26 +64,26 @@ namespace YB.E621.Services {
 		public static async ValueTask<E621AutoComplete[]> GetE621AutoCompleteAsync(string tag, CancellationToken? token = null) {
 			HttpResult<string> result = await NetCode.ReadURLAsync($"https://{GetHost()}/tags/autocomplete.json?search[name_matches]={tag}", token);
 			if (result.Result == HttpResultType.Success) {
-				return JsonDeserialize<E621AutoComplete[]>(result.Content);
+				return JsonDeserialize<E621AutoComplete[]>(result.Content) ?? [];
 			} else {
-				return null;
+				return [];
 			}
 		}
 
-		public static async ValueTask<E621Tag> GetE621TagAsync(string tag, CancellationToken? token = null) {
+		public static async ValueTask<E621Tag?> GetE621TagAsync(string tag, CancellationToken? token = null) {
 			if (tag.IsBlank()) {
 				return null;
 			}
 			tag = tag.ToLower().Trim();
 
-			if (E621Tag.Pool.TryGetValue(tag, out E621Tag e621Tag)) {
+			if (E621Tag.Pool.TryGetValue(tag, out E621Tag? e621Tag)) {
 				return e621Tag;
 			}
 
 			string url = $"https://{GetHost()}/tags.json?search[name_matches]={tag}";
 			HttpResult<string> result = await NetCode.ReadURLAsync(url, token);
 			if (result.Result == HttpResultType.Success && result.Content != "{\"tags\":[]}") {
-				E621Tag t = JsonDeserialize<E621Tag[]>(result.Content)?.FirstOrDefault();
+				E621Tag? t = JsonDeserialize<E621Tag[]>(result.Content)?.FirstOrDefault();
 				if (t != null) {
 					E621Tag.Pool.TryAdd(tag, t);
 				}
@@ -93,20 +93,20 @@ namespace YB.E621.Services {
 			}
 		}
 
-		public static async ValueTask<E621Wiki> GetE621WikiAsync(string tag, CancellationToken? token = null) {
+		public static async ValueTask<E621Wiki?> GetE621WikiAsync(string tag, CancellationToken? token = null) {
 			tag = tag.ToLower().Trim();
 
-			if (E621Wiki.wikiDictionary.ContainsKey(tag)) {
+			if (E621Wiki.wikiDictionary.TryGetValue(tag, out string? value)) {
 				return new E621Wiki() {
-					Body = E621Wiki.wikiDictionary[tag]
+					Body = value
 				};
 			} else if (tag.StartsWith("fav:")) {
 				return new E621Wiki() {
-					Body = $"Favorites of \"{tag.Substring(4)}\"",
+					Body = $"Favorites of \"{tag[4..]}\"",
 				};
 			}
 
-			if (E621Wiki.Pool.TryGetValue(tag, out E621Wiki e621Wiki)) {
+			if (E621Wiki.Pool.TryGetValue(tag, out E621Wiki? e621Wiki)) {
 				return e621Wiki;
 			}
 
@@ -116,7 +116,7 @@ namespace YB.E621.Services {
 				if (result.Content == "[]") {
 					return new E621Wiki();
 				}
-				return JsonDeserialize<E621Wiki[]>(result.Content).FirstOrDefault();
+				return JsonDeserialize<E621Wiki[]>(result.Content)?.FirstOrDefault();
 			} else {
 				return null;
 			}
@@ -136,13 +136,13 @@ namespace YB.E621.Services {
 		public static async ValueTask<E621Comment[]> GetCommentsAsync(int postID, CancellationToken? token = null) {
 			string url = $"https://{GetHost()}/comments.json?group_by=comment&search[post_id]={postID}";
 			HttpResult<string> result = await NetCode.ReadURLAsync(url, token);
-			if (result?.Content == "{\"comments\":[]}") {
+			if (result.Content == "{\"comments\":[]}") {
 				return [];
 			}
 			if (result.Result == HttpResultType.Success) {
-				return JsonDeserialize<E621Comment[]>(result.Content);
+				return JsonDeserialize<E621Comment[]>(result.Content) ?? [];
 			} else {
-				return null;
+				return [];
 			}
 		}
 
@@ -151,7 +151,7 @@ namespace YB.E621.Services {
 
 		#region Pool
 
-		public static async ValueTask<E621Pool> GetPoolAsync(string id, CancellationToken? token = null) {
+		public static async ValueTask<E621Pool?> GetPoolAsync(string id, CancellationToken? token = null) {
 			HttpResult<string> result = await NetCode.ReadURLAsync($"https://{GetHost()}/pools/{id}.json", token);
 			if (result.Result == HttpResultType.Success) {
 				return JsonDeserialize<E621Pool>(result.Content);
@@ -164,21 +164,21 @@ namespace YB.E621.Services {
 
 		#region Users
 
-		public static async ValueTask<E621User> GetUserAsync(string username, CancellationToken? token = null) {
+		public static async ValueTask<E621User?> GetUserAsync(string username, CancellationToken? token = null) {
 			string url = $"https://{GetHost()}/users.json?search[name_matches]={username}";
 			HttpResult<string> result = await NetCode.ReadURLAsync(url, token);
 			if (result.Result == HttpResultType.Success) {
-				return JsonDeserialize<E621User[]>(result.Content).FirstOrDefault();
+				return JsonDeserialize<E621User[]>(result.Content)?.FirstOrDefault();
 			} else {
 				return null;
 			}
 		}
 
-		public static async ValueTask<E621User> GetUserAsync(int id, CancellationToken? token = null) {
+		public static async ValueTask<E621User?> GetUserAsync(int id, CancellationToken? token = null) {
 			string url = $"https://{GetHost()}/users.json?search[id]={id}";
 			HttpResult<string> result = await NetCode.ReadURLAsync(url, token);
 			if (result.Result == HttpResultType.Success) {
-				return JsonDeserialize<E621User[]>(result.Content).FirstOrDefault();
+				return JsonDeserialize<E621User[]>(result.Content)?.FirstOrDefault();
 			} else {
 				return null;
 			}
@@ -224,6 +224,10 @@ namespace YB.E621.Services {
 			string url = $"https://{GetHost()}/posts?tags={tag}&page={page}";
 			HttpResult<string> result = await NetCode.ReadURLAsync(url, token);
 			if (result.Result != HttpResultType.Success) {
+				return new DataResult<E621Paginator>(result.Result, null);
+			}
+
+			if (result.Content.IsBlank()) {
 				return new DataResult<E621Paginator>(result.Result, null);
 			}
 

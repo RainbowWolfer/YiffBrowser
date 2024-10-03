@@ -12,8 +12,35 @@
     Height="700" 
     Width="1200">
 
-	<Grid>
-		<ContentControl Content="{Binding PostsViewModel.View}"/>
-	</Grid>
+	<Control.Resources>
+		<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml" />
+	</Control.Resources>
+
+	<DockPanel>
+		<TabControl Padding="0">
+
+			<TabItem>
+				<TabItem.Header>
+					<StackPanel Orientation="Horizontal">
+						<TextBlock Text="Default" VerticalAlignment="Center" Margin="0,0,2,0"/>
+						<Button Padding="2" VerticalAlignment="Center" BorderThickness="0" Background="Transparent" Cursor="Hand" Margin="2,0,0,0">
+							<c:FontIcon Text="&#xE711;"/>
+						</Button>
+					</StackPanel>
+				</TabItem.Header>
+				<ContentControl Content="{Binding PostsViewModel.View}"/>
+			</TabItem>
+
+			<TabItem Header="HELLO">
+
+			</TabItem>
+			<TabItem Header="HELLO">
+
+			</TabItem>
+			<TabItem Header="HELLO">
+
+			</TabItem>
+		</TabControl>
+	</DockPanel>
 
 </views:WindowBase>

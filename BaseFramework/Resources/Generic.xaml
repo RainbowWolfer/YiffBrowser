@@ -1,6 +1,19 @@
 ﻿<ResourceDictionary 
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:c="clr-namespace:BaseFramework.Controls">
+
+	<FontFamily x:Key="IconPack">./Fonts/Segoe Fluent Icons.ttf#Segoe Fluent Icons</FontFamily>
+
+	<Style x:Key="TextBlockIcon" TargetType="TextBlock">
+		<Setter Property="FontFamily" Value="{StaticResource IconPack}"/>
+	</Style>
+
+	<Style x:Key="FontIconBase" TargetType="c:FontIcon">
+		<Setter Property="FontFamily" Value="{StaticResource IconPack}"/>
+	</Style>
+
+	<Style TargetType="c:FontIcon" BasedOn="{StaticResource FontIconBase}"/>
 
 	<ExponentialEase x:Key="DefaultEasingFunction" EasingMode="EaseOut" Exponent="8"/>
 

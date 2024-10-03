@@ -18,7 +18,11 @@ namespace YB.E621.Views {
 		}
 
 		private void ListBoxItem_RequestBringIntoView(object sender, RequestBringIntoViewEventArgs e) {
-			e.Handled = true;
+			//e.Handled = true;
+		}
+
+		private void TextBlock_DragLeave(object sender, DragEventArgs e) {
+
 		}
 	}
 
@@ -40,7 +44,7 @@ namespace YB.E621.Views {
 		private async void Refrsh() {
 			Items.Clear();
 			E621Post[] posts = await E621API.GetPostsByTagsAsync(new E621PostParameters() {
-				Tags = ["belly_riding"],
+				Tags = [""],
 			});
 
 			foreach (E621Post item in posts) {
