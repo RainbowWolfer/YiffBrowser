@@ -1,9 +1,21 @@
-﻿namespace YB.E621.Models.E621 {
+﻿using Newtonsoft.Json;
+
+namespace YB.E621.Models.E621 {
 	public class E621AutoComplete {
-		public string? id;
-		public string? name;
-		public int post_count;
-		public int category;
-		public string? antecedent_name;
+		[JsonProperty("id")]
+		public string? Id { get; set; }
+
+		[JsonProperty("name")]
+		public string? Name { get; set; }
+
+		[JsonProperty("post_count")]
+		public int PostCount { get; set; }
+
+		[JsonProperty("category")]
+		public int Category { get; set; }
+
+		[JsonProperty("antecedent_name")]
+		public string? AntecedentName { get; set; }
 	}
+
 }

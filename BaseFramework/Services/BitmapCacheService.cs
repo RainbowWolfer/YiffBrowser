@@ -1,12 +1,13 @@
 ﻿using BaseFramework.Events;
 using BaseFramework.Helpers;
 using BaseFramework.Models;
+using System.Collections.Concurrent;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace BaseFramework.Services {
 	public static class BitmapCacheService {
-		private static Dictionary<string, BitmapCacheItem> Pool { get; } = [];
+		private static ConcurrentDictionary<string, BitmapCacheItem> Pool { get; } = [];
 
 		public static BitmapCacheItem Get(string? url) {
 			if (url.IsBlank()) {
@@ -35,12 +36,10 @@ namespace BaseFramework.Services {
 		public bool HasCompleted { get; private set; } = false;
 
 		public void Initialize() {
-			if (Image != null) {
+			if (Image != null || Uri is null) {
 				return;
 			}
-			if (Uri is null) {
-				return;
-			}
+
 			Updated?.Invoke(this, new BitmapLoadingModel(false, false, false, 0));
 			Image = new BitmapImage(Uri);
 			Image.DownloadCompleted += Image_DownloadCompleted;

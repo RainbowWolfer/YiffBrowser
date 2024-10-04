@@ -10,6 +10,7 @@
     <!--<SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>-->
     <StartupObject>YiffBrowser.App</StartupObject>
     <PlatformTarget>x64</PlatformTarget>
+    <ApplicationIcon>..\BaseFramework\Resources\Icons\YiffBrowserIcon.ico</ApplicationIcon>
     <!--<SignAssembly>False</SignAssembly>-->
   </PropertyGroup>
 

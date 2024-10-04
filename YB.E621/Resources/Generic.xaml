@@ -3,15 +3,18 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:c="clr-namespace:YB.E621.Controls"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:con="clr-namespace:YB.E621.Converters"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:system="clr-namespace:System;assembly=netstandard" 
 	xmlns:models_e621="clr-namespace:YB.E621.Models.E621"
-	xmlns:c1="clr-namespace:BaseFramework.Controls;assembly=BaseFramework"
+	xmlns:bf="BaseFramework"
 	mc:Ignorable="d">
 
 	<ResourceDictionary.MergedDictionaries>
 		<ResourceDictionary Source="pack://application:,,,/BaseFramework;component/Resources/Generic.xaml" />
 	</ResourceDictionary.MergedDictionaries>
+
+	<con:TagsDisplayConverter x:Key="TagsDisplayConverter"/>
 
 	<Style TargetType="c:PostCardControl">
 		<Setter Property="BorderBrush" Value="LightGray"/>
@@ -33,7 +36,7 @@
 
 					</ControlTemplate.Resources>
 
-					<c1:ClippingBorder Name="RootBorder" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="2" CornerRadius="8">
+					<bf:ClippingBorder Name="RootBorder" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="2" CornerRadius="8">
 
 						<DockPanel>
 
@@ -48,7 +51,7 @@
 
 									<TextBlock Text="{Binding}"/>
 
-									<c1:FontIcon Text="&#xE8CE;" Grid.Column="1"/>
+									<bf:FontIcon Text="&#xE8CE;" Grid.Column="1"/>
 
 								</Grid>
 							</Border>
@@ -67,13 +70,13 @@
 								</Border>
 
 								<Border VerticalAlignment="Top" HorizontalAlignment="Stretch">
-									<ProgressBar Name="LoadingProgressBar" Height="6" BorderThickness="0" IsIndeterminate="True"/>
+									<ProgressBar Name="LoadingProgressBar" Height="6" BorderThickness="0" IsIndeterminate="True" bf:BorderExtension.CornerRadius="4,4,0,0"/>
 								</Border>
 
 							</Grid>
 
 						</DockPanel>
-					</c1:ClippingBorder>
+					</bf:ClippingBorder>
 
 					<ControlTemplate.Triggers>
 						<Trigger Property="IsSelected" Value="True">
@@ -82,6 +85,52 @@
 						</Trigger>
 					</ControlTemplate.Triggers>
 
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+
+	<Style TargetType="c:SearchTagItemControl">
+		<Setter Property="Focusable" Value="False"/>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="c:SearchTagItemControl">
+					<Border x:Name="RootBorder" BorderThickness="1" BorderBrush="{TemplateBinding MainBrush}">
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*"/>
+								<ColumnDefinition Width="auto"/>
+							</Grid.ColumnDefinitions>
+
+							<StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+
+								<Rectangle Name="CategoryRectangle" Fill="{TemplateBinding MainBrush}" Height="23" Width="4" VerticalAlignment="Center" RadiusX="2" RadiusY="2"/>
+
+								<TextBlock Text="{TemplateBinding FromName}" Margin="10,0,10,0" VerticalAlignment="Center"/>
+
+								<StackPanel Orientation="Horizontal" Visibility="{TemplateBinding ToName,Converter={StaticResource StringToVisibilityConverter}}">
+									<bf:FontIcon Text="&#xEA62;" VerticalAlignment="Center"/>
+									<TextBlock Text="{TemplateBinding ToName}" Margin="10,0,10,0" VerticalAlignment="Center"/>
+								</StackPanel>
+
+							</StackPanel>
+
+							<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1">
+								<TextBlock Text="{TemplateBinding CountString}" Margin="10,0,10,0" VerticalAlignment="Center"/>
+							</StackPanel>
+						</Grid>
+					</Border>
+					<ControlTemplate.Triggers>
+						<Trigger Property="IsSelected" Value="True">
+							<Setter TargetName="CategoryRectangle" Property="Width" Value="6"/>
+							<Setter TargetName="CategoryRectangle" Property="RadiusX" Value="0"/>
+							<Setter TargetName="CategoryRectangle" Property="RadiusY" Value="0"/>
+						</Trigger>
+						<Trigger Property="IsSelected" Value="False">
+							<Setter TargetName="RootBorder" Property="BorderBrush" Value="Transparent"/>
+						</Trigger>
+					</ControlTemplate.Triggers>
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>

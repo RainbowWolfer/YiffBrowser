@@ -1,0 +1,53 @@
+﻿<views:UserControlBase  
+    x:Class="YB.E621.Views.Subs.UserView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:YB.E621.Views.Subs"
+    xmlns:views="clr-namespace:BaseFramework.Views;assembly=BaseFramework" 
+	xmlns:c="clr-namespace:BaseFramework.Controls;assembly=BaseFramework"
+	d:DataContext="{d:DesignInstance Type=local:UserViewModel}"
+	mc:Ignorable="d" 
+    Height="auto"
+    Width="200"
+    d:Background="LightGray">
+
+	<Control.Resources>
+		<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml" />
+	</Control.Resources>
+
+	<Grid>
+		<c:UniformSpacingPanel Style="{StaticResource CustomVerticalPanel2}" Margin="2">
+
+			<StackPanel>
+				<c:HorizontalIconText Glyph="&#xE723;" Text="User ID" Margin="4,2"/>
+				<Border BorderBrush="LightGray" CornerRadius="4" Background="White" Padding="4,1">
+					<TextBlock Text="{Binding User.Id}" d:Text="123456"/>
+				</Border>
+			</StackPanel>
+
+			<StackPanel>
+				<c:HorizontalIconText Glyph="&#xE8D4;" Text="Username" Margin="4,2"/>
+				<Border BorderBrush="LightGray" CornerRadius="4" Background="White" Padding="4,1">
+					<TextBlock Text="{Binding User.Name}" d:Text="Username"/>
+				</Border>
+			</StackPanel>
+
+			<StackPanel>
+				<c:HorizontalIconText Glyph="&#xE715;" Text="Email" Margin="4,2"/>
+				<Border BorderBrush="LightGray" CornerRadius="4" Background="White" Padding="4,1">
+					<TextBlock Text="{Binding User.Email}" d:Text="Username@email.com"/>
+				</Border>
+			</StackPanel>
+
+			<Grid>
+				<Button Command="{Binding LogoutCommand}">
+					<TextBlock Text="Logout"/>
+				</Button>
+			</Grid>
+
+		</c:UniformSpacingPanel>
+	</Grid>
+
+</views:UserControlBase>

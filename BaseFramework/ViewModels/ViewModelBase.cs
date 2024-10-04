@@ -17,16 +17,25 @@ namespace BaseFramework.ViewModels {
 				DataContext = this,
 			};
 
+			View.Loaded += View_LoadedOnce;
 			View.Loaded += View_Loaded;
 		}
 
 		private void View_Loaded(object sender, RoutedEventArgs e) {
-			View.Loaded -= View_Loaded;
 			Loaded(View);
 		}
 
+		private void View_LoadedOnce(object sender, RoutedEventArgs e) {
+			View.Loaded -= View_LoadedOnce;
+			LoadedOnce(View);
+		}
+
+		protected virtual void LoadedOnce(IViewBase viewBase) {
+
+		}
+
 		protected virtual void Loaded(IViewBase viewBase) {
-			
+
 		}
 
 	}

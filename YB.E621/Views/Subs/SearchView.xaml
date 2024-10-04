@@ -1,0 +1,89 @@
+﻿<bf:UserControlBase  
+    x:Class="YB.E621.Views.Subs.SearchView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:YB.E621.Views.Subs"
+	xmlns:bf="BaseFramework" 
+	xmlns:c="clr-namespace:YB.E621.Controls"
+	mc:Ignorable="d" 
+	d:DataContext="{d:DesignInstance Type=local:SearchViewModel}"
+    d:DesignHeight="250" 
+    d:DesignWidth="200"
+	d:Background="White">
+
+	<Control.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+
+			<bf:CommandProxy x:Key="HandleItemCommand" Command="{Binding HandleItemCommand}"/>
+		</ResourceDictionary>
+	</Control.Resources>
+
+	<Grid>
+		<StackPanel>
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="auto"/>
+					<ColumnDefinition Width="auto"/>
+				</Grid.ColumnDefinitions>
+
+				<bf:TextBoxExtend x:Name="SearchBox" 
+					Text="{Binding SearchText,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+					AcceptsTab="False"
+					AcceptsReturn="False"
+					BindableSelectionStart="{Binding SearchTextSelectionStart,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+					bf:TextBoxExtension.SelectionChangedCommand="{Binding OnSearchTextSelectionChangedCommand}"
+					bf:ControlExtension.LoadedCommand="{Binding OnSearchTextBoxLoadedCommand}"
+					bf:ControlExtension.PreviewKeyDownCommand="{Binding OnSearchTextBoxPreviewKeyDownCommand}"/>
+
+				<Button DockPanel.Dock="Right" Margin="4,0,0,0" Width="24" ToolTip="Clear" Grid.Column="1" Command="{Binding ClearCommand}">
+					<bf:FontIcon Text="&#xE711;"/>
+				</Button>
+				
+				<Button DockPanel.Dock="Right" Margin="4,0,0,0" Width="24" ToolTip="Search" Grid.Column="2" Command="{Binding SubmitCommand}">
+					<bf:FontIcon Text="&#xE721;"/>
+				</Button>
+
+			</Grid>
+
+			<Border>
+				<Grid>
+					<ListBox x:Name="MainListBox" 
+						ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+						bf:ListBoxExtension.ClickBlankToDeselect="True"
+						bf:ListBoxExtension.EscapeToDeselect="True"
+						ItemsSource="{Binding AutoCompletes}" 
+						d:ItemsSource="{d:SampleData ItemCount=3}"
+						Visibility="{Binding AutoCompletes.Count,Converter={StaticResource IListToVisibilityConverter}}" 
+						SelectedItem="{Binding SelectedItem,Mode=TwoWay}"
+						Margin="0,4,0,0">
+						<ListBox.ItemContainerStyle>
+							<Style TargetType="ListBoxItem" BasedOn="{StaticResource CustomListBoxItemStyle}">
+								<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+								<Setter Property="Padding" Value="0"/>
+								<Setter Property="IsSelected" Value="{Binding IsSelected,Mode=TwoWay}"/>
+								<Setter Property="bf:ControlExtension.DoubleClickCommand" Value="{StaticResource HandleItemCommand}"/>
+								<Setter Property="bf:ControlExtension.DoubleClickCommandParameter" Value="{Binding}"/>
+							</Style>
+						</ListBox.ItemContainerStyle>
+						<ListBox.ItemTemplate>
+							<DataTemplate>
+								<c:SearchTagItemControl AutoComplete="{Binding AutoComplete}" IsSelected="{Binding IsSelected,Mode=TwoWay}"/>
+							</DataTemplate>
+						</ListBox.ItemTemplate>
+					</ListBox>
+
+					<TextBlock Text="{Binding AlternativeHintText}" Visibility="{Binding AlternativeHintText,Converter={StaticResource StringToVisibilityConverter}}" TextAlignment="Center" FontSize="16" VerticalAlignment="Top" Margin="0,4,0,0"/>
+					<ProgressBar IsIndeterminate="True" VerticalAlignment="Top" Height="6" BorderThickness="0" Visibility="{Binding IsLoading,Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,4,0,0"/>
+
+				</Grid>
+			</Border>
+		</StackPanel>
+	</Grid>
+
+</bf:UserControlBase>

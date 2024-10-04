@@ -8,6 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Icons\YiffBrowserIcon.ico" />
+    <None Remove="Resources\Icons\YiffBrowserIcon.png" />
     <None Remove="Resources\Segoe Fluent Icons.ttf" />
   </ItemGroup>
 
@@ -18,6 +20,8 @@
 
   <ItemGroup>
     <Resource Include="Resources\Fonts\Segoe Fluent Icons.ttf" />
+    <Resource Include="Resources\Icons\YiffBrowserIcon.ico" />
+    <Resource Include="Resources\Icons\YiffBrowserIcon.png" />
   </ItemGroup>
 
 </Project>

@@ -26,25 +26,38 @@ namespace YB.E621.Views {
 		}
 	}
 
-	public class PostsViewModel(ModuleType siteType) : UserControlViewModel<PostsView> {
-		public const double ItemWidth = 380;
+	public class PostsViewModel(ModuleType siteType, string[] tags) : UserControlViewModel<PostsView> {
+		public const double ItemWidth = 396;
 		public const double ItemHeight = 50;
+
+		private bool isLoading = false;
 
 		public ObservableCollection<PostCardControl> Items { get; } = [];
 		public ModuleType SiteType { get; } = siteType;
+		public string[] Tags { get; } = tags;
 
+		public bool IsLoading {
+			get => isLoading;
+			set => SetProperty(ref isLoading, value);
+		}
 
-		protected override void Loaded(IViewBase viewBase) {
-			base.Loaded(viewBase);
+		protected override void LoadedOnce(IViewBase viewBase) {
+			base.LoadedOnce(viewBase);
 			Refrsh();
 		}
 
 		public ICommand RefreshCommand => new DelegateCommand(Refrsh);
 
 		private async void Refrsh() {
+			if (IsLoading) {
+				return;
+			}
+
+			IsLoading = true;
+
 			Items.Clear();
 			E621Post[] posts = await E621API.GetPostsByTagsAsync(new E621PostParameters() {
-				Tags = [""],
+				Tags = Tags,
 			});
 
 			foreach (E621Post item in posts) {
@@ -54,6 +67,7 @@ namespace YB.E621.Views {
 				Items.Add(new PostCardControl(item));
 			}
 
+			IsLoading = false;
 		}
 	}
 }

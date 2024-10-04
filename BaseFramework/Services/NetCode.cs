@@ -9,7 +9,7 @@ namespace BaseFramework.Services {
 		//todo : make name and version variable
 		public const string USERAGENT = $"YiffBrowser/1.0.0.0 by (RainbowWolfer)";
 
-		public static async Task<HttpResult<string>> ReadURLAsync(string url, CancellationToken? token = null, string username = "", string api = "") {
+		public static async Task<HttpResult<string>> ReadURLAsync(string url, string username, string api, CancellationToken? token = null) {
 			Debug.WriteLine("Reading: " + url);
 
 			DateTime startDateTime = DateTime.Now;
@@ -59,7 +59,7 @@ namespace BaseFramework.Services {
 			return hr;
 		}
 
-		public static async Task<HttpResult<string>> PutRequestAsync(string url, KeyValuePair<string, string> pair, CancellationToken? token = null, string username = "", string api = "") {
+		public static async Task<HttpResult<string>> PutRequestAsync(string url, KeyValuePair<string, string> pair, string username, string api, CancellationToken? token = null) {
 			DateTime startDateTime = DateTime.Now;
 			Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -103,7 +103,7 @@ namespace BaseFramework.Services {
 			return hr;
 		}
 
-		public static async Task<HttpResult<string>> PostRequestAsync(string url, List<KeyValuePair<string, string>> pairs, CancellationToken? token = null, string username = "", string api = "") {
+		public static async Task<HttpResult<string>> PostRequestAsync(string url, List<KeyValuePair<string, string>> pairs, string username, string api, CancellationToken? token = null) {
 			DateTime startDateTime = DateTime.Now;
 			Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -145,7 +145,7 @@ namespace BaseFramework.Services {
 			return hr;
 		}
 
-		public static async Task<HttpResult<string>> DeleteRequestAsync(string url, CancellationToken? token = null, string username = "", string api = "") {
+		public static async Task<HttpResult<string>> DeleteRequestAsync(string url, string username, string api, CancellationToken? token = null) {
 			DateTime startDateTime = DateTime.Now;
 			Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -190,20 +190,11 @@ namespace BaseFramework.Services {
 
 		private static void AddDefaultRequestHeaders(HttpClient client, string username, string api) {
 			client.DefaultRequestHeaders.Add("User-Agent", USERAGENT);
-			//AddAuthorizationHeader(client, username, api);
-			AddAuthorizationHeader(client, "RainbowWolfer", "WUwPNbGDrfXnQoHfvU1nR3TD");
+			AddAuthorizationHeader(client, username, api);
+			//AddAuthorizationHeader(client, "RainbowWolfer", "WUwPNbGDrfXnQoHfvU1nR3TD");
 		}
 
 		private static void AddAuthorizationHeader(HttpClient client, string username, string api) {
-			if (username.IsBlank() && api.IsBlank()) {
-				//if (Local.Settings.CheckLocalUser()) {
-				//	UserModel user = Local.Settings.GetCurrentUser();
-				//	username = user.Username;
-				//	api = user.UserAPI;
-				//} else {
-				//	return;
-				//}
-			}
 			string encoded = Convert.ToBase64String(Encoding.GetEncoding("ISO-8859-1").GetBytes(username + ":" + api));
 			client.DefaultRequestHeaders.Add("Authorization", "Basic " + encoded);
 		}

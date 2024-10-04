@@ -1,46 +1,170 @@
-﻿<views:WindowBase  
+﻿<bf:WindowBase  
     x:Class="YB.E621.Views.E621MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="clr-namespace:YB.E621.Views" 
-	xmlns:c="clr-namespace:BaseFramework.Controls;assembly=BaseFramework"
-    xmlns:views="clr-namespace:BaseFramework.Views;assembly=BaseFramework" 
-    d:DataContext="{d:DesignInstance Type=local:E621MainWindowViewModel}"
+	xmlns:bf="BaseFramework"
+	xmlns:subs="clr-namespace:YB.E621.Views.Subs"
+	xmlns:service="clr-namespace:YB.E621.Services"
+	d:DataContext="{d:DesignInstance Type=local:E621MainWindowViewModel}"
 	mc:Ignorable="d"
-    Height="700" 
-    Width="1200">
+    Height="800" 
+    Width="1270"
+	WindowStartupLocation="CenterScreen">
 
 	<Control.Resources>
-		<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml" />
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+
+			<bf:CommandProxy x:Key="CloseTabCommand" Command="{Binding CloseTabCommand}"/>
+
+		</ResourceDictionary>
 	</Control.Resources>
 
-	<DockPanel>
-		<TabControl Padding="0">
+	<Grid>
 
-			<TabItem>
-				<TabItem.Header>
-					<StackPanel Orientation="Horizontal">
-						<TextBlock Text="Default" VerticalAlignment="Center" Margin="0,0,2,0"/>
-						<Button Padding="2" VerticalAlignment="Center" BorderThickness="0" Background="Transparent" Cursor="Hand" Margin="2,0,0,0">
-							<c:FontIcon Text="&#xE711;"/>
+		<DockPanel>
+			<Border Background="LightGray" Padding="4" DockPanel.Dock="Left">
+				<Grid>
+
+					<Grid.RowDefinitions>
+						<RowDefinition Height="*"/>
+						<RowDefinition Height="auto"/>
+					</Grid.RowDefinitions>
+
+					<bf:UniformSpacingPanel Style="{StaticResource CustomVerticalPanel2}">
+						<Button x:Name="SearchButton" Height="32" Width="32" ToolTip="Search">
+							<bf:FontIcon Text="&#xE721;"/>
 						</Button>
-					</StackPanel>
-				</TabItem.Header>
-				<ContentControl Content="{Binding PostsViewModel.View}"/>
-			</TabItem>
+					</bf:UniformSpacingPanel>
 
-			<TabItem Header="HELLO">
+					<bf:UniformSpacingPanel Style="{StaticResource CustomVerticalPanel2}" Grid.Row="1">
 
-			</TabItem>
-			<TabItem Header="HELLO">
+						<Button x:Name="UserButton" Height="32" Width="32" ToolTip="User">
+							<Grid>
+								<bf:FontIcon d:Text="&#xEA8C;" Visibility="{Binding Source={x:Static service:E621UserService.IsUserLoading},Path=Value,Converter={StaticResource BoolToVisibilityReConverter}}">
+									<bf:FontIcon.Style>
+										<Style TargetType="bf:FontIcon" BasedOn="{StaticResource FontIconBase}">
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding IsLoggedIn}" Value="True">
+													<Setter Property="Text" Value="&#xEA8C;"/>
+												</DataTrigger>
+												<DataTrigger Binding="{Binding IsLoggedIn}" Value="False">
+													<Setter Property="Text" Value="&#xE77B;"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</bf:FontIcon.Style>
+								</bf:FontIcon>
+								<Border Visibility="{Binding Source={x:Static service:E621UserService.IsUserLoading},Path=Value,Converter={StaticResource BoolToVisibilityConverter}}">
+									<ProgressBar IsIndeterminate="True" Width="20" Height="8" BorderThickness="0" Background="White"/>
+								</Border>
+							</Grid>
+						</Button>
 
-			</TabItem>
-			<TabItem Header="HELLO">
+						<Button x:Name="SettingsButton" Height="32" Width="32" ToolTip="Settings" Click="SettingsButton_Click">
+							<bf:FontIcon Text="&#xE713;"/>
+						</Button>
 
-			</TabItem>
-		</TabControl>
-	</DockPanel>
+					</bf:UniformSpacingPanel>
 
-</views:WindowBase>
+				</Grid>
+			</Border>
+
+			<TabControl Padding="0" 
+				ItemsSource="{Binding Tabs}" 
+				d:ItemsSource="{d:SampleData ItemCount=15}"
+				SelectedIndex="{Binding TabSelectedIndex,Mode=TwoWay}">
+
+				<TabControl.ItemContainerStyle>
+					<Style TargetType="TabItem" BasedOn="{StaticResource CustomTabItemStyle}">
+						<Setter Property="ContextMenu">
+							<Setter.Value>
+								<ContextMenu>
+									<MenuItem Header="Close" bf:IconExtension.Glyph="&#xE711;"/>
+								</ContextMenu>
+							</Setter.Value>
+						</Setter>
+					</Style>
+				</TabControl.ItemContainerStyle>
+
+				<TabControl.ItemTemplate>
+					<DataTemplate>
+						<Grid MinWidth="100">
+							<DockPanel>
+								<Button Name="CloseTabButton" Padding="2" VerticalAlignment="Center" BorderThickness="0" Background="Transparent" Cursor="Hand" Margin="2,0,0,0" ToolTip="Close this tab" DockPanel.Dock="Right">
+									<bf:FontIcon Text="&#xE711;"/>
+								</Button>
+								<TextBlock Text="{Binding Tags,Converter={StaticResource TagsDisplayConverter}}" VerticalAlignment="Center"/>
+							</DockPanel>
+
+							<bf:ButtonPopup SourceButton="{Binding ElementName=CloseTabButton}">
+								<Border Style="{StaticResource ButtonPopupBorder}">
+									<bf:UniformSpacingPanel Style="{StaticResource CustomVerticalPanel2}">
+										<TextBlock Text="Sure to close this tab?"/>
+										<Button Command="{StaticResource CloseTabCommand}" CommandParameter="{Binding}" Padding="4,2">
+											<TextBlock Text="Confirm"/>
+										</Button>
+									</bf:UniformSpacingPanel>
+								</Border>
+							</bf:ButtonPopup>
+						</Grid>
+					</DataTemplate>
+				</TabControl.ItemTemplate>
+
+				<TabControl.ContentTemplate>
+					<DataTemplate>
+						<ContentControl Content="{Binding View}"/>
+					</DataTemplate>
+				</TabControl.ContentTemplate>
+
+				<!--<TabItem>
+					<TabItem.Header>
+						<StackPanel Orientation="Horizontal">
+							<TextBlock Text="Default" VerticalAlignment="Center" Margin="0,0,2,0"/>
+							<Button Padding="2" VerticalAlignment="Center" BorderThickness="0" Background="Transparent" Cursor="Hand" Margin="2,0,0,0">
+								<c:FontIcon Text="&#xE711;"/>
+							</Button>
+						</StackPanel>
+					</TabItem.Header>
+					<ContentControl Content="{Binding PostsViewModel.View}"/>
+				</TabItem>-->
+
+			</TabControl>
+		</DockPanel>
+
+		<bf:ButtonPopup SourceButton="{Binding ElementName=UserButton}" Placement="Right" HorizontalOffset="6">
+			<bf:ButtonPopup.Style>
+				<Style TargetType="bf:ButtonPopup">
+					<Style.Triggers>
+						<DataTrigger Binding="{Binding IsLoggedIn}" Value="True">
+							<Setter Property="VerticalOffset" Value="-115"/>
+						</DataTrigger>
+						<DataTrigger Binding="{Binding IsLoggedIn}" Value="False">
+							<Setter Property="VerticalOffset" Value="-90"/>
+						</DataTrigger>
+					</Style.Triggers>
+				</Style>
+			</bf:ButtonPopup.Style>
+			<Border Style="{StaticResource ButtonPopupBorder}">
+				<Grid>
+					<ContentControl Content="{Binding UserLoginViewModel.View}" Visibility="{Binding IsLoggedIn,Converter={StaticResource BoolToVisibilityReConverter}}"/>
+					<ContentControl Content="{Binding UserViewModel.View}" Visibility="{Binding IsLoggedIn,Converter={StaticResource BoolToVisibilityConverter}}"/>
+				</Grid>
+			</Border>
+		</bf:ButtonPopup>
+
+		<!-- Placement="Right" HorizontalOffset="6"-->
+		<bf:ButtonPopup x:Name="SearchPopup" SourceButton="{Binding ElementName=SearchButton}">
+			<Border Style="{StaticResource ButtonPopupBorder}" MinWidth="300">
+				<ContentControl Content="{Binding SearchViewModel.View}"/>
+			</Border>
+		</bf:ButtonPopup>
+
+	</Grid>
+
+</bf:WindowBase>
