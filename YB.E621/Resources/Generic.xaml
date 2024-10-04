@@ -79,10 +79,22 @@
 					</bf:ClippingBorder>
 
 					<ControlTemplate.Triggers>
+						<!--<MultiDataTrigger>
+							<MultiDataTrigger.Conditions>
+								<Condition Binding="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},Path=IsSelected}" Value="True"/>
+								<Condition Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=c:PostCardListBox},Path=AllowSelection}" Value="True"/>
+							</MultiDataTrigger.Conditions>
+							<Setter TargetName="RootBorder" Property="BorderBrush" Value="Orange"/>
+							<Setter TargetName="BottomBorder" Property="Background" Value="Orange"/>
+						</MultiDataTrigger>-->
 						<Trigger Property="IsSelected" Value="True">
 							<Setter TargetName="RootBorder" Property="BorderBrush" Value="Orange"/>
 							<Setter TargetName="BottomBorder" Property="Background" Value="Orange"/>
 						</Trigger>
+						<DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=c:PostCardListBox},Path=AllowSelection}" Value="False">
+							<Setter TargetName="RootBorder" Property="BorderBrush" Value="LightGray"/>
+							<Setter TargetName="BottomBorder" Property="Background" Value="LightGray"/>
+						</DataTrigger>
 					</ControlTemplate.Triggers>
 
 				</ControlTemplate>

@@ -46,6 +46,78 @@
 		<Setter Property="Focusable" Value="False"/>
 	</Style>
 
+	<Style x:Key="HorizontalSeparator" TargetType="Border">
+		<Setter Property="Background" Value="Gray" />
+		<Setter Property="Width" Value="2" />
+		<Setter Property="Height" Value="10" />
+		<Setter Property="CornerRadius" Value="1" />
+		<Setter Property="Margin" Value="4,0" />
+	</Style>
+
+	<Style x:Key="VerticalSeparator" TargetType="Border">
+		<Setter Property="Background" Value="Gray" />
+		<Setter Property="Width" Value="10" />
+		<Setter Property="Height" Value="2" />
+		<Setter Property="CornerRadius" Value="1" />
+		<Setter Property="Margin" Value="0,4" />
+	</Style>
+
+	<SolidColorBrush x:Key="Button.Static.Background" Color="#F0F0F0"/>
+	<SolidColorBrush x:Key="Button.Static.Border" Color="#FF707070"/>
+	<SolidColorBrush x:Key="Button.MouseOver.Background" Color="#A0D0EC"/>
+	<SolidColorBrush x:Key="Button.MouseOver.Border" Color="#FF3C7FB1"/>
+	<SolidColorBrush x:Key="Button.Pressed.Background" Color="#FFC4E5F6"/>
+	<SolidColorBrush x:Key="Button.Pressed.Border" Color="#FF2C628B"/>
+	<SolidColorBrush x:Key="Button.Disabled.Background" Color="#FFF4F4F4"/>
+	<SolidColorBrush x:Key="Button.Disabled.Border" Color="#FFADB2B5"/>
+	<SolidColorBrush x:Key="Button.Disabled.Foreground" Color="#FF838383"/>
+	<SolidColorBrush x:Key="ToggleButton.IsChecked.Background" Color="#3BA3E0"/>
+
+	<Style x:Key="CustomToggleButtonStyle" TargetType="{x:Type ToggleButton}">
+		<Setter Property="FocusVisualStyle" Value="{StaticResource CustomFocusVisual}"/>
+		<Setter Property="Background" Value="{StaticResource Button.Static.Background}"/>
+		<Setter Property="BorderBrush" Value="{StaticResource Button.Static.Border}"/>
+		<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+		<Setter Property="BorderThickness" Value="1"/>
+		<Setter Property="HorizontalContentAlignment" Value="Center"/>
+		<Setter Property="VerticalContentAlignment" Value="Center"/>
+		<Setter Property="Padding" Value="1"/>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type ToggleButton}">
+					<Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="true" CornerRadius="4">
+						<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+					</Border>
+					<ControlTemplate.Triggers>
+						<Trigger Property="Button.IsDefaulted" Value="true">
+							<Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+						</Trigger>
+						<Trigger Property="IsMouseOver" Value="true">
+							<Setter Property="Background" TargetName="border" Value="{StaticResource Button.MouseOver.Background}"/>
+							<Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.MouseOver.Border}"/>
+						</Trigger>
+						<Trigger Property="IsChecked" Value="true">
+							<Setter Property="Background" TargetName="border" Value="{StaticResource ToggleButton.IsChecked.Background}"/>
+							<Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.MouseOver.Border}"/>
+							<Setter Property="Foreground" Value="White"/>
+						</Trigger>
+						<Trigger Property="IsPressed" Value="true">
+							<Setter Property="Background" TargetName="border" Value="{StaticResource Button.Pressed.Background}"/>
+							<Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Pressed.Border}"/>
+						</Trigger>
+						<Trigger Property="IsEnabled" Value="false">
+							<Setter Property="Background" TargetName="border" Value="{StaticResource Button.Disabled.Background}"/>
+							<Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Disabled.Border}"/>
+							<Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{StaticResource Button.Disabled.Foreground}"/>
+						</Trigger>
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style TargetType="ToggleButton" BasedOn="{StaticResource CustomToggleButtonStyle}"/>
+
 	<SolidColorBrush x:Key="TabItem.Selected.Background" Color="#FFFFFF"/>
 	<SolidColorBrush x:Key="TabItem.Selected.Border" Color="#ACACAC"/>
 
@@ -538,7 +610,6 @@
 	</Style>
 
 
-
 	<Style x:Key="HorizontalIconTextBaseStyle" TargetType="c:HorizontalIconText">
 		<Setter Property="Focusable" Value="False"/>
 		<Setter Property="Template">
@@ -546,8 +617,8 @@
 				<ControlTemplate TargetType="c:HorizontalIconText">
 					<Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
 						<StackPanel Orientation="Horizontal">
-							<c:FontIcon Text="{TemplateBinding Glyph}" VerticalAlignment="Center" Margin="0,0,4,0"/>
-							<TextBlock Text="{TemplateBinding Text}" VerticalAlignment="Center"/>
+							<c:FontIcon Text="{TemplateBinding Glyph}" VerticalAlignment="Center" Visibility="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},Path=Glyph,Converter={StaticResource StringToVisibilityConverter}}"/>
+							<TextBlock Text="{TemplateBinding Text}" VerticalAlignment="Center" Visibility="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},Path=Text,Converter={StaticResource StringToVisibilityConverter}}" Margin="4,0,0,0"/>
 						</StackPanel>
 					</Border>
 				</ControlTemplate>
@@ -622,16 +693,6 @@
 
 	<Style TargetType="TextBox" BasedOn="{StaticResource CustomTextBoxStyle}"/>
 	<Style TargetType="c:TextBoxExtend" BasedOn="{StaticResource CustomTextBoxStyle}"/>
-
-	<SolidColorBrush x:Key="Button.Static.Background" Color="#F0F0F0"/>
-	<SolidColorBrush x:Key="Button.Static.Border" Color="#FF707070"/>
-	<SolidColorBrush x:Key="Button.MouseOver.Background" Color="#A0D0EC"/>
-	<SolidColorBrush x:Key="Button.MouseOver.Border" Color="#FF3C7FB1"/>
-	<SolidColorBrush x:Key="Button.Pressed.Background" Color="#FFC4E5F6"/>
-	<SolidColorBrush x:Key="Button.Pressed.Border" Color="#FF2C628B"/>
-	<SolidColorBrush x:Key="Button.Disabled.Background" Color="#FFF4F4F4"/>
-	<SolidColorBrush x:Key="Button.Disabled.Border" Color="#FFADB2B5"/>
-	<SolidColorBrush x:Key="Button.Disabled.Foreground" Color="#FF838383"/>
 
 	<Style x:Key="CustomButtonStyle" TargetType="{x:Type Button}">
 		<Setter Property="FocusVisualStyle" Value="{StaticResource CustomFocusVisual}"/>

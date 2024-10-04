@@ -5,6 +5,19 @@ using System.Windows.Input;
 
 namespace YB.E621.Controls {
 	public class PostCardListBox : VariableSizedWrapGridView {
+
+		public bool AllowSelection {
+			get => (bool)GetValue(AllowSelectionProperty);
+			set => SetValue(AllowSelectionProperty, value);
+		}
+
+		public static readonly DependencyProperty AllowSelectionProperty = DependencyProperty.Register(
+			nameof(AllowSelection),
+			typeof(bool),
+			typeof(PostCardListBox),
+			new PropertyMetadata(false)
+		);
+
 		public PostCardListBox() {
 
 		}
@@ -13,20 +26,21 @@ namespace YB.E621.Controls {
 			base.PrepareContainerForItemOverride(element, item);
 		}
 
-		protected override DependencyObject GetContainerForItemOverride() {
-			return new PostCardListBoxItem();
-		}
+		protected override DependencyObject GetContainerForItemOverride() => new PostCardListBoxItem(this);
 
-		protected override bool IsItemItsOwnContainerOverride(object item) {
-			return item is PostCardListBoxItem;
-		}
+		protected override bool IsItemItsOwnContainerOverride(object item) => item is PostCardListBoxItem;
 
 	}
 
-	public class PostCardListBoxItem : ListBoxItem {
+	public class PostCardListBoxItem(PostCardListBox parentListBox) : ListBoxItem {
+		public PostCardListBox ParentListBox { get; } = parentListBox;
 
-		public PostCardListBoxItem() {
+		protected override void OnSelected(RoutedEventArgs e) {
+			base.OnSelected(e);
+		}
 
+		protected override void OnUnselected(RoutedEventArgs e) {
+			base.OnUnselected(e);
 		}
 
 		protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {

@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Collections;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
@@ -36,5 +37,46 @@ namespace BaseFramework.Extensions {
 			GetSelectionChangedCommand((DependencyObject)sender)?.Execute(sender);
 		}
 
+
+
+
+		public static IList GetSelectedItems(DependencyObject obj) {
+			return (IList)obj.GetValue(SelectedItemsProperty);
+		}
+
+		public static void SetSelectedItems(DependencyObject obj, IList value) {
+			obj.SetValue(SelectedItemsProperty, value);
+		}
+
+		public static readonly DependencyProperty SelectedItemsProperty = DependencyProperty.RegisterAttached(
+			"SelectedItems",
+			typeof(IList),
+			typeof(SelectorExtension),
+			new PropertyMetadata(null, OnSelectedItemsChanged)
+		);
+
+		private static void OnSelectedItemsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+			if (d is Selector selector) {
+				if (e.OldValue is IList) {
+					selector.SelectionChanged -= Selector_SelectionChanged1;
+				}
+				if (e.NewValue is IList) {
+					selector.SelectionChanged += Selector_SelectionChanged1;
+				}
+			}
+		}
+
+		private static void Selector_SelectionChanged1(object sender, SelectionChangedEventArgs e) {
+			IList list = GetSelectedItems((DependencyObject)sender);
+			if (sender is MultiSelector multiSelector) {
+				list.Clear();
+				foreach (object? item in multiSelector.Items) {
+					list.Add(item);
+				}
+			} else if (sender is Selector selector) {
+				list.Clear();
+				list.Add(selector.SelectedItem);
+			}
+		}
 	}
 }
