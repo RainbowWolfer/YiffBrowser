@@ -40,7 +40,8 @@ namespace YB.E621.Views.Subs {
 		private static void OnPostChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 			if (d is ImageDisplayer view && e.NewValue is E621Post post) {
 				//BitmapCacheItem item = BitmapCacheService.Get(post.File.URL);
-				view.Image.Source = new BitmapImage(new Uri(post.File.URL));
+				//view.Image.Source = new BitmapImage(new Uri(post.File.URL));
+				view.ImageViewer.ImageSource = new BitmapImage(new Uri(post.File.URL));
 			}
 		}
 

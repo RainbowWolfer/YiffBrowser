@@ -73,22 +73,10 @@ namespace YB.E621.Views {
 			set => SetProperty(ref multiSelectingText, value);
 		}
 
-		private (double left, double right) LastSiedWidth { get; set; } = (0, 1);
-
 		public E621Post? CurrentPost {
 			get => currentPost;
 			set {
 				SetProperty(ref currentPost, value);
-				if (value is null) {
-					LastSiedWidth = (View.LeftColumnDef.Width.Value, View.RightColumnDef.Width.Value);
-					View.LeftColumnDef.Width = new GridLength(1, GridUnitType.Star);
-					View.RightColumnDef.Width = new GridLength(0, GridUnitType.Pixel);
-					View.RightColumnDef.MinWidth = 0;
-				} else {
-					View.LeftColumnDef.Width = new GridLength(LastSiedWidth.left, GridUnitType.Star);
-					View.RightColumnDef.Width = new GridLength(LastSiedWidth.right, GridUnitType.Star);
-					View.RightColumnDef.MinWidth = 150;
-				}
 			}
 		}
 
@@ -99,7 +87,6 @@ namespace YB.E621.Views {
 			SelectedItems.CollectionChanged += SelectedItems_CollectionChanged;
 
 			CurrentPost = null;
-			LastSiedWidth = (0, 1);
 		}
 
 		private void SelectedItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {

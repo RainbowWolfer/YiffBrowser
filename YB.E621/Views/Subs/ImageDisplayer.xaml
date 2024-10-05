@@ -4,14 +4,25 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-    xmlns:local="clr-namespace:YB.E621.Views.Subs"
-    mc:Ignorable="d" 
+    xmlns:local="clr-namespace:YB.E621.Views.Subs" 
+    xmlns:bf="BaseFramework"
+	mc:Ignorable="d" 
     d:DesignHeight="450" 
     d:DesignWidth="800">
 
+	<Control.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+
+		</ResourceDictionary>
+	</Control.Resources>
+
 	<Grid>
-		<ScrollViewer>
-			<Image x:Name="Image"/>
-		</ScrollViewer>
+		<!--<ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+			<Image x:Name="Image" Stretch="Uniform"/>
+		</ScrollViewer>-->
+		<bf:ImageViewer x:Name="ImageViewer"/>
 	</Grid>
 </UserControl>

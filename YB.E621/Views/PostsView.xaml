@@ -31,11 +31,6 @@
 
 			<Border>
 				<Grid>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition x:Name="LeftColumnDef" Width="*" MinWidth="{x:Static local:PostsViewModel.ItemWidth}"/>
-						<ColumnDefinition Width="auto"/>
-						<ColumnDefinition x:Name="RightColumnDef" Width="*"/>
-					</Grid.ColumnDefinitions>
 
 					<Border>
 						<DockPanel>
@@ -115,11 +110,11 @@
 								<ItemsControl.ItemsPanel>
 									<ItemsPanelTemplate>
 										<bf:VariableSizedWrapGrid Orientation="Horizontal" 
-										VerticalScrollAmount="200"
-										HorizontalChildrenAlignment="Stretch" 
-										VerticalChildrenAlignment="Stretch" 
-										ItemHeight="{x:Static local:PostsViewModel.ItemHeight}" 
-										ItemWidth="{x:Static local:PostsViewModel.ItemWidth}"/>
+											VerticalScrollAmount="200"
+											HorizontalChildrenAlignment="Stretch" 
+											VerticalChildrenAlignment="Stretch" 
+											ItemHeight="{x:Static local:PostsViewModel.ItemHeight}" 
+											ItemWidth="{x:Static local:PostsViewModel.ItemWidth}"/>
 									</ItemsPanelTemplate>
 								</ItemsControl.ItemsPanel>
 
@@ -157,22 +152,7 @@
 						</DockPanel>
 					</Border>
 
-					<Border x:Name="DetailBorder" Grid.Column="2">
-						<DockPanel>
-							<Border DockPanel.Dock="Top" Padding="4" Background="LightGray">
-								<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel2}">
-									<Button ToolTip="Back" Command="{Binding QuitPostDetailViewCommand}" Height="30" Width="30">
-										<bf:FontIcon Text="&#xE72B;"/>
-									</Button>
-								</bf:UniformSpacingPanel>
-							</Border>
-							<Grid>
-								<subs:ImageDisplayer Post="{Binding CurrentPost}"/>
-							</Grid>
-						</DockPanel>
-					</Border>
 
-					<GridSplitter Width="4" Background="LightGray" Grid.Column="1" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext"/>
 
 				</Grid>
 			</Border>
