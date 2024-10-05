@@ -10,6 +10,7 @@
 	xmlns:service="clr-namespace:YB.E621.Services"
 	d:DataContext="{d:DesignInstance Type=local:E621MainWindowViewModel}"
 	mc:Ignorable="d"
+	Icon="/BaseFramework;component/Resources/Icons/E621Icon.ico"
     Height="800" 
     Width="1270"
 	WindowStartupLocation="CenterScreen">

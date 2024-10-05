@@ -45,7 +45,7 @@
 							<ProgressBar x:Name="ProgressBar" IsIndeterminate="True" Height="20" BorderThickness="0"/>
 						</DockPanel>
 						<DockPanel Visibility="{Binding ErrorMessage,Converter={StaticResource StringToVisibilityConverter}}" d:Visibility="Visible">
-							<Border DockPanel.Dock="Right" Background="#e6e6e6" CornerRadius="4" Margin="4,0,0,0" Padding="4,0">
+							<Border DockPanel.Dock="Right" Background="#f7c9ba" CornerRadius="4" Margin="4,0,0,0" Padding="4,0">
 								<TextBlock VerticalAlignment="Center" Text="{Binding ErrorMessage}" d:Text="Loading Error : Exception" TextAlignment="Center" Foreground="Red"/>
 							</Border>
 						</DockPanel>

@@ -7,9 +7,39 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
   <ItemGroup>
+    <None Remove="Resources\Icons\DeviantArt-icon.png" />
+    <None Remove="Resources\Icons\E621-Bigger.png" />
+    <None Remove="Resources\Icons\E621.png" />
+    <None Remove="Resources\Icons\E621Icon.ico" />
+    <None Remove="Resources\Icons\E621Icon.png" />
+    <None Remove="Resources\Icons\E621Icon.psd" />
+    <None Remove="Resources\Icons\E621Icon2.ico" />
+    <None Remove="Resources\Icons\E621_Light.png" />
+    <None Remove="Resources\Icons\Furaffinity-icon.png" />
+    <None Remove="Resources\Icons\FurryNetwork-icon.png" />
+    <None Remove="Resources\Icons\InkBunny-icon.png" />
+    <None Remove="Resources\Icons\Instagram-icon.png" />
+    <None Remove="Resources\Icons\Mega-icon.png" />
+    <None Remove="Resources\Icons\NewGrounds-icon.png" />
+    <None Remove="Resources\Icons\Patreon-icon.png" />
+    <None Remove="Resources\Icons\Pixiv-icon.png" />
+    <None Remove="Resources\Icons\SubscribeStar-icon.png" />
+    <None Remove="Resources\Icons\Telegram-icon.png" />
+    <None Remove="Resources\Icons\tumblr-icon.png" />
+    <None Remove="Resources\Icons\Twitter-icon.png" />
+    <None Remove="Resources\Icons\weasyl-icon.png" />
     <None Remove="Resources\Icons\YiffBrowserIcon.ico" />
     <None Remove="Resources\Icons\YiffBrowserIcon.png" />
+    <None Remove="Resources\Icons\YiffBrowserPSD.psd" />
     <None Remove="Resources\Segoe Fluent Icons.ttf" />
   </ItemGroup>
 
@@ -20,8 +50,30 @@
 
   <ItemGroup>
     <Resource Include="Resources\Fonts\Segoe Fluent Icons.ttf" />
+    <Resource Include="Resources\Icons\DeviantArt-icon.png" />
+    <Resource Include="Resources\Icons\E621-Bigger.png" />
+    <Resource Include="Resources\Icons\E621.png" />
+    <Resource Include="Resources\Icons\E621Icon2.ico" />
+    <Resource Include="Resources\Icons\E621_Light.png" />
+    <Resource Include="Resources\Icons\E621Icon.ico" />
+    <Resource Include="Resources\Icons\E621Icon.png" />
+    <Resource Include="Resources\Icons\E621Icon.psd" />
+    <Resource Include="Resources\Icons\Furaffinity-icon.png" />
+    <Resource Include="Resources\Icons\FurryNetwork-icon.png" />
+    <Resource Include="Resources\Icons\InkBunny-icon.png" />
+    <Resource Include="Resources\Icons\Instagram-icon.png" />
+    <Resource Include="Resources\Icons\Mega-icon.png" />
+    <Resource Include="Resources\Icons\NewGrounds-icon.png" />
+    <Resource Include="Resources\Icons\Patreon-icon.png" />
+    <Resource Include="Resources\Icons\Pixiv-icon.png" />
+    <Resource Include="Resources\Icons\SubscribeStar-icon.png" />
+    <Resource Include="Resources\Icons\Telegram-icon.png" />
+    <Resource Include="Resources\Icons\tumblr-icon.png" />
+    <Resource Include="Resources\Icons\Twitter-icon.png" />
+    <Resource Include="Resources\Icons\weasyl-icon.png" />
     <Resource Include="Resources\Icons\YiffBrowserIcon.ico" />
     <Resource Include="Resources\Icons\YiffBrowserIcon.png" />
+    <Resource Include="Resources\Icons\YiffBrowserPSD.psd" />
   </ItemGroup>
 
 </Project>
