@@ -36,7 +36,11 @@ namespace BaseFramework.Services {
 		public bool HasCompleted { get; private set; } = false;
 
 		public void Initialize() {
-			if (Image != null || Uri is null) {
+			if (Image != null) {
+				return;
+			}
+
+			if (Uri is null) {
 				return;
 			}
 
@@ -59,6 +63,16 @@ namespace BaseFramework.Services {
 		private void Image_DownloadCompleted(object? sender, EventArgs e) {
 			HasCompleted = true;
 			Updated?.Invoke(this, new BitmapLoadingModel(true, false, true, 100));
+		}
+
+		public void Clear() {
+			if (Image != null) {
+				Image.DownloadCompleted -= Image_DownloadCompleted;
+				Image.DownloadFailed -= Image_DownloadFailed;
+				Image.DownloadProgress -= Image_DownloadProgress;
+			}
+			Image = null;
+			//Updated?.Invoke(this, new BitmapLoadingModel(false, false, false, 0));
 		}
 
 		public static BitmapCacheItem Null => new(null);

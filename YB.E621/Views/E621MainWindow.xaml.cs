@@ -66,7 +66,7 @@ namespace YB.E621.Views {
 			SiteType = siteType;
 			View.Title = $"{siteType}";
 
-			Tabs.Add(new PostsViewModel(SiteType, [""]));
+			Tabs.Add(new PostsViewModel(SiteType, ["order:rank"]));
 			TabSelectedIndex = 0;
 		}
 

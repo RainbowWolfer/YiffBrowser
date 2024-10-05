@@ -20,12 +20,13 @@ namespace YB.E621.Models {
 
 		public BitmapCacheItem Preview { get; }
 		public BitmapCacheItem Sample { get; }
-		public BitmapCacheItem File { get; }
+		//public BitmapCacheItem File { get; }
+
+		public bool GettingFile { get; private set; }
 
 		public PostImageLoader(E621Post post) {
 			Preview = BitmapCacheService.Get(post.Preview?.URL);
 			Sample = BitmapCacheService.Get(post.Sample?.URL);
-			File = BitmapCacheService.Get(post.File?.URL);
 
 			Preview.Updated += Preview_Updated;
 			Sample.Updated += Sample_Updated;
@@ -53,7 +54,6 @@ namespace YB.E621.Models {
 
 		public void Initialize() {
 			Preview.Initialize();
-
 			if (Sample.HasCompleted) {
 				Progress?.Invoke(Sample, new BitmapLoadingModel(true, false, true, 100));
 				ImageChanged?.Invoke(this, Sample.Image);
@@ -61,7 +61,7 @@ namespace YB.E621.Models {
 				Progress?.Invoke(Preview, new BitmapLoadingModel(true, false, true, 100));
 				ImageChanged?.Invoke(this, Preview.Image);
 			}
-
 		}
+
 	}
 }

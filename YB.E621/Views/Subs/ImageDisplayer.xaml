@@ -7,8 +7,9 @@
     xmlns:local="clr-namespace:YB.E621.Views.Subs" 
     xmlns:bf="BaseFramework"
 	mc:Ignorable="d" 
-    d:DesignHeight="450" 
-    d:DesignWidth="800">
+    d:DesignHeight="250" 
+    d:DesignWidth="400"
+	x:Name="Root">
 
 	<Control.Resources>
 		<ResourceDictionary>
@@ -19,10 +20,39 @@
 		</ResourceDictionary>
 	</Control.Resources>
 
-	<Grid>
-		<!--<ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-			<Image x:Name="Image" Stretch="Uniform"/>
-		</ScrollViewer>-->
-		<bf:ImageViewer x:Name="ImageViewer"/>
+	<Grid DataContext="{Binding ElementName=Root}">
+		<Grid>
+
+			<Border>
+				<Grid>
+					<bf:ImageViewer x:Name="ImageViewer" IsEnabled="{Binding IsFileReady}" MouseDoubleClick="ImageViewer_MouseDoubleClick"/>
+					<d:Image Source="/BaseFramework;component/Resources/Temp/Temp1.jpg" Stretch="UniformToFill"/>
+				</Grid>
+			</Border>
+
+			<Border x:Name="LoadingBorder" Padding="4" VerticalAlignment="Top">
+				<DockPanel>
+					<Border DockPanel.Dock="Left" Margin="0,0,4,0">
+						<Button x:Name="ReloadButton" Height="20" Width="20" BorderThickness="0" ToolTip="Reload this image" Click="ReloadButton_Click">
+							<bf:FontIcon Text="&#xE72C;" FontSize="10"/>
+						</Button>
+					</Border>
+					<Grid>
+						<DockPanel Visibility="{Binding ErrorMessage,Converter={StaticResource StringToVisibilityReConverter}}" d:Visibility="Collapsed">
+							<Border DockPanel.Dock="Right" Background="#e6e6e6" CornerRadius="4" Margin="4,0,0,0" Padding="4,0" MinWidth="100">
+								<TextBlock VerticalAlignment="Center" Text="{Binding DownloadInfo}" d:Text="100KB / 200KB" TextAlignment="Center"/>
+							</Border>
+							<ProgressBar x:Name="ProgressBar" IsIndeterminate="True" Height="20" BorderThickness="0"/>
+						</DockPanel>
+						<DockPanel Visibility="{Binding ErrorMessage,Converter={StaticResource StringToVisibilityConverter}}" d:Visibility="Visible">
+							<Border DockPanel.Dock="Right" Background="#e6e6e6" CornerRadius="4" Margin="4,0,0,0" Padding="4,0">
+								<TextBlock VerticalAlignment="Center" Text="{Binding ErrorMessage}" d:Text="Loading Error : Exception" TextAlignment="Center" Foreground="Red"/>
+							</Border>
+						</DockPanel>
+					</Grid>
+				</DockPanel>
+			</Border>
+
+		</Grid>
 	</Grid>
 </UserControl>

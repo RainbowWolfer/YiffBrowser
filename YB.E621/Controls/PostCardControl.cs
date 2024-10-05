@@ -10,6 +10,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using YB.E621.Models;
 using YB.E621.Models.E621;
+using YB.E621.Services;
 using YB.E621.Views;
 
 namespace YB.E621.Controls {
@@ -47,7 +48,7 @@ namespace YB.E621.Controls {
 		public PostImageLoader ImageLoader { get; }
 
 		public PostCardControl(E621Post post) {
-			Post = post ?? throw new ArgumentNullException(nameof(post));
+			Post = post;
 			ImageLoader = new PostImageLoader(post);
 			ImageLoader.Progress += ImageLoader_Progress;
 			ImageLoader.ImageChanged += ImageLoader_ImageChanged;

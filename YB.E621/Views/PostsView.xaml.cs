@@ -35,7 +35,6 @@ namespace YB.E621.Views {
 		private int currentPage = 1;
 		private bool isMultiSelecting = false;
 		private string multiSelectingText = string.Empty;
-		private E621Post? currentPost = null;
 
 		public ObservableCollection<PostCardControl> Items { get; } = [];
 		public ObservableCollection<PostCardControl> SelectedItems { get; } = [];
@@ -73,12 +72,7 @@ namespace YB.E621.Views {
 			set => SetProperty(ref multiSelectingText, value);
 		}
 
-		public E621Post? CurrentPost {
-			get => currentPost;
-			set {
-				SetProperty(ref currentPost, value);
-			}
-		}
+		public PostDetailViewModel PostDetailViewModel { get; } = new();
 
 		public PostsViewModel(ModuleType siteType, string[] tags) {
 			SiteType = siteType;
@@ -86,7 +80,6 @@ namespace YB.E621.Views {
 
 			SelectedItems.CollectionChanged += SelectedItems_CollectionChanged;
 
-			CurrentPost = null;
 		}
 
 		private void SelectedItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
@@ -99,7 +92,7 @@ namespace YB.E621.Views {
 
 		protected override void LoadedOnce(IViewBase viewBase) {
 			base.LoadedOnce(viewBase);
-			Refrsh();
+			Refresh();
 		}
 
 		public ICommand PreviousPageCommand => new DelegateCommand(PreviousPage);
@@ -107,12 +100,12 @@ namespace YB.E621.Views {
 
 		private void PreviousPage() {
 			CurrentPage -= 1;
-			Refrsh();
+			Refresh();
 		}
 
 		private void NextPage() {
 			CurrentPage += 1;
-			Refrsh();
+			Refresh();
 		}
 
 		public ICommand DownloadCommand => new DelegateCommand(Download);
@@ -121,9 +114,9 @@ namespace YB.E621.Views {
 
 		}
 
-		public ICommand RefreshCommand => new DelegateCommand(Refrsh);
+		public ICommand RefreshCommand => new DelegateCommand(Refresh);
 
-		private async void Refrsh() {
+		private async void Refresh() {
 			if (IsLoading) {
 				return;
 			}
@@ -148,17 +141,23 @@ namespace YB.E621.Views {
 		}
 
 		public ICommand ViewPostDetailCommand => new DelegateCommand<E621Post?>(ViewPostDetail);
+		public ICommand ViewPostDetailCommandDirect => new DelegateCommand<E621Post?>(ViewPostDetailDirect);
 
 		private void ViewPostDetail(E621Post? post) {
-			CurrentPost = post;
-			//SelectedItems.FirstOrDefault()?.BringIntoView();
+			if (IsMultiSelecting) {
+				return;
+			}
+			ViewPostDetailDirect(post);
+		}
+
+		private void ViewPostDetailDirect(E621Post? post) {
+			PostDetailViewModel.Post = post;
 		}
 
 		public ICommand QuitPostDetailViewCommand => new DelegateCommand(QuitPostDetailView);
 
 		private void QuitPostDetailView() {
-			CurrentPost = null;
-			//SelectedItems.FirstOrDefault()?.BringIntoView();
+			PostDetailViewModel.Post = null;
 		}
 
 	}

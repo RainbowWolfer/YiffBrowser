@@ -5,15 +5,80 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:local="clr-namespace:YB.E621.Views"
-	xmlns:bf="BaseFramework" 
+	xmlns:bf="BaseFramework"
+    xmlns:subs="clr-namespace:YB.E621.Views.Subs" 
+	xmlns:c="clr-namespace:YB.E621.Controls"
 	mc:Ignorable="d" 
     d:DataContext="{d:DesignInstance Type=local:PostDetailViewModel}"
     d:DesignHeight="450" 
     d:DesignWidth="800"
     d:Background="White">
 
-	<Grid>
+	<Control.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml" />
+			</ResourceDictionary.MergedDictionaries>
 
+		</ResourceDictionary>
+	</Control.Resources>
+
+	<Grid>
+		<DockPanel>
+
+			<Border DockPanel.Dock="Top" Padding="4" Background="LightGray">
+				<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel2}">
+
+					<ToggleButton Height="30" Width="30" ToolTip="Toggle tags side panel" IsChecked="{Binding ShowSidePanel,Mode=TwoWay}">
+						<bf:BoolContent Bool="{Binding ShowSidePanel}">
+							<bf:BoolContent.TrueContent>
+								<bf:FontIcon Text="&#xE89F;"/>
+							</bf:BoolContent.TrueContent>
+							<bf:BoolContent.FalseContent>
+								<bf:FontIcon Text="&#xE8A0;"/>
+							</bf:BoolContent.FalseContent>
+						</bf:BoolContent>
+					</ToggleButton>
+
+					<Border Style="{StaticResource HorizontalSeparator}"/>
+
+					<Button Height="30" Width="70" Command="{Binding BackCommand}">
+						<bf:HorizontalIconText Glyph="&#xE76B;" Text="Back"/>
+					</Button>
+
+					<Button Height="30" Width="30" Command="{Binding PreviousCommand}" ToolTip="Previous">
+						<bf:HorizontalIconText Glyph="&#xE72B;"/>
+					</Button>
+
+					<Button Height="30" Width="30" Command="{Binding NextCommand}" ToolTip="Next">
+						<bf:HorizontalIconText Glyph="&#xE72A;"/>
+					</Button>
+
+					<Border Style="{StaticResource HorizontalSeparator}"/>
+
+				</bf:UniformSpacingPanel>
+			</Border>
+
+			<Border>
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="220" MinWidth="150" MaxWidth="300"/>
+						<ColumnDefinition Width="*"/>
+					</Grid.ColumnDefinitions>
+
+					<Border BorderBrush="LightGray" BorderThickness="0,0,2,0">
+						<c:TagsListView Tags="{Binding Post.Tags}"/>
+					</Border>
+
+					<Border Grid.Column="1">
+						<subs:ImageDisplayer Post="{Binding Post}"/>
+					</Border>
+
+					<GridSplitter Background="Transparent" Width="2"/>
+
+				</Grid>
+			</Border>
+		</DockPanel>
 	</Grid>
 
 </bf:UserControlBase>

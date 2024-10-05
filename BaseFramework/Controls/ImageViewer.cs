@@ -150,9 +150,9 @@ namespace BaseFramework.Controls {
 			set => SetValue(ImageHeightProperty, value);
 		}
 
-		internal double ImageScale {
+		public double ImageScale {
 			get => (double)GetValue(ImageScaleProperty);
-			set => SetValue(ImageScaleProperty, value);
+			internal set => SetValue(ImageScaleProperty, value);
 		}
 
 		internal string ScaleStr {
@@ -193,7 +193,7 @@ namespace BaseFramework.Controls {
 			}
 		}
 
-		private void Init() {
+		public void Init() {
 			if (ImageSource == null || !_isLoaded) {
 				return;
 			}
@@ -208,45 +208,51 @@ namespace BaseFramework.Controls {
 				return;
 			}
 
-			double width;
-			double height;
+			Dispatcher.Invoke(() => {
 
-			if (!_isOblique) {
-				width = ImageSource.PixelWidth;
-				height = ImageSource.PixelHeight;
-			} else {
-				width = ImageSource.PixelHeight;
-				height = ImageSource.PixelWidth;
-			}
 
-			ImageWidth = width;
-			ImageHeight = height;
-			ImageOriWidth = width;
-			ImageOriHeight = height;
-			_scaleInternalWidth = ImageOriWidth * ScaleInternal;
-			_scaleInternalHeight = ImageOriHeight * ScaleInternal;
+				double width;
+				double height;
 
-			if (Math.Abs(height - 0) < 0.001 || Math.Abs(width - 0) < 0.001) {
-				MessageBox.Show("ErrorImgSize");
-				return;
-			}
-
-			_imgWidHeiScale = width / height;
-			double scaleWindow = ActualWidth / ActualHeight;
-			ImageScale = 1;
-
-			if (_imgWidHeiScale > scaleWindow) {
-				if (width > ActualWidth) {
-					ImageScale = ActualWidth / width;
+				if (!_isOblique) {
+					width = ImageSource.PixelWidth;
+					height = ImageSource.PixelHeight;
+				} else {
+					width = ImageSource.PixelHeight;
+					height = ImageSource.PixelWidth;
 				}
-			} else if (height > ActualHeight) {
-				ImageScale = ActualHeight / height;
-			}
 
-			ImageMargin = new Thickness((ActualWidth - ImageWidth) / 2, (ActualHeight - ImageHeight) / 2, 0, 0);
+				ImageWidth = width;
+				ImageHeight = height;
+				ImageOriWidth = width;
+				ImageOriHeight = height;
+				_scaleInternalWidth = ImageOriWidth * ScaleInternal;
+				_scaleInternalHeight = ImageOriHeight * ScaleInternal;
 
-			_imgActualScale = ImageScale;
-			_imgActualMargin = ImageMargin;
+				if (Math.Abs(height - 0) < 0.001 || Math.Abs(width - 0) < 0.001) {
+					MessageBox.Show("ErrorImgSize");
+					return;
+				}
+
+				_imgWidHeiScale = width / height;
+				double scaleWindow = ActualWidth / ActualHeight;
+				ImageScale = 1;
+
+				if (_imgWidHeiScale > scaleWindow) {
+					if (width > ActualWidth) {
+						ImageScale = ActualWidth / width;
+					}
+				} else if (height > ActualHeight) {
+					ImageScale = ActualHeight / height;
+				}
+
+				ImageMargin = new Thickness((ActualWidth - ImageWidth) / 2, (ActualHeight - ImageHeight) / 2, 0, 0);
+
+				_imgActualScale = ImageScale;
+				_imgActualMargin = ImageMargin;
+
+			}, DispatcherPriority.Loaded);
+
 		}
 
 		private void Dispatcher_Tick(object? sender, EventArgs e) {
@@ -269,7 +275,7 @@ namespace BaseFramework.Controls {
 			}
 		}
 
-		private void ButtonActual_OnClick(object sender, RoutedEventArgs e) {
+		public void Actual() {
 			DoubleAnimation scaleAnimation = AnimationHelper.CreateAnimation(1);
 			scaleAnimation.FillBehavior = FillBehavior.Stop;
 			_imgActualScale = 1;

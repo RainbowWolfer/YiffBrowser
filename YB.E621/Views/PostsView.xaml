@@ -32,7 +32,7 @@
 			<Border>
 				<Grid>
 
-					<Border>
+					<Border Visibility="{Binding PostDetailViewModel.HasPost,Converter={StaticResource BoolToVisibilityReConverter}}">
 						<DockPanel>
 							<Border DockPanel.Dock="Top" Padding="4" Background="LightGray">
 
@@ -121,8 +121,8 @@
 								<ItemsControl.ItemContainerStyle>
 									<Style TargetType="ListBoxItem">
 										<EventSetter Event="RequestBringIntoView" Handler="ListBoxItem_RequestBringIntoView"/>
-										<Setter Property="bf:ControlExtension.DoubleClickCommand" Value="{StaticResource ViewPostDetailCommand}"/>
-										<Setter Property="bf:ControlExtension.DoubleClickCommandParameter" Value="{Binding Post}"/>
+										<Setter Property="bf:ControlExtension.PreviewMouseLeftButtonDownCommand" Value="{StaticResource ViewPostDetailCommand}"/>
+										<Setter Property="bf:ControlExtension.MouseDownCommandParameter" Value="{Binding Post}"/>
 										<Setter Property="Margin" Value="0"/>
 										<Setter Property="Padding" Value="0"/>
 										<Setter Property="BorderThickness" Value="3"/>
@@ -152,7 +152,9 @@
 						</DockPanel>
 					</Border>
 
-
+					<Border Visibility="{Binding PostDetailViewModel.HasPost,Converter={StaticResource BoolToVisibilityConverter}}" d:Visibility="Collapsed">
+						<ContentControl Content="{Binding PostDetailViewModel.View}"/>
+					</Border>
 
 				</Grid>
 			</Border>

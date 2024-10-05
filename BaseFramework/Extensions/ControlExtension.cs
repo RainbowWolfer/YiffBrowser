@@ -183,6 +183,24 @@ namespace BaseFramework.Extensions {
 
 
 
+		public static object GetMouseDownCommandParameter(DependencyObject obj) {
+			return (object)obj.GetValue(MouseDownCommandParameterProperty);
+		}
+
+		public static void SetMouseDownCommandParameter(DependencyObject obj, object value) {
+			obj.SetValue(MouseDownCommandParameterProperty, value);
+		}
+
+		public static readonly DependencyProperty MouseDownCommandParameterProperty = DependencyProperty.RegisterAttached(
+			"MouseDownCommandParameter",
+			typeof(object),
+			typeof(ControlExtension),
+			new PropertyMetadata(null)
+		);
+
+
+
+
 
 
 
@@ -212,12 +230,84 @@ namespace BaseFramework.Extensions {
 		}
 
 		private static void Control_MouseDown(object sender, MouseButtonEventArgs e) {
-			GetMouseDownCommand((DependencyObject)sender)?.Execute(e);
+			object args = GetMouseDownCommandParameter((DependencyObject)sender) ?? e;
+			GetMouseDownCommand((DependencyObject)sender)?.Execute(args);
 		}
 
 
 
 
+		public static ICommand GetLeftMouseDownCommand(DependencyObject obj) {
+			return (ICommand)obj.GetValue(LeftMouseDownCommandProperty);
+		}
+
+		public static void SetLeftMouseDownCommand(DependencyObject obj, ICommand value) {
+			obj.SetValue(LeftMouseDownCommandProperty, value);
+		}
+
+		public static readonly DependencyProperty LeftMouseDownCommandProperty = DependencyProperty.RegisterAttached(
+			"LeftMouseDownCommand",
+			typeof(ICommand),
+			typeof(ControlExtension),
+			new PropertyMetadata(null, OnLeftMouseDownCommandChanged)
+		);
+
+		private static void OnLeftMouseDownCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+			if (d is UIElement ui) {
+				if (e.OldValue is ICommand) {
+					ui.MouseLeftButtonDown -= UI_MouseLeftButtonDown;
+				}
+				if (e.NewValue is ICommand) {
+					ui.MouseLeftButtonDown += UI_MouseLeftButtonDown;
+					;
+				}
+			}
+		}
+
+		private static void UI_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+			if (e.ChangedButton != MouseButton.Left) {
+				return;
+			}
+			object args = GetMouseDownCommandParameter((DependencyObject)sender) ?? e;
+			GetLeftMouseDownCommand((DependencyObject)sender)?.Execute(args);
+		}
+
+
+
+
+		public static ICommand GetPreviewMouseLeftButtonDownCommand(DependencyObject obj) {
+			return (ICommand)obj.GetValue(PreviewMouseLeftButtonDownCommandProperty);
+		}
+
+		public static void SetPreviewMouseLeftButtonDownCommand(DependencyObject obj, ICommand value) {
+			obj.SetValue(PreviewMouseLeftButtonDownCommandProperty, value);
+		}
+
+		public static readonly DependencyProperty PreviewMouseLeftButtonDownCommandProperty = DependencyProperty.RegisterAttached(
+			"PreviewMouseLeftButtonDownCommand",
+			typeof(ICommand),
+			typeof(ControlExtension),
+			new PropertyMetadata(null, OnPreviewMouseLeftButtonDownCommandChanged)
+		);
+
+		private static void OnPreviewMouseLeftButtonDownCommandChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+			if (d is UIElement ui) {
+				if (e.OldValue is ICommand) {
+					ui.PreviewMouseLeftButtonDown -= UI_PreviewMouseLeftButtonDown;
+				}
+				if (e.NewValue is ICommand) {
+					ui.PreviewMouseLeftButtonDown += UI_PreviewMouseLeftButtonDown;
+				}
+			}
+		}
+
+		private static void UI_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+			if (e.ChangedButton != MouseButton.Left) {
+				return;
+			}
+			object args = GetMouseDownCommandParameter((DependencyObject)sender) ?? e;
+			GetPreviewMouseLeftButtonDownCommand((DependencyObject)sender)?.Execute(args);
+		}
 
 		public static ICommand GetPreviewKeyDownCommand(DependencyObject obj) {
 			return (ICommand)obj.GetValue(PreviewKeyDownCommandProperty);
