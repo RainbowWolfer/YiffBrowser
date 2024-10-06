@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 
@@ -94,13 +95,6 @@ namespace BaseFramework.Helpers {
 			return string.Join(" ", tags);
 		}
 
-		public static void CopyToClipboard(this string text) {
-			if (text.IsBlank()) {
-				return;
-			}
-			Clipboard.SetText(text);
-		}
-
 		public static bool IsNumber(this object value) {
 			return value is byte || value is sbyte ||
 				value is short || value is ushort ||
@@ -134,16 +128,37 @@ namespace BaseFramework.Helpers {
 			}
 		}
 
-
-		public static void OpenInBrowser(this string url) {
-			if (url.IsBlank()) {
+		public static void CopyToClipboard(this string? text) {
+			if (text.IsBlank()) {
 				return;
 			}
-			//try {
-			//	await Launcher.LaunchUriAsync(new Uri(url));
-			//} catch (Exception ex) {
-			//	Debug.WriteLine(ex);
-			//}
+			try {
+				Clipboard.SetText(text);
+			} catch (Exception e1) {
+				Debug.WriteLine(e1);
+				try {
+					Clipboard.SetDataObject(text, true);
+				} catch (Exception e2) {
+					Debug.WriteLine(e2);
+				}
+			}
+		}
+
+		public static void OpenInBrowser(this string? link) {
+			if (link.IsBlank()) {
+				return;
+			}
+			try {
+				//Process.Start(link);
+				ProcessStartInfo processStartInfo = new() {
+					FileName = link,
+					UseShellExecute = true // This ensures the URL opens in the default browser
+				};
+				Process.Start(processStartInfo);
+			} catch (Exception ex) {
+				Debug.WriteLine(ex);
+				MessageBox.Show("Unable to open browser", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+			}
 		}
 
 		public static double Distance(this Point a, Point b) {

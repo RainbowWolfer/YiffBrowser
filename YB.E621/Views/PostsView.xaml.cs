@@ -61,6 +61,7 @@ namespace YB.E621.Views {
 			get => isMultiSelecting;
 			set {
 				SetProperty(ref isMultiSelecting, value);
+				UpdateMultiSelectingText();
 				foreach (PostCardControl item in Items) {
 					item.IsSelected = false;
 				}
@@ -83,6 +84,10 @@ namespace YB.E621.Views {
 		}
 
 		private void SelectedItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
+			UpdateMultiSelectingText();
+		}
+
+		private void UpdateMultiSelectingText() {
 			if (IsMultiSelecting) {
 				MultiSelectingText = $"{Items.Where(x => x.IsSelected).Count()}/{Items.Count}";
 			} else {
@@ -152,12 +157,13 @@ namespace YB.E621.Views {
 
 		private void ViewPostDetailDirect(E621Post? post) {
 			PostDetailViewModel.Post = post;
+			PostDetailViewModel.Focus();
 		}
 
 		public ICommand QuitPostDetailViewCommand => new DelegateCommand(QuitPostDetailView);
 
 		private void QuitPostDetailView() {
-			PostDetailViewModel.Post = null;
+			PostDetailViewModel.Back();
 		}
 
 	}

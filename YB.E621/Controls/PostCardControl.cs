@@ -42,13 +42,37 @@ namespace YB.E621.Controls {
 		);
 
 
+		public string TypeHint {
+			get => (string)GetValue(TypeHintProperty);
+			private set => SetValue(TypeHintPropertyKey, value);
+		}
+
+		public static readonly DependencyPropertyKey TypeHintPropertyKey = DependencyProperty.RegisterReadOnly(
+			nameof(TypeHint),
+			typeof(string),
+			typeof(SearchTagItemControl),
+			new PropertyMetadata(string.Empty)
+		);
+
+		public static readonly DependencyProperty TypeHintProperty = TypeHintPropertyKey.DependencyProperty;
+
+
 		public int ColSpan { get; }
 		public int RowSpan { get; }
 
 		public PostImageLoader ImageLoader { get; }
 
+		private static readonly string[] sourceArray = ["gif", "webm", "swf"];
+
 		public PostCardControl(E621Post post) {
 			Post = post;
+
+			if (post.File != null && post.File.Ext != null) {
+				if (sourceArray.Contains(post.File.Ext.ToLower())) {
+					TypeHint = post.File.Ext.ToUpper();
+				}
+			}
+
 			ImageLoader = new PostImageLoader(post);
 			ImageLoader.Progress += ImageLoader_Progress;
 			ImageLoader.ImageChanged += ImageLoader_ImageChanged;

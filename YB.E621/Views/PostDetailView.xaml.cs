@@ -1,24 +1,11 @@
-﻿using BaseFramework.Models;
-using BaseFramework.Services;
+﻿using BaseFramework.Interfaces;
+using BaseFramework.Models;
 using BaseFramework.ViewModels;
 using BaseFramework.Views;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using YB.E621.Models;
+using System.Windows.Threading;
 using YB.E621.Models.E621;
-using YB.E621.Services;
 
 namespace YB.E621.Views {
 	public partial class PostDetailView : UserControlBase {
@@ -29,7 +16,6 @@ namespace YB.E621.Views {
 
 	public class PostDetailViewModel : UserControlViewModel<PostDetailView> {
 		private E621Post? post = null;
-		private bool showSidePanel = false;
 
 		public bool HasPost => Post != null;
 
@@ -38,21 +24,40 @@ namespace YB.E621.Views {
 			set {
 				SetProperty(ref post, value);
 				RaisePropertyChanged(nameof(HasPost));
+				PostDetailDockViewModel.Post = value;
 			}
 		}
 
-		public bool ShowSidePanel {
-			get => showSidePanel;
-			set => SetProperty(ref showSidePanel, value);
-		}
+		public GridDefinitionModel LeftSideGrid { get; } = new(true, 150, new GridLength(220, GridUnitType.Pixel));
+		public GridDefinitionModel RightSideGrid { get; } = new(false, 150, new GridLength(300, GridUnitType.Pixel));
+
+		public PostDetailDockViewModel PostDetailDockViewModel { get; } = new();
 
 		public PostDetailViewModel() {
 			Post = null;
+			View.KeyDown += View_KeyDown;
+		}
+
+		public void Focus() {
+			View.Dispatcher.Invoke(() => {
+				View.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
+			}, DispatcherPriority.Loaded);
+		}
+
+		protected override void Loaded(IViewBase viewBase) {
+			base.Loaded(viewBase);
+		}
+
+		private void View_KeyDown(object sender, KeyEventArgs e) {
+			if (e.Key == Key.Escape) {
+				Back();
+				e.Handled = true;
+			}
 		}
 
 		public ICommand BackCommand => new DelegateCommand(Back);
 
-		private void Back() {
+		public void Back() {
 			Post = null;
 		}
 
@@ -66,5 +71,6 @@ namespace YB.E621.Views {
 		private void Previous() {
 
 		}
+
 	}
 }

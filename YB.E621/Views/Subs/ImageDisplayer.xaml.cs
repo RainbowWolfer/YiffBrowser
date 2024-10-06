@@ -191,5 +191,12 @@ namespace YB.E621.Views.Subs {
 			}
 			e.Handled = true;
 		}
+
+		private void ImageViewer_MouseUp(object sender, MouseButtonEventArgs e) {
+			if (e.ChangedButton == MouseButton.Middle) {
+				ImageViewer.Init();
+				e.Handled = true;
+			}
+		}
 	}
 }

@@ -25,7 +25,7 @@
 
 			<Border>
 				<Grid>
-					<bf:ImageViewer x:Name="ImageViewer" IsEnabled="{Binding IsFileReady}" MouseDoubleClick="ImageViewer_MouseDoubleClick"/>
+					<bf:ImageViewer x:Name="ImageViewer" IsEnabled="{Binding IsFileReady}" MouseDoubleClick="ImageViewer_MouseDoubleClick" MouseUp="ImageViewer_MouseUp"/>
 					<d:Image Source="/BaseFramework;component/Resources/Temp/Temp1.jpg" Stretch="UniformToFill"/>
 				</Grid>
 			</Border>

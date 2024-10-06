@@ -27,46 +27,77 @@
 		<DockPanel>
 
 			<Border DockPanel.Dock="Top" Padding="4" Background="LightGray">
-				<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel2}">
+				<DockPanel>
+					<Border DockPanel.Dock="Right">
+						<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel2}">
 
-					<ToggleButton Height="30" Width="30" ToolTip="Toggle tags side panel" IsChecked="{Binding ShowSidePanel,Mode=TwoWay}">
-						<bf:BoolContent Bool="{Binding ShowSidePanel}">
-							<bf:BoolContent.TrueContent>
-								<bf:FontIcon Text="&#xE89F;"/>
-							</bf:BoolContent.TrueContent>
-							<bf:BoolContent.FalseContent>
-								<bf:FontIcon Text="&#xE8A0;"/>
-							</bf:BoolContent.FalseContent>
-						</bf:BoolContent>
-					</ToggleButton>
+							<ToggleButton Height="30" Width="30" IsChecked="{Binding RightSideGrid.IsExpanded,Mode=TwoWay}">
+								<ToggleButton.ToolTip>
+									<TextBlock Text="Toggle tags side panel" Foreground="Black"/>
+								</ToggleButton.ToolTip>
+								<bf:BoolContent Bool="{Binding RightSideGrid.IsExpanded}">
+									<bf:BoolContent.TrueContent>
+										<bf:FontIcon Text="&#xE89F;"/>
+									</bf:BoolContent.TrueContent>
+									<bf:BoolContent.FalseContent>
+										<bf:FontIcon Text="&#xE8A0;"/>
+									</bf:BoolContent.FalseContent>
+								</bf:BoolContent>
+							</ToggleButton>
 
-					<Border Style="{StaticResource HorizontalSeparator}"/>
+						</bf:UniformSpacingPanel>
+					</Border>
 
-					<Button Height="30" Width="70" Command="{Binding BackCommand}">
-						<bf:HorizontalIconText Glyph="&#xE76B;" Text="Back"/>
-					</Button>
+					<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel2}">
 
-					<Button Height="30" Width="30" Command="{Binding PreviousCommand}" ToolTip="Previous">
-						<bf:HorizontalIconText Glyph="&#xE72B;"/>
-					</Button>
+						<ToggleButton Height="30" Width="30" IsChecked="{Binding LeftSideGrid.IsExpanded,Mode=TwoWay}">
+							<ToggleButton.ToolTip>
+								<TextBlock Text="Toggle tags side panel" Foreground="Black"/>
+							</ToggleButton.ToolTip>
+							<bf:BoolContent Bool="{Binding LeftSideGrid.IsExpanded}">
+								<bf:BoolContent.TrueContent>
+									<bf:FontIcon Text="&#xE8A0;"/>
+								</bf:BoolContent.TrueContent>
+								<bf:BoolContent.FalseContent>
+									<bf:FontIcon Text="&#xE89F;"/>
+								</bf:BoolContent.FalseContent>
+							</bf:BoolContent>
+						</ToggleButton>
 
-					<Button Height="30" Width="30" Command="{Binding NextCommand}" ToolTip="Next">
-						<bf:HorizontalIconText Glyph="&#xE72A;"/>
-					</Button>
+						<Border Style="{StaticResource HorizontalSeparator}"/>
 
-					<Border Style="{StaticResource HorizontalSeparator}"/>
+						<Button Height="30" Width="70" Command="{Binding BackCommand}">
+							<bf:HorizontalIconText Glyph="&#xE76B;" Text="Back"/>
+						</Button>
 
-				</bf:UniformSpacingPanel>
+						<Button Height="30" Width="30" Command="{Binding PreviousCommand}" ToolTip="Previous">
+							<bf:HorizontalIconText Glyph="&#xE72B;"/>
+						</Button>
+
+						<Button Height="30" Width="30" Command="{Binding NextCommand}" ToolTip="Next">
+							<bf:HorizontalIconText Glyph="&#xE72A;"/>
+						</Button>
+
+						<Border Style="{StaticResource HorizontalSeparator}"/>
+
+						<c:PostHeaderSimpleInfoView Post="{Binding Post}"/>
+
+						<Border Style="{StaticResource HorizontalSeparator}"/>
+
+					</bf:UniformSpacingPanel>
+
+				</DockPanel>
 			</Border>
 
 			<Border>
 				<Grid>
 					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="220" MinWidth="150" MaxWidth="300"/>
+						<ColumnDefinition MaxWidth="300" bf:GridDefinitionExtension.Model="{Binding LeftSideGrid}"/>
 						<ColumnDefinition Width="*"/>
+						<ColumnDefinition MaxWidth="500" bf:GridDefinitionExtension.Model="{Binding RightSideGrid}"/>
 					</Grid.ColumnDefinitions>
 
-					<Border BorderBrush="LightGray" BorderThickness="0,0,2,0">
+					<Border Grid.Column="0" BorderBrush="LightGray" BorderThickness="0,0,2,0">
 						<c:TagsListView Tags="{Binding Post.Tags}"/>
 					</Border>
 
@@ -74,7 +105,12 @@
 						<subs:ImageDisplayer Post="{Binding Post}"/>
 					</Border>
 
+					<Border Grid.Column="2" BorderBrush="LightGray" BorderThickness="2,0,0,0">
+						<ContentControl Content="{Binding PostDetailDockViewModel.View}"/>
+					</Border>
+
 					<GridSplitter Background="Transparent" Width="2"/>
+					<GridSplitter Background="Transparent" Width="2" Grid.Column="2" HorizontalAlignment="Left"/>
 
 				</Grid>
 			</Border>

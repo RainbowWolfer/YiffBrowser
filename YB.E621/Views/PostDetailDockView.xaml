@@ -1,0 +1,76 @@
+﻿<bf:UserControlBase  
+    x:Class="YB.E621.Views.PostDetailDockView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:YB.E621.Views"
+    xmlns:bf="BaseFramework" 
+	xmlns:c="clr-namespace:YB.E621.Controls"
+	d:DataContext="{d:DesignInstance Type=local:PostDetailDockViewModel}"
+	mc:Ignorable="d" 
+    d:DesignHeight="450" 
+    d:DesignWidth="300">
+
+	<Control.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+
+			<bf:CommandProxy x:Key="CloseTabCommand" Command="{Binding CloseTabCommand}"/>
+
+		</ResourceDictionary>
+	</Control.Resources>
+
+	<Grid>
+		<TabControl Padding="0" BorderThickness="0,1,0,0">
+			<TabItem Header="Description">
+				<Grid>
+
+					<Grid.RowDefinitions>
+						<RowDefinition Height="*"/>
+						<RowDefinition Height="auto"/>
+					</Grid.RowDefinitions>
+
+					<ScrollViewer Padding="4">
+						<Border>
+							<TextBox Text="{Binding Description}" TextWrapping="Wrap" FontSize="18" VerticalAlignment="Stretch" Style="{StaticResource SelectableTextBlock}" d:Text="No Description"/>
+						</Border>
+					</ScrollViewer>
+
+					<Border Grid.Row="1" Padding="4">
+						<StackPanel>
+							<TextBlock Text="{Binding SourceTitle}" FontSize="20" d:Text="No Source" Margin="4,0"/>
+							<ListBox ItemsSource="{Binding SourceURLs}" MaxHeight="200" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Padding="0">
+								<ListBox.ItemContainerStyle>
+									<Style TargetType="ListBoxItem" BasedOn="{StaticResource CustomListBoxItemStyle}">
+										<Setter Property="Padding" Value="0"/>
+										<Setter Property="Background" Value="Transparent"/>
+										<Setter Property="BorderThickness" Value="0"/>
+										<Setter Property="VerticalContentAlignment" Value="Center"/>
+									</Style>
+								</ListBox.ItemContainerStyle>
+								<ListBox.ItemTemplate>
+									<DataTemplate>
+										<c:SourceHyperLinkButton URL="{Binding}" Height="30"/>
+									</DataTemplate>
+								</ListBox.ItemTemplate>
+							</ListBox>
+						</StackPanel>
+					</Border>
+				</Grid>
+			</TabItem>
+
+			<TabItem Header="Comments 1">
+
+			</TabItem>
+
+			<TabItem Header="Relations">
+
+			</TabItem>
+
+		</TabControl>
+	</Grid>
+
+</bf:UserControlBase>

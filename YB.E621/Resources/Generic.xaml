@@ -16,6 +16,11 @@
 
 	<con:TagsDisplayConverter x:Key="TagsDisplayConverter"/>
 	<con:E621TagCategoryBrushConverter x:Key="E621TagCategoryBrushConverter"/>
+	<con:E621RatingToBrushConverter x:Key="E621RatingToBrushConverter"/>
+	<con:E621RatingToIconConverter x:Key="E621RatingToIconConverter"/>
+	<con:UrlIconConverter x:Key="UrlIconConverter"/>
+
+	<bf:SubStringConverter x:Key="RatingHeaderConverter" StartIndex="0" Length="1"/>
 
 	<Style TargetType="c:PostCardControl">
 		<Setter Property="BorderBrush" Value="LightGray"/>
@@ -42,7 +47,15 @@
 						<DockPanel>
 
 							<Border Name="BottomBorder" DockPanel.Dock="Bottom" Background="{TemplateBinding BorderBrush}" Padding="4,2">
-								<Grid Margin="10,0">
+								<Grid Margin="10,0" DataContext="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},Path=Post}">
+
+									<Grid.Resources>
+										<Style TargetType="bf:HorizontalIconText" BasedOn="{StaticResource HorizontalIconTextBaseStyle}">
+											<Setter Property="HorizontalAlignment" Value="Center"/>
+											<Setter Property="IconSize" Value="14"/>
+										</Style>
+									</Grid.Resources>
+
 									<Grid.ColumnDefinitions>
 										<ColumnDefinition Width="*"/>
 										<ColumnDefinition Width="*"/>
@@ -50,9 +63,24 @@
 										<ColumnDefinition Width="*"/>
 									</Grid.ColumnDefinitions>
 
-									<TextBlock Text="{Binding}"/>
+									<Border Grid.Column="0">
+										<bf:HorizontalIconText Glyph="&#xE878;" Text="{Binding Score.Total}"/>
+									</Border>
 
-									<bf:FontIcon Text="&#xE8CE;" Grid.Column="1"/>
+									<Border Grid.Column="1">
+										<bf:HorizontalIconText Glyph="&#xEB52;" Text="{Binding FavCount}"/>
+									</Border>
+
+									<Border Grid.Column="2">
+										<bf:HorizontalIconText Glyph="&#xE90A;" Text="{Binding CommentCount}"/>
+									</Border>
+
+									<Border Grid.Column="3">
+										<bf:HorizontalIconText 
+											Glyph="{Binding Rating,Converter={StaticResource E621RatingToIconConverter}}" 
+											Text="{Binding Rating,Converter={StaticResource RatingHeaderConverter}}"
+											IconForeground="{Binding Rating,Converter={StaticResource E621RatingToBrushConverter}}"/>
+									</Border>
 
 								</Grid>
 							</Border>
@@ -70,9 +98,25 @@
 									</Border>
 								</Border>
 
-								<Border VerticalAlignment="Top" HorizontalAlignment="Stretch">
+								<StackPanel>
 									<ProgressBar Name="LoadingProgressBar" Height="6" BorderThickness="0" IsIndeterminate="True" bf:BorderExtension.CornerRadius="4,4,0,0"/>
-								</Border>
+
+									<Grid Margin="4" DataContext="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},Path=TypeHint}" Visibility="{Binding Converter={StaticResource StringToVisibilityConverter}}">
+										<Border HorizontalAlignment="Right" Padding="4,2" CornerRadius="4">
+											<Border.Background>
+												<SolidColorBrush Color="Gray" Opacity="0.5"/>
+											</Border.Background>
+											<Border.Effect>
+												<DropShadowEffect BlurRadius="6" ShadowDepth="4" Opacity="0.5" Color="Black"/>
+											</Border.Effect>
+
+											<TextBlock Text="{Binding}" Foreground="White" FontSize="16"/>
+
+										</Border>
+									</Grid>
+
+
+								</StackPanel>
 
 							</Grid>
 

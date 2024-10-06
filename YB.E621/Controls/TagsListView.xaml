@@ -23,6 +23,7 @@
 
 	<Grid>
 		<ListBox x:Name="TagsistBox" Style="{StaticResource CustomListBoxStyle}"
+			d:ItemsSource="{d:SampleData ItemCount=15}"
 			ScrollViewer.HorizontalScrollBarVisibility="Disabled"
 			BorderThickness="0" 
 			bf:BorderExtension.CornerRadius="0"

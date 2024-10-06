@@ -76,7 +76,7 @@
 				</Grid>
 			</Border>
 
-			<TabControl Padding="0" 
+			<TabControl Padding="0" BorderThickness="0,1,0,0"
 				ItemsSource="{Binding Tabs}" 
 				d:ItemsSource="{d:SampleData ItemCount=15}"
 				SelectedIndex="{Binding TabSelectedIndex,Mode=TwoWay}">

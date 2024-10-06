@@ -1,0 +1,147 @@
+﻿<UserControl 
+    x:Class="YB.E621.Controls.PostHeaderSimpleInfoView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:YB.E621.Controls" 
+    xmlns:bf="BaseFramework"
+	mc:Ignorable="d" 
+    d:DesignHeight="50" 
+    d:DesignWidth="400"
+    d:Background="White">
+
+	<Control.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+
+			<Style x:Key="IDFlyoutInfoBorderStyle" TargetType="Border">
+				<Setter Property="Margin" Value="0,0,0,4"/>
+				<Setter Property="Background" Value="White"/>
+				<Setter Property="Padding" Value="10,5"/>
+				<Setter Property="CornerRadius" Value="5"/>
+			</Style>
+
+			<Style x:Key="IDFlyoutInfoTextStyle" TargetType="TextBlock">
+				<Setter Property="Margin" Value="10,0,0,5"/>
+				<Setter Property="VerticalAlignment" Value="Center"/>
+				<Setter Property="Grid.Column" Value="1"/>
+				<Setter Property="FontWeight" Value="SemiBold"/>
+			</Style>
+
+
+		</ResourceDictionary>
+	</Control.Resources>
+
+	<Grid>
+		<StackPanel Orientation="Horizontal">
+
+			<Border BorderBrush="{StaticResource Button.Static.Border}" BorderThickness="1" CornerRadius="4" Background="White" Padding="4,2" Height="30">
+				<StackPanel Orientation="Horizontal">
+					<Border x:Name="TypeBorder" Padding="2,0">
+						<bf:FontIcon x:Name="TypeIcon" Text="&#xF4A9;" FontSize="24"/>
+					</Border>
+					<TextBlock x:Name="DurationText" Text="1:00" VerticalAlignment="Center" Margin="2,0" FontSize="14" ToolTip="Media duration" d:Visibility="Visible"/>
+				</StackPanel>
+			</Border>
+
+			<Button x:Name="PostIDButton" MinWidth="60" Height="30" Padding="6,0" Margin="6,0,0,0">
+				<TextBlock x:Name="PostIDText" FontFamily="Cascadia Mono" Text="123456 (S)" FontSize="20"/>
+			</Button>
+
+			<Border x:Name="SoundBorder" BorderBrush="{StaticResource Button.Static.Border}" BorderThickness="1" CornerRadius="4" Background="White" Padding="4,2" Height="30" ToolTip="This post has 'sound' tag" Margin="6,0,0,0">
+				<bf:FontIcon Text="&#xE7BA;" Foreground="Orange" FontSize="20" VerticalAlignment="Center"/>
+			</Border>
+
+			<Border x:Name="SoundWarningBorder" BorderBrush="{StaticResource Button.Static.Border}" BorderThickness="1" CornerRadius="4" Background="White" Padding="4,2" Height="30" ToolTip="This post has 'sound_warning' tag" Margin="6,0,0,0">
+				<bf:FontIcon Text="&#xE7BA;" Foreground="Red" FontSize="20" VerticalAlignment="Center"/>
+			</Border>
+
+		</StackPanel>
+
+		<bf:ButtonPopup SourceButton="{Binding ElementName=PostIDButton}">
+			<Border Style="{StaticResource ButtonPopupBorder}" MinWidth="280">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="auto"/>
+						<ColumnDefinition Width="*"/>
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="auto"/>
+						<RowDefinition Height="auto"/>
+						<RowDefinition Height="auto"/>
+						<RowDefinition Height="auto"/>
+						<RowDefinition Height="auto"/>
+						<RowDefinition Height="auto"/>
+					</Grid.RowDefinitions>
+
+					<Border Grid.Row="0" Style="{StaticResource IDFlyoutInfoBorderStyle}">
+						<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+							<TextBlock Text="Created Date"/>
+							<bf:FontIcon Text="&#xEE93;" Margin="10,0,0,0"/>
+						</StackPanel>
+					</Border>
+					<TextBlock x:Name="CreatedDateText" Grid.Row="0" Style="{StaticResource IDFlyoutInfoTextStyle}"/>
+
+					<Border Grid.Row="1" Style="{StaticResource IDFlyoutInfoBorderStyle}">
+						<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+							<TextBlock Text="Updated Date"/>
+							<bf:FontIcon Text="&#xE163;" Margin="10,0,0,0"/>
+						</StackPanel>
+					</Border>
+					<TextBlock x:Name="UpdatedAtText" Grid.Row="1" Style="{StaticResource IDFlyoutInfoTextStyle}"/>
+
+					<Border Grid.Row="2" Style="{StaticResource IDFlyoutInfoBorderStyle}">
+						<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+							<TextBlock Text="Size"/>
+							<bf:FontIcon Text="&#xEE93;" Margin="10,0,0,0"/>
+						</StackPanel>
+					</Border>
+					<TextBlock x:Name="SizeInfoText" Grid.Row="2" Style="{StaticResource IDFlyoutInfoTextStyle}"/>
+
+					<Border Grid.Row="3" Style="{StaticResource IDFlyoutInfoBorderStyle}">
+						<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+							<TextBlock Text="Approver ID"/>
+							<bf:FontIcon Text="&#xE2AF;" Margin="10,0,0,0"/>
+						</StackPanel>
+					</Border>
+					<TextBlock x:Name="ApproverIdText" Grid.Row="3" Style="{StaticResource IDFlyoutInfoTextStyle}"/>
+
+					<Border Grid.Row="4" Style="{StaticResource IDFlyoutInfoBorderStyle}">
+						<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+							<TextBlock Text="Uploader ID"/>
+							<bf:FontIcon Text="&#xE898;" Margin="10,0,0,0"/>
+						</StackPanel>
+					</Border>
+					<TextBlock x:Name="UploaderId" Grid.Row="4" Style="{StaticResource IDFlyoutInfoTextStyle}"/>
+
+					<Grid Grid.Row="5" Grid.ColumnSpan="2">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="1.3*"/>
+						</Grid.ColumnDefinitions>
+
+						<Button x:Name="CopyUrlButton" HorizontalAlignment="Stretch" Margin="0,0,3,0" Height="24" Click="CopyUrlButton_Click">
+							<StackPanel Orientation="Horizontal">
+								<bf:FontIcon Text="&#xE16F;"/>
+								<TextBlock Text="Copy URL" Margin="10,0,0,0"/>
+							</StackPanel>
+						</Button>
+
+						<Button x:Name="OpenBrowserButton" Grid.Column="1" HorizontalAlignment="Stretch" Margin="3,0,0,0" Height="24" Click="OpenBrowserButton_Click">
+							<StackPanel Orientation="Horizontal">
+								<bf:FontIcon Text="&#xE12B;"/>
+								<TextBlock Text="Open In Browser" Margin="10,0,0,0"/>
+							</StackPanel>
+						</Button>
+
+					</Grid>
+
+				</Grid>
+			</Border>
+		</bf:ButtonPopup>
+
+	</Grid>
+</UserControl>

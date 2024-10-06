@@ -1,7 +1,9 @@
-﻿using BaseFramework.Helpers;
+﻿using BaseFramework.Enums;
+using BaseFramework.Helpers;
 using BaseFramework.Models;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using YB.E621.Services;
 
 namespace YB.E621.Models.E621 {
 	public class E621Post {
@@ -101,6 +103,10 @@ namespace YB.E621.Models.E621 {
 			} else {
 				return Vector2.Zero;
 			}
+		}
+
+		public string GetPostLink(ModuleType type) {
+			return @$"https://{E621API.GetHost(type)}/posts/{ID}";
 		}
 	}
 

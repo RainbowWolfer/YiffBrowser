@@ -210,7 +210,6 @@ namespace BaseFramework.Controls {
 
 			Dispatcher.Invoke(() => {
 
-
 				double width;
 				double height;
 
@@ -343,7 +342,9 @@ namespace BaseFramework.Controls {
 			_imgIsMouseDown = true;
 		}
 
-		protected override void OnPreviewMouseUp(MouseButtonEventArgs e) => _imgIsMouseDown = false;
+		protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
+			_imgIsMouseDown = false;
+		}
 
 		private void ScaleImg(bool isEnlarge) {
 			if (Mouse.LeftButton == MouseButtonState.Pressed) {

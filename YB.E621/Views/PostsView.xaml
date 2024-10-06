@@ -61,8 +61,11 @@
 										<bf:FontIcon Text="&#xE896;"/>
 									</Button>
 
-									<ToggleButton Height="30" MinWidth="30" IsChecked="{Binding IsMultiSelecting,Mode=TwoWay}" ToolTip="Toggle Selection" Padding="4,2">
-										<bf:HorizontalIconText Glyph="&#xE152;" Text="{Binding MultiSelectingText}" d:Text="(1/75)"/>
+									<ToggleButton Height="30" MinWidth="30" IsChecked="{Binding IsMultiSelecting,Mode=TwoWay}" Padding="4,2">
+										<ToggleButton.ToolTip>
+											<TextBlock Text="Toggle Selection" Foreground="Black"/>
+										</ToggleButton.ToolTip>
+										<bf:HorizontalIconText Glyph="&#xE152;" Text="{Binding MultiSelectingText}" d:Text="(1/75)" IconForeground="{Binding RelativeSource={RelativeSource Mode=Self},Path=Foreground}"/>
 									</ToggleButton>
 
 								</bf:UniformSpacingPanel>
