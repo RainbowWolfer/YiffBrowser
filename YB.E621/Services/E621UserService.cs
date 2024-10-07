@@ -1,4 +1,5 @@
-﻿using BaseFramework.Events;
+﻿using BaseFramework.Enums;
+using BaseFramework.Events;
 using BaseFramework.Helpers;
 using BaseFramework.Models;
 using BaseFramework.Models.Apps;
@@ -6,14 +7,32 @@ using BaseFramework.Services;
 using YB.E621.Models.E621;
 
 namespace YB.E621.Services {
-	public static class E621UserService {
-		public static event TypedEventHandler<E621User?, E621Post?>? LoginChanged;
+	public class E621UserService(ModuleType moduleType) {
 
-		public static BindObject<bool> IsUserLoading { get; } = false;
+		private static E621UserService User_E621 { get; } = new(ModuleType.E621);
+		private static E621UserService User_E6AI { get; } = new(ModuleType.E6AI);
+		private static E621UserService User_E926 { get; } = new(ModuleType.E926);
 
-		private static UserModel currentUser;
+		public static E621UserService GetUserService(ModuleType moduleType) {
+			return moduleType switch {
+				ModuleType.E621 => User_E621,
+				ModuleType.E6AI => User_E6AI,
+				ModuleType.E926 => User_E926,
+				_ => throw new NotImplementedException(),
+			};
+		}
 
-		private static UserModel CurrentUser {
+		public event TypedEventHandler<E621User?, E621Post?>? LoginChanged;
+
+		public E621API Api { get; } = E621API.GetAPI(moduleType);
+
+		public ModuleType ModuleType { get; } = moduleType;
+
+		public BindObject<bool> IsUserLoading { get; } = false;
+
+		private UserModel currentUser;
+
+		private UserModel CurrentUser {
 			get => currentUser;
 			set {
 				currentUser = value;
@@ -21,10 +40,8 @@ namespace YB.E621.Services {
 			}
 		}
 
-
-		public static async Task Initialize() {
-			string? username = AppProfile.Instance.E621_Username;
-			string? apiKey = AppProfile.Instance.E621_ApiKey;
+		public async Task Initialize() {
+			(string? username, string? apiKey) = GetUser();
 			if (username.IsNotBlank() && apiKey.IsNotBlank()) {
 				await TryLogin(username, apiKey);
 			}
@@ -32,7 +49,7 @@ namespace YB.E621.Services {
 
 		private readonly record struct UserModel(E621User User, E621Post? AvatarPost);
 
-		public static async ValueTask<Exception?> TryLogin(string username, string apiKey) {
+		public async ValueTask<Exception?> TryLogin(string username, string apiKey) {
 			IsUserLoading.Value = true;
 
 			UserModel userModel = default;
@@ -41,33 +58,27 @@ namespace YB.E621.Services {
 					return new Exception("Username or ApiKey is empty");
 				}
 
-				HttpResult<string> result = await NetCode.ReadURLAsync($"https://{E621API.GetHost()}/favorites.json", username, apiKey, null);
+				HttpResult<string> result = await NetCode.ReadURLAsync($"https://{Api.GetHost()}/favorites.json", username, apiKey, null);
 
 				if (result.Result != HttpResultType.Success) {
-					//Local.Settings.ClearLocalUser();
 					return new Exception("Login failed");
-				} else {
-					//success = true;
-					//Local.Settings.SetLocalUser(UserName, API);
 				}
 
-				E621User? user = await E621API.GetUserAsync(username, apiKey);
+				E621User? user = await Api.GetUserAsync(username, apiKey);
 				if (user is null) {
 					return new Exception($"Unable to find user ({username})");
 				}
 
-				E621Post? avatarPost = await E621API.GetPostAsync(user.AvatarId);
+				E621Post? avatarPost = await Api.GetPostAsync(user.AvatarId);
 
 				userModel = new UserModel(user, avatarPost);
 
 				return null;
 			} finally {
 				if (userModel.User is null) {
-					AppProfile.Instance.E621_Username = string.Empty;
-					AppProfile.Instance.E621_ApiKey = string.Empty;
+					SetUser(string.Empty, string.Empty);
 				} else {
-					AppProfile.Instance.E621_Username = username;
-					AppProfile.Instance.E621_ApiKey = apiKey;
+					SetUser(username, apiKey);
 				}
 				AppProfile.Save();
 				CurrentUser = userModel;
@@ -76,13 +87,40 @@ namespace YB.E621.Services {
 			}
 		}
 
-		public static void Logout() {
-			AppProfile.Instance.E621_Username = string.Empty;
-			AppProfile.Instance.E621_ApiKey = string.Empty;
+		public void Logout() {
+			SetUser(string.Empty, string.Empty);
 			AppProfile.Save();
 
 			CurrentUser = default;
 
+		}
+
+		public (string? username, string? apiKey) GetUser() {
+			return ModuleType switch {
+				ModuleType.E621 => (AppProfile.Instance.E621_Username, AppProfile.Instance.E621_ApiKey),
+				ModuleType.E6AI => (AppProfile.Instance.E6AI_Username, AppProfile.Instance.E6AI_ApiKey),
+				ModuleType.E926 => (AppProfile.Instance.E926_Username, AppProfile.Instance.E926_ApiKey),
+				_ => throw new NotImplementedException(),
+			};
+		}
+
+		private void SetUser(string username, string apiKey) {
+			switch (ModuleType) {
+				case ModuleType.E621:
+					AppProfile.Instance.E621_Username = username;
+					AppProfile.Instance.E621_ApiKey = apiKey;
+					break;
+				case ModuleType.E6AI:
+					AppProfile.Instance.E6AI_Username = username;
+					AppProfile.Instance.E6AI_ApiKey = apiKey;
+					break;
+				case ModuleType.E926:
+					AppProfile.Instance.E926_Username = username;
+					AppProfile.Instance.E926_ApiKey = apiKey;
+					break;
+				default:
+					throw new NotImplementedException();
+			}
 		}
 	}
 

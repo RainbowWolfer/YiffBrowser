@@ -1,4 +1,5 @@
-﻿using BaseFramework.Interfaces;
+﻿using BaseFramework.Enums;
+using BaseFramework.Interfaces;
 using BaseFramework.Models;
 using BaseFramework.ViewModels;
 using BaseFramework.Views;
@@ -28,12 +29,15 @@ namespace YB.E621.Views {
 			}
 		}
 
+		public ModuleType ModuleType { get; }
+
 		public GridDefinitionModel LeftSideGrid { get; } = new(true, 150, new GridLength(220, GridUnitType.Pixel));
 		public GridDefinitionModel RightSideGrid { get; } = new(false, 150, new GridLength(300, GridUnitType.Pixel));
 
 		public PostDetailDockViewModel PostDetailDockViewModel { get; } = new();
 
-		public PostDetailViewModel() {
+		public PostDetailViewModel(ModuleType moduleType) {
+			ModuleType = moduleType;
 			Post = null;
 			View.KeyDown += View_KeyDown;
 		}

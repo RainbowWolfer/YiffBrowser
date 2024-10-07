@@ -1,8 +1,22 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Media;
 
 namespace BaseFramework.Helpers {
 	public static class ViewHelper {
+
+		public static bool SafeClose(this Window? window) {
+			if (window is null) {
+				return false;
+			}
+			try {
+				window.Close();
+				return true;
+			} catch (Exception ex) {
+				Debug.WriteLine(ex);
+				return false;
+			}
+		}
 
 		public static Color HexToColor(this string hex) {
 			// 移除前导的 '#' 符号

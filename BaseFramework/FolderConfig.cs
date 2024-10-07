@@ -28,10 +28,19 @@ namespace BaseFramework {
 			}
 		}
 
+		public static string LogFolder => Path.Combine(LocalAppFolder, "Logs");
 
 		public static string AppProfileFilePath => Path.Combine(LocalAppFolder, $"AppProfile.json");
 
 
+
+		public static void Initialize() {
+			FileHelper.CreateDirectory(DocumentAppFolder);
+			FileHelper.CreateDirectory(LocalAppFolder);
+			FileHelper.CreateDirectory(LogFolder);
+
+
+		}
 
 	}
 }

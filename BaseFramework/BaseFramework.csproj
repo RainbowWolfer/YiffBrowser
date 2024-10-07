@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -24,6 +25,11 @@
     <None Remove="Resources\Icons\E621Icon.psd" />
     <None Remove="Resources\Icons\E621Icon2.ico" />
     <None Remove="Resources\Icons\E621_Light.png" />
+    <None Remove="Resources\Icons\E6AI.ico" />
+    <None Remove="Resources\Icons\E6AI.png" />
+    <None Remove="Resources\Icons\E6AI.psd" />
+    <None Remove="Resources\Icons\E6AI2.ico" />
+    <None Remove="Resources\Icons\E6AI2.png" />
     <None Remove="Resources\Icons\Furaffinity-icon.png" />
     <None Remove="Resources\Icons\FurryNetwork-icon.png" />
     <None Remove="Resources\Icons\InkBunny-icon.png" />
@@ -58,6 +64,11 @@
     <Resource Include="Resources\Icons\E621Icon.ico" />
     <Resource Include="Resources\Icons\E621Icon.png" />
     <Resource Include="Resources\Icons\E621Icon.psd" />
+    <Resource Include="Resources\Icons\E6AI.ico" />
+    <Resource Include="Resources\Icons\E6AI.png" />
+    <Resource Include="Resources\Icons\E6AI.psd" />
+    <Resource Include="Resources\Icons\E6AI2.ico" />
+    <Resource Include="Resources\Icons\E6AI2.png" />
     <Resource Include="Resources\Icons\Furaffinity-icon.png" />
     <Resource Include="Resources\Icons\FurryNetwork-icon.png" />
     <Resource Include="Resources\Icons\InkBunny-icon.png" />

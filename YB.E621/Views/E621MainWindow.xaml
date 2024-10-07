@@ -9,8 +9,8 @@
 	xmlns:subs="clr-namespace:YB.E621.Views.Subs"
 	xmlns:service="clr-namespace:YB.E621.Services"
 	d:DataContext="{d:DesignInstance Type=local:E621MainWindowViewModel}"
+	d:Title="E621 Window"
 	mc:Ignorable="d"
-	Icon="/BaseFramework;component/Resources/Icons/E621Icon.ico"
     Height="800" 
     Width="1270"
 	WindowStartupLocation="CenterScreen">
@@ -26,10 +26,26 @@
 		</ResourceDictionary>
 	</Control.Resources>
 
+	<Window.Style>
+		<Style TargetType="Window">
+			<Style.Triggers>
+				<DataTrigger Binding="{Binding ModuleType}" Value="{x:Static bf:ModuleType.E621}">
+					<Setter Property="Icon" Value="/BaseFramework;component/Resources/Icons/E621Icon.ico"/>
+				</DataTrigger>
+				<DataTrigger Binding="{Binding ModuleType}" Value="{x:Static bf:ModuleType.E6AI}">
+					<Setter Property="Icon" Value="/BaseFramework;component/Resources/Icons/E6AI.ico"/>
+				</DataTrigger>
+				<DataTrigger Binding="{Binding ModuleType}" Value="{x:Static bf:ModuleType.E926}">
+					<Setter Property="Icon" Value="/BaseFramework;component/Resources/Icons/E621Icon.ico"/>
+				</DataTrigger>
+			</Style.Triggers>
+		</Style>
+	</Window.Style>
+
 	<Grid>
 
 		<DockPanel>
-			<Border Background="LightGray" Padding="4" DockPanel.Dock="Left">
+			<Border Background="#bfbfbf" Padding="4" DockPanel.Dock="Left">
 				<Grid>
 
 					<Grid.RowDefinitions>
@@ -38,16 +54,26 @@
 					</Grid.RowDefinitions>
 
 					<bf:UniformSpacingPanel Style="{StaticResource CustomVerticalPanel2}">
+
+						<Button x:Name="SiteButton" Height="32" Width="32" Padding="0" Style="{StaticResource CustomButtonStyle2}" ToolTip="Click to switch site">
+							<Button.Background>
+								<ImageBrush ImageSource="{Binding ModuleType,Converter={StaticResource ModuleTypeIconConverter}}" d:ImageSource="/BaseFramework;component/Resources/Icons/E621.png"/>
+							</Button.Background>
+						</Button>
+
+						<Border Style="{StaticResource VerticalSeparator}"/>
+
 						<Button x:Name="SearchButton" Height="32" Width="32" ToolTip="Search">
 							<bf:FontIcon Text="&#xE721;"/>
 						</Button>
+
 					</bf:UniformSpacingPanel>
 
 					<bf:UniformSpacingPanel Style="{StaticResource CustomVerticalPanel2}" Grid.Row="1">
 
 						<Button x:Name="UserButton" Height="32" Width="32" ToolTip="User">
 							<Grid>
-								<bf:FontIcon d:Text="&#xEA8C;" Visibility="{Binding Source={x:Static service:E621UserService.IsUserLoading},Path=Value,Converter={StaticResource BoolToVisibilityReConverter}}">
+								<bf:FontIcon d:Text="&#xEA8C;" Visibility="{Binding UserService.IsUserLoading.Value,Converter={StaticResource BoolToVisibilityReConverter}}" >
 									<bf:FontIcon.Style>
 										<Style TargetType="bf:FontIcon" BasedOn="{StaticResource FontIconBase}">
 											<Style.Triggers>
@@ -61,7 +87,7 @@
 										</Style>
 									</bf:FontIcon.Style>
 								</bf:FontIcon>
-								<Border Visibility="{Binding Source={x:Static service:E621UserService.IsUserLoading},Path=Value,Converter={StaticResource BoolToVisibilityConverter}}">
+								<Border Visibility="{Binding UserService.IsUserLoading.Value,Converter={StaticResource BoolToVisibilityConverter}}">
 									<ProgressBar IsIndeterminate="True" Width="20" Height="8" BorderThickness="0" Background="White"/>
 								</Border>
 							</Grid>
@@ -70,6 +96,11 @@
 						<Button x:Name="SettingsButton" Height="32" Width="32" ToolTip="Settings" Click="SettingsButton_Click">
 							<bf:FontIcon Text="&#xE713;"/>
 						</Button>
+
+						<StackPanel>
+							<TextBlock Text="{Binding Source={x:Static bf:AppConfig.Version}}" d:Text="1.0.0" TextAlignment="Center" FontSize="10"/>
+							<TextBlock Text="Debug" TextAlignment="Center" FontSize="10" Visibility="{Binding Source={x:Static bf:AppConfig.IsDebugging},Converter={StaticResource BoolToVisibilityConverter}}"/>
+						</StackPanel>
 
 					</bf:UniformSpacingPanel>
 
@@ -163,6 +194,47 @@
 		<bf:ButtonPopup x:Name="SearchPopup" SourceButton="{Binding ElementName=SearchButton}">
 			<Border Style="{StaticResource ButtonPopupBorder}" MinWidth="300">
 				<ContentControl Content="{Binding SearchViewModel.View}"/>
+			</Border>
+		</bf:ButtonPopup>
+
+		<bf:ButtonPopup x:Name="SitePopup" SourceButton="{Binding ElementName=SiteButton}">
+			<Border Style="{StaticResource ButtonPopupBorder}">
+				<bf:UniformSpacingPanel Style="{StaticResource CustomVerticalPanel2}">
+
+					<Button Padding="4" Width="90" HorizontalContentAlignment="Left" Style="{StaticResource CustomButtonStyle3}" IsEnabled="{Binding ModuleType,Converter={StaticResource EnumToBoolReConverter},ConverterParameter={x:Static bf:ModuleType.E621}}" Command="{Binding ShowE621Command}">
+						<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel3}">
+							<Border Height="32" Width="32" CornerRadius="4">
+								<Border.Background>
+									<ImageBrush ImageSource="{Binding Source={x:Static bf:ModuleType.E621},Converter={StaticResource ModuleTypeIconConverter}}"/>
+								</Border.Background>
+							</Border>
+							<TextBlock Text="E621" FontWeight="Bold" FontSize="16" Foreground="#01549d"/>
+						</bf:UniformSpacingPanel>
+					</Button>
+
+					<Button Padding="4" Width="90" HorizontalContentAlignment="Left" Style="{StaticResource CustomButtonStyle3}" IsEnabled="{Binding ModuleType,Converter={StaticResource EnumToBoolReConverter},ConverterParameter={x:Static bf:ModuleType.E926}}" Command="{Binding ShowE926Command}">
+						<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel3}">
+							<Border Height="32" Width="32" CornerRadius="4">
+								<Border.Background>
+									<ImageBrush ImageSource="{Binding Source={x:Static bf:ModuleType.E926},Converter={StaticResource ModuleTypeIconConverter}}"/>
+								</Border.Background>
+							</Border>
+							<TextBlock Text="E926" FontWeight="Bold" FontSize="16"/>
+						</bf:UniformSpacingPanel>
+					</Button>
+
+					<Button Padding="4" Width="90" HorizontalContentAlignment="Left" Style="{StaticResource CustomButtonStyle3}" IsEnabled="{Binding ModuleType,Converter={StaticResource EnumToBoolReConverter},ConverterParameter={x:Static bf:ModuleType.E6AI}}" Command="{Binding ShowE6AICommand}">
+						<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel3}">
+							<Border Height="32" Width="32" CornerRadius="4">
+								<Border.Background>
+									<ImageBrush ImageSource="{Binding Source={x:Static bf:ModuleType.E6AI},Converter={StaticResource ModuleTypeIconConverter}}"/>
+								</Border.Background>
+							</Border>
+							<TextBlock Text="E6AI" FontWeight="Bold" FontSize="16" Foreground="#fcc02e"/>
+						</bf:UniformSpacingPanel>
+					</Button>
+
+				</bf:UniformSpacingPanel>
 			</Border>
 		</bf:ButtonPopup>
 

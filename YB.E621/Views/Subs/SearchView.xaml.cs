@@ -1,24 +1,12 @@
-﻿using BaseFramework.Events;
+﻿using BaseFramework.Enums;
+using BaseFramework.Events;
 using BaseFramework.Helpers;
 using BaseFramework.Interfaces;
 using BaseFramework.ViewModels;
 using BaseFramework.Views;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using YB.E621.Models.E621;
 using YB.E621.Services;
@@ -30,7 +18,7 @@ namespace YB.E621.Views.Subs {
 		}
 	}
 
-	public class SearchViewModel : ViewModelBase<SearchView> {
+	public class SearchViewModel(ModuleType moduleType) : ViewModelBase<SearchView> {
 		public event TypedEventHandler<SearchViewModel, string[]>? SearchSubmit;
 
 		private string searchText = string.Empty;
@@ -79,9 +67,9 @@ namespace YB.E621.Views.Subs {
 			set => currentTags = value;
 		}
 
-		public SearchViewModel() {
+		public ModuleType ModuleType { get; } = moduleType;
 
-		}
+		public E621API Api { get; } = E621API.GetAPI(moduleType);
 
 		protected override void Loaded(IViewBase viewBase) {
 			base.Loaded(viewBase);
@@ -250,7 +238,7 @@ namespace YB.E621.Views.Subs {
 
 			AutoCompletes.Clear();
 
-			E621AutoComplete[] completes = await E621API.GetE621AutoCompleteAsync(tag, _cts.Token);
+			E621AutoComplete[] completes = await Api.GetE621AutoCompleteAsync(tag, _cts.Token);
 
 			if (_cts.IsCancellationRequested) {
 				IsLoading = false;
@@ -310,15 +298,15 @@ namespace YB.E621.Views.Subs {
 
 		}
 
-		private static PostSearch GetPostSearchResult(string text, out string? resultPostID) {
+		private PostSearch GetPostSearchResult(string text, out string? resultPostID) {
 			resultPostID = null;
 			string[] split = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 			foreach (string item in split) {
 				if (item.Length >= 2 && item.OnlyContainDigits()) {
 					resultPostID = item;
 					return PostSearch.PostID;
-				} else if (item.StartsWith($"https://{E621API.GetHost()}/posts/") ||
-					  item.StartsWith($"{E621API.GetHost()}/posts/")
+				} else if (item.StartsWith($"https://{Api.GetHost()}/posts/") ||
+					  item.StartsWith($"{Api.GetHost()}/posts/")
 				  ) {
 					string endPostID = "";
 					int startIndex = item.LastIndexOf('/');

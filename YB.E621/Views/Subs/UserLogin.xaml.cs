@@ -1,4 +1,5 @@
-﻿using BaseFramework.Interfaces;
+﻿using BaseFramework.Enums;
+using BaseFramework.Interfaces;
 using BaseFramework.Models.Apps;
 using BaseFramework.ViewModels;
 using BaseFramework.Views;
@@ -25,7 +26,7 @@ namespace YB.E621.Views.Subs {
 		}
 	}
 
-	public class UserLoginViewModel : UserControlViewModel<UserLogin> {
+	public class UserLoginViewModel(ModuleType siteType) : UserControlViewModel<UserLogin> {
 		private string username = string.Empty;
 		private string apiKey = string.Empty;
 
@@ -39,24 +40,23 @@ namespace YB.E621.Views.Subs {
 			set => SetProperty(ref apiKey, value);
 		}
 
-		public UserLoginViewModel() {
-			
-		}
+		public E621UserService UserService { get; } = E621UserService.GetUserService(siteType);
 
 		protected override void LoadedOnce(IViewBase viewBase) {
 			base.LoadedOnce(viewBase);
 
-			string username = AppProfile.Instance.E621_Username ?? string.Empty;
-			string apiKey = AppProfile.Instance.E621_ApiKey ?? string.Empty;
+			(string? username, string? apiKey) = UserService.GetUser();
 
-			Username = username;
-			ApiKey = apiKey;
+			Username = username ?? string.Empty;
+			ApiKey = apiKey ?? string.Empty;
 		}
 
 		public ICommand LoginCommand => new DelegateCommand(Login);
 
+		public ModuleType SiteType { get; } = siteType;
+
 		private async void Login() {
-			Exception? exception = await E621UserService.TryLogin(Username, ApiKey);
+			Exception? exception = await UserService.TryLogin(Username, ApiKey);
 			if (exception != null) {
 				MessageBox.Show($"{exception.Message}", "Login Error", MessageBoxButton.OK, MessageBoxImage.Error);
 			}

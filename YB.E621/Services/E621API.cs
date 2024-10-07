@@ -9,9 +9,22 @@ using System.Text;
 using YB.E621.Models.E621;
 
 namespace YB.E621.Services {
-	public static class E621API {
-		//public static string GetHost() => Local.Settings?.HostType ?? false ? "e621.net" : "e926.net";
-		public static string GetHost(ModuleType moduleType = ModuleType.E621) {
+	public class E621API(ModuleType moduleType) {
+
+		private static E621API API_E621 { get; } = new(ModuleType.E621);
+		private static E621API API_E926 { get; } = new(ModuleType.E926);
+		private static E621API API_E6AI { get; } = new(ModuleType.E6AI);
+
+		public static E621API GetAPI(ModuleType moduleType) {
+			return moduleType switch {
+				ModuleType.E621 => API_E621,
+				ModuleType.E6AI => API_E6AI,
+				ModuleType.E926 => API_E926,
+				_ => throw new NotImplementedException(),
+			};
+		}
+
+		public static string GetHost(ModuleType moduleType) {
 			return moduleType switch {
 				ModuleType.E621 => "e621.net",
 				ModuleType.E6AI => "e6ai.net",
@@ -20,35 +33,46 @@ namespace YB.E621.Services {
 			};
 		}
 
-		public static int GetPostsPerPageCount() =>/* Local.Settings?.E621PageLimitCount ??*/ 75;
+		public ModuleType ModuleType { get; } = moduleType;
+
+		public string GetHost() {
+			return GetHost(ModuleType);
+		}
+
+		public int GetPostsPerPageCount() =>/* Local.Settings?.E621PageLimitCount ??*/ 75;
 
 		#region API
 
-		public static (string username, string apiKey) GetCurrentUser() {
-			return (AppProfile.Instance.E621_Username ?? string.Empty, AppProfile.Instance.E621_ApiKey ?? string.Empty);
+		private (string username, string apiKey) GetUser() {
+			return ModuleType switch {
+				ModuleType.E621 => (AppProfile.Instance.E621_Username ?? string.Empty, AppProfile.Instance.E621_ApiKey ?? string.Empty),
+				ModuleType.E6AI => (AppProfile.Instance.E6AI_Username ?? string.Empty, AppProfile.Instance.E6AI_ApiKey ?? string.Empty),
+				ModuleType.E926 => (AppProfile.Instance.E926_Username ?? string.Empty, AppProfile.Instance.E926_ApiKey ?? string.Empty),
+				_ => throw new NotImplementedException(),
+			};
 		}
 
-		public static async Task<HttpResult<string>> ReadURLAsync(string url, string username, string api, CancellationToken? token = null) {
+		public async Task<HttpResult<string>> ReadURLAsync(string url, string username, string api, CancellationToken? token = null) {
 			return await NetCode.ReadURLAsync(url, username, api, token);
 		}
 
-		public static async Task<HttpResult<string>> ReadURLAsync(string url, CancellationToken? token = null) {
-			(string username, string apiKey) = GetCurrentUser();
+		public async Task<HttpResult<string>> ReadURLAsync(string url, CancellationToken? token = null) {
+			(string username, string apiKey) = GetUser();
 			return await NetCode.ReadURLAsync(url, username, apiKey, token);
 		}
 
-		public static async Task<HttpResult<string>> PutRequestAsync(string url, KeyValuePair<string, string> pair, CancellationToken? token = null) {
-			(string username, string apiKey) = GetCurrentUser();
+		public async Task<HttpResult<string>> PutRequestAsync(string url, KeyValuePair<string, string> pair, CancellationToken? token = null) {
+			(string username, string apiKey) = GetUser();
 			return await NetCode.PutRequestAsync(url, pair, username, apiKey, token);
 		}
 
-		public static async Task<HttpResult<string>> PostRequestAsync(string url, List<KeyValuePair<string, string>> pairs, CancellationToken? token = null) {
-			(string username, string apiKey) = GetCurrentUser();
+		public async Task<HttpResult<string>> PostRequestAsync(string url, List<KeyValuePair<string, string>> pairs, CancellationToken? token = null) {
+			(string username, string apiKey) = GetUser();
 			return await NetCode.PostRequestAsync(url, pairs, username, apiKey, token);
 		}
 
-		public static async Task<HttpResult<string>> DeleteRequestAsync(string url, CancellationToken? token = null) {
-			(string username, string apiKey) = GetCurrentUser();
+		public async Task<HttpResult<string>> DeleteRequestAsync(string url, CancellationToken? token = null) {
+			(string username, string apiKey) = GetUser();
 			return await NetCode.DeleteRequestAsync(url, username, apiKey, token);
 		}
 
@@ -57,7 +81,7 @@ namespace YB.E621.Services {
 
 
 		#region Posts
-		public static async ValueTask<E621Post[]> GetPostsByTagsAsync(E621PostParameters parameters, CancellationToken? token = null) {
+		public async ValueTask<E621Post[]> GetPostsByTagsAsync(E621PostParameters parameters, CancellationToken? token = null) {
 			if (parameters.Page <= 0) {
 				parameters.Page = 1;
 			}
@@ -78,7 +102,7 @@ namespace YB.E621.Services {
 			}
 		}
 
-		public static async ValueTask<E621Post?> GetPostAsync(int? postID, CancellationToken? token = null) {
+		public async ValueTask<E621Post?> GetPostAsync(int? postID, CancellationToken? token = null) {
 			if (postID == null) {
 				return null;
 			}
@@ -96,7 +120,7 @@ namespace YB.E621.Services {
 
 		#region Tags
 
-		public static async ValueTask<E621AutoComplete[]> GetE621AutoCompleteAsync(string tag, CancellationToken? token = null) {
+		public async ValueTask<E621AutoComplete[]> GetE621AutoCompleteAsync(string tag, CancellationToken? token = null) {
 			HttpResult<string> result = await ReadURLAsync($"https://{GetHost()}/tags/autocomplete.json?search[name_matches]={tag}", token: token);
 			if (result.Result == HttpResultType.Success) {
 				return JsonDeserialize<E621AutoComplete[]>(result.Content) ?? [];
@@ -105,7 +129,7 @@ namespace YB.E621.Services {
 			}
 		}
 
-		public static async ValueTask<E621Tag?> GetE621TagAsync(string tag, CancellationToken? token = null) {
+		public async ValueTask<E621Tag?> GetE621TagAsync(string tag, CancellationToken? token = null) {
 			if (tag.IsBlank()) {
 				return null;
 			}
@@ -128,7 +152,7 @@ namespace YB.E621.Services {
 			}
 		}
 
-		public static async ValueTask<E621Wiki?> GetE621WikiAsync(string tag, CancellationToken? token = null) {
+		public async ValueTask<E621Wiki?> GetE621WikiAsync(string tag, CancellationToken? token = null) {
 			tag = tag.ToLower().Trim();
 
 			if (E621Wiki.wikiDictionary.TryGetValue(tag, out string? value)) {
@@ -157,7 +181,7 @@ namespace YB.E621.Services {
 			}
 		}
 
-		public static async ValueTask<bool> UploadBlacklistTags(string username, string[] tags) {
+		public async ValueTask<bool> UploadBlacklistTags(string username, string[] tags) {
 			HttpResult<string> result = await PutRequestAsync(
 				$"https://{GetHost()}/users/{username}.json",
 				new KeyValuePair<string, string>("user[blacklisted_tags]", string.Join("\n", tags))
@@ -168,7 +192,7 @@ namespace YB.E621.Services {
 		#endregion
 
 		#region Comments
-		public static async ValueTask<E621Comment[]> GetCommentsAsync(int postID, CancellationToken? token = null) {
+		public async ValueTask<E621Comment[]> GetCommentsAsync(int postID, CancellationToken? token = null) {
 			string url = $"https://{GetHost()}/comments.json?group_by=comment&search[post_id]={postID}";
 			HttpResult<string> result = await ReadURLAsync(url, token: token);
 			if (result.Content == "{\"comments\":[]}") {
@@ -186,7 +210,7 @@ namespace YB.E621.Services {
 
 		#region Pool
 
-		public static async ValueTask<E621Pool?> GetPoolAsync(string id, CancellationToken? token = null) {
+		public async ValueTask<E621Pool?> GetPoolAsync(string id, CancellationToken? token = null) {
 			HttpResult<string> result = await ReadURLAsync($"https://{GetHost()}/pools/{id}.json", token: token);
 			if (result.Result == HttpResultType.Success) {
 				return JsonDeserialize<E621Pool>(result.Content);
@@ -199,7 +223,7 @@ namespace YB.E621.Services {
 
 		#region Users
 
-		public static async ValueTask<E621User?> GetUserAsync(string username, string apiKey, CancellationToken? token = null) {
+		public async ValueTask<E621User?> GetUserAsync(string username, string apiKey, CancellationToken? token = null) {
 			string url = $"https://{GetHost()}/users.json?search[name_matches]={username}";
 			HttpResult<string> result = await ReadURLAsync(url, username, apiKey, token);
 			if (result.Result == HttpResultType.Success) {
@@ -209,7 +233,7 @@ namespace YB.E621.Services {
 			}
 		}
 
-		public static async ValueTask<E621User?> GetUserAsync(int id, CancellationToken? token = null) {
+		public async ValueTask<E621User?> GetUserAsync(int id, CancellationToken? token = null) {
 			string url = $"https://{GetHost()}/users.json?search[id]={id}";
 			HttpResult<string> result = await ReadURLAsync(url, token: token);
 			if (result.Result == HttpResultType.Success) {
@@ -219,19 +243,19 @@ namespace YB.E621.Services {
 			}
 		}
 
-		public static async ValueTask<HttpResult<string>> PostAddFavoriteAsync(int postID, CancellationToken? token = null) {
+		public async ValueTask<HttpResult<string>> PostAddFavoriteAsync(int postID, CancellationToken? token = null) {
 			string url = $"https://{GetHost()}/favorites.json";
 			return await PostRequestAsync(url, [
 				new KeyValuePair<string, string>("post_id", postID.ToString())
 			], token: token);
 		}
 
-		public static async ValueTask<HttpResult<string>> PostDeleteFavoriteAsync(int postID, CancellationToken? token = null) {
+		public async ValueTask<HttpResult<string>> PostDeleteFavoriteAsync(int postID, CancellationToken? token = null) {
 			string url = $"https://{GetHost()}/favorites/{postID}.json";
 			return await DeleteRequestAsync(url, token: token);
 		}
 
-		public static async ValueTask<DataResult<E621Vote>> VotePost(int postID, int score, bool no_unvote, CancellationToken? token = null) {
+		public async ValueTask<DataResult<E621Vote>> VotePost(int postID, int score, bool no_unvote, CancellationToken? token = null) {
 			HttpResult<string> result = await PostRequestAsync($"https://{GetHost()}/posts/{postID}/votes.json", [
 				new KeyValuePair<string, string>("score", $"{score}"),
 				new KeyValuePair<string, string>("no_unvote", $"{no_unvote}"),
@@ -240,7 +264,7 @@ namespace YB.E621.Services {
 		}
 
 		// no up and down
-		public static async ValueTask<DataResult<E621Vote>> VoteComment(int commentID, int score, bool no_unvote, CancellationToken? token = null) {
+		public async ValueTask<DataResult<E621Vote>> VoteComment(int commentID, int score, bool no_unvote, CancellationToken? token = null) {
 			HttpResult<string> result = await PostRequestAsync($"https://{GetHost()}/comments/{commentID}/votes.json", [
 				new KeyValuePair<string, string>("score", $"{score}"),
 				new KeyValuePair<string, string>("no_unvote", $"{no_unvote}"),
@@ -253,7 +277,7 @@ namespace YB.E621.Services {
 		#region Paginator
 
 
-		public static async ValueTask<DataResult<E621Paginator>> GetPaginatorAsync(string[] tags, int page = 1, CancellationToken? token = null) {
+		public async ValueTask<DataResult<E621Paginator>> GetPaginatorAsync(string[] tags, int page = 1, CancellationToken? token = null) {
 			string tag = string.Join("+", tags).Trim().ToLower();
 
 			string url = $"https://{GetHost()}/posts?tags={tag}&page={page}";
@@ -330,7 +354,7 @@ namespace YB.E621.Services {
 		#endregion
 
 
-		private static T? JsonDeserialize<T>(string? json) {
+		private T? JsonDeserialize<T>(string? json) {
 			if (json is null) {
 				return default;
 			}
@@ -341,7 +365,7 @@ namespace YB.E621.Services {
 			return t;
 		}
 
-		private static void JsonDeserializeErrorHandler(object? sender, ErrorEventArgs e) {
+		private void JsonDeserializeErrorHandler(object? sender, ErrorEventArgs e) {
 
 		}
 	}

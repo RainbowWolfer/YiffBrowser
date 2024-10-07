@@ -80,7 +80,7 @@
 
 						<Border Style="{StaticResource HorizontalSeparator}"/>
 
-						<c:PostHeaderSimpleInfoView Post="{Binding Post}"/>
+						<c:PostHeaderSimpleInfoView Post="{Binding Post}" ModuleType="{Binding ModuleType}"/>
 
 						<Border Style="{StaticResource HorizontalSeparator}"/>
 

@@ -1,5 +1,6 @@
 using System.Windows.Markup;
 
+[assembly: XmlnsDefinition("BaseFramework", "BaseFramework")]
 [assembly: XmlnsDefinition("BaseFramework", "BaseFramework.Controls")]
 [assembly: XmlnsDefinition("BaseFramework", "BaseFramework.Converters")]
 [assembly: XmlnsDefinition("BaseFramework", "BaseFramework.Enums")]

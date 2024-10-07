@@ -19,6 +19,7 @@
 	<con:E621RatingToBrushConverter x:Key="E621RatingToBrushConverter"/>
 	<con:E621RatingToIconConverter x:Key="E621RatingToIconConverter"/>
 	<con:UrlIconConverter x:Key="UrlIconConverter"/>
+	<con:ModuleTypeIconConverter x:Key="ModuleTypeIconConverter"/>
 
 	<bf:SubStringConverter x:Key="RatingHeaderConverter" StartIndex="0" Length="1"/>
 

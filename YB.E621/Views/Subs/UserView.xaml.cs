@@ -1,4 +1,5 @@
-﻿using BaseFramework.ViewModels;
+﻿using BaseFramework.Enums;
+using BaseFramework.ViewModels;
 using BaseFramework.Views;
 using System.Windows.Input;
 using YB.E621.Models.E621;
@@ -25,19 +26,26 @@ namespace YB.E621.Views.Subs {
 			set => SetProperty(ref avatarPost, value);
 		}
 
-		public UserViewModel() {
-			E621UserService.LoginChanged += E621UserService_LoginChanged;
+		public E621UserService UserService { get; }
+
+		public UserViewModel(ModuleType moduleType) {
+			ModuleType = moduleType;
+
+			UserService = E621UserService.GetUserService(moduleType);
+			UserService.LoginChanged += UserService_LoginChanged;
 		}
 
-		private void E621UserService_LoginChanged(E621User? sender, E621Post? args) {
+		private void UserService_LoginChanged(E621User? sender, E621Post? args) {
 			User = sender;
 			AvatarPost = args;
 		}
 
 		public ICommand LogoutCommand => new DelegateCommand(Logout);
 
+		public ModuleType ModuleType { get; }
+
 		private void Logout() {
-			E621UserService.Logout();
+			UserService.Logout();
 		}
 	}
 }

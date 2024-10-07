@@ -28,11 +28,11 @@
 		<TextBox Text="{Binding ApiKey,UpdateSourceTrigger=PropertyChanged}"/>
 
 		<Grid Margin="0,4,0,0">
-			<Button Visibility="{Binding Source={x:Static service:E621UserService.IsUserLoading},Path=Value,Converter={StaticResource BoolToVisibilityReConverter}}" Command="{Binding LoginCommand}">
+			<Button Visibility="{Binding UserService.IsUserLoading.Value,Converter={StaticResource BoolToVisibilityReConverter}}" Command="{Binding LoginCommand}">
 				<TextBlock Text="Login"/>
 			</Button>
 
-			<Border Visibility="{Binding Source={x:Static service:E621UserService.IsUserLoading},Path=Value,Converter={StaticResource BoolToVisibilityConverter}}" CornerRadius="4" BorderThickness="1" BorderBrush="Gray" Height="20" Padding="6" Background="White">
+			<Border Visibility="{Binding UserService.IsUserLoading.Value,Converter={StaticResource BoolToVisibilityConverter}}" CornerRadius="4" BorderThickness="1" BorderBrush="Gray" Height="20" Padding="6" Background="White">
 				<ProgressBar BorderThickness="0" IsIndeterminate="True"/>
 			</Border>
 		</Grid>

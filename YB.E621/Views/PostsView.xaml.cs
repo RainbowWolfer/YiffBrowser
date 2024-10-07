@@ -39,6 +39,8 @@ namespace YB.E621.Views {
 		public ObservableCollection<PostCardControl> Items { get; } = [];
 		public ObservableCollection<PostCardControl> SelectedItems { get; } = [];
 
+		public E621API Api { get; }
+
 		public ModuleType SiteType { get; }
 		public string[] Tags { get; }
 
@@ -73,10 +75,13 @@ namespace YB.E621.Views {
 			set => SetProperty(ref multiSelectingText, value);
 		}
 
-		public PostDetailViewModel PostDetailViewModel { get; } = new();
+		public PostDetailViewModel PostDetailViewModel { get; } 
 
-		public PostsViewModel(ModuleType siteType, string[] tags) {
-			SiteType = siteType;
+		public PostsViewModel(ModuleType moduleType, string[] tags) {
+			Api = E621API.GetAPI(moduleType);
+			PostDetailViewModel = new PostDetailViewModel(moduleType);
+
+			SiteType = moduleType;
 			Tags = tags;
 
 			SelectedItems.CollectionChanged += SelectedItems_CollectionChanged;
@@ -130,7 +135,7 @@ namespace YB.E621.Views {
 			IsMultiSelecting = false;
 
 			Items.Clear();
-			E621Post[] posts = await E621API.GetPostsByTagsAsync(new E621PostParameters() {
+			E621Post[] posts = await Api.GetPostsByTagsAsync(new E621PostParameters() {
 				Tags = Tags,
 				Page = CurrentPage,
 			});

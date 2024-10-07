@@ -21,7 +21,7 @@
     <AssemblyTitle>Yiff Browser</AssemblyTitle>
     <AssemblyName>Yiff Browser</AssemblyName>
 
-    <FileVersion>1.0.1</FileVersion>
+    <AssemblyVersion>1.0.3</AssemblyVersion>
     
   </PropertyGroup>
 
