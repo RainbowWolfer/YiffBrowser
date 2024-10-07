@@ -1,6 +1,6 @@
 ﻿using BaseFramework.Helpers;
+using BaseFramework.Models;
 using System.ComponentModel;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -10,11 +10,17 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using XamlAnimatedGif;
 
 namespace BaseFramework.Controls {
 	[TemplatePart(Name = ElementPanelMain, Type = typeof(Panel))]
 	[TemplatePart(Name = ElementImageMain, Type = typeof(Image))]
 	public class ImageViewer : Control, IDisposable {
+
+		static ImageViewer() {
+			DefaultStyleKeyProperty.OverrideMetadata(typeof(ImageViewer), new FrameworkPropertyMetadata(typeof(ImageViewer)));
+		}
+
 		#region Constants
 
 		private const string ElementPanelMain = "PART_PanelMain";
@@ -28,7 +34,7 @@ namespace BaseFramework.Controls {
 		#region Data
 
 		private Panel? _panelMain;
-		private Image? _imageMain;
+		private ImageExtend? _imageMain;
 
 		private bool _canMoveX;
 		private bool _canMoveY;
@@ -40,11 +46,8 @@ namespace BaseFramework.Controls {
 		private Thickness _imgMouseDownMargin;
 		private Point _imgMouseDownPoint;
 		private double _imgWidHeiScale;
-		private bool _isOblique;
 		private double _scaleInternalHeight;
 		private double _scaleInternalWidth;
-
-		private DispatcherTimer? _dispatcher;
 
 		private bool _isLoaded;
 		private MouseBinding? _mouseMoveBinding;
@@ -61,17 +64,11 @@ namespace BaseFramework.Controls {
 
 			Loaded += (s, e) => {
 				_isLoaded = true;
-				Init();
+				Initialize();
 			};
 		}
 
 		#region Properties
-
-		public static readonly DependencyProperty ImageSourceProperty = DependencyProperty.Register(
-			nameof(ImageSource), typeof(BitmapImage), typeof(ImageViewer), new PropertyMetadata(default(BitmapImage), OnImageSourceChanged));
-
-		public static readonly DependencyProperty UriProperty = DependencyProperty.Register(
-			nameof(Uri), typeof(Uri), typeof(ImageViewer), new PropertyMetadata(default(Uri), OnUriChanged));
 
 		public static readonly DependencyProperty MoveGestureProperty = DependencyProperty.Register(
 			nameof(MoveGesture), typeof(MouseGesture), typeof(ImageViewer), new UIPropertyMetadata(new MouseGesture(MouseAction.LeftClick), OnMoveGestureChanged));
@@ -97,9 +94,6 @@ namespace BaseFramework.Controls {
 		internal static readonly DependencyProperty ImageScaleProperty = DependencyProperty.Register(
 			nameof(ImageScale), typeof(double), typeof(ImageViewer), new PropertyMetadata(1d, OnImageScaleChanged));
 
-		internal static readonly DependencyProperty ScaleStrProperty = DependencyProperty.Register(
-			nameof(ScaleStr), typeof(string), typeof(ImageViewer), new PropertyMetadata("100%"));
-
 		internal static readonly DependencyProperty ImageRotateProperty = DependencyProperty.Register(
 			nameof(ImageRotate), typeof(double), typeof(ImageViewer), new PropertyMetadata(0d));
 
@@ -108,16 +102,6 @@ namespace BaseFramework.Controls {
 		public MouseGesture MoveGesture {
 			get => (MouseGesture)GetValue(MoveGestureProperty);
 			set => SetValue(MoveGestureProperty, value);
-		}
-
-		public BitmapImage? ImageSource {
-			get => (BitmapImage)GetValue(ImageSourceProperty);
-			set => SetValue(ImageSourceProperty, value);
-		}
-
-		public Uri Uri {
-			get => (Uri)GetValue(UriProperty);
-			set => SetValue(UriProperty, value);
 		}
 
 		internal object ImageContent {
@@ -155,19 +139,73 @@ namespace BaseFramework.Controls {
 			internal set => SetValue(ImageScaleProperty, value);
 		}
 
-		internal string ScaleStr {
-			get => (string)GetValue(ScaleStrProperty);
-			set => SetValue(ScaleStrProperty, value);
-		}
-
 		internal double ImageRotate {
 			get => (double)GetValue(ImageRotateProperty);
 			set => SetValue(ImageRotateProperty, value);
 		}
 
-		private double ImageOriWidth { get; set; }
 
-		private double ImageOriHeight { get; set; }
+
+
+		public GifImage? GifImage {
+			get => (GifImage)GetValue(GifImageProperty);
+			set => SetValue(GifImageProperty, value);
+		}
+
+		public static readonly DependencyProperty GifImageProperty = DependencyProperty.Register(
+			nameof(GifImage),
+			typeof(GifImage),
+			typeof(ImageViewer),
+			new PropertyMetadata(null)
+		);
+
+
+
+		public BitmapImage? BitmapImage {
+			get => (BitmapImage)GetValue(BitmapImageProperty);
+			set => SetValue(BitmapImageProperty, value);
+		}
+
+		public static readonly DependencyProperty BitmapImageProperty = DependencyProperty.Register(
+			nameof(BitmapImage),
+			typeof(BitmapImage),
+			typeof(ImageViewer),
+			new PropertyMetadata(null)
+		);
+
+
+
+
+		private double ImageOriginalWidth { get; set; }
+		private double ImageOriginalHeight { get; set; }
+
+		public void SetBitmapImage(BitmapImage bitmapImage) {
+			ImageOriginalWidth = bitmapImage.PixelWidth;
+			ImageOriginalHeight = bitmapImage.PixelHeight;
+
+			BitmapImage = bitmapImage;
+
+			Initialize();
+		}
+
+		public void SetGifImage(GifImage gifImage) {
+			ImageOriginalWidth = gifImage.Width;
+			ImageOriginalHeight = gifImage.Height;
+
+			GifImage = gifImage;
+
+			Initialize();
+		}
+
+		public void Clear(){
+			ImageOriginalWidth = 0;
+			ImageOriginalHeight = 0;
+
+			BitmapImage = null;
+			GifImage = null;
+
+			Initialize();
+		}
 
 		#endregion
 
@@ -175,61 +213,42 @@ namespace BaseFramework.Controls {
 			base.OnApplyTemplate();
 
 			_panelMain = (Panel)GetTemplateChild(ElementPanelMain);
-			_imageMain = (Image)GetTemplateChild(ElementImageMain);
+			_imageMain = (ImageExtend)GetTemplateChild(ElementImageMain);
 
 			if (_imageMain != null) {
 				RotateTransform t = new();
 				BindingOperations.SetBinding(t, RotateTransform.AngleProperty, new Binding(ImageRotateProperty.Name) { Source = this });
 				_imageMain.LayoutTransform = t;
+			} else {
+				throw new ArgumentNullException(nameof(_imageMain));
 			}
 
 		}
 
 		private static void OnImageScaleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 			if (d is ImageViewer imageViewer && e.NewValue is double newValue) {
-				imageViewer.ImageWidth = imageViewer.ImageOriWidth * newValue;
-				imageViewer.ImageHeight = imageViewer.ImageOriHeight * newValue;
-				imageViewer.ScaleStr = $"{newValue * 100:#0}%";
+				imageViewer.ImageWidth = imageViewer.ImageOriginalWidth * newValue;
+				imageViewer.ImageHeight = imageViewer.ImageOriginalHeight * newValue;
 			}
 		}
 
-		public void Init() {
-			if (ImageSource == null || !_isLoaded) {
-				return;
-			}
-
-			if (ImageSource.IsDownloading) {
-				_dispatcher = new DispatcherTimer(DispatcherPriority.ApplicationIdle) {
-					Interval = TimeSpan.FromSeconds(1)
-				};
-				_dispatcher.Tick += Dispatcher_Tick;
-				_dispatcher.Start();
-
+		public void Initialize() {
+			if (/*ImageSource == null || */!_isLoaded) {
 				return;
 			}
 
 			Dispatcher.Invoke(() => {
 
-				double width;
-				double height;
-
-				if (!_isOblique) {
-					width = ImageSource.PixelWidth;
-					height = ImageSource.PixelHeight;
-				} else {
-					width = ImageSource.PixelHeight;
-					height = ImageSource.PixelWidth;
-				}
+				double height = ImageOriginalHeight;
+				double width = ImageOriginalWidth;
 
 				ImageWidth = width;
 				ImageHeight = height;
-				ImageOriWidth = width;
-				ImageOriHeight = height;
-				_scaleInternalWidth = ImageOriWidth * ScaleInternal;
-				_scaleInternalHeight = ImageOriHeight * ScaleInternal;
+				_scaleInternalWidth = ImageOriginalWidth * ScaleInternal;
+				_scaleInternalHeight = ImageOriginalHeight * ScaleInternal;
 
 				if (Math.Abs(height - 0) < 0.001 || Math.Abs(width - 0) < 0.001) {
-					MessageBox.Show("ErrorImgSize");
+					//MessageBox.Show("Invalid Image Size");
 					return;
 				}
 
@@ -254,26 +273,6 @@ namespace BaseFramework.Controls {
 
 		}
 
-		private void Dispatcher_Tick(object? sender, EventArgs e) {
-			if (_dispatcher == null) {
-				return;
-			}
-
-			if (ImageSource == null || !_isLoaded) {
-				_dispatcher.Stop();
-				_dispatcher.Tick -= Dispatcher_Tick;
-				_dispatcher = null;
-				return;
-			}
-
-			if (!ImageSource.IsDownloading) {
-				_dispatcher.Stop();
-				_dispatcher.Tick -= Dispatcher_Tick;
-				_dispatcher = null;
-				Init();
-			}
-		}
-
 		public void Actual() {
 			DoubleAnimation scaleAnimation = AnimationHelper.CreateAnimation(1);
 			scaleAnimation.FillBehavior = FillBehavior.Stop;
@@ -283,7 +282,7 @@ namespace BaseFramework.Controls {
 				_canMoveX = ImageWidth > ActualWidth;
 				_canMoveY = ImageHeight > ActualHeight;
 			};
-			Thickness thickness = new((ActualWidth - ImageOriWidth) / 2, (ActualHeight - ImageOriHeight) / 2, 0, 0);
+			Thickness thickness = new((ActualWidth - ImageOriginalWidth) / 2, (ActualHeight - ImageOriginalHeight) / 2, 0, 0);
 			ThicknessAnimation marginAnimation = AnimationHelper.CreateAnimation(thickness);
 			marginAnimation.FillBehavior = FillBehavior.Stop;
 			_imgActualMargin = thickness;
@@ -419,8 +418,8 @@ namespace BaseFramework.Controls {
 		private void RotateImg(double rotate) {
 			_imgActualRotate = rotate;
 
-			_isOblique = ((int)_imgActualRotate - 90) % 180 == 0;
-			Init();
+			//_isOblique = ((int)_imgActualRotate - 90) % 180 == 0;
+			Initialize();
 
 			DoubleAnimation animation = AnimationHelper.CreateAnimation(rotate);
 			animation.Completed += (s, e1) => { ImageRotate = rotate; };
@@ -485,45 +484,14 @@ namespace BaseFramework.Controls {
 			InputBindings.Add(_mouseMoveBinding);
 		}
 
-		private static void OnImageSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-			((ImageViewer)d).OnImageSourceChanged();
-		}
-
-		private void OnImageSourceChanged() {
-			Init();
-		}
-
-		private static void OnUriChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-			((ImageViewer)d).OnUriChanged((Uri)e.NewValue);
-		}
-
-		private void OnUriChanged(Uri newValue) {
-			ImageSource = newValue is not null ? GetBitmapImage(newValue) : null;
-			if (ImageSource is not null && newValue!.IsAbsoluteUri) {
-				ImgPath = newValue.AbsolutePath;
-				if (File.Exists(ImgPath)) {
-					ImgSize = new FileInfo(ImgPath).Length;
-				}
-			} else {
-				ImgPath = string.Empty;
-				ImgSize = 0;
-			}
-
-			static BitmapImage? GetBitmapImage(Uri source) {
-				try {
-					return new BitmapImage(source);
-				} catch {
-					return null;
-				}
-			}
-		}
-
 		protected virtual void Dispose(bool disposing) {
 			if (!_isDisposed) {
 				if (disposing) {
-					ImageSource = null;
-					_imageMain!.Source = null;
-					_imageMain.UpdateLayout();
+					//ImageSource = null;
+					if (_imageMain != null) {
+						_imageMain.Clear();
+						_imageMain.UpdateLayout();
+					}
 				}
 
 				_isDisposed = true;

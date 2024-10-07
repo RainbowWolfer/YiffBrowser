@@ -5,6 +5,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using YB.E621.Models.E621;
 
 namespace YB.E621.Views.Subs {
@@ -80,7 +81,7 @@ namespace YB.E621.Views.Subs {
 		protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
 			base.OnRenderSizeChanged(sizeInfo);
 			//if (!IsFileReady) {
-			ImageViewer.Init();
+			ImageViewer.Initialize();
 			//}
 		}
 
@@ -94,12 +95,17 @@ namespace YB.E621.Views.Subs {
 		private BitmapCacheItem? file;
 
 		public void Update(E621Post? post) {
+			if (post is null) {
+				Dispatcher.Invoke(ImageViewer.Clear, DispatcherPriority.Loaded);
+				return;
+			}
+
 			ErrorMessage = string.Empty;
 			ProgressBar.IsIndeterminate = true;
 			LoadingBorder.Visibility = Visibility.Visible;
 
 			IsFileReady = false;
-			fileSize = post?.File?.Size ?? 0;
+			fileSize = post.File?.Size ?? 0;
 
 			if (sample != null) {
 				sample.Updated -= Sample_Updated;
@@ -109,61 +115,73 @@ namespace YB.E621.Views.Subs {
 				file.Updated -= File_Updated;
 			}
 
-			if (post != null) {
-
-				if (post.Sample != null && post.Sample.URL != null) {
-					sample = BitmapCacheService.Get(post.Sample.URL);
-				}
-
-				if (post.File != null && post.File.URL != null) {
-					file = BitmapCacheService.Get(post.File.URL);
-				}
-
-				if (sample != null) {
-					sample.Updated += Sample_Updated;
-				}
-
-				if (file != null) {
-					file.Updated += File_Updated;
-				}
-
-				if (sample != null) {
-					if (sample.HasCompleted) {
-						ImageViewer.ImageSource = sample.Image;
-					} else {
-						sample.Initialize();
-						return;
-					}
-				}
-
-				if (file != null) {
-					if (file.HasCompleted) {
-						ImageViewer.ImageSource = file.Image;
-						LoadingBorder.Visibility = Visibility.Collapsed;
-						IsFileReady = true;
-					} else {
-						file.Initialize();
-						return;
-					}
-				}
-
+			if (post.Sample != null && post.Sample.URL != null) {
+				sample = BitmapCacheService.Get(post.Sample.URL);
 			}
+
+			if (post.File != null && post.File.URL != null) {
+				file = BitmapCacheService.Get(post.File.URL);
+			}
+
+			if (sample != null) {
+				sample.Updated += Sample_Updated;
+			}
+
+			if (file != null) {
+				file.Updated += File_Updated;
+			}
+
+			if (sample != null) {
+				if (sample.HasCompleted) {
+					SetImageContent(sample);
+					//ImageViewer.SetBitmapImage(sample.Image);
+				} else {
+					sample.Initialize();
+					return;
+				}
+			}
+
+			if (file != null) {
+				if (file.HasCompleted) {
+					SetImageContent(file);
+					//ImageViewer.SetBitmapImage(file.Image);
+					LoadingBorder.Visibility = Visibility.Collapsed;
+					IsFileReady = true;
+				} else {
+					file.Initialize();
+					return;
+				}
+			}
+
 		}
 
 		private void Sample_Updated(BitmapCacheItem sender, BitmapLoadingModel args) {
+			if (!CheckAccess()) {
+				Dispatcher.Invoke(Sample_Updated, sender, args);
+				return;
+			}
 			if (args.HasCompleted) {
 				file?.Initialize();
 				if (sender.Image != null) {
-					ImageViewer.ImageSource = sender.Image;
+					SetImageContent(sender);
+					//ImageViewer.SetBitmapImage(sender.Image);
+				}
+				if (file != null && file.HasCompleted) {
+					SetImageContent(file);
 				}
 			}
 		}
 
 		private void File_Updated(BitmapCacheItem sender, BitmapLoadingModel args) {
+			if (!CheckAccess()) {
+				Dispatcher.Invoke(File_Updated, sender, args);
+				return;
+			}
 			if (args.HasCompleted) {
 				LoadingBorder.Visibility = Visibility.Collapsed;
 				if (sender.Image != null) {
-					ImageViewer.ImageSource = sender.Image;
+					SetImageContent(sender);
+					//ImageViewer.SetBitmapImage(sender.Image);
 					IsFileReady = true;
 				}
 			} else if (args.HasError) {
@@ -178,6 +196,16 @@ namespace YB.E621.Views.Subs {
 			}
 		}
 
+		private void SetImageContent(BitmapCacheItem item) {
+			Dispatcher.Invoke(() => {
+				if (item.IsGif && item.GifImage != null) {
+					ImageViewer.SetGifImage(item.GifImage);
+				} else if (item.Image != null) {
+					ImageViewer.SetBitmapImage(item.Image);
+				}
+			}, DispatcherPriority.Loaded);
+		}
+
 		private void ReloadButton_Click(object sender, RoutedEventArgs e) {
 			file?.Clear();
 			Update();
@@ -185,7 +213,7 @@ namespace YB.E621.Views.Subs {
 
 		private void ImageViewer_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
 			if (Math.Abs(ImageViewer.ImageScale - 1) < 0.01) {
-				ImageViewer.Init();
+				ImageViewer.Initialize();
 			} else {
 				ImageViewer.Actual();
 			}
@@ -194,7 +222,7 @@ namespace YB.E621.Views.Subs {
 
 		private void ImageViewer_MouseUp(object sender, MouseButtonEventArgs e) {
 			if (e.ChangedButton == MouseButton.Middle) {
-				ImageViewer.Init();
+				ImageViewer.Initialize();
 				e.Handled = true;
 			}
 		}

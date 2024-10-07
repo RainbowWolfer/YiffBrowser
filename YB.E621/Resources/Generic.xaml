@@ -89,18 +89,17 @@
 							<Grid>
 
 								<Border ClipToBounds="True">
-									<Border RenderTransformOrigin="0.5,0.5">
+
+									<Border RenderTransformOrigin="0.5,0.5" CornerRadius="4,4,0,0">
 										<Border.RenderTransform>
 											<ScaleTransform x:Name="Scale" ScaleX="1" ScaleY="1"/>
 										</Border.RenderTransform>
-										<Border.Background>
-											<ImageBrush x:Name="ImageBrush" Stretch="UniformToFill" AlignmentX="Center" AlignmentY="Center"/>
-										</Border.Background>
+										<bf:ImageExtend Stretch="UniformToFill" GifImage="{TemplateBinding GifImage}" BitmapImage="{TemplateBinding BitmapImage}" bf:ImageExtension.GifAutoPlayType="{TemplateBinding GifAutoPlayType}"/>
 									</Border>
 								</Border>
 
 								<StackPanel>
-									<ProgressBar Name="LoadingProgressBar" Height="6" BorderThickness="0" IsIndeterminate="True" bf:BorderExtension.CornerRadius="4,4,0,0"/>
+									<ProgressBar Name="LoadingProgressBar" Height="6" BorderThickness="0" IsIndeterminate="True" bf:BorderExtension.CornerRadius="4,4,0,0" Value="{TemplateBinding LoadingProgress}"/>
 
 									<Grid Margin="4" DataContext="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},Path=TypeHint}" Visibility="{Binding Converter={StaticResource StringToVisibilityConverter}}">
 										<Border HorizontalAlignment="Right" Padding="4,2" CornerRadius="4">
@@ -125,6 +124,20 @@
 					</bf:ClippingBorder>
 
 					<ControlTemplate.Triggers>
+						<Trigger Property="LoadingStatus" Value="HasCompleted">
+							<Setter TargetName="LoadingProgressBar" Property="Visibility" Value="Collapsed"/>
+						</Trigger>
+						<Trigger Property="LoadingStatus" Value="HasError">
+							<Setter TargetName="LoadingProgressBar" Property="Visibility" Value="Collapsed"/>
+						</Trigger>
+						<Trigger Property="LoadingStatus" Value="Loading">
+							<Setter TargetName="LoadingProgressBar" Property="Visibility" Value="Visible"/>
+							<Setter TargetName="LoadingProgressBar" Property="IsIndeterminate" Value="False"/>
+						</Trigger>
+						<Trigger Property="LoadingStatus" Value="NotStarted">
+							<Setter TargetName="LoadingProgressBar" Property="Visibility" Value="Visible"/>
+							<Setter TargetName="LoadingProgressBar" Property="IsIndeterminate" Value="True"/>
+						</Trigger>
 						<!--<MultiDataTrigger>
 							<MultiDataTrigger.Conditions>
 								<Condition Binding="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},Path=IsSelected}" Value="True"/>

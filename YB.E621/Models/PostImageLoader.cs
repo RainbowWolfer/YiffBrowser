@@ -15,6 +15,7 @@ namespace YB.E621.Models {
 	public class PostImageLoader {
 
 		public event TypedEventHandler<PostImageLoader, BitmapImage?>? ImageChanged;
+		public event TypedEventHandler<PostImageLoader, GifImage?>? ImageGifChanged;
 
 		public event TypedEventHandler<BitmapCacheItem, BitmapLoadingModel>? Progress;
 
@@ -40,7 +41,7 @@ namespace YB.E621.Models {
 		private void Preview_Updated(BitmapCacheItem sender, BitmapLoadingModel args) {
 			Progress?.Invoke(sender, args);
 			if (args.HasCompleted) {
-				ImageChanged?.Invoke(this, sender.Image);
+				RaiseImageChanged(sender);
 				Sample.Initialize();
 			}
 		}
@@ -48,7 +49,7 @@ namespace YB.E621.Models {
 		private void Sample_Updated(BitmapCacheItem sender, BitmapLoadingModel args) {
 			Progress?.Invoke(sender, args);
 			if (args.HasCompleted) {
-				ImageChanged?.Invoke(this, sender.Image);
+				RaiseImageChanged(sender);
 			}
 		}
 
@@ -56,10 +57,18 @@ namespace YB.E621.Models {
 			Preview.Initialize();
 			if (Sample.HasCompleted) {
 				Progress?.Invoke(Sample, new BitmapLoadingModel(true, false, true, 100));
-				ImageChanged?.Invoke(this, Sample.Image);
+				RaiseImageChanged(Sample);
 			} else if (Preview.HasCompleted) {
 				Progress?.Invoke(Preview, new BitmapLoadingModel(true, false, true, 100));
-				ImageChanged?.Invoke(this, Preview.Image);
+				RaiseImageChanged(Preview);
+			}
+		}
+
+		private void RaiseImageChanged(BitmapCacheItem item) {
+			if (item.IsGif) {
+				ImageGifChanged?.Invoke(this, item.GifImage);
+			} else {
+				ImageChanged?.Invoke(this, item.Image);
 			}
 		}
 

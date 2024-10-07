@@ -52,6 +52,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Prism.Wpf" Version="9.0.537" />
+    <PackageReference Include="XamlAnimatedGif" Version="2.3.0" />
   </ItemGroup>
 
   <ItemGroup>

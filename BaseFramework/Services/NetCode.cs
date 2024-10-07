@@ -188,7 +188,7 @@ namespace BaseFramework.Services {
 			return hr;
 		}
 
-		private static void AddDefaultRequestHeaders(HttpClient client, string username, string api) {
+		public static void AddDefaultRequestHeaders(HttpClient client, string username, string api) {
 			client.DefaultRequestHeaders.Add("User-Agent", USERAGENT);
 			AddAuthorizationHeader(client, username, api);
 			//AddAuthorizationHeader(client, "RainbowWolfer", "WUwPNbGDrfXnQoHfvU1nR3TD");

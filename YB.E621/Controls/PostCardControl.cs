@@ -1,13 +1,18 @@
-﻿using BaseFramework.Helpers;
+﻿using BaseFramework.Controls;
+using BaseFramework.Enums;
+using BaseFramework.Helpers;
 using BaseFramework.Interfaces;
 using BaseFramework.Models;
 using BaseFramework.Services;
+using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using XamlAnimatedGif;
 using YB.E621.Models;
 using YB.E621.Models.E621;
 using YB.E621.Services;
@@ -27,7 +32,6 @@ namespace YB.E621.Controls {
 			typeof(PostCardControl),
 			new PropertyMetadata(false)
 		);
-
 
 		public E621Post Post {
 			get => (E621Post)GetValue(PostProperty.DependencyProperty);
@@ -50,11 +54,82 @@ namespace YB.E621.Controls {
 		public static readonly DependencyPropertyKey TypeHintPropertyKey = DependencyProperty.RegisterReadOnly(
 			nameof(TypeHint),
 			typeof(string),
-			typeof(SearchTagItemControl),
+			typeof(PostCardControl),
 			new PropertyMetadata(string.Empty)
 		);
 
 		public static readonly DependencyProperty TypeHintProperty = TypeHintPropertyKey.DependencyProperty;
+
+
+
+		public LoadingStatus LoadingStatus {
+			get => (LoadingStatus)GetValue(LoadingStatusProperty);
+			private set => SetValue(LoadingStatusPropertyKey, value);
+		}
+
+		public static readonly DependencyPropertyKey LoadingStatusPropertyKey = DependencyProperty.RegisterReadOnly(
+			nameof(LoadingStatus),
+			typeof(LoadingStatus),
+			typeof(PostCardControl),
+			new PropertyMetadata(LoadingStatus.NotStarted)
+		);
+
+		public static readonly DependencyProperty LoadingStatusProperty = LoadingStatusPropertyKey.DependencyProperty;
+
+
+		public double LoadingProgress {
+			get => (double)GetValue(LoadingProgressProperty);
+			private set => SetValue(LoadingProgressPropertyKey, value);
+		}
+
+		public static readonly DependencyPropertyKey LoadingProgressPropertyKey = DependencyProperty.RegisterReadOnly(
+			nameof(LoadingProgress),
+			typeof(double),
+			typeof(PostCardControl),
+			new PropertyMetadata(0d)
+		);
+
+		public static readonly DependencyProperty LoadingProgressProperty = LoadingProgressPropertyKey.DependencyProperty;
+
+
+
+		public GifImage? GifImage {
+			get => (GifImage)GetValue(GifImageProperty);
+			set => SetValue(GifImageProperty, value);
+		}
+
+		public static readonly DependencyProperty GifImageProperty = DependencyProperty.Register(
+			nameof(GifImage),
+			typeof(GifImage),
+			typeof(PostCardControl),
+			new PropertyMetadata(null)
+		);
+
+		public BitmapImage? BitmapImage {
+			get => (BitmapImage)GetValue(BitmapImageProperty);
+			set => SetValue(BitmapImageProperty, value);
+		}
+
+		public static readonly DependencyProperty BitmapImageProperty = DependencyProperty.Register(
+			nameof(BitmapImage),
+			typeof(BitmapImage),
+			typeof(PostCardControl),
+			new PropertyMetadata(null)
+		);
+
+
+		public GifAutoPlayType GifAutoPlayType {
+			get => (GifAutoPlayType)GetValue(GifAutoPlayTypeProperty);
+			set => SetValue(GifAutoPlayTypeProperty, value);
+		}
+
+		public static readonly DependencyProperty GifAutoPlayTypeProperty = DependencyProperty.Register(
+			nameof(GifAutoPlayType),
+			typeof(GifAutoPlayType),
+			typeof(PostCardControl),
+			new PropertyMetadata(GifAutoPlayType.WhenMouseOver)
+		);
+
 
 
 		public int ColSpan { get; }
@@ -76,6 +151,7 @@ namespace YB.E621.Controls {
 			ImageLoader = new PostImageLoader(post);
 			ImageLoader.Progress += ImageLoader_Progress;
 			ImageLoader.ImageChanged += ImageLoader_ImageChanged;
+			ImageLoader.ImageGifChanged += ImageLoader_ImageGifChanged;
 
 			Vector2 size = post.GetSize();
 			double ratio = size.X / size.Y;
@@ -84,46 +160,48 @@ namespace YB.E621.Controls {
 
 			ColSpan = 1;
 			RowSpan = h2;
-
 		}
 
 		private Border? RootBorder;
 		private Storyboard? ScaleOn;
 		private Storyboard? ScaleOff;
-		private ImageBrush? ImageBrush;
-		private ProgressBar? LoadingProgressBar;
 
 		public override void OnApplyTemplate() {
 			base.OnApplyTemplate();
 
+			RootBorder = (Border)GetTemplateChild(nameof(RootBorder));
 			ScaleOn = (Storyboard)FindResource(nameof(ScaleOn));
 			ScaleOff = (Storyboard)FindResource(nameof(ScaleOff));
-
-			RootBorder = (Border)GetTemplateChild(nameof(RootBorder));
-			ImageBrush = (ImageBrush)GetTemplateChild(nameof(ImageBrush));
-			LoadingProgressBar = (ProgressBar)GetTemplateChild(nameof(LoadingProgressBar));
 
 			ImageLoader.Initialize();
 
 		}
 
 		private void ImageLoader_Progress(BitmapCacheItem sender, BitmapLoadingModel args) {
+			if (!CheckAccess()) {
+				Dispatcher.Invoke(ImageLoader_Progress, sender, args);
+				return;
+			}
 			if (args.HasError) {
-				LoadingProgressBar!.Visibility = Visibility.Collapsed;
+				LoadingStatus = LoadingStatus.HasError;
 			} else if (args.HasCompleted) {
-				LoadingProgressBar!.Visibility = Visibility.Collapsed;
-			} else if (args.HasStarted) {
-				LoadingProgressBar!.Visibility = Visibility.Visible;
-				LoadingProgressBar!.IsIndeterminate = true;
+				LoadingStatus = LoadingStatus.HasCompleted;
+			} else if (!args.HasStarted) {
+				LoadingStatus = LoadingStatus.NotStarted;
 			} else {
-				LoadingProgressBar!.Visibility = Visibility.Visible;
-				LoadingProgressBar!.IsIndeterminate = false;
-				LoadingProgressBar!.Value = CommonHelper.Remap(args.Progress, 0, 100, 5, 95);
+				LoadingStatus = LoadingStatus.Loading;
+				LoadingProgress = CommonHelper.Remap(args.Progress, 0, 100, 5, 95);
 			}
 		}
 
 		private void ImageLoader_ImageChanged(PostImageLoader sender, BitmapImage? args) {
-			ImageBrush!.ImageSource = args;
+			GifImage = null;
+			BitmapImage = args;
+		}
+
+		private void ImageLoader_ImageGifChanged(PostImageLoader sender, GifImage? args) {
+			BitmapImage = null;
+			GifImage = args;
 		}
 
 		protected override void OnMouseEnter(MouseEventArgs e) {
@@ -136,5 +214,12 @@ namespace YB.E621.Controls {
 			ScaleOff!.Begin(RootBorder);
 		}
 
+	}
+
+	public enum LoadingStatus {
+		NotStarted,
+		HasError,
+		HasCompleted,
+		Loading,
 	}
 }
