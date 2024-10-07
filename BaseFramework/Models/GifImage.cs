@@ -15,7 +15,9 @@ namespace BaseFramework.Models {
 
 		public Uri Uri { get; } = uri;
 
-		public MemoryStream? MemoryStream { get; private set; }
+		private ThreadLocal<MemoryStream?> MemoryStream { get; } = new();
+
+		public MemoryStream? GetMemoryStream() => MemoryStream.Value;
 
 		public int Width { get; private set; }
 		public int Height { get; private set; }
@@ -31,6 +33,9 @@ namespace BaseFramework.Models {
 
 			Action? action = null;
 
+			using MemoryStream memoryStream = new();
+			bool success = false;
+
 			await Task.Run(async () => {
 
 				using HttpClient client = new();
@@ -44,8 +49,6 @@ namespace BaseFramework.Models {
 					response.EnsureSuccessStatusCode();
 					long? contentLength = response.Content.Headers.ContentLength;
 
-					MemoryStream = new();
-
 					using Stream contentStream = await response.Content.ReadAsStreamAsync();
 
 					long totalRead = 0L;
@@ -57,7 +60,7 @@ namespace BaseFramework.Models {
 						if (read == 0) {
 							isMoreToRead = false;
 						} else {
-							await MemoryStream.WriteAsync(buffer.AsMemory(0, read));
+							await memoryStream.WriteAsync(buffer.AsMemory(0, read));
 							totalRead += read;
 
 							if (contentLength.HasValue) {
@@ -67,10 +70,10 @@ namespace BaseFramework.Models {
 						}
 					} while (isMoreToRead);
 
-					MemoryStream.Position = 0; // Reset stream position before usage
+					memoryStream.Position = 0; // Reset stream position before usage
 
 					// Create GifBitmapDecoder to get dimensions
-					GifBitmapDecoder decoder = new(MemoryStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
+					GifBitmapDecoder decoder = new(memoryStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
 					if (decoder.Frames.Count > 0) {
 						Width = decoder.Frames[0].PixelWidth;
 						Height = decoder.Frames[0].PixelHeight;
@@ -78,6 +81,9 @@ namespace BaseFramework.Models {
 						Width = 0;
 						Height = 0;
 					}
+
+					success = true;
+
 					action = () => {
 						DownloadCompleted?.Invoke(this, EventArgs.Empty);
 					};
@@ -87,9 +93,12 @@ namespace BaseFramework.Models {
 						DownloadFailed?.Invoke(this, ex);
 					};
 					IsInitialized = false;
-					MemoryStream = null;
 				}
 			});
+
+			if (success) {
+				MemoryStream.Value = new MemoryStream(memoryStream.ToArray(), false);
+			}
 
 			action?.Invoke();
 		}

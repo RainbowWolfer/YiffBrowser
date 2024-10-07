@@ -1,12 +1,14 @@
 ﻿using BaseFramework.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using XamlAnimatedGif;
 
 namespace BaseFramework.Controls {
@@ -57,13 +59,19 @@ namespace BaseFramework.Controls {
 		}
 
 		private static object GifImageCoerce(DependencyObject d, object baseValue) {
+			if (baseValue == d.GetValue(GifImageProperty)) {
+
+			}
 			return baseValue;
 		}
 
 
 		private void LoadGif(GifImage gifImage) {
-			if (gifImage?.MemoryStream != null) {
-				AnimationBehavior.SetSourceStream(this, gifImage.MemoryStream);
+			ClearValue(AnimationBehavior.SourceStreamProperty);
+			MemoryStream? stream = gifImage.GetMemoryStream();
+			if (stream != null) {
+				AnimationBehavior.SetSourceStream(this, stream);
+				//AnimationBehavior.SetCacheFramesInMemory(this, false);
 			}
 		}
 
@@ -77,5 +85,54 @@ namespace BaseFramework.Controls {
 			Source = null;
 		}
 
+		private DispatcherTimer ResizeTimer { get; } = new() {
+			Interval = TimeSpan.FromMilliseconds(200),
+		};
+
+		private bool HasLoaded { get; set; } = false;
+
+		public ImageExtend() {
+			ResizeTimer.Tick += ResizeTimer_Tick;
+			Loaded += ImageExtend_Loaded;
+			Unloaded += ImageExtend_Unloaded;
+			IsVisibleChanged += ImageExtend_IsVisibleChanged;
+
+			//AnimationBehavior.SetCacheFramesInMemory(this, true);
+		}
+
+		private void ImageExtend_SizeChanged(object sender, SizeChangedEventArgs e) {
+			Animator animator = AnimationBehavior.GetAnimator(this);
+			if (animator is null) {
+				return;
+			}
+			ResizeTimer.Stop();
+			ResizeTimer.Start();
+			Dispatcher.Invoke(() => {
+				AnimationBehavior.SetCacheFramesInMemory(this, true);
+			}, DispatcherPriority.Loaded);
+		}
+
+		private void ResizeTimer_Tick(object? sender, EventArgs e) {
+			ResizeTimer.Stop();
+			Dispatcher.Invoke(() => {
+				AnimationBehavior.SetCacheFramesInMemory(this, false);
+			}, DispatcherPriority.Loaded);
+		}
+
+
+		private void ImageExtend_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e) {
+
+		}
+
+		private void ImageExtend_Unloaded(object sender, RoutedEventArgs e) {
+
+		}
+
+		private void ImageExtend_Loaded(object sender, RoutedEventArgs e) {
+			if (!HasLoaded) {
+				Window.GetWindow(this).SizeChanged += ImageExtend_SizeChanged;
+			}
+			HasLoaded = true;
+		}
 	}
 }

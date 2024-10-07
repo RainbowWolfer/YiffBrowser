@@ -39,7 +39,7 @@ namespace YB.E621.Services {
 			return GetHost(ModuleType);
 		}
 
-		public int GetPostsPerPageCount() =>/* Local.Settings?.E621PageLimitCount ??*/ 75;
+		public int GetPostsPerPageCount() =>/* Local.Settings?.E621PageLimitCount ??*/ 1;
 
 		#region API
 

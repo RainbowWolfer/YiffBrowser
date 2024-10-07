@@ -53,7 +53,8 @@
 								</ListBox.ItemContainerStyle>
 								<ListBox.ItemTemplate>
 									<DataTemplate>
-										<c:SourceHyperLinkButton URL="{Binding}" Height="30"/>
+										<!--<c:SourceHyperLinkButton URL="{Binding}" Height="30"/>-->
+										<Border/>
 									</DataTemplate>
 								</ListBox.ItemTemplate>
 							</ListBox>

@@ -9,6 +9,7 @@ using System.IO;
 using System.Net.Http;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using XamlAnimatedGif;
 using YB.E621.Models.E621;
@@ -20,57 +21,62 @@ namespace YB.E621.Views {
 
 		public E621MainWindow() {
 			InitializeComponent();
-			//Test();
+			Test();
 		}
 
-		//private async void Test() {
-		//	string uri = @"https://static1.e621.net/data/91/3d/913d9dd37fa6d5a3cef1e8e91ef79873.gif";
-		//	HttpClient client = new();
+		private async void Test() {
 
-		//	try {
-		//		HttpRequestMessage request = new(HttpMethod.Get, uri);
-		//		HttpResponseMessage response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+			//MainImage.GifSource = @"https://static1.e621.net/data/91/3d/913d9dd37fa6d5a3cef1e8e91ef79873.gif";
+			//MainImage.StartAnimation();
 
-		//		response.EnsureSuccessStatusCode();
-		//		long? contentLength = response.Content.Headers.ContentLength;
+			//string uri = @"https://static1.e621.net/data/91/3d/913d9dd37fa6d5a3cef1e8e91ef79873.gif";
+			//HttpClient client = new();
 
-		//		MemoryStream memoryStream = new();
+			//try {
+			//	HttpRequestMessage request = new(HttpMethod.Get, uri);
+			//	HttpResponseMessage response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
-		//		using Stream contentStream = await response.Content.ReadAsStreamAsync();
+			//	response.EnsureSuccessStatusCode();
+			//	long? contentLength = response.Content.Headers.ContentLength;
 
-		//		long totalRead = 0L;
-		//		byte[] buffer = new byte[8192 * 10];
-		//		bool isMoreToRead = true;
+			//	MemoryStream memoryStream = new();
 
-		//		do {
-		//			int read = await contentStream.ReadAsync(buffer);
-		//			if (read == 0) {
-		//				isMoreToRead = false;
-		//			} else {
-		//				await memoryStream.WriteAsync(buffer.AsMemory(0, read));
-		//				totalRead += read;
+			//	using Stream contentStream = await response.Content.ReadAsStreamAsync();
 
-		//				if (contentLength.HasValue) {
-		//					double progress = Math.Round((double)totalRead / contentLength.Value * 100, 2);
-		//					Debug.WriteLine($"Progress: {progress}%");
-		//				}
-		//			}
-		//		} while (isMoreToRead);
+			//	long totalRead = 0L;
+			//	byte[] buffer = new byte[8192 * 10];
+			//	bool isMoreToRead = true;
 
-		//		memoryStream.Position = 0; // Reset stream position before usage
+			//	do {
+			//		int read = await contentStream.ReadAsync(buffer);
+			//		if (read == 0) {
+			//			isMoreToRead = false;
+			//		} else {
+			//			await memoryStream.WriteAsync(buffer.AsMemory(0, read));
+			//			totalRead += read;
 
-		//		Dispatcher.Invoke(() => {
-		//			AnimationBehavior.SetAutoStart(MainImage, true);
-		//			AnimationBehavior.SetSourceStream(MainImage, memoryStream);
-		//		});
+			//			if (contentLength.HasValue) {
+			//				double progress = Math.Round((double)totalRead / contentLength.Value * 100, 2);
+			//				Debug.WriteLine($"Progress: {progress}%");
+			//			}
+			//		}
+			//	} while (isMoreToRead);
 
-		//	} catch (Exception ex) {
-		//		Debug.WriteLine(ex.Message);
-		//		Dispatcher.Invoke(() => {
-		//			MessageBox.Show("Unable to download or display the GIF", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-		//		});
-		//	}
-		//}
+			//	memoryStream.Position = 0; // Reset stream position before usage
+
+			//	GifBitmapDecoder decoder = new(memoryStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
+
+			//	Dispatcher.Invoke(() => {
+					
+			//	});
+
+			//} catch (Exception ex) {
+			//	Debug.WriteLine(ex.Message);
+			//	Dispatcher.Invoke(() => {
+			//		MessageBox.Show("Unable to download or display the GIF", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+			//	});
+			//}
+		}
 
 		//private async void Test() {
 
@@ -131,8 +137,11 @@ namespace YB.E621.Views {
 			ModuleNavigationActions = moduleNavigationActions;
 			View.Title = $"Yiff Browser - {moduleType}";
 
-			Tabs.Add(new PostsViewModel(ModuleType, ["order:rank"]));
-			//Tabs.Add(new PostsViewModel(ModuleType, ["type:gif"]));
+			//Tabs.Add(new PostsViewModel(ModuleType, ["order:rank"]));
+			Tabs.Add(new PostsViewModel(ModuleType, ["type:gif"]));
+			Tabs.Add(new PostsViewModel(ModuleType, ["type:gif"]));
+			Tabs.Add(new PostsViewModel(ModuleType, ["type:gif"]));
+			Tabs.Add(new PostsViewModel(ModuleType, ["type:gif"]));
 			//Tabs.Add(new PostsViewModel(ModuleType, ["type:webm"]));
 			TabSelectedIndex = 0;
 		}

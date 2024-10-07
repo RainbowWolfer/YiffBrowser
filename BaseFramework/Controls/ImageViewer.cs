@@ -156,10 +156,19 @@ namespace BaseFramework.Controls {
 			nameof(GifImage),
 			typeof(GifImage),
 			typeof(ImageViewer),
-			new PropertyMetadata(null)
+			new PropertyMetadata(null, OnGifImageChanged, CoerceGifImage)
 		);
 
+		private static object CoerceGifImage(DependencyObject d, object baseValue) {
+			//if (baseValue != null && baseValue == d.GetValue(GifImageProperty)) {
+			//	d.SetValue(GifImageProperty, null);
+			//}
+			return baseValue;
+		}
 
+		private static void OnGifImageChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+
+		}
 
 		public BitmapImage? BitmapImage {
 			get => (BitmapImage)GetValue(BitmapImageProperty);
@@ -197,7 +206,7 @@ namespace BaseFramework.Controls {
 			Initialize();
 		}
 
-		public void Clear(){
+		public void Clear() {
 			ImageOriginalWidth = 0;
 			ImageOriginalHeight = 0;
 

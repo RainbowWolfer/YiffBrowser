@@ -240,7 +240,7 @@
 
 		<!--<MediaElement LoadedBehavior="Play" Source="https://static1.e621.net/data/18/50/18504494e372a85c70a917b8bbef9de6.gif" />-->
 		<!--<MediaElement LoadedBehavior="Play" Source="https://static1.e621.net/data/91/3d/913d9dd37fa6d5a3cef1e8e91ef79873.gif" />-->
-		<Image x:Name="MainImage" Height="500" Width="500" Stretch="UniformToFill"/>
+		<!--<bf:GifImageControl x:Name="MainImage" Height="500" Width="500" Stretch="UniformToFill"/>-->
 		<!-- gif:ImageBehavior.AnimatedSource="https://static1.e621.net/data/91/3d/913d9dd37fa6d5a3cef1e8e91ef79873.gif"-->
 
 	</Grid>

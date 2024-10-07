@@ -19,8 +19,8 @@ namespace YiffBrowser {
 		public ModuleNavigationActions? ModuleNavigationActions { get; }
 
 		public E621MainWindowViewModel? Window_E621 { get; }
-		//public E621MainWindowViewModel? Window_E926 { get; }
-		//public E621MainWindowViewModel? Window_E6AI { get; }
+		public E621MainWindowViewModel? Window_E926 { get; }
+		public E621MainWindowViewModel? Window_E6AI { get; }
 
 		private static Window[] MainWindows { get; set; } = [];
 
@@ -42,10 +42,10 @@ namespace YiffBrowser {
 				ModuleNavigationActions = new ModuleNavigationActions(ShowE621, ShowE6AI, ShowE926);
 
 				Window_E621 = new E621MainWindowViewModel(ModuleType.E621, ModuleNavigationActions);
-				//Window_E926 = new E621MainWindowViewModel(ModuleType.E926, ModuleNavigationActions);
-				//Window_E6AI = new E621MainWindowViewModel(ModuleType.E6AI, ModuleNavigationActions);
+				Window_E926 = new E621MainWindowViewModel(ModuleType.E926, ModuleNavigationActions);
+				Window_E6AI = new E621MainWindowViewModel(ModuleType.E6AI, ModuleNavigationActions);
 
-				MainWindows = [Window_E621.View/*, Window_E926.View, Window_E6AI.View*/];
+				MainWindows = [Window_E621.View, Window_E926.View, Window_E6AI.View];
 				foreach (Window window in MainWindows) {
 					window.Closing += Window_Closing;
 				}
@@ -120,11 +120,11 @@ namespace YiffBrowser {
 		}
 
 		private void ShowE6AI() {
-			//ActivateWindow(Window_E6AI!.View);
+			ActivateWindow(Window_E6AI!.View);
 		}
 
 		private void ShowE926() {
-			//ActivateWindow(Window_E926!.View);
+			ActivateWindow(Window_E926!.View);
 		}
 
 		private static void ActivateWindow(Window window) {

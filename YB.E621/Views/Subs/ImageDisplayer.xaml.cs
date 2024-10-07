@@ -157,7 +157,7 @@ namespace YB.E621.Views.Subs {
 
 		private void Sample_Updated(BitmapCacheItem sender, BitmapLoadingModel args) {
 			if (!CheckAccess()) {
-				Dispatcher.Invoke(Sample_Updated, sender, args);
+				Dispatcher.Invoke(Sample_Updated, DispatcherPriority.Loaded, sender, args);
 				return;
 			}
 			if (args.HasCompleted) {
@@ -174,7 +174,7 @@ namespace YB.E621.Views.Subs {
 
 		private void File_Updated(BitmapCacheItem sender, BitmapLoadingModel args) {
 			if (!CheckAccess()) {
-				Dispatcher.Invoke(File_Updated, sender, args);
+				Dispatcher.Invoke(File_Updated, DispatcherPriority.Loaded, sender, args);
 				return;
 			}
 			if (args.HasCompleted) {

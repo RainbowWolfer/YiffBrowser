@@ -1210,7 +1210,7 @@
 					<Border BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}">
 						<Grid x:Name="PART_PanelMain" ClipToBounds="True">
 							<Border HorizontalAlignment="Left" VerticalAlignment="Top" Height="{TemplateBinding ImageHeight}" Width="{TemplateBinding ImageWidth}" Margin="{TemplateBinding ImageMargin}">
-								<c:ImageExtend x:Name="PART_ImageMain" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderTransformOrigin="0.5,0.5" GifImage="{TemplateBinding GifImage}" BitmapImage="{TemplateBinding BitmapImage}"/>
+								<c:ImageExtend x:Name="PART_ImageMain" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderTransformOrigin="0.5,0.5" GifImage="{TemplateBinding GifImage}" BitmapImage="{TemplateBinding BitmapImage}" Focusable="False"/>
 							</Border>
 						</Grid>
 					</Border>
