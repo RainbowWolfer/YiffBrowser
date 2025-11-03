@@ -1,41 +1,41 @@
-﻿<UserControl 
-    x:Class="YB.E621.Controls.TagsListView"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-    xmlns:local="clr-namespace:YB.E621.Controls"
+﻿<UserControl x:Name="Root"
+	x:Class="YB.E621.Controls.TagsListView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:bf="BaseFramework"
-    mc:Ignorable="d" 
-    d:DesignHeight="450" 
-    d:DesignWidth="200"
-    d:Background="White"
-	x:Name="Root">
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:local="clr-namespace:YB.E621.Controls"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	d:Background="White"
+	d:DesignHeight="450"
+	d:DesignWidth="200"
+	mc:Ignorable="d">
 
 	<Control.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml" />
+				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
 
 		</ResourceDictionary>
 	</Control.Resources>
 
 	<Grid>
-		<ListBox x:Name="TagsistBox" Style="{StaticResource CustomListBoxStyle}"
-			d:ItemsSource="{d:SampleData ItemCount=15}"
-			ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-			BorderThickness="0" 
+		<ListBox x:Name="TagsistBox"
+			Style="{StaticResource CustomListBoxStyle}"
+			BorderThickness="0"
 			bf:BorderExtension.CornerRadius="0"
 			bf:ListBoxExtension.ClickBlankToDeselect="True"
-			bf:ListBoxExtension.EscapeToDeselect="True">
+			bf:ListBoxExtension.EscapeToDeselect="True"
+			ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+			d:ItemsSource="{d:SampleData ItemCount=15}">
 
 			<ListBox.GroupStyle>
 				<GroupStyle>
 
 					<GroupStyle.Panel>
 						<ItemsPanelTemplate>
-							<StackPanel Orientation="Vertical" />
+							<StackPanel Orientation="Vertical"/>
 						</ItemsPanelTemplate>
 					</GroupStyle.Panel>
 
@@ -47,8 +47,8 @@
 										<Expander IsExpanded="True">
 											<Expander.Header>
 												<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel}">
-													<TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
-													<TextBlock Text="{Binding Items.Count,StringFormat='{}({0})'}" FontWeight="SemiBold"/>
+													<TextBlock FontWeight="SemiBold" Text="{Binding Name}"/>
+													<TextBlock FontWeight="SemiBold" Text="{Binding Items.Count, StringFormat='{}({0})'}"/>
 												</bf:UniformSpacingPanel>
 											</Expander.Header>
 											<ItemsPresenter/>
@@ -74,15 +74,23 @@
 							</Grid.ColumnDefinitions>
 
 							<Border Grid.Column="1">
-								<TextBlock Text="{Binding Text}" Foreground="{Binding Category,Converter={StaticResource E621TagCategoryBrushConverter}}" TextTrimming="CharacterEllipsis"/>
+								<TextBlock Foreground="{Binding Category, Converter={StaticResource E621TagCategoryBrushConverter}}" Text="{Binding Text}" TextTrimming="CharacterEllipsis"/>
 							</Border>
 
-							<Button Grid.Column="2" Background="Transparent" BorderThickness="0" ToolTip="Search without this tag">
-								<bf:FontIcon Text="&#xE949;" FontSize="14"/>
+							<Button
+								Grid.Column="2"
+								BorderThickness="0"
+								Background="Transparent"
+								ToolTip="Search without this tag">
+								<bf:FontIcon FontSize="14" Text="&#xE949;"/>
 							</Button>
 
-							<Button Grid.Column="3" Background="Transparent" BorderThickness="0" ToolTip="Search with this tag">
-								<bf:FontIcon Text="&#xE948;" FontSize="14"/>
+							<Button
+								Grid.Column="3"
+								BorderThickness="0"
+								Background="Transparent"
+								ToolTip="Search with this tag">
+								<bf:FontIcon FontSize="14" Text="&#xE948;"/>
 							</Button>
 
 						</Grid>
@@ -96,16 +104,16 @@
 					<Setter Property="ContextMenu">
 						<Setter.Value>
 							<ContextMenu>
-								<MenuItem Header="Detail" bf:IconExtension.Glyph="&#xE8F6;">
-									<MenuItem Header="Detail" bf:IconExtension.Glyph="&#xE8F6;"/>
-									<MenuItem Header="Detail" bf:IconExtension.Glyph="&#xE8F6;"/>
-									<MenuItem Header="Detail" bf:IconExtension.Glyph="&#xE8F6;">
-										<MenuItem Header="Detail" bf:IconExtension.Glyph="&#xE8F6;"/>
-										<MenuItem Header="Detail" bf:IconExtension.Glyph="&#xE8F6;"/>
+								<MenuItem bf:IconExtension.Glyph="&#xE8F6;" Header="Detail">
+									<MenuItem bf:IconExtension.Glyph="&#xE8F6;" Header="Detail"/>
+									<MenuItem bf:IconExtension.Glyph="&#xE8F6;" Header="Detail"/>
+									<MenuItem bf:IconExtension.Glyph="&#xE8F6;" Header="Detail">
+										<MenuItem bf:IconExtension.Glyph="&#xE8F6;" Header="Detail"/>
+										<MenuItem bf:IconExtension.Glyph="&#xE8F6;" Header="Detail"/>
 									</MenuItem>
 								</MenuItem>
-								<MenuItem Header="Detail" bf:IconExtension.Glyph="&#xE8F6;"/>
-								<MenuItem Header="Detail" bf:IconExtension.Glyph="&#xE8F6;"/>
+								<MenuItem bf:IconExtension.Glyph="&#xE8F6;" Header="Detail"/>
+								<MenuItem bf:IconExtension.Glyph="&#xE8F6;" Header="Detail"/>
 							</ContextMenu>
 						</Setter.Value>
 					</Setter>

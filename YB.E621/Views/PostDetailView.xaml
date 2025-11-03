@@ -1,23 +1,23 @@
 ﻿<bf:UserControlBase
-    x:Class="YB.E621.Views.PostDetailView"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-    xmlns:local="clr-namespace:YB.E621.Views"
+	x:Class="YB.E621.Views.PostDetailView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:bf="BaseFramework"
-    xmlns:subs="clr-namespace:YB.E621.Views.Subs" 
 	xmlns:c="clr-namespace:YB.E621.Controls"
-	mc:Ignorable="d" 
-    d:DataContext="{d:DesignInstance Type=local:PostDetailViewModel}"
-    d:DesignHeight="450" 
-    d:DesignWidth="800"
-    d:Background="White">
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:local="clr-namespace:YB.E621.Views"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:subs="clr-namespace:YB.E621.Views.Subs"
+	d:Background="White"
+	d:DataContext="{d:DesignInstance Type=local:PostDetailViewModel}"
+	d:DesignHeight="450"
+	d:DesignWidth="800"
+	mc:Ignorable="d">
 
 	<Control.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml" />
+				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
 
 		</ResourceDictionary>
@@ -26,14 +26,14 @@
 	<Grid>
 		<DockPanel>
 
-			<Border DockPanel.Dock="Top" Padding="4" Background="LightGray">
+			<Border Padding="4" Background="LightGray" DockPanel.Dock="Top">
 				<DockPanel>
 					<Border DockPanel.Dock="Right">
 						<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel2}">
 
-							<ToggleButton Height="30" Width="30" IsChecked="{Binding RightSideGrid.IsExpanded,Mode=TwoWay}">
+							<ToggleButton Width="30" Height="30" IsChecked="{Binding RightSideGrid.IsExpanded, Mode=TwoWay}">
 								<ToggleButton.ToolTip>
-									<TextBlock Text="Toggle tags side panel" Foreground="Black"/>
+									<TextBlock Foreground="Black" Text="Toggle tags side panel"/>
 								</ToggleButton.ToolTip>
 								<bf:BoolContent Bool="{Binding RightSideGrid.IsExpanded}">
 									<bf:BoolContent.TrueContent>
@@ -50,9 +50,9 @@
 
 					<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel2}">
 
-						<ToggleButton Height="30" Width="30" IsChecked="{Binding LeftSideGrid.IsExpanded,Mode=TwoWay}">
+						<ToggleButton Width="30" Height="30" IsChecked="{Binding LeftSideGrid.IsExpanded, Mode=TwoWay}">
 							<ToggleButton.ToolTip>
-								<TextBlock Text="Toggle tags side panel" Foreground="Black"/>
+								<TextBlock Foreground="Black" Text="Toggle tags side panel"/>
 							</ToggleButton.ToolTip>
 							<bf:BoolContent Bool="{Binding LeftSideGrid.IsExpanded}">
 								<bf:BoolContent.TrueContent>
@@ -66,21 +66,29 @@
 
 						<Border Style="{StaticResource HorizontalSeparator}"/>
 
-						<Button Height="30" Width="70" Command="{Binding BackCommand}">
+						<Button Width="70" Height="30" Command="{Binding BackCommand}">
 							<bf:HorizontalIconText Glyph="&#xE76B;" Text="Back"/>
 						</Button>
 
-						<Button Height="30" Width="30" Command="{Binding PreviousCommand}" ToolTip="Previous">
+						<Button
+							Width="30"
+							Height="30"
+							Command="{Binding PreviousCommand}"
+							ToolTip="Previous">
 							<bf:HorizontalIconText Glyph="&#xE72B;"/>
 						</Button>
 
-						<Button Height="30" Width="30" Command="{Binding NextCommand}" ToolTip="Next">
+						<Button
+							Width="30"
+							Height="30"
+							Command="{Binding NextCommand}"
+							ToolTip="Next">
 							<bf:HorizontalIconText Glyph="&#xE72A;"/>
 						</Button>
 
 						<Border Style="{StaticResource HorizontalSeparator}"/>
 
-						<c:PostHeaderSimpleInfoView Post="{Binding Post}" ModuleType="{Binding ModuleType}"/>
+						<c:PostHeaderSimpleInfoView ModuleType="{Binding ModuleType}" Post="{Binding Post}"/>
 
 						<Border Style="{StaticResource HorizontalSeparator}"/>
 
@@ -97,7 +105,7 @@
 						<ColumnDefinition MaxWidth="500" bf:GridDefinitionExtension.Model="{Binding RightSideGrid}"/>
 					</Grid.ColumnDefinitions>
 
-					<Border Grid.Column="0" BorderBrush="LightGray" BorderThickness="0,0,2,0">
+					<Border Grid.Column="0" BorderThickness="0,0,2,0" BorderBrush="LightGray">
 						<c:TagsListView Tags="{Binding Post.Tags}"/>
 					</Border>
 
@@ -105,12 +113,16 @@
 						<subs:ImageDisplayer Post="{Binding Post}"/>
 					</Border>
 
-					<Border Grid.Column="2" BorderBrush="LightGray" BorderThickness="2,0,0,0">
+					<Border Grid.Column="2" BorderThickness="2,0,0,0" BorderBrush="LightGray">
 						<ContentControl Content="{Binding PostDetailDockViewModel.View}"/>
 					</Border>
 
-					<GridSplitter Background="Transparent" Width="2"/>
-					<GridSplitter Background="Transparent" Width="2" Grid.Column="2" HorizontalAlignment="Left"/>
+					<GridSplitter Width="2" Background="Transparent"/>
+					<GridSplitter
+						Grid.Column="2"
+						Width="2"
+						HorizontalAlignment="Left"
+						Background="Transparent"/>
 
 				</Grid>
 			</Border>

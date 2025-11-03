@@ -1,19 +1,12 @@
-﻿using BaseFramework.Helpers;
-using BaseFramework.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BaseFramework.Interfaces;
 using System.Windows;
 
-namespace BaseFramework.Views {
-	public class WindowBase : Window, IWindowBase {
-		Window IWindowBase.Window => this;
+namespace BaseFramework.Views;
+public class WindowBase : Window, IWindowBase {
+	Window IWindowBase.Window => this;
 
-		public WindowBase() {
-			
-		}
+	public WindowBase() {
 
 	}
+
 }

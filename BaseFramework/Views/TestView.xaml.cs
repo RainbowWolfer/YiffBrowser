@@ -1,9 +1,8 @@
 ﻿using System.Windows.Controls;
 
-namespace BaseFramework.Views {
-	internal partial class TestView : UserControl {
-		public TestView() {
-			InitializeComponent();
-		}
+namespace BaseFramework.Views;
+internal partial class TestView : UserControl {
+	public TestView() {
+		InitializeComponent();
 	}
 }

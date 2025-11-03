@@ -11,8 +11,6 @@
     <PlatformTarget>x64</PlatformTarget>
     <ApplicationIcon>..\BaseFramework\Resources\Icons\YiffBrowserIcon.ico</ApplicationIcon>
 
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-
     <Authors>RainbowWolfer</Authors>
     <Company>RainbowWolfer</Company>
     <Copyright>RainbowWolfer</Copyright>
@@ -23,14 +21,6 @@
 
     <AssemblyVersion>1.0.3</AssemblyVersion>
     
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>embedded</DebugType>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
