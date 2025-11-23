@@ -9,42 +9,42 @@ namespace BaseFramework.Controls;
 /// </Remarks>
 public class ClippingBorder : Border {
 
-	private readonly RectangleGeometry clipRect = new();
-	private object? oldClip;
+    private readonly RectangleGeometry clipRect = new();
+    private object? oldClip;
 
-	protected override void OnRender(DrawingContext dc) {
-		OnApplyChildClip();
-		base.OnRender(dc);
-	}
+    protected override void OnRender(DrawingContext dc) {
+        OnApplyChildClip();
+        base.OnRender(dc);
+    }
 
-	public override UIElement Child {
-		get {
-			return base.Child;
-		}
-		set {
-			if (this.Child != value) {
-				// Restore original clipping
-				this.Child?.SetValue(UIElement.ClipProperty, oldClip);
+    public override UIElement Child {
+        get {
+            return base.Child;
+        }
+        set {
+            if (this.Child != value) {
+                // Restore original clipping
+                this.Child?.SetValue(UIElement.ClipProperty, oldClip);
 
-				if (value != null) {
-					oldClip = value.ReadLocalValue(UIElement.ClipProperty);
-				} else {
-					// If we dont set it to null we could leak a Geometry object
-					oldClip = null;
-				}
+                if (value != null) {
+                    oldClip = value.ReadLocalValue(UIElement.ClipProperty);
+                } else {
+                    // If we dont set it to null we could leak a Geometry object
+                    oldClip = null;
+                }
 
-				base.Child = value;
-			}
-		}
-	}
+                base.Child = value;
+            }
+        }
+    }
 
-	protected virtual void OnApplyChildClip() {
-		UIElement child = this.Child;
-		if (child != null) {
-			clipRect.RadiusX = clipRect.RadiusY = Math.Max(0.0, this.CornerRadius.TopLeft - (this.BorderThickness.Left * 0.5));
-			clipRect.Rect = new Rect(Child.RenderSize);
-			child.Clip = clipRect;
-		}
-	}
+    protected virtual void OnApplyChildClip() {
+        UIElement child = this.Child;
+        if (child != null) {
+            clipRect.RadiusX = clipRect.RadiusY = Math.Max(0.0, this.CornerRadius.TopLeft - (this.BorderThickness.Left * 0.5));
+            clipRect.Rect = new Rect(Child.RenderSize);
+            child.Clip = clipRect;
+        }
+    }
 
 }

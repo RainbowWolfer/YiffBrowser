@@ -2,11 +2,12 @@
 using System.Windows;
 
 namespace BaseFramework.Views;
+
 public class WindowBase : Window, IWindowBase {
-	Window IWindowBase.Window => this;
+    Window IWindowBase.Window => this;
 
-	public WindowBase() {
+    public WindowBase() {
 
-	}
+    }
 
 }

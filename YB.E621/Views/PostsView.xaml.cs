@@ -11,162 +11,163 @@ using YB.E621.Models.E621;
 using YB.E621.Services;
 
 namespace YB.E621.Views;
+
 public partial class PostsView : UserControlBase {
-	public PostsView() {
-		InitializeComponent();
-	}
+    public PostsView() {
+        InitializeComponent();
+    }
 
-	private void ListBoxItem_RequestBringIntoView(object sender, RequestBringIntoViewEventArgs e) {
-		//e.Handled = true;
-	}
+    private void ListBoxItem_RequestBringIntoView(object sender, RequestBringIntoViewEventArgs e) {
+        //e.Handled = true;
+    }
 
-	private void TextBlock_DragLeave(object sender, DragEventArgs e) {
+    private void TextBlock_DragLeave(object sender, DragEventArgs e) {
 
-	}
+    }
 }
 
 public class PostsViewModel : UserControlViewModel<PostsView> {
-	public const double ItemWidth = 396;
-	public const double ItemHeight = 50;
+    public const double ItemWidth = 396;
+    public const double ItemHeight = 50;
 
-	private bool isLoading = false;
-	private int currentPage = 1;
-	private bool isMultiSelecting = false;
-	private string multiSelectingText = string.Empty;
+    private bool isLoading = false;
+    private int currentPage = 1;
+    private bool isMultiSelecting = false;
+    private string multiSelectingText = string.Empty;
 
-	public ObservableCollection<PostCardControl> Items { get; } = [];
-	public ObservableCollection<PostCardControl> SelectedItems { get; } = [];
+    public ObservableCollection<PostCardControl> Items { get; } = [];
+    public ObservableCollection<PostCardControl> SelectedItems { get; } = [];
 
-	public E621API Api { get; }
+    public E621API Api { get; }
 
-	public ModuleType SiteType { get; }
-	public string[] Tags { get; }
+    public ModuleType SiteType { get; }
+    public string[] Tags { get; }
 
-	public bool IsLoading {
-		get => isLoading;
-		set => SetProperty(ref isLoading, value);
-	}
+    public bool IsLoading {
+        get => isLoading;
+        set => SetProperty(ref isLoading, value);
+    }
 
-	public int CurrentPage {
-		get => currentPage;
-		set {
-			SetProperty(ref currentPage, Math.Clamp(value, 1, int.MaxValue));
-			RaisePropertyChanged(nameof(CanGoLeft));
-		}
-	}
+    public int CurrentPage {
+        get => currentPage;
+        set {
+            SetProperty(ref currentPage, Math.Clamp(value, 1, int.MaxValue));
+            RaisePropertyChanged(nameof(CanGoLeft));
+        }
+    }
 
-	public bool CanGoLeft => CurrentPage > 1;
+    public bool CanGoLeft => CurrentPage > 1;
 
-	public bool IsMultiSelecting {
-		get => isMultiSelecting;
-		set {
-			SetProperty(ref isMultiSelecting, value);
-			UpdateMultiSelectingText();
-			foreach (PostCardControl item in Items) {
-				item.IsSelected = false;
-			}
-		}
-	}
+    public bool IsMultiSelecting {
+        get => isMultiSelecting;
+        set {
+            SetProperty(ref isMultiSelecting, value);
+            UpdateMultiSelectingText();
+            foreach (PostCardControl item in Items) {
+                item.IsSelected = false;
+            }
+        }
+    }
 
-	public string MultiSelectingText {
-		get => multiSelectingText;
-		set => SetProperty(ref multiSelectingText, value);
-	}
+    public string MultiSelectingText {
+        get => multiSelectingText;
+        set => SetProperty(ref multiSelectingText, value);
+    }
 
-	public PostDetailViewModel PostDetailViewModel { get; }
+    public PostDetailViewModel PostDetailViewModel { get; }
 
-	public PostsViewModel(ModuleType moduleType, string[] tags) {
-		Api = E621API.GetAPI(moduleType);
-		PostDetailViewModel = new PostDetailViewModel(moduleType);
+    public PostsViewModel(ModuleType moduleType, string[] tags) {
+        Api = E621API.GetAPI(moduleType);
+        PostDetailViewModel = new PostDetailViewModel(moduleType);
 
-		SiteType = moduleType;
-		Tags = tags;
+        SiteType = moduleType;
+        Tags = tags;
 
-		SelectedItems.CollectionChanged += SelectedItems_CollectionChanged;
+        SelectedItems.CollectionChanged += SelectedItems_CollectionChanged;
 
-	}
+    }
 
-	private void SelectedItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
-		UpdateMultiSelectingText();
-	}
+    private void SelectedItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
+        UpdateMultiSelectingText();
+    }
 
-	private void UpdateMultiSelectingText() {
-		if (IsMultiSelecting) {
-			MultiSelectingText = $"{Items.Where(x => x.IsSelected).Count()}/{Items.Count}";
-		} else {
-			MultiSelectingText = string.Empty;
-		}
-	}
+    private void UpdateMultiSelectingText() {
+        if (IsMultiSelecting) {
+            MultiSelectingText = $"{Items.Where(x => x.IsSelected).Count()}/{Items.Count}";
+        } else {
+            MultiSelectingText = string.Empty;
+        }
+    }
 
-	protected override void LoadedOnce(IViewBase viewBase) {
-		base.LoadedOnce(viewBase);
-		Refresh();
-	}
+    protected override void LoadedOnce(IViewBase viewBase) {
+        base.LoadedOnce(viewBase);
+        Refresh();
+    }
 
-	public ICommand PreviousPageCommand => new DelegateCommand(PreviousPage);
-	public ICommand NextPageCommand => new DelegateCommand(NextPage);
+    public ICommand PreviousPageCommand => new DelegateCommand(PreviousPage);
+    public ICommand NextPageCommand => new DelegateCommand(NextPage);
 
-	private void PreviousPage() {
-		CurrentPage -= 1;
-		Refresh();
-	}
+    private void PreviousPage() {
+        CurrentPage -= 1;
+        Refresh();
+    }
 
-	private void NextPage() {
-		CurrentPage += 1;
-		Refresh();
-	}
+    private void NextPage() {
+        CurrentPage += 1;
+        Refresh();
+    }
 
-	public ICommand DownloadCommand => new DelegateCommand(Download);
+    public ICommand DownloadCommand => new DelegateCommand(Download);
 
-	private void Download() {
+    private void Download() {
 
-	}
+    }
 
-	public ICommand RefreshCommand => new DelegateCommand(Refresh);
+    public ICommand RefreshCommand => new DelegateCommand(Refresh);
 
-	private async void Refresh() {
-		if (IsLoading) {
-			return;
-		}
+    private async void Refresh() {
+        if (IsLoading) {
+            return;
+        }
 
-		IsLoading = true;
-		IsMultiSelecting = false;
+        IsLoading = true;
+        IsMultiSelecting = false;
 
-		Items.Clear();
-		E621Post[] posts = await Api.GetPostsByTagsAsync(new E621PostParameters() {
-			Tags = Tags,
-			Page = CurrentPage,
-		});
+        Items.Clear();
+        E621Post[] posts = await Api.GetPostsByTagsAsync(new E621PostParameters() {
+            Tags = Tags,
+            Page = CurrentPage,
+        });
 
-		foreach (E621Post item in posts) {
-			if (item.HasNoValidURLs()) {
-				continue;
-			}
-			Items.Add(new PostCardControl(item));
-		}
+        foreach (E621Post item in posts) {
+            if (item.HasNoValidURLs()) {
+                continue;
+            }
+            Items.Add(new PostCardControl(item));
+        }
 
-		IsLoading = false;
-	}
+        IsLoading = false;
+    }
 
-	public ICommand ViewPostDetailCommand => new DelegateCommand<E621Post?>(ViewPostDetail);
-	public ICommand ViewPostDetailCommandDirect => new DelegateCommand<E621Post?>(ViewPostDetailDirect);
+    public ICommand ViewPostDetailCommand => new DelegateCommand<E621Post?>(ViewPostDetail);
+    public ICommand ViewPostDetailCommandDirect => new DelegateCommand<E621Post?>(ViewPostDetailDirect);
 
-	private void ViewPostDetail(E621Post? post) {
-		if (IsMultiSelecting) {
-			return;
-		}
-		ViewPostDetailDirect(post);
-	}
+    private void ViewPostDetail(E621Post? post) {
+        if (IsMultiSelecting) {
+            return;
+        }
+        ViewPostDetailDirect(post);
+    }
 
-	private void ViewPostDetailDirect(E621Post? post) {
-		PostDetailViewModel.Post = post;
-		PostDetailViewModel.Focus();
-	}
+    private void ViewPostDetailDirect(E621Post? post) {
+        PostDetailViewModel.Post = post;
+        PostDetailViewModel.Focus();
+    }
 
-	public ICommand QuitPostDetailViewCommand => new DelegateCommand(QuitPostDetailView);
+    public ICommand QuitPostDetailViewCommand => new DelegateCommand(QuitPostDetailView);
 
-	private void QuitPostDetailView() {
-		PostDetailViewModel.Back();
-	}
+    private void QuitPostDetailView() {
+        PostDetailViewModel.Back();
+    }
 
 }

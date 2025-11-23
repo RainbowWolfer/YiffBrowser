@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Modules/">
+    <Project Path="YB.E621/YB.E621.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="nuget.config" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="BaseFramework/BaseFramework.csproj" />
+  <Project Path="YiffBrowser/YiffBrowser.csproj" />
+</Solution>

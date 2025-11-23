@@ -2,12 +2,13 @@
 using System.Windows.Controls;
 
 namespace BaseFramework.Views;
+
 public class UserControlBase : UserControl, IUserControlBase {
-	UserControl IUserControlBase.UserControl => this;
+    UserControl IUserControlBase.UserControl => this;
 
 
-	public UserControlBase() {
+    public UserControlBase() {
 
-	}
+    }
 
 }
