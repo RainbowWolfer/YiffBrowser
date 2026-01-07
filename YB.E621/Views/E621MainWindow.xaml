@@ -2,14 +2,18 @@
 	x:Class="YB.E621.Views.E621MainWindow"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:b="RW.Base.WPF"
 	xmlns:bf="BaseFramework"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
 	xmlns:local="clr-namespace:YB.E621.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:service="clr-namespace:YB.E621.Services"
 	xmlns:subs="clr-namespace:YB.E621.Views.Subs"
+	xmlns:wpf="RW.Common.WPF"
 	d:DataContext="{d:DesignInstance Type=local:E621MainWindowViewModel}"
 	d:Title="E621 Window"
+	DataContext="{b:DISource Type=local:E621MainWindowViewModel}"
 	Width="1270"
 	Height="800"
 	WindowStartupLocation="CenterScreen"
@@ -21,10 +25,16 @@
 				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
 
-			<bf:CommandProxy x:Key="CloseTabCommand" Command="{Binding CloseTabCommand}"/>
+			<wpf:CommandProxy x:Key="CloseTabCommand" Command="{Binding CloseTabCommand}"/>
 
 		</ResourceDictionary>
 	</Control.Resources>
+
+	<dxmvvm:Interaction.Behaviors>
+		<b:DispatcherServiceEx/>
+		<b:LoadedService Command="{Binding LoadedCommand}" OnlyOnce="True"/>
+		<b:CurrentWindowServiceEx/>
+	</dxmvvm:Interaction.Behaviors>
 
 	<Window.Style>
 		<Style TargetType="Window">
@@ -53,7 +63,7 @@
 						<RowDefinition Height="auto"/>
 					</Grid.RowDefinitions>
 
-					<bf:UniformSpacingPanel Style="{StaticResource CustomVerticalPanel2}">
+					<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
 
 						<Button x:Name="SiteButton"
 							Style="{StaticResource CustomButtonStyle2}"
@@ -72,21 +82,21 @@
 							Width="32"
 							Height="32"
 							ToolTip="Search">
-							<bf:FontIcon Text="&#xE721;"/>
+							<wpf:FontIcon Text="&#xE721;"/>
 						</Button>
 
-					</bf:UniformSpacingPanel>
+					</wpf:SpacingStackPanel>
 
-					<bf:UniformSpacingPanel Style="{StaticResource CustomVerticalPanel2}" Grid.Row="1">
+					<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}" Grid.Row="1">
 
 						<Button x:Name="UserButton"
 							Width="32"
 							Height="32"
 							ToolTip="User">
 							<Grid>
-								<bf:FontIcon d:Text="&#xEA8C;" Visibility="{Binding UserService.IsUserLoading.Value, Converter={StaticResource BoolToVisibilityReConverter}}">
-									<bf:FontIcon.Style>
-										<Style TargetType="bf:FontIcon" BasedOn="{StaticResource FontIconBase}">
+								<wpf:FontIcon d:Text="&#xEA8C;" Visibility="{Binding UserService.IsUserLoading.Value, Converter={StaticResource BoolToVisibilityReConverter}}">
+									<wpf:FontIcon.Style>
+										<Style TargetType="wpf:FontIcon" BasedOn="{StaticResource FontIconBase}">
 											<Style.Triggers>
 												<DataTrigger Binding="{Binding IsLoggedIn}" Value="True">
 													<Setter Property="Text" Value="&#xEA8C;"/>
@@ -96,8 +106,8 @@
 												</DataTrigger>
 											</Style.Triggers>
 										</Style>
-									</bf:FontIcon.Style>
-								</bf:FontIcon>
+									</wpf:FontIcon.Style>
+								</wpf:FontIcon>
 								<Border Visibility="{Binding UserService.IsUserLoading.Value, Converter={StaticResource BoolToVisibilityConverter}}">
 									<ProgressBar
 										Width="20"
@@ -114,15 +124,12 @@
 							Height="32"
 							Click="SettingsButton_Click"
 							ToolTip="Settings">
-							<bf:FontIcon Text="&#xE713;"/>
+							<wpf:FontIcon Text="&#xE713;"/>
 						</Button>
 
 						<StackPanel>
-							<TextBlock
-								d:Text="1.0.0"
-								FontSize="10"
-								Text="{Binding Source={x:Static bf:AppConfig.Version}}"
-								TextAlignment="Center"/>
+							<!-- Text="{Binding Source={x:Static bf:AppConfig.Version}}" -->
+							<TextBlock d:Text="1.0.0" FontSize="10" TextAlignment="Center"/>
 							<TextBlock
 								FontSize="10"
 								Text="Debug"
@@ -130,7 +137,7 @@
 								Visibility="{Binding Source={x:Static bf:AppConfig.IsDebugging}, Converter={StaticResource BoolToVisibilityConverter}}"/>
 						</StackPanel>
 
-					</bf:UniformSpacingPanel>
+					</wpf:SpacingStackPanel>
 
 				</Grid>
 			</Border>
@@ -167,21 +174,21 @@
 									Cursor="Hand"
 									DockPanel.Dock="Right"
 									ToolTip="Close this tab">
-									<bf:FontIcon Text="&#xE711;"/>
+									<wpf:FontIcon Text="&#xE711;"/>
 								</Button>
 								<TextBlock VerticalAlignment="Center" Text="{Binding Tags, Converter={StaticResource TagsDisplayConverter}}"/>
 							</DockPanel>
 
-							<bf:ButtonPopup SourceButton="{Binding ElementName=CloseTabButton}">
+							<wpf:ButtonPopup SourceButton="{Binding ElementName=CloseTabButton}">
 								<Border Style="{StaticResource ButtonPopupBorder}">
-									<bf:UniformSpacingPanel Style="{StaticResource CustomVerticalPanel2}">
+									<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
 										<TextBlock Text="Sure to close this tab?"/>
 										<Button Padding="4,2" Command="{StaticResource CloseTabCommand}" CommandParameter="{Binding}">
 											<TextBlock Text="Confirm"/>
 										</Button>
-									</bf:UniformSpacingPanel>
+									</wpf:SpacingStackPanel>
 								</Border>
-							</bf:ButtonPopup>
+							</wpf:ButtonPopup>
 						</Grid>
 					</DataTemplate>
 				</TabControl.ItemTemplate>
@@ -207,9 +214,9 @@
 			</TabControl>
 		</DockPanel>
 
-		<bf:ButtonPopup HorizontalOffset="6" Placement="Right" SourceButton="{Binding ElementName=UserButton}">
-			<bf:ButtonPopup.Style>
-				<Style TargetType="bf:ButtonPopup">
+		<wpf:ButtonPopup HorizontalOffset="6" Placement="Right" SourceButton="{Binding ElementName=UserButton}">
+			<wpf:ButtonPopup.Style>
+				<Style TargetType="wpf:ButtonPopup">
 					<Style.Triggers>
 						<DataTrigger Binding="{Binding IsLoggedIn}" Value="True">
 							<Setter Property="VerticalOffset" Value="-115"/>
@@ -219,25 +226,33 @@
 						</DataTrigger>
 					</Style.Triggers>
 				</Style>
-			</bf:ButtonPopup.Style>
+			</wpf:ButtonPopup.Style>
 			<Border Style="{StaticResource ButtonPopupBorder}">
 				<Grid>
 					<ContentControl Content="{Binding UserLoginViewModel.View}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BoolToVisibilityReConverter}}"/>
 					<ContentControl Content="{Binding UserViewModel.View}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BoolToVisibilityConverter}}"/>
 				</Grid>
 			</Border>
-		</bf:ButtonPopup>
+		</wpf:ButtonPopup>
 
 		<!-- Placement="Right" HorizontalOffset="6" -->
-		<bf:ButtonPopup x:Name="SearchPopup" SourceButton="{Binding ElementName=SearchButton}">
+		<wpf:ButtonPopup x:Name="SearchPopup" SourceButton="{Binding ElementName=SearchButton}">
+			<dxmvvm:Interaction.Behaviors>
+				<b:TypedUIObjectService Name="SearchPopupService"/>
+			</dxmvvm:Interaction.Behaviors>
+
 			<Border Style="{StaticResource ButtonPopupBorder}" MinWidth="300">
 				<ContentControl Content="{Binding SearchViewModel.View}"/>
 			</Border>
-		</bf:ButtonPopup>
+		</wpf:ButtonPopup>
 
-		<bf:ButtonPopup x:Name="SitePopup" SourceButton="{Binding ElementName=SiteButton}">
+		<wpf:ButtonPopup x:Name="SitePopup" SourceButton="{Binding ElementName=SiteButton}">
+			<dxmvvm:Interaction.Behaviors>
+				<b:TypedUIObjectService Name="SitePopupService"/>
+			</dxmvvm:Interaction.Behaviors>
+
 			<Border Style="{StaticResource ButtonPopupBorder}">
-				<bf:UniformSpacingPanel Style="{StaticResource CustomVerticalPanel2}">
+				<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
 
 					<Button
 						Style="{StaticResource CustomButtonStyle3}"
@@ -246,7 +261,7 @@
 						HorizontalContentAlignment="Left"
 						Command="{Binding ShowE621Command}"
 						IsEnabled="{Binding ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static bf:ModuleType.E621}}">
-						<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel3}">
+						<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel3}">
 							<Border Width="32" Height="32" CornerRadius="4">
 								<Border.Background>
 									<ImageBrush ImageSource="{Binding Source={x:Static bf:ModuleType.E621}, Converter={StaticResource ModuleTypeIconConverter}}"/>
@@ -257,7 +272,7 @@
 								FontWeight="Bold"
 								Foreground="#01549d"
 								Text="E621"/>
-						</bf:UniformSpacingPanel>
+						</wpf:SpacingStackPanel>
 					</Button>
 
 					<Button
@@ -267,14 +282,14 @@
 						HorizontalContentAlignment="Left"
 						Command="{Binding ShowE926Command}"
 						IsEnabled="{Binding ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static bf:ModuleType.E926}}">
-						<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel3}">
+						<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel3}">
 							<Border Width="32" Height="32" CornerRadius="4">
 								<Border.Background>
 									<ImageBrush ImageSource="{Binding Source={x:Static bf:ModuleType.E926}, Converter={StaticResource ModuleTypeIconConverter}}"/>
 								</Border.Background>
 							</Border>
 							<TextBlock FontSize="16" FontWeight="Bold" Text="E926"/>
-						</bf:UniformSpacingPanel>
+						</wpf:SpacingStackPanel>
 					</Button>
 
 					<Button
@@ -284,7 +299,7 @@
 						HorizontalContentAlignment="Left"
 						Command="{Binding ShowE6AICommand}"
 						IsEnabled="{Binding ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static bf:ModuleType.E6AI}}">
-						<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel3}">
+						<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel3}">
 							<Border Width="32" Height="32" CornerRadius="4">
 								<Border.Background>
 									<ImageBrush ImageSource="{Binding Source={x:Static bf:ModuleType.E6AI}, Converter={StaticResource ModuleTypeIconConverter}}"/>
@@ -295,12 +310,12 @@
 								FontWeight="Bold"
 								Foreground="#fcc02e"
 								Text="E6AI"/>
-						</bf:UniformSpacingPanel>
+						</wpf:SpacingStackPanel>
 					</Button>
 
-				</bf:UniformSpacingPanel>
+				</wpf:SpacingStackPanel>
 			</Border>
-		</bf:ButtonPopup>
+		</wpf:ButtonPopup>
 
 		<!--<MediaElement x:Name="MeidaElement" LoadedBehavior="Play" Source="https://static1.e621.net/data/27/0f/270f73fbce4199b3b05c110b0b33274e.webm" />-->
 		<!--<MediaElement LoadedBehavior="Play" Source="https://static1.e621.net/data/18/50/18504494e372a85c70a917b8bbef9de6.gif" />-->

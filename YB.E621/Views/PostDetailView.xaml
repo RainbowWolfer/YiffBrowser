@@ -1,13 +1,16 @@
-﻿<bf:UserControlBase
+﻿<UserControl
 	x:Class="YB.E621.Views.PostDetailView"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:b="RW.Base.WPF"
 	xmlns:bf="BaseFramework"
 	xmlns:c="clr-namespace:YB.E621.Controls"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
 	xmlns:local="clr-namespace:YB.E621.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:subs="clr-namespace:YB.E621.Views.Subs"
+	xmlns:wpf="RW.Common.WPF"
 	d:Background="White"
 	d:DataContext="{d:DesignInstance Type=local:PostDetailViewModel}"
 	d:DesignHeight="450"
@@ -23,13 +26,19 @@
 		</ResourceDictionary>
 	</Control.Resources>
 
+	<dxmvvm:Interaction.Behaviors>
+		<b:DispatcherServiceEx/>
+		<b:TypedUIObjectService Name="UserControlService"/>
+		<dxmvvm:EventToCommand Command="{Binding KeyDownCommand}" EventName="KeyDown" PassEventArgsToCommand="True"/>
+	</dxmvvm:Interaction.Behaviors>
+
 	<Grid>
 		<DockPanel>
 
 			<Border Padding="4" Background="LightGray" DockPanel.Dock="Top">
 				<DockPanel>
 					<Border DockPanel.Dock="Right">
-						<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel2}">
+						<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}">
 
 							<ToggleButton Width="30" Height="30" IsChecked="{Binding RightSideGrid.IsExpanded, Mode=TwoWay}">
 								<ToggleButton.ToolTip>
@@ -37,18 +46,18 @@
 								</ToggleButton.ToolTip>
 								<bf:BoolContent Bool="{Binding RightSideGrid.IsExpanded}">
 									<bf:BoolContent.TrueContent>
-										<bf:FontIcon Text="&#xE89F;"/>
+										<wpf:FontIcon Text="&#xE89F;"/>
 									</bf:BoolContent.TrueContent>
 									<bf:BoolContent.FalseContent>
-										<bf:FontIcon Text="&#xE8A0;"/>
+										<wpf:FontIcon Text="&#xE8A0;"/>
 									</bf:BoolContent.FalseContent>
 								</bf:BoolContent>
 							</ToggleButton>
 
-						</bf:UniformSpacingPanel>
+						</wpf:SpacingStackPanel>
 					</Border>
 
-					<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel2}">
+					<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}">
 
 						<ToggleButton Width="30" Height="30" IsChecked="{Binding LeftSideGrid.IsExpanded, Mode=TwoWay}">
 							<ToggleButton.ToolTip>
@@ -56,10 +65,10 @@
 							</ToggleButton.ToolTip>
 							<bf:BoolContent Bool="{Binding LeftSideGrid.IsExpanded}">
 								<bf:BoolContent.TrueContent>
-									<bf:FontIcon Text="&#xE8A0;"/>
+									<wpf:FontIcon Text="&#xE8A0;"/>
 								</bf:BoolContent.TrueContent>
 								<bf:BoolContent.FalseContent>
-									<bf:FontIcon Text="&#xE89F;"/>
+									<wpf:FontIcon Text="&#xE89F;"/>
 								</bf:BoolContent.FalseContent>
 							</bf:BoolContent>
 						</ToggleButton>
@@ -92,7 +101,7 @@
 
 						<Border Style="{StaticResource HorizontalSeparator}"/>
 
-					</bf:UniformSpacingPanel>
+					</wpf:SpacingStackPanel>
 
 				</DockPanel>
 			</Border>
@@ -129,4 +138,4 @@
 		</DockPanel>
 	</Grid>
 
-</bf:UserControlBase>
+</UserControl>

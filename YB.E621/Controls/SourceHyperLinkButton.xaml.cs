@@ -1,4 +1,5 @@
 ﻿using BaseFramework.Helpers;
+using RW.Common.WPF.Helpers;
 using System.Windows;
 using System.Windows.Controls;
 

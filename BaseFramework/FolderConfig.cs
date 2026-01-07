@@ -5,7 +5,7 @@ namespace BaseFramework;
 
 public static class FolderConfig {
 
-    public static string DocumentFolder => Environment.GetFolderPath(Environment.SpecialFolder.MyDoc‌​uments);
+    public static string DocumentFolder => Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
     public static string LocalFolder => Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
     public static string DocumentAppFolder {

@@ -1,14 +1,14 @@
 ﻿using BaseFramework.Enums;
-using BaseFramework.Events;
-using BaseFramework.Helpers;
-using BaseFramework.Models;
 using BaseFramework.Models.Apps;
 using BaseFramework.Services;
+using DevExpress.Mvvm;
+using RW.Common;
+using RW.Common.Helpers;
 using YB.E621.Models.E621;
 
 namespace YB.E621.Services;
 
-public class E621UserService(ModuleType moduleType) {
+public class E621UserService(ModuleType moduleType) : BindableBase {
 
     private static E621UserService User_E621 { get; } = new(ModuleType.E621);
     private static E621UserService User_E6AI { get; } = new(ModuleType.E6AI);
@@ -29,14 +29,19 @@ public class E621UserService(ModuleType moduleType) {
 
     public ModuleType ModuleType { get; } = moduleType;
 
-    public BindObject<bool> IsUserLoading { get; } = false;
+    // todo : remove BindObject xaml usage
+    //public BindObject<bool> IsUserLoading { get; } = false;
 
-    private UserModel currentUser;
+    public bool IsUserLoading {
+        get => GetProperty(() => IsUserLoading);
+        set => SetProperty(() => IsUserLoading, value);
+    }
+
 
     private UserModel CurrentUser {
-        get => currentUser;
+        get => GetProperty(() => CurrentUser);
         set {
-            currentUser = value;
+            SetProperty(() => CurrentUser, value);
             LoginChanged?.Invoke(CurrentUser.User, CurrentUser.AvatarPost);
         }
     }
@@ -51,7 +56,7 @@ public class E621UserService(ModuleType moduleType) {
     private readonly record struct UserModel(E621User User, E621Post? AvatarPost);
 
     public async ValueTask<Exception?> TryLogin(string username, string apiKey) {
-        IsUserLoading.Value = true;
+        IsUserLoading = true;
 
         UserModel userModel = default;
         try {
@@ -84,7 +89,7 @@ public class E621UserService(ModuleType moduleType) {
             AppProfile.Save();
             CurrentUser = userModel;
 
-            IsUserLoading.Value = false;
+            IsUserLoading = false;
         }
     }
 

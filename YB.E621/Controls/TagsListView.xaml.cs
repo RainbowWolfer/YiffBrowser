@@ -53,8 +53,9 @@ public partial class TagsListView : UserControl {
     }
 
     private void AddItems(E621TagCategory category, List<string>? list) {
-        list ??= [];
-        Items.AddRange(list.Select(x => new TagListItem(category, x)));
+        foreach (string item in list ?? []) {
+            Items.Add(new TagListItem(category, item));
+        }
     }
 
 }

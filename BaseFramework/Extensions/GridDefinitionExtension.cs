@@ -1,4 +1,4 @@
-﻿using BaseFramework.Models;
+﻿using BaseFramework.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 

@@ -1,13 +1,16 @@
-﻿<views:UserControlBase
+﻿<UserControl
 	x:Class="YB.E621.Views.Subs.UserLogin"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:b="RW.Base.WPF"
 	xmlns:c="clr-namespace:BaseFramework.Controls;assembly=BaseFramework"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
 	xmlns:local="clr-namespace:YB.E621.Views.Subs"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:service="clr-namespace:YB.E621.Services"
 	xmlns:views="clr-namespace:BaseFramework.Views;assembly=BaseFramework"
+	xmlns:wpf="RW.Common.WPF"
 	d:Background="White"
 	d:DataContext="{d:DesignInstance Type=local:UserLoginViewModel}"
 	Width="200"
@@ -18,7 +21,13 @@
 		<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml"/>
 	</Control.Resources>
 
-	<c:UniformSpacingPanel Style="{StaticResource CustomVerticalPanel}" Margin="2">
+	<dxmvvm:Interaction.Behaviors>
+		<b:DispatcherServiceEx/>
+		<b:LoadedService Command="{Binding LoadedCommand}" OnlyOnce="True"/>
+	</dxmvvm:Interaction.Behaviors>
+
+
+	<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel}" Margin="2">
 		<c:HorizontalIconText Margin="4,2" Glyph="&#xE8D4;" Text="Username"/>
 
 		<TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"/>
@@ -44,6 +53,6 @@
 			</Border>
 		</Grid>
 
-	</c:UniformSpacingPanel>
+	</wpf:SpacingStackPanel>
 
-</views:UserControlBase>
+</UserControl>

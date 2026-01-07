@@ -3,7 +3,7 @@ using System.IO;
 
 namespace BaseFramework.Services;
 
-public static class DebugLogService {
+public static class LoggingService {
 
     public static void Log(string message) {
         try {

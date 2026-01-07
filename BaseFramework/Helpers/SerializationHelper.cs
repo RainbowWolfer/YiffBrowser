@@ -20,7 +20,7 @@ public static class SerializationHelper {
         }
     }
 
-    public static T? DeserializeObjectFromJson<T>(this string filePath, T defaultWhenException = default) {
+    public static T? DeserializeObjectFromJson<T>(this string filePath, T? defaultWhenException = default) {
         try {
             using FileStream fileStream = new(filePath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read);
             fileStream.Position = 0;

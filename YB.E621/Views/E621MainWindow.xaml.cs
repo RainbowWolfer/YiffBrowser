@@ -1,8 +1,9 @@
 ﻿using BaseFramework.Enums;
-using BaseFramework.Interfaces;
-using BaseFramework.ViewModels;
 using BaseFramework.Views;
 using BaseFramework.Views.Dialogs;
+using DevExpress.Mvvm;
+using RW.Base.WPF.ViewModelServices;
+using RW.Common.WPF.Controls;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
@@ -15,176 +16,185 @@ namespace YB.E621.Views;
 
 public partial class E621MainWindow : WindowBase {
 
-    public E621MainWindow() {
-        InitializeComponent();
+	public E621MainWindow(ModuleType e621, ModuleNavigationActions moduleNavigationActions) {
+		InitializeComponent();
 
-        //MeidaElement.LoadedBehavior = MediaState.Play;
-        //MeidaElement.Clock.
+		//MeidaElement.LoadedBehavior = MediaState.Play;
+		//MeidaElement.Clock.
 
-        Test();
-    }
+		Test();
+	}
 
-    private async void Test() {
+	private async void Test() {
 
-        //MainImage.GifSource = @"https://static1.e621.net/data/91/3d/913d9dd37fa6d5a3cef1e8e91ef79873.gif";
-        //MainImage.StartAnimation();
+		//MainImage.GifSource = @"https://static1.e621.net/data/91/3d/913d9dd37fa6d5a3cef1e8e91ef79873.gif";
+		//MainImage.StartAnimation();
 
-        //string uri = @"https://static1.e621.net/data/91/3d/913d9dd37fa6d5a3cef1e8e91ef79873.gif";
-        //HttpClient client = new();
+		//string uri = @"https://static1.e621.net/data/91/3d/913d9dd37fa6d5a3cef1e8e91ef79873.gif";
+		//HttpClient client = new();
 
-        //try {
-        //	HttpRequestMessage request = new(HttpMethod.Get, uri);
-        //	HttpResponseMessage response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+		//try {
+		//	HttpRequestMessage request = new(HttpMethod.Get, uri);
+		//	HttpResponseMessage response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
-        //	response.EnsureSuccessStatusCode();
-        //	long? contentLength = response.Content.Headers.ContentLength;
+		//	response.EnsureSuccessStatusCode();
+		//	long? contentLength = response.Content.Headers.ContentLength;
 
-        //	MemoryStream memoryStream = new();
+		//	MemoryStream memoryStream = new();
 
-        //	using Stream contentStream = await response.Content.ReadAsStreamAsync();
+		//	using Stream contentStream = await response.Content.ReadAsStreamAsync();
 
-        //	long totalRead = 0L;
-        //	byte[] buffer = new byte[8192 * 10];
-        //	bool isMoreToRead = true;
+		//	long totalRead = 0L;
+		//	byte[] buffer = new byte[8192 * 10];
+		//	bool isMoreToRead = true;
 
-        //	do {
-        //		int read = await contentStream.ReadAsync(buffer);
-        //		if (read == 0) {
-        //			isMoreToRead = false;
-        //		} else {
-        //			await memoryStream.WriteAsync(buffer.AsMemory(0, read));
-        //			totalRead += read;
+		//	do {
+		//		int read = await contentStream.ReadAsync(buffer);
+		//		if (read == 0) {
+		//			isMoreToRead = false;
+		//		} else {
+		//			await memoryStream.WriteAsync(buffer.AsMemory(0, read));
+		//			totalRead += read;
 
-        //			if (contentLength.HasValue) {
-        //				double progress = Math.Round((double)totalRead / contentLength.Value * 100, 2);
-        //				Debug.WriteLine($"Progress: {progress}%");
-        //			}
-        //		}
-        //	} while (isMoreToRead);
+		//			if (contentLength.HasValue) {
+		//				double progress = Math.Round((double)totalRead / contentLength.Value * 100, 2);
+		//				Debug.WriteLine($"Progress: {progress}%");
+		//			}
+		//		}
+		//	} while (isMoreToRead);
 
-        //	memoryStream.Position = 0; // Reset stream position before usage
+		//	memoryStream.Position = 0; // Reset stream position before usage
 
-        //	GifBitmapDecoder decoder = new(memoryStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
+		//	GifBitmapDecoder decoder = new(memoryStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
 
-        //	Dispatcher.Invoke(() => {
+		//	Dispatcher.Invoke(() => {
 
-        //	});
+		//	});
 
-        //} catch (Exception ex) {
-        //	Debug.WriteLine(ex.Message);
-        //	Dispatcher.Invoke(() => {
-        //		MessageBox.Show("Unable to download or display the GIF", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        //	});
-        //}
-    }
+		//} catch (Exception ex) {
+		//	Debug.WriteLine(ex.Message);
+		//	Dispatcher.Invoke(() => {
+		//		MessageBox.Show("Unable to download or display the GIF", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+		//	});
+		//}
+	}
 
-    //private async void Test() {
+	//private async void Test() {
 
-    //	string uri = @"https://static1.e621.net/data/91/3d/913d9dd37fa6d5a3cef1e8e91ef79873.gif";
+	//	string uri = @"https://static1.e621.net/data/91/3d/913d9dd37fa6d5a3cef1e8e91ef79873.gif";
 
-    //	using HttpClient client = new();
-    //	byte[] data = await client.GetByteArrayAsync(uri);
+	//	using HttpClient client = new();
+	//	byte[] data = await client.GetByteArrayAsync(uri);
 
-    //	MemoryStream stream = new(data);
+	//	MemoryStream stream = new(data);
 
-    //	Dispatcher.Invoke(() => {
-    //		AnimationBehavior.SetAutoStart(MainImage, true);
-    //		AnimationBehavior.SetSourceStream(MainImage, stream);
-    //	});
-    //}
+	//	Dispatcher.Invoke(() => {
+	//		AnimationBehavior.SetAutoStart(MainImage, true);
+	//		AnimationBehavior.SetSourceStream(MainImage, stream);
+	//	});
+	//}
 
-    private void SettingsButton_Click(object sender, RoutedEventArgs e) {
-        AppSettingsDialogViewModel.ShowDialog(GetWindow((DependencyObject)sender));
-    }
+	private void SettingsButton_Click(object sender, RoutedEventArgs e) {
+		AppSettingsDialogViewModel.ShowDialog(GetWindow((DependencyObject)sender));
+	}
 
 }
 
-public class E621MainWindowViewModel : WindowViewModel<E621MainWindow> {
-    private bool isLoggedIn = false;
-    private int tabSelectedIndex = 0;
+public class E621MainWindowViewModel : ViewModelBase {
 
-    public ModuleType ModuleType { get; }
-    public ModuleNavigationActions ModuleNavigationActions { get; }
-    public ObservableCollection<PostsViewModel> Tabs { get; } = [];
+	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
+	public ICurrentWindowServiceEx CurrentWindowService => GetService<ICurrentWindowServiceEx>();
 
-    public E621UserService UserService { get; }
+	public IUIObjectService<ButtonPopup> SearchPopupService => GetService<ITypedUIObjectService>(nameof(SearchPopupService)).As<ButtonPopup>();
+	public IUIObjectService<ButtonPopup> SitePopupService => GetService<ITypedUIObjectService>(nameof(SitePopupService)).As<ButtonPopup>();
 
-    public SearchViewModel SearchViewModel { get; }
-    public UserLoginViewModel UserLoginViewModel { get; }
-    public UserViewModel UserViewModel { get; }
+	public ModuleType ModuleType { get; }
+	public ModuleNavigationActions ModuleNavigationActions { get; }
+	public ObservableCollection<PostsViewModel> Tabs { get; } = [];
 
-    public int TabSelectedIndex {
-        get => tabSelectedIndex;
-        set => SetProperty(ref tabSelectedIndex, value);
-    }
+	public E621UserService UserService { get; }
 
-    public bool IsLoggedIn {
-        get => isLoggedIn;
-        set => SetProperty(ref isLoggedIn, value);
-    }
+	public SearchViewModel SearchViewModel { get; }
+	public UserLoginViewModel UserLoginViewModel { get; }
+	public UserViewModel UserViewModel { get; }
 
-    public E621MainWindowViewModel(ModuleType moduleType, ModuleNavigationActions moduleNavigationActions) {
-        UserService = E621UserService.GetUserService(moduleType);
-        UserService.LoginChanged += UserService_LoginChanged;
 
-        SearchViewModel = new SearchViewModel(moduleType);
-        SearchViewModel.SearchSubmit += SearchViewModel_SearchSubmit;
+	public int TabSelectedIndex {
+		get => GetProperty(() => TabSelectedIndex);
+		set => SetProperty(() => TabSelectedIndex, value);
+	}
 
-        UserLoginViewModel = new UserLoginViewModel(moduleType);
-        UserViewModel = new UserViewModel(moduleType);
+	public bool IsLoggedIn {
+		get => GetProperty(() => IsLoggedIn);
+		set => SetProperty(() => IsLoggedIn, value);
+	}
 
-        ModuleType = moduleType;
-        ModuleNavigationActions = moduleNavigationActions;
-        View.Title = $"Yiff Browser - {moduleType}";
+	//public E621MainWindowViewModel(ModuleType moduleType, ModuleNavigationActions moduleNavigationActions) {
+	//	UserService = E621UserService.GetUserService(moduleType);
+	//	UserService.LoginChanged += UserService_LoginChanged;
 
-        //Tabs.Add(new PostsViewModel(ModuleType, ["order:rank"]));
-        //Tabs.Add(new PostsViewModel(ModuleType, ["type:gif", "order:filesize"]));
-        //Tabs.Add(new PostsViewModel(ModuleType, ["type:gif", "order:filesize"]));
-        Tabs.Add(new PostsViewModel(ModuleType, ["type:gif"]));
-        //Tabs.Add(new PostsViewModel(ModuleType, ["type:gif"]));
-        //Tabs.Add(new PostsViewModel(ModuleType, ["type:webm"]));
-        TabSelectedIndex = 0;
-    }
+	//	SearchViewModel = new SearchViewModel(moduleType);
+	//	SearchViewModel.SearchSubmit += SearchViewModel_SearchSubmit;
 
-    protected override async void LoadedOnce(IViewBase viewBase) {
-        base.LoadedOnce(viewBase);
-        await UserService.Initialize();
-    }
+	//	UserLoginViewModel = new UserLoginViewModel(moduleType);
+	//	UserViewModel = new UserViewModel(moduleType);
 
-    private void SearchViewModel_SearchSubmit(SearchViewModel sender, string[] args) {
-        View.SearchPopup.Hide();
+	//	ModuleType = moduleType;
+	//	ModuleNavigationActions = moduleNavigationActions;
+	//	CurrentWindowService.GetWindow().Title = $"Yiff Browser - {moduleType}";
 
-        PostsViewModel viewModel = new(ModuleType, args);
-        Tabs.Add(viewModel);
-        TabSelectedIndex = Tabs.Count - 1;
+	//	//Tabs.Add(new PostsViewModel(ModuleType, ["order:rank"]));
+	//	//Tabs.Add(new PostsViewModel(ModuleType, ["type:gif", "order:filesize"]));
+	//	//Tabs.Add(new PostsViewModel(ModuleType, ["type:gif", "order:filesize"]));
+	//	Tabs.Add(new PostsViewModel(ModuleType, ["type:gif"]));
+	//	//Tabs.Add(new PostsViewModel(ModuleType, ["type:gif"]));
+	//	//Tabs.Add(new PostsViewModel(ModuleType, ["type:webm"]));
+	//	TabSelectedIndex = 0;
+	//}
 
-        viewModel.View.Dispatcher.BeginInvoke(viewModel.View.Focus, DispatcherPriority.Loaded);
-    }
 
-    private void UserService_LoginChanged(E621User? sender, E621Post? args) {
-        IsLoggedIn = sender != null;
-    }
+	private DelegateCommand? loadedCommand;
+	public IDelegateCommand LoadedCommand => loadedCommand ??= new(Loaded);
+	private async void Loaded() {
+		await UserService.Initialize();
+	}
 
-    public ICommand CloseTabCommand => new DelegateCommand<PostsViewModel>(CloseTab);
+	private void SearchViewModel_SearchSubmit(SearchViewModel sender, string[] args) {
+		SearchPopupService.Object.Hide();
 
-    private void CloseTab(PostsViewModel model) {
-        Tabs.Remove(model);
-    }
+		PostsViewModel viewModel = new(ModuleType, args);
+		Tabs.Add(viewModel);
+		TabSelectedIndex = Tabs.Count - 1;
 
-    public ICommand ShowE621Command => new DelegateCommand(() => {
-        View.SitePopup.Hide();
-        ModuleNavigationActions.ShowE621();
-    });
+		DispatcherService.Dispatcher.BeginInvoke(() => {
+			CurrentWindowService.GetWindow().Focus();
+		}, DispatcherPriority.Loaded);
+	}
 
-    public ICommand ShowE6AICommand => new DelegateCommand(() => {
-        View.SitePopup.Hide();
-        ModuleNavigationActions.ShowE6AI();
-    });
+	private void UserService_LoginChanged(E621User? sender, E621Post? args) {
+		IsLoggedIn = sender != null;
+	}
 
-    public ICommand ShowE926Command => new DelegateCommand(() => {
-        View.SitePopup.Hide();
-        ModuleNavigationActions.ShowE926();
-    });
+	public ICommand CloseTabCommand => new DelegateCommand<PostsViewModel>(CloseTab);
+
+	private void CloseTab(PostsViewModel model) {
+		Tabs.Remove(model);
+	}
+
+	public ICommand ShowE621Command => new DelegateCommand(() => {
+		SitePopupService.Object.Hide();
+		ModuleNavigationActions.ShowE621();
+	});
+
+	public ICommand ShowE6AICommand => new DelegateCommand(() => {
+		SitePopupService.Object.Hide();
+		ModuleNavigationActions.ShowE6AI();
+	});
+
+	public ICommand ShowE926Command => new DelegateCommand(() => {
+		SitePopupService.Object.Hide();
+		ModuleNavigationActions.ShowE926();
+	});
 
 }
 

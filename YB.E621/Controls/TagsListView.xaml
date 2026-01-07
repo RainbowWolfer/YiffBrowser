@@ -6,6 +6,7 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:local="clr-namespace:YB.E621.Controls"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:wpf="RW.Common.WPF"
 	d:Background="White"
 	d:DesignHeight="450"
 	d:DesignWidth="200"
@@ -46,10 +47,10 @@
 									<ControlTemplate>
 										<Expander IsExpanded="True">
 											<Expander.Header>
-												<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel}">
+												<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel}">
 													<TextBlock FontWeight="SemiBold" Text="{Binding Name}"/>
 													<TextBlock FontWeight="SemiBold" Text="{Binding Items.Count, StringFormat='{}({0})'}"/>
-												</bf:UniformSpacingPanel>
+												</wpf:SpacingStackPanel>
 											</Expander.Header>
 											<ItemsPresenter/>
 										</Expander>
@@ -82,7 +83,7 @@
 								BorderThickness="0"
 								Background="Transparent"
 								ToolTip="Search without this tag">
-								<bf:FontIcon FontSize="14" Text="&#xE949;"/>
+								<wpf:FontIcon FontSize="14" Text="&#xE949;"/>
 							</Button>
 
 							<Button
@@ -90,7 +91,7 @@
 								BorderThickness="0"
 								Background="Transparent"
 								ToolTip="Search with this tag">
-								<bf:FontIcon FontSize="14" Text="&#xE948;"/>
+								<wpf:FontIcon FontSize="14" Text="&#xE948;"/>
 							</Button>
 
 						</Grid>

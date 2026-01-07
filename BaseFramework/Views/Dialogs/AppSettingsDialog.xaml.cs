@@ -1,4 +1,4 @@
-﻿using BaseFramework.ViewModels;
+﻿using DevExpress.Mvvm;
 using System.Windows;
 
 namespace BaseFramework.Views.Dialogs;
@@ -9,12 +9,12 @@ public partial class AppSettingsDialog : WindowBase {
     }
 }
 
-public class AppSettingsDialogViewModel : WindowViewModel<AppSettingsDialog> {
+public class AppSettingsDialogViewModel : ViewModelBase {
 
     public static void ShowDialog(Window owner) {
-        AppSettingsDialogViewModel viewModel = new();
-        viewModel.View.Owner = owner;
-        viewModel.View.ShowDialog();
+        //AppSettingsDialogViewModel viewModel = new();
+        //viewModel.View.Owner = owner;
+        //viewModel.View.ShowDialog();
     }
 
     public AppSettingsDialogViewModel() {

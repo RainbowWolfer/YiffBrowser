@@ -6,6 +6,7 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:local="clr-namespace:YB.E621.Controls"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:wpf="RW.Common.WPF"
 	d:Background="White"
 	d:DesignHeight="50"
 	d:DesignWidth="400"
@@ -47,7 +48,7 @@
 				CornerRadius="4">
 				<StackPanel Orientation="Horizontal">
 					<Border x:Name="TypeBorder" Padding="2,0">
-						<bf:FontIcon x:Name="TypeIcon" FontSize="24" Text="&#xF4A9;"/>
+						<wpf:FontIcon x:Name="TypeIcon" FontSize="24" Text="&#xF4A9;"/>
 					</Border>
 					<TextBlock x:Name="DurationText"
 						d:Visibility="Visible"
@@ -79,7 +80,7 @@
 				Background="White"
 				CornerRadius="4"
 				ToolTip="This post has 'sound' tag">
-				<bf:FontIcon
+				<wpf:FontIcon
 					VerticalAlignment="Center"
 					FontSize="20"
 					Foreground="Orange"
@@ -95,7 +96,7 @@
 				Background="White"
 				CornerRadius="4"
 				ToolTip="This post has 'sound_warning' tag">
-				<bf:FontIcon
+				<wpf:FontIcon
 					VerticalAlignment="Center"
 					FontSize="20"
 					Foreground="Red"
@@ -104,7 +105,7 @@
 
 		</StackPanel>
 
-		<bf:ButtonPopup SourceButton="{Binding ElementName=PostIDButton}">
+		<wpf:ButtonPopup SourceButton="{Binding ElementName=PostIDButton}">
 			<Border Style="{StaticResource ButtonPopupBorder}" MinWidth="280">
 				<Grid>
 					<Grid.ColumnDefinitions>
@@ -123,7 +124,7 @@
 					<Border Style="{StaticResource IDFlyoutInfoBorderStyle}" Grid.Row="0">
 						<StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
 							<TextBlock Text="Created Date"/>
-							<bf:FontIcon Margin="10,0,0,0" Text="&#xEE93;"/>
+							<wpf:FontIcon Margin="10,0,0,0" Text="&#xEE93;"/>
 						</StackPanel>
 					</Border>
 					<TextBlock x:Name="CreatedDateText" Style="{StaticResource IDFlyoutInfoTextStyle}" Grid.Row="0"/>
@@ -131,7 +132,7 @@
 					<Border Style="{StaticResource IDFlyoutInfoBorderStyle}" Grid.Row="1">
 						<StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
 							<TextBlock Text="Updated Date"/>
-							<bf:FontIcon Margin="10,0,0,0" Text="&#xE163;"/>
+							<wpf:FontIcon Margin="10,0,0,0" Text="&#xE163;"/>
 						</StackPanel>
 					</Border>
 					<TextBlock x:Name="UpdatedAtText" Style="{StaticResource IDFlyoutInfoTextStyle}" Grid.Row="1"/>
@@ -139,7 +140,7 @@
 					<Border Style="{StaticResource IDFlyoutInfoBorderStyle}" Grid.Row="2">
 						<StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
 							<TextBlock Text="Size"/>
-							<bf:FontIcon Margin="10,0,0,0" Text="&#xEE93;"/>
+							<wpf:FontIcon Margin="10,0,0,0" Text="&#xEE93;"/>
 						</StackPanel>
 					</Border>
 					<TextBlock x:Name="SizeInfoText" Style="{StaticResource IDFlyoutInfoTextStyle}" Grid.Row="2"/>
@@ -147,7 +148,7 @@
 					<Border Style="{StaticResource IDFlyoutInfoBorderStyle}" Grid.Row="3">
 						<StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
 							<TextBlock Text="Approver ID"/>
-							<bf:FontIcon Margin="10,0,0,0" Text="&#xE2AF;"/>
+							<wpf:FontIcon Margin="10,0,0,0" Text="&#xE2AF;"/>
 						</StackPanel>
 					</Border>
 					<TextBlock x:Name="ApproverIdText" Style="{StaticResource IDFlyoutInfoTextStyle}" Grid.Row="3"/>
@@ -155,7 +156,7 @@
 					<Border Style="{StaticResource IDFlyoutInfoBorderStyle}" Grid.Row="4">
 						<StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
 							<TextBlock Text="Uploader ID"/>
-							<bf:FontIcon Margin="10,0,0,0" Text="&#xE898;"/>
+							<wpf:FontIcon Margin="10,0,0,0" Text="&#xE898;"/>
 						</StackPanel>
 					</Border>
 					<TextBlock x:Name="UploaderId" Style="{StaticResource IDFlyoutInfoTextStyle}" Grid.Row="4"/>
@@ -172,7 +173,7 @@
 							HorizontalAlignment="Stretch"
 							Click="CopyUrlButton_Click">
 							<StackPanel Orientation="Horizontal">
-								<bf:FontIcon Text="&#xE16F;"/>
+								<wpf:FontIcon Text="&#xE16F;"/>
 								<TextBlock Margin="10,0,0,0" Text="Copy URL"/>
 							</StackPanel>
 						</Button>
@@ -184,7 +185,7 @@
 							HorizontalAlignment="Stretch"
 							Click="OpenBrowserButton_Click">
 							<StackPanel Orientation="Horizontal">
-								<bf:FontIcon Text="&#xE12B;"/>
+								<wpf:FontIcon Text="&#xE12B;"/>
 								<TextBlock Margin="10,0,0,0" Text="Open In Browser"/>
 							</StackPanel>
 						</Button>
@@ -193,7 +194,7 @@
 
 				</Grid>
 			</Border>
-		</bf:ButtonPopup>
+		</wpf:ButtonPopup>
 
 	</Grid>
 </UserControl>

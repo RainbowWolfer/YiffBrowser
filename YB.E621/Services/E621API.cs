@@ -1,9 +1,9 @@
 ﻿using BaseFramework.Enums;
-using BaseFramework.Helpers;
 using BaseFramework.Models.Apps;
 using BaseFramework.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using RW.Common.Helpers;
 using System.Diagnostics;
 using System.Text;
 using YB.E621.Models.E621;

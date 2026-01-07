@@ -2,7 +2,7 @@
   <Folder Name="/Modules/">
     <Project Path="YB.E621/YB.E621.csproj" />
   </Folder>
-  <Folder Name="/Solution Items/">
+  <Folder Name="/_SolutionItems/">
     <File Path=".gitattributes" />
     <File Path=".gitignore" />
     <File Path="nuget.config" />

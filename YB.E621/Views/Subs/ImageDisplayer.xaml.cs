@@ -1,6 +1,6 @@
-﻿using BaseFramework.Helpers;
-using BaseFramework.Models;
+﻿using BaseFramework.Models;
 using BaseFramework.Services;
+using RW.Common.Helpers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -191,7 +191,7 @@ public partial class ImageDisplayer : UserControl {
             LoadingBorder.Visibility = Visibility.Visible;
             ProgressBar.IsIndeterminate = false;
             ProgressBar.Value = args.Progress;
-            int downloaded = (int)(fileSize * (args.Progress / 100d));
+            long downloaded = (long)(fileSize * (args.Progress / 100d));
             DownloadInfo = $"{downloaded.FileSizeToKB()} / {fileSize.FileSizeToKB()}";
         }
     }

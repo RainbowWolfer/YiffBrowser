@@ -92,8 +92,7 @@ public class GifImageControl : Image {
     /// Defines whether the animation starts on it's own
     /// </summary>
     public bool AutoStart {
-        get { return (bool)GetValue(AutoStartProperty); }
-        set { SetValue(AutoStartProperty, value); }
+        get => (bool)GetValue(AutoStartProperty); set => SetValue(AutoStartProperty, value);
     }
 
     public static readonly DependencyProperty AutoStartProperty =
@@ -101,7 +100,7 @@ public class GifImageControl : Image {
 
     private static void AutoStartPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
         if ((bool)e.NewValue) {
-            (sender as GifImageControl).StartAnimation();
+            ((GifImageControl)sender).StartAnimation();
         }
     }
 
@@ -114,7 +113,7 @@ public class GifImageControl : Image {
         DependencyProperty.Register("GifSource", typeof(string), typeof(GifImageControl), new UIPropertyMetadata(string.Empty, GifSourcePropertyChanged));
 
     private static void GifSourcePropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
-        (sender as GifImageControl).Initialize();
+        ((GifImageControl)sender).Initialize();
     }
 
     /// <summary>

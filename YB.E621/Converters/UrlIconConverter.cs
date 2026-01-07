@@ -1,4 +1,4 @@
-﻿using BaseFramework.Helpers;
+﻿using RW.Common.Helpers;
 using System.Globalization;
 using System.Windows.Data;
 
@@ -13,7 +13,7 @@ public class UrlIconConverter : IValueConverter {
 
             //todo : twitter just change its name to x
 
-            string _url = url;
+            string _url = url.TrimmedSafeString();
             if (_url.StartsWith("https://")) {
                 _url = _url[8..];
             } else if (_url.StartsWith("http://")) {

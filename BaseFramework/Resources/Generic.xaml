@@ -3,25 +3,17 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:c="clr-namespace:BaseFramework.Controls"
 	xmlns:con="clr-namespace:BaseFramework.Converters"
-	xmlns:e="clr-namespace:BaseFramework.Extensions">
+	xmlns:e="clr-namespace:BaseFramework.Extensions"
+	xmlns:wpf="RW.Common.WPF">
 
-	<con:BoolToBoolReConverter x:Key="BoolToBoolReConverter"/>
-	<con:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-	<con:BoolToVisibilityReConverter x:Key="BoolToVisibilityReConverter"/>
-	<con:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
-	<con:StringToVisibilityReConverter x:Key="StringToVisibilityReConverter"/>
-	<con:IListToBoolConverter x:Key="IListToBoolConverter"/>
-	<con:IListToBoolReConverter x:Key="IListToBoolReConverter"/>
-	<con:IListToVisibilityConverter x:Key="IListToVisibilityConverter"/>
-	<con:IListToVisibilityReConverter x:Key="IListToVisibilityReConverter"/>
+
+	<ResourceDictionary.MergedDictionaries>
+		<ResourceDictionary Source="pack://application:,,,/RW.Common.WPF;component/Resources/Generic.xaml"/>
+	</ResourceDictionary.MergedDictionaries>
+
 	<con:NumberToKBConverter x:Key="NumberToKBConverter"/>
 	<con:SubStringConverter x:Key="SubStringConverter"/>
-
-	<con:EnumToBoolConverter x:Key="EnumToBoolConverter"/>
-	<con:EnumToBoolReConverter x:Key="EnumToBoolReConverter"/>
-	<con:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter"/>
-	<con:EnumToVisibilityReConverter x:Key="EnumToVisibilityReConverter"/>
-
+	<con:TimeDurationConverter x:Key="TimeDurationConverter"/>
 
 	<FontFamily x:Key="IconPack">./Fonts/Segoe Fluent Icons.ttf#Segoe Fluent Icons</FontFamily>
 
@@ -30,7 +22,7 @@
 		<Setter Property="FontSize" Value="16"/>
 	</Style>
 
-	<Style x:Key="FontIconBase" TargetType="c:FontIcon" BasedOn="{StaticResource TextBlockIcon}">
+	<Style x:Key="FontIconBase" TargetType="wpf:FontIcon" BasedOn="{StaticResource TextBlockIcon}">
 		<Setter Property="FontFamily" Value="{StaticResource IconPack}"/>
 		<Setter Property="FontSize" Value="16"/>
 		<Setter Property="TextAlignment" Value="Center"/>
@@ -38,7 +30,7 @@
 		<Setter Property="VerticalAlignment" Value="Center"/>
 	</Style>
 
-	<Style TargetType="c:FontIcon" BasedOn="{StaticResource FontIconBase}"/>
+	<Style TargetType="wpf:FontIcon" BasedOn="{StaticResource FontIconBase}"/>
 
 	<ExponentialEase x:Key="DefaultEasingFunction" EasingMode="EaseOut" Exponent="8"/>
 
@@ -1074,7 +1066,7 @@
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type ProgressBar}">
 					<Grid x:Name="TemplateRoot">
-						<c:ClippingBorder
+						<wpf:ClippingBorder
 							BorderThickness="{TemplateBinding BorderThickness}"
 							BorderBrush="{TemplateBinding BorderBrush}"
 							Background="{TemplateBinding Background}"
@@ -1095,7 +1087,7 @@
 									</Rectangle>
 								</Grid>
 							</Grid>
-						</c:ClippingBorder>
+						</wpf:ClippingBorder>
 						<VisualStateManager.VisualStateGroups>
 							<VisualStateGroup x:Name="CommonStates">
 								<VisualState x:Name="Determinate"/>
@@ -1152,7 +1144,7 @@
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type ListBoxItem}">
-					<c:ClippingBorder x:Name="Bd"
+					<wpf:ClippingBorder x:Name="Bd"
 						Padding="{TemplateBinding Padding}"
 						BorderThickness="{TemplateBinding BorderThickness}"
 						BorderBrush="{TemplateBinding BorderBrush}"
@@ -1160,7 +1152,7 @@
 						CornerRadius="4"
 						SnapsToDevicePixels="True">
 						<ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-					</c:ClippingBorder>
+					</wpf:ClippingBorder>
 					<ControlTemplate.Triggers>
 						<MultiTrigger>
 							<MultiTrigger.Conditions>
@@ -1248,35 +1240,35 @@
 
 	<Style TargetType="ListBox" BasedOn="{StaticResource CustomListBoxStyle}"/>
 
-	<Style x:Key="CustomHorizontalPanel" TargetType="c:UniformSpacingPanel">
+	<Style x:Key="CustomHorizontalPanel" TargetType="wpf:SpacingStackPanel">
 		<Setter Property="Orientation" Value="Horizontal"/>
 		<Setter Property="HorizontalSpacing" Value="2"/>
 		<Setter Property="ItemVerticalAlignment" Value="Center"/>
 	</Style>
 
-	<Style x:Key="CustomHorizontalPanel2" TargetType="c:UniformSpacingPanel">
+	<Style x:Key="CustomHorizontalPanel2" TargetType="wpf:SpacingStackPanel">
 		<Setter Property="Orientation" Value="Horizontal"/>
 		<Setter Property="HorizontalSpacing" Value="4"/>
 		<Setter Property="ItemVerticalAlignment" Value="Center"/>
 	</Style>
 
-	<Style x:Key="CustomHorizontalPanel3" TargetType="c:UniformSpacingPanel">
+	<Style x:Key="CustomHorizontalPanel3" TargetType="wpf:SpacingStackPanel">
 		<Setter Property="Orientation" Value="Horizontal"/>
 		<Setter Property="HorizontalSpacing" Value="6"/>
 		<Setter Property="ItemVerticalAlignment" Value="Center"/>
 	</Style>
 
-	<Style x:Key="CustomVerticalPanel" TargetType="c:UniformSpacingPanel">
+	<Style x:Key="CustomVerticalPanel" TargetType="wpf:SpacingStackPanel">
 		<Setter Property="Orientation" Value="Vertical"/>
 		<Setter Property="VerticalSpacing" Value="2"/>
 	</Style>
 
-	<Style x:Key="CustomVerticalPanel2" TargetType="c:UniformSpacingPanel">
+	<Style x:Key="CustomVerticalPanel2" TargetType="wpf:SpacingStackPanel">
 		<Setter Property="Orientation" Value="Vertical"/>
 		<Setter Property="VerticalSpacing" Value="4"/>
 	</Style>
 
-	<Style x:Key="CustomVerticalPanel3" TargetType="c:UniformSpacingPanel">
+	<Style x:Key="CustomVerticalPanel3" TargetType="wpf:SpacingStackPanel">
 		<Setter Property="Orientation" Value="Vertical"/>
 		<Setter Property="VerticalSpacing" Value="6"/>
 	</Style>
@@ -1293,7 +1285,7 @@
 						BorderBrush="{TemplateBinding BorderBrush}"
 						Background="{TemplateBinding Background}">
 						<StackPanel Orientation="Horizontal">
-							<c:FontIcon
+							<wpf:FontIcon
 								VerticalAlignment="Center"
 								FontSize="{TemplateBinding IconSize}"
 								Foreground="{TemplateBinding IconForeground}"

@@ -1,6 +1,6 @@
-﻿using BaseFramework.Events;
-using BaseFramework.Helpers;
-using BaseFramework.Models;
+﻿using BaseFramework.Models;
+using RW.Common;
+using RW.Common.Helpers;
 using System.Collections.Concurrent;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;

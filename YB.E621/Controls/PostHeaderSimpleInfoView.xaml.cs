@@ -1,6 +1,8 @@
 ﻿using BaseFramework.Converters;
 using BaseFramework.Enums;
 using BaseFramework.Helpers;
+using RW.Common.Helpers;
+using RW.Common.WPF.Helpers;
 using System.Windows;
 using System.Windows.Controls;
 using YB.E621.Helpers;

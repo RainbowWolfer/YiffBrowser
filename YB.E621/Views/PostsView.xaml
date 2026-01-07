@@ -1,14 +1,17 @@
-﻿<bf:UserControlBase
+﻿<UserControl
 	x:Class="YB.E621.Views.PostsView"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:b="RW.Base.WPF"
 	xmlns:bf="BaseFramework"
 	xmlns:c1="clr-namespace:YB.E621.Controls"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
 	xmlns:local="clr-namespace:YB.E621.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:models="clr-namespace:YB.E621.Models"
 	xmlns:subs="clr-namespace:YB.E621.Views.Subs"
+	xmlns:wpf="RW.Common.WPF"
 	d:Background="White"
 	d:DataContext="{d:DesignInstance Type=local:PostsViewModel}"
 	d:DesignHeight="450"
@@ -21,10 +24,14 @@
 				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml"/>
 			</ResourceDictionary.MergedDictionaries>
 
-			<bf:CommandProxy x:Key="ViewPostDetailCommand" Command="{Binding ViewPostDetailCommand}"/>
+			<wpf:CommandProxy x:Key="ViewPostDetailCommand" Command="{Binding ViewPostDetailCommand}"/>
 
 		</ResourceDictionary>
 	</Control.Resources>
+
+	<dxmvvm:Interaction.Behaviors>
+		<b:LoadedService Command="{Binding LoadedCommand}"/>
+	</dxmvvm:Interaction.Behaviors>
 
 	<Grid>
 		<DockPanel>
@@ -36,13 +43,13 @@
 						<DockPanel>
 							<Border Padding="4" Background="LightGray" DockPanel.Dock="Top">
 
-								<bf:UniformSpacingPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Center" IsEnabled="{Binding IsLoading, Converter={StaticResource BoolToBoolReConverter}}">
+								<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Center" IsEnabled="{Binding IsLoading, Converter={StaticResource BoolToBoolReConverter}}">
 									<Button
 										Width="30"
 										Height="30"
 										Command="{Binding RefreshCommand}"
 										ToolTip="Refresh">
-										<bf:FontIcon Text="&#xE72C;"/>
+										<wpf:FontIcon Text="&#xE72C;"/>
 									</Button>
 
 									<Border Style="{StaticResource HorizontalSeparator}"/>
@@ -53,7 +60,7 @@
 										Command="{Binding PreviousPageCommand}"
 										IsEnabled="{Binding CanGoLeft}"
 										ToolTip="Previous Page">
-										<bf:FontIcon Text="&#xE76B;"/>
+										<wpf:FontIcon Text="&#xE76B;"/>
 									</Button>
 
 									<Button x:Name="CurrentPageButton"
@@ -68,7 +75,7 @@
 										Height="30"
 										Command="{Binding NextPageCommand}"
 										ToolTip="Next Page">
-										<bf:FontIcon Text="&#xE76C;"/>
+										<wpf:FontIcon Text="&#xE76C;"/>
 									</Button>
 
 									<Border Style="{StaticResource HorizontalSeparator}"/>
@@ -78,7 +85,7 @@
 										Height="30"
 										Command="{Binding DownloadCommand}"
 										ToolTip="Download">
-										<bf:FontIcon Text="&#xE896;"/>
+										<wpf:FontIcon Text="&#xE896;"/>
 									</Button>
 
 									<ToggleButton
@@ -96,7 +103,7 @@
 											Text="{Binding MultiSelectingText}"/>
 									</ToggleButton>
 
-								</bf:UniformSpacingPanel>
+								</wpf:SpacingStackPanel>
 
 							</Border>
 
@@ -201,12 +208,12 @@
 
 		</DockPanel>
 
-		<bf:ButtonPopup SourceButton="{Binding ElementName=CurrentPageButton}">
+		<wpf:ButtonPopup SourceButton="{Binding ElementName=CurrentPageButton}">
 			<Border Style="{StaticResource ButtonPopupBorder}">
 
 			</Border>
-		</bf:ButtonPopup>
+		</wpf:ButtonPopup>
 
 	</Grid>
 
-</bf:UserControlBase>
+</UserControl>

@@ -6,6 +6,7 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:local="clr-namespace:YB.E621.Controls"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:wpf="RW.Common.WPF"
 	d:DesignHeight="50"
 	d:DesignWidth="200"
 	mc:Ignorable="d">
@@ -31,9 +32,9 @@
 			Cursor="Hand">
 
 			<DockPanel VerticalAlignment="Center">
-				<bf:ClippingBorder Margin="0,2,0,0" CornerRadius="4">
+				<wpf:ClippingBorder Margin="0,2,0,0" CornerRadius="4">
 					<Image Height="20" VerticalAlignment="Center" Source="{Binding URL, Converter={StaticResource UrlIconConverter}}"/>
-				</bf:ClippingBorder>
+				</wpf:ClippingBorder>
 				<TextBlock
 					Margin="10,0,0,0"
 					VerticalAlignment="Center"

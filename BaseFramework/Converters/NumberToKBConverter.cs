@@ -1,4 +1,4 @@
-﻿using BaseFramework.Helpers;
+﻿using RW.Common.Helpers;
 using System.Globalization;
 using System.Windows.Data;
 
@@ -10,10 +10,10 @@ public class NumberToKBConverter : IValueConverter {
         if (value is long l) {
             number = l;
         } else {
-            number = Math.Abs(System.Convert.ToInt64(value));
+            number = NumberHelper.ConvertInt(value);
         }
         if (parameter != null) {
-            return number.FileSizeToKB(true);
+            return number.FileSizeToKB(/*true*/);
         } else {
             return number.FileSizeToKB();
         }
