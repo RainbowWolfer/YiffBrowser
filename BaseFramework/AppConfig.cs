@@ -2,16 +2,20 @@
 
 public static class AppConfig {
 
-    public const string AppName = "YiffBrowser";
+	public const string AppName = "YiffBrowser";
 
-    public static bool IsDebugging {
-        get {
+	public const string ProjectRepositoryURL = @"https://github.com/RainbowWolfer/YiffBrowser";
+	public const string GithubURL = @"https://github.com/RainbowWolfer";
+
+	public static bool IsRelease {
+		get {
 #if RELEASE
-			return false;
+			return true;
 #else
-            return true;
+			return false;
 #endif
-        }
-    }
+		}
+	}
+
 
 }

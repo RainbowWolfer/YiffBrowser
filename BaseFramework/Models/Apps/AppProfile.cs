@@ -13,11 +13,11 @@ public class AppProfile {
     }
 
     public static void Save() {
-        Instance.SerializeObjectToJson(FolderConfig.AppProfileFilePath);
+        //Instance.SerializeObjectToJson(AppFolderConfig.AppProfileFilePath);
     }
 
     public static void Load() {
-        Instance = FolderConfig.AppProfileFilePath.DeserializeObjectFromJson<AppProfile>() ?? new();
+        //Instance = AppFolderConfig.AppProfileFilePath.DeserializeObjectFromJson<AppProfile>() ?? new();
     }
 
     public string? E621_Username { get; set; }

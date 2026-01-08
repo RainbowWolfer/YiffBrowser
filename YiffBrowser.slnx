@@ -3,6 +3,7 @@
     <Project Path="YB.E621/YB.E621.csproj" />
   </Folder>
   <Folder Name="/_SolutionItems/">
+    <File Path=".editorconfig" />
     <File Path=".gitattributes" />
     <File Path=".gitignore" />
     <File Path="nuget.config" />

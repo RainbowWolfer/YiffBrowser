@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace BaseFramework.Helpers;
 
@@ -19,5 +21,18 @@ public static class ViewHelper {
         // 创建颜色对象
         return Color.FromArgb(a, r, g, b);
     }
+
+
+	public static void ActivateWindow(this Window? window) {
+		if (window is null) {
+			return;
+		}
+		window.Show();
+		window.Activate();
+		window.Focus();
+		window.Dispatcher.Invoke(() => {
+			window.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
+		}, DispatcherPriority.Loaded);
+	}
 
 }

@@ -37,7 +37,7 @@
 		<TextBox Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}"/>
 
 		<Grid Margin="0,4,0,0">
-			<Button Command="{Binding LoginCommand}" Visibility="{Binding UserService.IsUserLoading.Value, Converter={StaticResource BoolToVisibilityReConverter}}">
+			<Button Command="{Binding LoginCommand}" Visibility="{Binding UserService.IsUserLoading.Value, Converter={StaticResource Boolean2VisibilityReConverter}}">
 				<TextBlock Text="Login"/>
 			</Button>
 
@@ -48,7 +48,7 @@
 				BorderBrush="Gray"
 				Background="White"
 				CornerRadius="4"
-				Visibility="{Binding UserService.IsUserLoading.Value, Converter={StaticResource BoolToVisibilityConverter}}">
+				Visibility="{Binding UserService.IsUserLoading.Value, Converter={StaticResource Boolean2VisibilityConverter}}">
 				<ProgressBar BorderThickness="0" IsIndeterminate="True"/>
 			</Border>
 		</Grid>

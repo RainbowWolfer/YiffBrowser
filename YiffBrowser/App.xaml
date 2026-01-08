@@ -1,7 +1,8 @@
-﻿<Application
+﻿<base:ApplicationBase
 	x:Class="YiffBrowser.App"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:base="RW.Base.WPF"
 	xmlns:local="clr-namespace:YiffBrowser">
 
 	<Application.Resources>
@@ -17,4 +18,4 @@
 		</ResourceDictionary>
 	</Application.Resources>
 
-</Application>
+</base:ApplicationBase>

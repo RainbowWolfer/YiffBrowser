@@ -94,7 +94,7 @@
 							Height="32"
 							ToolTip="User">
 							<Grid>
-								<wpf:FontIcon d:Text="&#xEA8C;" Visibility="{Binding UserService.IsUserLoading.Value, Converter={StaticResource BoolToVisibilityReConverter}}">
+								<wpf:FontIcon d:Text="&#xEA8C;" Visibility="{Binding UserService.IsUserLoading.Value, Converter={StaticResource Boolean2VisibilityReConverter}}">
 									<wpf:FontIcon.Style>
 										<Style TargetType="wpf:FontIcon" BasedOn="{StaticResource FontIconBase}">
 											<Style.Triggers>
@@ -108,7 +108,7 @@
 										</Style>
 									</wpf:FontIcon.Style>
 								</wpf:FontIcon>
-								<Border Visibility="{Binding UserService.IsUserLoading.Value, Converter={StaticResource BoolToVisibilityConverter}}">
+								<Border Visibility="{Binding UserService.IsUserLoading.Value, Converter={StaticResource Boolean2VisibilityConverter}}">
 									<ProgressBar
 										Width="20"
 										Height="8"
@@ -134,7 +134,7 @@
 								FontSize="10"
 								Text="Debug"
 								TextAlignment="Center"
-								Visibility="{Binding Source={x:Static bf:AppConfig.IsDebugging}, Converter={StaticResource BoolToVisibilityConverter}}"/>
+								Visibility="{Binding Source={x:Static bf:AppConfig.IsRelease}, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
 						</StackPanel>
 
 					</wpf:SpacingStackPanel>
@@ -229,8 +229,8 @@
 			</wpf:ButtonPopup.Style>
 			<Border Style="{StaticResource ButtonPopupBorder}">
 				<Grid>
-					<ContentControl Content="{Binding UserLoginViewModel.View}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BoolToVisibilityReConverter}}"/>
-					<ContentControl Content="{Binding UserViewModel.View}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BoolToVisibilityConverter}}"/>
+					<ContentControl Content="{Binding UserLoginViewModel.View}" Visibility="{Binding IsLoggedIn, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
+					<ContentControl Content="{Binding UserViewModel.View}" Visibility="{Binding IsLoggedIn, Converter={StaticResource Boolean2VisibilityConverter}}"/>
 				</Grid>
 			</Border>
 		</wpf:ButtonPopup>

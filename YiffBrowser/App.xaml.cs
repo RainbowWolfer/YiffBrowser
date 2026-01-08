@@ -1,21 +1,33 @@
 ﻿using BaseFramework;
 using BaseFramework.Enums;
-using BaseFramework.Extensions;
-using BaseFramework.Models.Apps;
-using BaseFramework.Services;
-using RW.Common.WPF.Helpers;
+using BaseFramework.Helpers;
+using RW.Base.WPF;
+using RW.Base.WPF.Configs;
+using RW.Base.WPF.Extensions;
+using RW.Base.WPF.Interfaces;
+using RW.Base.WPF.ViewModels;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
 using System.Windows;
-using System.Windows.Input;
-using System.Windows.Threading;
 using YB.E621.Views;
 
 namespace YiffBrowser;
 
-public partial class App : Application {
+public partial class App : ApplicationBase {
+	private static App? instance;
+	public static App Instance => instance!;
 
-	public static bool ShuttingDown { get; private set; } = false;
+	private static Window[] MainWindows { get; set; } = [];
+
+	static App() {
+		DebugConfig.Print = o => Debug.WriteLine(o);
+		DebugConfig.DebuggerBreak = Debugger.Break;
+	}
+
+	protected override bool EnablePipeServerStream => false;
 
 	public ModuleNavigationActions? ModuleNavigationActions { get; }
 
@@ -23,21 +35,16 @@ public partial class App : Application {
 	public E621MainWindow? Window_E926 { get; }
 	public E621MainWindow? Window_E6AI { get; }
 
-	private static Window[] MainWindows { get; set; } = [];
-
-	private static Mutex? mutex = null;
-
-	private bool FatalError { get; set; } = false;
-
 	public App() {
-		DispatcherUnhandledException += App_DispatcherUnhandledException;
+		instance = this;
+
+		string appDirectory = AppDomain.CurrentDomain.BaseDirectory;
+		string _ = Directory.GetCurrentDirectory();
+		Directory.SetCurrentDirectory(appDirectory);
+
 		ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
 		try {
-			FolderConfig.Initialize();
-
-			LoggingService.Log($"App Initializing");
-
 			ModuleNavigationActions = new ModuleNavigationActions(ShowE621, ShowE6AI, ShowE926);
 
 			Window_E621 = new E621MainWindow(ModuleType.E621, ModuleNavigationActions);
@@ -50,144 +57,139 @@ public partial class App : Application {
 			}
 
 		} catch (Exception ex) {
-			FatalError = true;
-			MessageBox.Show(ex.ToString(), "App Constructor Error", MessageBoxButton.OK, MessageBoxImage.Error);
-			TotalShutdown();
+			Fatal(ex);
 		}
 
 	}
 
-	protected override void OnStartup(StartupEventArgs e) {
-		if (FatalError) {
-			return;
-		}
-		try {
-			const string APP_NAME = "RainbowWolfer.YiffBrowser";
+	//protected override void OnStartup(StartupEventArgs e) {
+	//	if (FatalError) {
+	//		return;
+	//	}
+	//	try {
+	//		const string APP_NAME = "RainbowWolfer.YiffBrowser";
 
-			mutex = new Mutex(true, APP_NAME, out bool createdNew);
+	//		mutex = new Mutex(true, APP_NAME, out bool createdNew);
 
-			if (!createdNew) {
-				try {
-					Process currentProcess = Process.GetCurrentProcess();
-					Process[] possibleProcesses = Process.GetProcessesByName(currentProcess.ProcessName);
+	//		if (!createdNew) {
+	//			try {
+	//				Process currentProcess = Process.GetCurrentProcess();
+	//				Process[] possibleProcesses = Process.GetProcessesByName(currentProcess.ProcessName);
 
-					//LoggingService.Log($"{currentProcess.Id} ----- {string.Join(", ", possibleProcesses.Select(x => x.Id))}");
+	//				//LoggingService.Log($"{currentProcess.Id} ----- {string.Join(", ", possibleProcesses.Select(x => x.Id))}");
 
-					foreach (Process process in possibleProcesses) {
-						if (process.Id != currentProcess.Id) {
-							IntPtr hWnd = process.MainWindowHandle;
-							if (WindowExtension.IsIconic(hWnd)) {
-								WindowExtension.ShowWindow(hWnd, WindowExtension.SW_RESTORE);
-							}
-							WindowExtension.SetForegroundWindow(hWnd);
-							break;
-						}
-					}
+	//				foreach (Process process in possibleProcesses) {
+	//					if (process.Id != currentProcess.Id) {
+	//						IntPtr hWnd = process.MainWindowHandle;
+	//						if (WindowExtension.IsIconic(hWnd)) {
+	//							WindowExtension.ShowWindow(hWnd, WindowExtension.SW_RESTORE);
+	//						}
+	//						WindowExtension.SetForegroundWindow(hWnd);
+	//						break;
+	//					}
+	//				}
 
-					//app is already running! Exiting the application  
-					TotalShutdown();
-					return;
+	//				//app is already running! Exiting the application  
+	//				TotalShutdown();
+	//				return;
 
-				} catch (Exception ex) {
-					Debug.WriteLine(ex);
-				}
+	//			} catch (Exception ex) {
+	//				Debug.WriteLine(ex);
+	//			}
 
-			}
+	//		}
 
-			base.OnStartup(e);
+	//		base.OnStartup(e);
 
-			AppProfile.Load();
+	//		AppProfile.Load();
 
-			ShowE621();
+	//		ShowE621();
 
-		} catch (Exception ex) {
-			FatalError = true;
-			MessageBox.Show(ex.ToString(), "App Startup Error", MessageBoxButton.OK, MessageBoxImage.Error);
-			TotalShutdown();
-		}
+	//	} catch (Exception ex) {
+	//		FatalError = true;
+	//		MessageBox.Show(ex.ToString(), "App Startup Error", MessageBoxButton.OK, MessageBoxImage.Error);
+	//		TotalShutdown();
+	//	}
+	//}
+
+
+	protected override void ShowFatalDialog(Exception exception) {
+		MessageBox.Show(exception.ToString(), "Fatal Error");
 	}
 
-	private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e) {
-		if (!AppConfig.IsDebugging) {
-			FatalError = true;
-			MessageBox.Show($"{e.Exception}", "Fatal Error", MessageBoxButton.OK, MessageBoxImage.Error);
-		}
-	}
+	private void ShowE621() => Window_E621.ActivateWindow();
 
-	private void ShowE621() {
-		ActivateWindow(Window_E621);
-	}
+	private void ShowE6AI() => Window_E6AI.ActivateWindow();
 
-	private void ShowE6AI() {
-		ActivateWindow(Window_E6AI);
-	}
-
-	private void ShowE926() {
-		ActivateWindow(Window_E926);
-	}
-
-	private static void ActivateWindow(Window? window) {
-		if (window is null) {
-			return;
-		}
-		window.Show();
-		window.Activate();
-		window.Focus();
-		window.Dispatcher.Invoke(() => {
-			window.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
-		}, DispatcherPriority.Loaded);
-	}
+	private void ShowE926() => Window_E926.ActivateWindow();
 
 	private void Window_Closing(object? sender, CancelEventArgs e) {
-		if (ShuttingDown) {
-			return;
+		//if (ShuttingDown) {
+		//	return;
+		//}
+		//int visibleCount = MainWindows.Count(x => x.Visibility == Visibility.Visible && x.IsVisible);
+		//if (visibleCount <= 1) {
+		//	//when last window calls close. ask for confirm close
+		//	if (MessageBox.Show("Are you sure to quit Yiff Browser?", "Exit Confirmation", MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK) {
+		//		e.Cancel = true;
+		//		return;
+		//	}
+		//	TotalShutdown();
+		//} else {
+		//	if (sender is Window window) {
+		//		window.Hide();
+		//		e.Cancel = true;
+		//	}
+		//}
+	}
+
+	protected override CultureInfo? GetCultureInfo() {
+		return null;
+	}
+
+	protected override Window? GetMainWindow() => Window_E621;
+
+	protected override AppManager GetAppManager() => new _AppManager();
+	protected override DllLoader GetDllLoader() => new _DllLoader();
+	protected override IoCInitializer GetIoCInitializer(IApplication application) => new _IoCInitializer(application);
+	protected override FolderConfig GetFolderConfig(IAppManager appManager) => new AppFolderConfig(appManager);
+
+	private class _AppManager : AppManager {
+		public override string AppName => AppConfig.AppName;
+		public override string BuildMode => AppConfig.IsRelease ? "Release" : "Debug";
+		public override bool IsRelease => AppConfig.IsRelease;
+	}
+
+	private class _DllLoader() : DllLoader() {
+		protected override IEnumerable<string> AdditionalSkipSet() {
+			yield return "XamlAnimatedGif";
 		}
-		int visibleCount = MainWindows.Count(x => x.Visibility == Visibility.Visible && x.IsVisible);
-		if (visibleCount <= 1) {
-			//when last window calls close. ask for confirm close
-			if (MessageBox.Show("Are you sure to quit Yiff Browser?", "Exit Confirmation", MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK) {
-				e.Cancel = true;
-				return;
+
+		protected override void AfterInitialized(IReadOnlyDictionary<string, Assembly> pool, IReadOnlyDictionary<string, Type> types) {
+			base.AfterInitialized(pool, types);
+
+			Debug.WriteLine(new string('-', 30));
+
+			foreach (KeyValuePair<string, Assembly> entry in pool) {
+				Debug.WriteLine($"Assembly: {entry}");
 			}
-			TotalShutdown();
-		} else {
-			if (sender is Window window) {
-				window.Hide();
-				e.Cancel = true;
+
+			foreach (KeyValuePair<string, Type> entry in types) {
+				Debug.WriteLine($"Type: {entry}");
 			}
+
+			Debug.WriteLine(new string('-', 30));
 		}
 	}
 
-	protected override void OnExit(ExitEventArgs e) {
-		base.OnExit(e);
-		TotalShutdown();
-	}
+	private class _IoCInitializer(IApplication application) : IoCInitializer(application) {
+		private readonly App application = (App)application;
 
-	public static void TotalShutdown() {
+		protected override void InitializeDependencies() {
+			base.InitializeDependencies();
 
-		Debug.WriteLine("--- Process Ending ---");
-
-		ShuttingDown = true;
-
-
-		try {
-			mutex?.ReleaseMutex();
-			mutex?.Dispose();
-		} catch (Exception ex) {
-			Debug.WriteLine(ex);
+			//builder.RegisterInstance(application.AppSettingsService).As<IAppSettingsService>();
 		}
-
-		foreach (Window window in MainWindows) {
-			window.CloseSafe();
-		}
-
-		Current.Shutdown();
-
-		Debug.WriteLine("--- Process Ended ---");
-
-		Environment.Exit(0);
-
-		Debug.WriteLine("--- Environment Exited ---");
 	}
 
 }

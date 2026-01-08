@@ -39,7 +39,7 @@
 			<Border>
 				<Grid>
 
-					<Border Visibility="{Binding PostDetailViewModel.HasPost, Converter={StaticResource BoolToVisibilityReConverter}}">
+					<Border Visibility="{Binding PostDetailViewModel.HasPost, Converter={StaticResource Boolean2VisibilityReConverter}}">
 						<DockPanel>
 							<Border Padding="4" Background="LightGray" DockPanel.Dock="Top">
 
@@ -107,7 +107,7 @@
 
 							</Border>
 
-							<Border DockPanel.Dock="Top" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+							<Border DockPanel.Dock="Top" Visibility="{Binding IsLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
 								<ProgressBar Height="10" bf:BorderExtension.CornerRadius="0" IsIndeterminate="True"/>
 							</Border>
 
@@ -199,7 +199,7 @@
 						</DockPanel>
 					</Border>
 
-					<Border d:Visibility="Collapsed" Visibility="{Binding PostDetailViewModel.HasPost, Converter={StaticResource BoolToVisibilityConverter}}">
+					<Border d:Visibility="Collapsed" Visibility="{Binding PostDetailViewModel.HasPost, Converter={StaticResource Boolean2VisibilityConverter}}">
 						<ContentControl Content="{Binding PostDetailViewModel.View}"/>
 					</Border>
 
