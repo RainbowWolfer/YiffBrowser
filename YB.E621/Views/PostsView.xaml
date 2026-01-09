@@ -16,6 +16,7 @@
 	d:DataContext="{d:DesignInstance Type=local:PostsViewModel}"
 	d:DesignHeight="450"
 	d:DesignWidth="800"
+	DataContext="{b:DISource Type=local:PostsViewModel}"
 	mc:Ignorable="d">
 
 	<Control.Resources>
@@ -43,7 +44,7 @@
 						<DockPanel>
 							<Border Padding="4" Background="LightGray" DockPanel.Dock="Top">
 
-								<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Center" IsEnabled="{Binding IsLoading, Converter={StaticResource BoolToBoolReConverter}}">
+								<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Center" IsEnabled="{Binding IsLoading, Converter={StaticResource Boolean2BooleanReConverter}}">
 									<Button
 										Width="30"
 										Height="30"

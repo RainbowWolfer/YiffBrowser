@@ -2,7 +2,7 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:c="clr-namespace:BaseFramework.Controls"
-	xmlns:con="clr-namespace:BaseFramework.Converters"
+	xmlns:conv="clr-namespace:BaseFramework.Converters"
 	xmlns:e="clr-namespace:BaseFramework.Extensions"
 	xmlns:wpf="RW.Common.WPF">
 
@@ -11,9 +11,10 @@
 		<ResourceDictionary Source="pack://application:,,,/RW.Common.WPF;component/Resources/Generic.xaml"/>
 	</ResourceDictionary.MergedDictionaries>
 
-	<con:NumberToKBConverter x:Key="NumberToKBConverter"/>
-	<con:SubStringConverter x:Key="SubStringConverter"/>
-	<con:TimeDurationConverter x:Key="TimeDurationConverter"/>
+	<conv:PassThroughConverter x:Key="PassThroughConverter"/>
+	<conv:NumberToKBConverter x:Key="NumberToKBConverter"/>
+	<conv:SubStringConverter x:Key="SubStringConverter"/>
+	<conv:TimeDurationConverter x:Key="TimeDurationConverter"/>
 
 	<FontFamily x:Key="IconPack">./Fonts/Segoe Fluent Icons.ttf#Segoe Fluent Icons</FontFamily>
 
@@ -1290,14 +1291,14 @@
 								FontSize="{TemplateBinding IconSize}"
 								Foreground="{TemplateBinding IconForeground}"
 								Text="{TemplateBinding Glyph}"
-								Visibility="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Glyph, Converter={StaticResource StringToVisibilityConverter}}"/>
+								Visibility="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Glyph, Converter={StaticResource String2VisibilityConverter}}"/>
 							<TextBlock
 								Margin="4,0,0,0"
 								VerticalAlignment="Center"
 								FontSize="{TemplateBinding FontSize}"
 								Foreground="{TemplateBinding Foreground}"
 								Text="{TemplateBinding Text}"
-								Visibility="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Text, Converter={StaticResource StringToVisibilityConverter}}"/>
+								Visibility="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Text, Converter={StaticResource String2VisibilityConverter}}"/>
 						</StackPanel>
 					</Border>
 				</ControlTemplate>

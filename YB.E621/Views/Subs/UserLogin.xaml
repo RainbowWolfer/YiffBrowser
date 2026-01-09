@@ -13,6 +13,7 @@
 	xmlns:wpf="RW.Common.WPF"
 	d:Background="White"
 	d:DataContext="{d:DesignInstance Type=local:UserLoginViewModel}"
+	DataContext="{b:DISource Type=local:UserLoginViewModel}"
 	Width="200"
 	Height="auto"
 	mc:Ignorable="d">
@@ -23,7 +24,6 @@
 
 	<dxmvvm:Interaction.Behaviors>
 		<b:DispatcherServiceEx/>
-		<b:LoadedService Command="{Binding LoadedCommand}" OnlyOnce="True"/>
 	</dxmvvm:Interaction.Behaviors>
 
 
@@ -37,7 +37,7 @@
 		<TextBox Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}"/>
 
 		<Grid Margin="0,4,0,0">
-			<Button Command="{Binding LoginCommand}" Visibility="{Binding UserService.IsUserLoading.Value, Converter={StaticResource Boolean2VisibilityReConverter}}">
+			<Button Command="{Binding LoginCommand}" Visibility="{Binding UserService.IsUserLoading, Converter={StaticResource Boolean2VisibilityReConverter}}">
 				<TextBlock Text="Login"/>
 			</Button>
 
@@ -48,7 +48,7 @@
 				BorderBrush="Gray"
 				Background="White"
 				CornerRadius="4"
-				Visibility="{Binding UserService.IsUserLoading.Value, Converter={StaticResource Boolean2VisibilityConverter}}">
+				Visibility="{Binding UserService.IsUserLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
 				<ProgressBar BorderThickness="0" IsIndeterminate="True"/>
 			</Border>
 		</Grid>

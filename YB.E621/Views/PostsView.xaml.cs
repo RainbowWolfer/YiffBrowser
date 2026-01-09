@@ -1,5 +1,4 @@
-﻿using BaseFramework.Enums;
-using DevExpress.Mvvm;
+﻿using DevExpress.Mvvm;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows;
@@ -8,6 +7,7 @@ using System.Windows.Input;
 using YB.E621.Controls;
 using YB.E621.Models.E621;
 using YB.E621.Services;
+using YB.E621.ViewModels;
 
 namespace YB.E621.Views;
 
@@ -32,10 +32,10 @@ public class PostsViewModel : ViewModelBase {
 	public ObservableCollection<PostCardControl> Items { get; } = [];
 	public ObservableCollection<PostCardControl> SelectedItems { get; } = [];
 
-	public E621API Api { get; }
-
-	public ModuleType SiteType { get; }
-	public string[] Tags { get; }
+	public PostTabItem TabItem {
+		get => GetProperty(() => TabItem);
+		private set => SetProperty(() => TabItem, value);
+	}
 
 	public bool IsLoading {
 		get => GetProperty(() => IsLoading);
@@ -53,15 +53,15 @@ public class PostsViewModel : ViewModelBase {
 	public bool CanGoLeft => CurrentPage > 1;
 
 	public bool IsMultiSelecting {
-        get => GetProperty(() => IsMultiSelecting);
-        set {
-            SetProperty(() => IsMultiSelecting, value);
+		get => GetProperty(() => IsMultiSelecting);
+		set {
+			SetProperty(() => IsMultiSelecting, value);
 			UpdateMultiSelectingText();
 			foreach (PostCardControl item in Items) {
 				item.IsSelected = false;
 			}
 		}
-    }
+	}
 
 	public string MultiSelectingText {
 		get => GetProperty(() => MultiSelectingText);
@@ -70,12 +70,11 @@ public class PostsViewModel : ViewModelBase {
 
 	public PostDetailViewModel PostDetailViewModel { get; }
 
-	public PostsViewModel(ModuleType moduleType, string[] tags) {
-		Api = E621API.GetAPI(moduleType);
-		PostDetailViewModel = new PostDetailViewModel(moduleType);
+	protected override void OnParameterChanged(object parameter) {
+		base.OnParameterChanged(parameter);
+		TabItem = (PostTabItem)parameter;
 
-		SiteType = moduleType;
-		Tags = tags;
+		//PostDetailViewModel = new PostDetailViewModel(TabItem.SiteType);
 
 		SelectedItems.CollectionChanged += SelectedItems_CollectionChanged;
 
@@ -131,8 +130,8 @@ public class PostsViewModel : ViewModelBase {
 		IsMultiSelecting = false;
 
 		Items.Clear();
-		E621Post[] posts = await Api.GetPostsByTagsAsync(new E621PostParameters() {
-			Tags = Tags,
+		E621Post[] posts = await TabItem.Api.GetPostsByTagsAsync(new E621PostParameters() {
+			Tags = TabItem.Tags,
 			Page = CurrentPage,
 		});
 

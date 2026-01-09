@@ -14,6 +14,7 @@
 	d:DataContext="{d:DesignInstance Type=local:SearchViewModel}"
 	d:DesignHeight="250"
 	d:DesignWidth="200"
+	DataContext="{b:DISource Type=local:SearchViewModel}"
 	mc:Ignorable="d">
 
 	<Control.Resources>
@@ -116,7 +117,7 @@
 						FontSize="16"
 						Text="{Binding AlternativeHintText}"
 						TextAlignment="Center"
-						Visibility="{Binding AlternativeHintText, Converter={StaticResource StringToVisibilityConverter}}"/>
+						Visibility="{Binding AlternativeHintText, Converter={StaticResource String2VisibilityConverter}}"/>
 					<ProgressBar
 						Height="6"
 						Margin="0,4,0,0"

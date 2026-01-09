@@ -15,6 +15,7 @@
 	d:DataContext="{d:DesignInstance Type=local:PostDetailViewModel}"
 	d:DesignHeight="450"
 	d:DesignWidth="800"
+	DataContext="{b:DISource Type=local:PostDetailViewModel}"
 	mc:Ignorable="d">
 
 	<Control.Resources>

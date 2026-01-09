@@ -2,14 +2,17 @@
 using BaseFramework.Views;
 using BaseFramework.Views.Dialogs;
 using DevExpress.Mvvm;
+using DevExpress.Mvvm.UI;
 using RW.Base.WPF.ViewModelServices;
 using RW.Common.WPF.Controls;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using YB.E621.Models.E621;
 using YB.E621.Services;
+using YB.E621.ViewModels;
 using YB.E621.Views.Subs;
 
 namespace YB.E621.Views;
@@ -18,6 +21,8 @@ public partial class E621MainWindow : WindowBase {
 
 	public E621MainWindow(ModuleType e621, ModuleNavigationActions moduleNavigationActions) {
 		InitializeComponent();
+
+		ViewModelExtensions.SetParameter(this, new E621MainWindowParameter(e621, moduleNavigationActions));
 
 		//MeidaElement.LoadedBehavior = MediaState.Play;
 		//MeidaElement.Clock.
@@ -100,7 +105,12 @@ public partial class E621MainWindow : WindowBase {
 
 }
 
-public class E621MainWindowViewModel : ViewModelBase {
+public record class E621MainWindowParameter(
+	ModuleType ModuleType,
+	ModuleNavigationActions ModuleNavigationActions
+);
+
+public class E621MainWindowViewModel() : ViewModelBase {
 
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
 	public ICurrentWindowServiceEx CurrentWindowService => GetService<ICurrentWindowServiceEx>();
@@ -108,15 +118,23 @@ public class E621MainWindowViewModel : ViewModelBase {
 	public IUIObjectService<ButtonPopup> SearchPopupService => GetService<ITypedUIObjectService>(nameof(SearchPopupService)).As<ButtonPopup>();
 	public IUIObjectService<ButtonPopup> SitePopupService => GetService<ITypedUIObjectService>(nameof(SitePopupService)).As<ButtonPopup>();
 
-	public ModuleType ModuleType { get; }
-	public ModuleNavigationActions ModuleNavigationActions { get; }
-	public ObservableCollection<PostsViewModel> Tabs { get; } = [];
 
-	public E621UserService UserService { get; }
+	public ModuleNavigationActions? ModuleNavigationActions { get; set; }
+
+	public ModuleType ModuleType {
+		get => GetProperty(() => ModuleType);
+		private set => SetProperty(() => ModuleType, value);
+	}
+
+	public ObservableCollection<PostTabItem> Tabs { get; } = [];
+
+
+	public E621UserService UserService {
+		get => GetProperty(() => UserService);
+		private set => SetProperty(() => UserService, value);
+	}
 
 	public SearchViewModel SearchViewModel { get; }
-	public UserLoginViewModel UserLoginViewModel { get; }
-	public UserViewModel UserViewModel { get; }
 
 
 	public int TabSelectedIndex {
@@ -127,6 +145,40 @@ public class E621MainWindowViewModel : ViewModelBase {
 	public bool IsLoggedIn {
 		get => GetProperty(() => IsLoggedIn);
 		set => SetProperty(() => IsLoggedIn, value);
+	}
+
+	protected override void OnParameterChanged(object parameter) {
+		base.OnParameterChanged(parameter);
+
+		E621MainWindowParameter _parameter = (E621MainWindowParameter)parameter;
+
+		ModuleType = _parameter.ModuleType;
+		ModuleNavigationActions = _parameter.ModuleNavigationActions;
+
+		CurrentWindowService.GetWindow().Title = $"Yiff Browser - {ModuleType}";
+
+		UserService = E621UserService.GetUserService(ModuleType);
+		UserService.LoginChanged += UserService_LoginChanged;
+
+		//Tabs.Add(new PostsViewModel(ModuleType, ["order:rank"]));
+		//Tabs.Add(new PostsViewModel(ModuleType, ["type:gif", "order:filesize"]));
+		//Tabs.Add(new PostsViewModel(ModuleType, ["type:gif", "order:filesize"]));
+		Tabs.Add(new PostTabItem(ModuleType, ["type:gif"]));
+		//Tabs.Add(new PostsViewModel(ModuleType, ["type:gif"]));
+		//Tabs.Add(new PostsViewModel(ModuleType, ["type:webm"]));
+		TabSelectedIndex = 0;
+
+		Initialize();
+	}
+
+	private async void Initialize() {
+		try {
+			if (UserService != null) {
+				await UserService.Initialize();
+			}
+		} catch (Exception ex) {
+			Debug.WriteLine(ex);
+		}
 	}
 
 	//public E621MainWindowViewModel(ModuleType moduleType, ModuleNavigationActions moduleNavigationActions) {
@@ -156,14 +208,14 @@ public class E621MainWindowViewModel : ViewModelBase {
 	private DelegateCommand? loadedCommand;
 	public IDelegateCommand LoadedCommand => loadedCommand ??= new(Loaded);
 	private async void Loaded() {
-		await UserService.Initialize();
+
 	}
 
 	private void SearchViewModel_SearchSubmit(SearchViewModel sender, string[] args) {
 		SearchPopupService.Object.Hide();
 
-		PostsViewModel viewModel = new(ModuleType, args);
-		Tabs.Add(viewModel);
+		PostTabItem item = new(ModuleType, args);
+		Tabs.Add(item);
 		TabSelectedIndex = Tabs.Count - 1;
 
 		DispatcherService.Dispatcher.BeginInvoke(() => {
@@ -175,25 +227,24 @@ public class E621MainWindowViewModel : ViewModelBase {
 		IsLoggedIn = sender != null;
 	}
 
-	public ICommand CloseTabCommand => new DelegateCommand<PostsViewModel>(CloseTab);
-
-	private void CloseTab(PostsViewModel model) {
-		Tabs.Remove(model);
+	public ICommand CloseTabCommand => new DelegateCommand<PostTabItem>(CloseTab);
+	private void CloseTab(PostTabItem item) {
+		Tabs.Remove(item);
 	}
 
 	public ICommand ShowE621Command => new DelegateCommand(() => {
 		SitePopupService.Object.Hide();
-		ModuleNavigationActions.ShowE621();
+		ModuleNavigationActions?.ShowE621?.Invoke();
 	});
 
 	public ICommand ShowE6AICommand => new DelegateCommand(() => {
 		SitePopupService.Object.Hide();
-		ModuleNavigationActions.ShowE6AI();
+		ModuleNavigationActions?.ShowE6AI?.Invoke();
 	});
 
 	public ICommand ShowE926Command => new DelegateCommand(() => {
 		SitePopupService.Object.Hide();
-		ModuleNavigationActions.ShowE926();
+		ModuleNavigationActions?.ShowE926?.Invoke();
 	});
 
 }

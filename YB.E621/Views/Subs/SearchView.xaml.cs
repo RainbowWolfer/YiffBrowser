@@ -1,5 +1,4 @@
 ﻿using BaseFramework.Controls;
-using BaseFramework.Enums;
 using BaseFramework.Helpers;
 using DevExpress.Mvvm;
 using RW.Base.WPF.ViewModelServices;
@@ -21,7 +20,7 @@ public partial class SearchView : UserControl {
 	}
 }
 
-public class SearchViewModel(ModuleType moduleType) : ViewModelBase {
+public class SearchViewModel() : ViewModelBase {
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
 
 	public IUIObjectService<ListBox> MainListBoxService => GetService<ITypedUIObjectService>(nameof(MainListBoxService)).As<ListBox>();
@@ -76,9 +75,14 @@ public class SearchViewModel(ModuleType moduleType) : ViewModelBase {
 		set => currentTags = value;
 	}
 
-	public ModuleType ModuleType { get; } = moduleType;
+	public E621API? Api { get; private set; }
 
-	public E621API Api { get; } = E621API.GetAPI(moduleType);
+	protected override void OnParentViewModelChanged(object parentViewModel) {
+		base.OnParentViewModelChanged(parentViewModel);
+
+		E621MainWindowViewModel mainViewModel = (E621MainWindowViewModel)parentViewModel;
+		Api = E621API.GetAPI(mainViewModel.ModuleType);
+	}
 
 
 	private DelegateCommand? loadedCommand;
@@ -233,6 +237,10 @@ public class SearchViewModel(ModuleType moduleType) : ViewModelBase {
 	}
 
 	private async void LoadAutoSuggestionAsync(string tag) {
+		if (Api is null) {
+			return;
+		}
+
 		cts?.Cancel();
 		CancellationTokenSource _cts = new();
 		cts = _cts;
@@ -310,6 +318,11 @@ public class SearchViewModel(ModuleType moduleType) : ViewModelBase {
 
 	private PostSearch GetPostSearchResult(string text, out string? resultPostID) {
 		resultPostID = null;
+
+		if (Api is null) {
+			return PostSearch.None;
+		}
+
 		string[] split = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 		foreach (string item in split) {
 			if (item.Length >= 2 && item.OnlyContainDigits()) {

@@ -27,6 +27,8 @@
 
 			<wpf:CommandProxy x:Key="CloseTabCommand" Command="{Binding CloseTabCommand}"/>
 
+			<wpf:BindingProxy x:Key="ViewModel" Data="{Binding}"/>
+
 		</ResourceDictionary>
 	</Control.Resources>
 
@@ -94,7 +96,7 @@
 							Height="32"
 							ToolTip="User">
 							<Grid>
-								<wpf:FontIcon d:Text="&#xEA8C;" Visibility="{Binding UserService.IsUserLoading.Value, Converter={StaticResource Boolean2VisibilityReConverter}}">
+								<wpf:FontIcon d:Text="&#xEA8C;" Visibility="{Binding UserService.IsUserLoading, Converter={StaticResource Boolean2VisibilityReConverter}}">
 									<wpf:FontIcon.Style>
 										<Style TargetType="wpf:FontIcon" BasedOn="{StaticResource FontIconBase}">
 											<Style.Triggers>
@@ -108,7 +110,7 @@
 										</Style>
 									</wpf:FontIcon.Style>
 								</wpf:FontIcon>
-								<Border Visibility="{Binding UserService.IsUserLoading.Value, Converter={StaticResource Boolean2VisibilityConverter}}">
+								<Border Visibility="{Binding UserService.IsUserLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
 									<ProgressBar
 										Width="20"
 										Height="8"
@@ -195,7 +197,11 @@
 
 				<TabControl.ContentTemplate>
 					<DataTemplate>
-						<ContentControl Content="{Binding View}"/>
+						<!--<ContentControl Content="{Binding View}"/>-->
+						<Border x:Name="PART_Border">
+							<local:PostsView dxmvvm:ViewModelExtensions.Parameter="{Binding ElementName=PART_Border, Path=DataContext}" dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}"/>
+							<!--<ContentControl Content="{Binding View}" Focusable="False" IsTabStop="False"/>-->
+						</Border>
 					</DataTemplate>
 				</TabControl.ContentTemplate>
 
@@ -229,8 +235,12 @@
 			</wpf:ButtonPopup.Style>
 			<Border Style="{StaticResource ButtonPopupBorder}">
 				<Grid>
-					<ContentControl Content="{Binding UserLoginViewModel.View}" Visibility="{Binding IsLoggedIn, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
-					<ContentControl Content="{Binding UserViewModel.View}" Visibility="{Binding IsLoggedIn, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+					<Border Visibility="{Binding IsLoggedIn, Converter={StaticResource Boolean2VisibilityReConverter}}">
+						<subs:UserLogin dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}"/>
+					</Border>
+					<Border Visibility="{Binding IsLoggedIn, Converter={StaticResource Boolean2VisibilityConverter}}">
+						<subs:UserView dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}"/>
+					</Border>
 				</Grid>
 			</Border>
 		</wpf:ButtonPopup>
@@ -242,7 +252,7 @@
 			</dxmvvm:Interaction.Behaviors>
 
 			<Border Style="{StaticResource ButtonPopupBorder}" MinWidth="300">
-				<ContentControl Content="{Binding SearchViewModel.View}"/>
+				<subs:SearchView dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}"/>
 			</Border>
 		</wpf:ButtonPopup>
 

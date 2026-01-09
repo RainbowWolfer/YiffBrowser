@@ -1,5 +1,4 @@
-﻿using BaseFramework.Enums;
-using DevExpress.Mvvm;
+﻿using DevExpress.Mvvm;
 using System.Windows.Controls;
 using System.Windows.Input;
 using YB.E621.Models.E621;
@@ -25,12 +24,16 @@ public class UserViewModel : ViewModelBase {
 		set => SetProperty(() => AvatarPost, value);
 	}
 
-	public E621UserService UserService { get; }
+	public E621UserService UserService {
+		get => GetProperty(() => UserService);
+		private set => SetProperty(() => UserService, value);
+	}
 
-	public UserViewModel(ModuleType moduleType) {
-		ModuleType = moduleType;
+	protected override void OnParentViewModelChanged(object parentViewModel) {
+		base.OnParentViewModelChanged(parentViewModel);
+		E621MainWindowViewModel mainViewModel = (E621MainWindowViewModel)parentViewModel;
 
-		UserService = E621UserService.GetUserService(moduleType);
+		UserService = E621UserService.GetUserService(mainViewModel.ModuleType);
 		UserService.LoginChanged += UserService_LoginChanged;
 	}
 
@@ -40,9 +43,6 @@ public class UserViewModel : ViewModelBase {
 	}
 
 	public ICommand LogoutCommand => new DelegateCommand(Logout);
-
-	public ModuleType ModuleType { get; }
-
 	private void Logout() {
 		UserService.Logout();
 	}

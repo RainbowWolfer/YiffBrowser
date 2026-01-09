@@ -13,7 +13,7 @@ public partial class UserLogin : UserControl {
 	}
 }
 
-public class UserLoginViewModel(ModuleType siteType) : ViewModelBase {
+public class UserLoginViewModel() : ViewModelBase {
 	public string Username {
 		get => GetProperty(() => Username);
 		set => SetProperty(() => Username, value);
@@ -24,23 +24,24 @@ public class UserLoginViewModel(ModuleType siteType) : ViewModelBase {
 		set => SetProperty(() => ApiKey, value);
 	}
 
-	public E621UserService UserService { get; } = E621UserService.GetUserService(siteType);
+	public E621UserService UserService {
+		get => GetProperty(() => UserService);
+		private set => SetProperty(() => UserService, value);
+	}
 
+	protected override void OnParentViewModelChanged(object parentViewModel) {
+		base.OnParentViewModelChanged(parentViewModel);
+		E621MainWindowViewModel mainViewModel = (E621MainWindowViewModel)parentViewModel;
+		UserService = E621UserService.GetUserService(mainViewModel.ModuleType);
 
-
-	private DelegateCommand? loadedCommand;
-	public IDelegateCommand LoadedCommand => loadedCommand ??= new(Loaded);
-	private void Loaded() {
 		(string? username, string? apiKey) = UserService.GetUser();
 
 		Username = username ?? string.Empty;
 		ApiKey = apiKey ?? string.Empty;
 	}
 
+
 	public ICommand LoginCommand => new DelegateCommand(Login);
-
-	public ModuleType SiteType { get; } = siteType;
-
 	private async void Login() {
 		Exception? exception = await UserService.TryLogin(Username, ApiKey);
 		if (exception != null) {

@@ -29,11 +29,9 @@ public partial class App : ApplicationBase {
 
 	protected override bool EnablePipeServerStream => false;
 
-	public ModuleNavigationActions? ModuleNavigationActions { get; }
-
-	public E621MainWindow? Window_E621 { get; }
-	public E621MainWindow? Window_E926 { get; }
-	public E621MainWindow? Window_E6AI { get; }
+	public E621MainWindow? Window_E621 { get; private set; }
+	public E621MainWindow? Window_E926 { get; private set; }
+	public E621MainWindow? Window_E6AI { get; private set; }
 
 	public App() {
 		instance = this;
@@ -43,13 +41,17 @@ public partial class App : ApplicationBase {
 		Directory.SetCurrentDirectory(appDirectory);
 
 		ShutdownMode = ShutdownMode.OnExplicitShutdown;
+	}
+
+	protected override void AfterLoadingModules() {
+		base.AfterLoadingModules();
 
 		try {
-			ModuleNavigationActions = new ModuleNavigationActions(ShowE621, ShowE6AI, ShowE926);
+			ModuleNavigationActions moduleNavigationActions = new(ShowE621, ShowE6AI, ShowE926);
 
-			Window_E621 = new E621MainWindow(ModuleType.E621, ModuleNavigationActions);
-			Window_E926 = new E621MainWindow(ModuleType.E926, ModuleNavigationActions);
-			Window_E6AI = new E621MainWindow(ModuleType.E6AI, ModuleNavigationActions);
+			Window_E621 = new E621MainWindow(ModuleType.E621, moduleNavigationActions);
+			Window_E926 = new E621MainWindow(ModuleType.E926, moduleNavigationActions);
+			Window_E6AI = new E621MainWindow(ModuleType.E6AI, moduleNavigationActions);
 
 			MainWindows = [Window_E621, Window_E926, Window_E6AI];
 			foreach (Window window in MainWindows) {
@@ -147,7 +149,7 @@ public partial class App : ApplicationBase {
 		return null;
 	}
 
-	protected override Window? GetMainWindow() => Window_E621;
+	protected override Window? GetMainWindow() => Window_E926;
 
 	protected override AppManager GetAppManager() => new _AppManager();
 	protected override DllLoader GetDllLoader() => new _DllLoader();
