@@ -56,12 +56,12 @@ public class GifImage(Uri uri) : IDisposable {
                 bool isMoreToRead = true;
 
                 do {
-                    int read = await contentStream.ReadAsync(buffer);
-                    if (read == 0) {
+					int read = await contentStream.ReadAsync(buffer, 0, buffer.Length);
+					if (read == 0) {
                         isMoreToRead = false;
                     } else {
-                        await memoryStream.WriteAsync(buffer.AsMemory(0, read));
-                        totalRead += read;
+						await memoryStream.WriteAsync(buffer, 0, read);
+						totalRead += read;
 
                         if (contentLength.HasValue) {
                             double progress = (double)totalRead / contentLength.Value * 100;

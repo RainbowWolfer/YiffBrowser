@@ -6,8 +6,10 @@
     <File Path=".editorconfig" />
     <File Path=".gitattributes" />
     <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
     <File Path="nuget.config" />
     <File Path="README.md" />
+    <File Path="ResXManager.config.xml" />
   </Folder>
   <Project Path="BaseFramework/BaseFramework.csproj" />
   <Project Path="YiffBrowser/YiffBrowser.csproj" />

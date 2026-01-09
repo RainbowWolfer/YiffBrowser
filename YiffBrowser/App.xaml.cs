@@ -149,7 +149,7 @@ public partial class App : ApplicationBase {
 		return null;
 	}
 
-	protected override Window? GetMainWindow() => Window_E926;
+	protected override Window? GetMainWindow() => Window_E621;
 
 	protected override AppManager GetAppManager() => new _AppManager();
 	protected override DllLoader GetDllLoader() => new _DllLoader();

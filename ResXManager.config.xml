@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Values xmlns="urn:tom-englert.de/Configuration/1/0">
+	<Value Key="NeutralResourcesLanguage">en-001</Value>
+	<Value Key="PrefixTranslations">False</Value>
+	<Value Key="TaskErrorCategory">Message</Value>
+</Values>

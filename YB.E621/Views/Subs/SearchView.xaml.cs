@@ -111,10 +111,10 @@ public class SearchViewModel() : ViewModelBase {
 	private void OnSearchTextBoxPreviewKeyDown(KeyEventArgs args) {
 		ListBox mainListBox = MainListBoxService.Object;
 		if (args.Key == Key.Up && mainListBox.Items.IsNotEmpty()) {
-			mainListBox.SelectedIndex = Math.Clamp(mainListBox.SelectedIndex - 1, 0, mainListBox.Items.Count - 1);
+			mainListBox.SelectedIndex = NumberHelper.Clamp(mainListBox.SelectedIndex - 1, 0, mainListBox.Items.Count - 1);
 			args.Handled = true;
 		} else if (args.Key == Key.Down && mainListBox.Items.IsNotEmpty()) {
-			mainListBox.SelectedIndex = Math.Clamp(mainListBox.SelectedIndex + 1, 0, mainListBox.Items.Count - 1);
+			mainListBox.SelectedIndex = NumberHelper.Clamp(mainListBox.SelectedIndex + 1, 0, mainListBox.Items.Count - 1);
 			args.Handled = true;
 		} else if (args.Key == Key.Enter) {
 			if (SelectedItem != null) {
@@ -272,7 +272,7 @@ public class SearchViewModel() : ViewModelBase {
 
 	private void CalculateCurrentTags() {
 		List<string> tags = [];
-		foreach (string item in SearchText.Trim().Split(" ").Where(s => s.IsNotBlank()).ToList()) {
+		foreach (string item in SearchText.Trim().Split(' ').Where(s => s.IsNotBlank()).ToList()) {
 			tags.Add(item.ToLower());
 		}
 		CurrentTags = [.. tags];
@@ -323,7 +323,7 @@ public class SearchViewModel() : ViewModelBase {
 			return PostSearch.None;
 		}
 
-		string[] split = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+		string[] split = text.Split([' '], StringSplitOptions.RemoveEmptyEntries);
 		foreach (string item in split) {
 			if (item.Length >= 2 && item.OnlyContainDigits()) {
 				resultPostID = item;
@@ -353,7 +353,7 @@ public class SearchViewModel() : ViewModelBase {
 
 	public string[] GetSearchTags() {
 		string text = GetSearchText();
-		string[] array = text.Split(" ").Where(s => s.IsNotBlank()).ToArray();
+		string[] array = text.Split(' ').Where(s => s.IsNotBlank()).ToArray();
 		if (array.IsEmpty()) {
 			array = [""];
 		}

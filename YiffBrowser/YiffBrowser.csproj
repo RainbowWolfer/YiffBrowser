@@ -1,31 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-    <StartupObject>YiffBrowser.App</StartupObject>
-    <PlatformTarget>x64</PlatformTarget>
-    <ApplicationIcon>..\BaseFramework\Resources\Icons\YiffBrowserIcon.ico</ApplicationIcon>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<StartupObject>YiffBrowser.App</StartupObject>
+		<PlatformTarget>x64</PlatformTarget>
+		<ApplicationIcon>..\BaseFramework\Resources\Icons\YiffBrowserIcon.ico</ApplicationIcon>
 
-    <Authors>RainbowWolfer</Authors>
-    <Company>RainbowWolfer</Company>
-    <Copyright>RainbowWolfer</Copyright>
+		<Description>Yiff Browser</Description>
+		<AssemblyTitle>Yiff Browser</AssemblyTitle>
+		<AssemblyName>Yiff Browser</AssemblyName>
 
-    <Description>Yiff Browser</Description>
-    <AssemblyTitle>Yiff Browser</AssemblyTitle>
-    <AssemblyName>Yiff Browser</AssemblyName>
+	</PropertyGroup>
 
-    <AssemblyVersion>1.0.3</AssemblyVersion>
-    
-  </PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\BaseFramework\BaseFramework.csproj" />
+		<ProjectReference Include="..\YB.E621\YB.E621.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\BaseFramework\BaseFramework.csproj" />
-    <ProjectReference Include="..\YB.E621\YB.E621.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Costura.Fody" Version="6.0.0">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="Fody" Version="6.9.3">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 
 </Project>

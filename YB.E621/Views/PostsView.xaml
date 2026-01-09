@@ -31,7 +31,7 @@
 	</Control.Resources>
 
 	<dxmvvm:Interaction.Behaviors>
-		<b:LoadedService Command="{Binding LoadedCommand}"/>
+
 	</dxmvvm:Interaction.Behaviors>
 
 	<Grid>

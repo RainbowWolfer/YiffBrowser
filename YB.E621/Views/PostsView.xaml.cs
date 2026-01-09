@@ -1,4 +1,5 @@
 ﻿using DevExpress.Mvvm;
+using RW.Common.Helpers;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows;
@@ -45,7 +46,7 @@ public class PostsViewModel : ViewModelBase {
 	public int CurrentPage {
 		get => GetProperty(() => CurrentPage);
 		set {
-			SetProperty(() => CurrentPage, Math.Clamp(value, 1, int.MaxValue));
+			SetProperty(() => CurrentPage, NumberHelper.Clamp(value, 1, int.MaxValue));
 			RaisePropertyChanged(() => CanGoLeft);
 		}
 	}
@@ -79,6 +80,8 @@ public class PostsViewModel : ViewModelBase {
 		SelectedItems.CollectionChanged += SelectedItems_CollectionChanged;
 
 		CurrentPage = 1;
+
+		Refresh();
 	}
 
 	private void SelectedItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
@@ -94,11 +97,11 @@ public class PostsViewModel : ViewModelBase {
 	}
 
 
-	private DelegateCommand? loadedCommand;
-	public IDelegateCommand LoadedCommand => loadedCommand ??= new(Loaded);
-	private void Loaded() {
-		Refresh();
-	}
+	//private DelegateCommand? loadedCommand;
+	//public IDelegateCommand LoadedCommand => loadedCommand ??= new(Loaded);
+	//private void Loaded() {
+		
+	//}
 
 	public ICommand PreviousPageCommand => new DelegateCommand(PreviousPage);
 	public ICommand NextPageCommand => new DelegateCommand(NextPage);
@@ -120,7 +123,6 @@ public class PostsViewModel : ViewModelBase {
 	}
 
 	public ICommand RefreshCommand => new DelegateCommand(Refresh);
-
 	private async void Refresh() {
 		if (IsLoading) {
 			return;
