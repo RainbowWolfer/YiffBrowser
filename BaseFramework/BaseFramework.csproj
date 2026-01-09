@@ -1,12 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<!--<TargetFramework>net8.0-windows</TargetFramework>
-		<Nullable>enable</Nullable>
-		<UseWPF>true</UseWPF>
-		<ImplicitUsings>enable</ImplicitUsings>-->
-
-
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
 		<RW_Common_Version>1.0.34</RW_Common_Version>
@@ -16,6 +10,9 @@
 		<PackageReference Include="RW.Base.WPF" Version="$(RW_Common_Version)" />
 		<PackageReference Include="RW.Common" Version="$(RW_Common_Version)" />
 		<PackageReference Include="RW.Common.WPF" Version="$(RW_Common_Version)" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="XamlAnimatedGif" Version="2.3.1" />
 		<PackageReference Include="System.Collections.Immutable" Version="10.0.1" />
 	</ItemGroup>

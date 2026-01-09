@@ -1,47 +1,73 @@
-﻿using BaseFramework.Enums;
-using BaseFramework.ViewModels;
+﻿using BaseFramework.ViewModels;
 using DevExpress.Mvvm;
+using DevExpress.Mvvm.UI;
 using RW.Base.WPF.ViewModelServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using YB.E621.Models.E621;
+using YB.E621.ViewModels;
 
 namespace YB.E621.Views;
 
 public partial class PostDetailView : UserControl {
+
 	public PostDetailView() {
 		InitializeComponent();
 	}
 }
 
-public class PostDetailViewModel : ViewModelBase {
+public interface IPostDetailViewService {
+	void Focus();
+}
+
+internal class PostDetailViewService : ServiceBase, IPostDetailViewService {
+	private PostDetailViewModel GetViewModel() => (PostDetailViewModel)AssociatedObject.DataContext;
+
+	public void Focus() {
+		PostDetailViewModel viewModel = GetViewModel();
+		viewModel.Focus();
+	}
+
+}
+
+internal class PostDetailViewModel() : E621ViewModelBase {
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
 	public IUIObjectService<UserControl> UserControlService => GetService<ITypedUIObjectService>(nameof(UserControlService)).As<UserControl>();
 
-	public bool HasPost => Post != null;
-
-
 	public E621Post? Post {
 		get => GetProperty(() => Post);
-		set {
+		private set {
 			SetProperty(() => Post, value);
-			RaisePropertyChanged(nameof(HasPost));
 			PostDetailDockViewModel.Post = value;
 		}
 	}
-
-	public ModuleType ModuleType { get; }
 
 	public GridDefinitionModel LeftSideGrid { get; } = new(true, 150, new GridLength(220, GridUnitType.Pixel));
 	public GridDefinitionModel RightSideGrid { get; } = new(false, 150, new GridLength(300, GridUnitType.Pixel));
 
 	public PostDetailDockViewModel PostDetailDockViewModel { get; } = new();
 
-	public PostDetailViewModel(ModuleType moduleType) {
-		ModuleType = moduleType;
+
+	public PostsViewModel ParentViewModel {
+		get => GetProperty(() => ParentViewModel);
+		private set => SetProperty(() => ParentViewModel, value);
+	}
+
+	protected override void OnInitialize() {
 		Post = null;
+	}
+
+	protected override void OnParentViewModelChanged(object parentViewModel) {
+		base.OnParentViewModelChanged(parentViewModel);
+
+		ParentViewModel = (PostsViewModel)parentViewModel;
+		ParentViewModel.CurrentPostChanged += PostsViewModel_CurrentPostChanged;
+	}
+
+	private void PostsViewModel_CurrentPostChanged(PostsViewModel sender, E621Post? args) {
+		Post = args;
 	}
 
 	public void Focus() {

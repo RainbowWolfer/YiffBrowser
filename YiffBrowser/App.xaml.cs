@@ -1,6 +1,8 @@
-﻿using BaseFramework;
+﻿using Autofac;
+using BaseFramework;
 using BaseFramework.Enums;
 using BaseFramework.Helpers;
+using BaseFramework.Services;
 using RW.Base.WPF;
 using RW.Base.WPF.Configs;
 using RW.Base.WPF.Extensions;
@@ -33,6 +35,9 @@ public partial class App : ApplicationBase {
 	public E621MainWindow? Window_E926 { get; private set; }
 	public E621MainWindow? Window_E6AI { get; private set; }
 
+	private AppSettingsService AppSettingsService { get; }
+	private AppProfileService AppProfileService { get; }
+
 	public App() {
 		instance = this;
 
@@ -40,7 +45,15 @@ public partial class App : ApplicationBase {
 		string _ = Directory.GetCurrentDirectory();
 		Directory.SetCurrentDirectory(appDirectory);
 
-		ShutdownMode = ShutdownMode.OnExplicitShutdown;
+		//ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+		AppFolderConfig folderConfig = (AppFolderConfig)FolderConfig;
+
+		AppSettingsService = new AppSettingsService(folderConfig);
+		AppSettingsService.LoadSettings();
+
+		AppProfileService = new AppProfileService(folderConfig);
+		AppProfileService.LoadSettings();
 	}
 
 	protected override void AfterLoadingModules() {
@@ -62,6 +75,8 @@ public partial class App : ApplicationBase {
 			Fatal(ex);
 		}
 
+
+		MessageBox.Show($"{IntPtr.Size}");
 	}
 
 	//protected override void OnStartup(StartupEventArgs e) {
@@ -149,7 +164,7 @@ public partial class App : ApplicationBase {
 		return null;
 	}
 
-	protected override Window? GetMainWindow() => Window_E621;
+	protected override Window? GetMainWindow() => Window_E6AI;
 
 	protected override AppManager GetAppManager() => new _AppManager();
 	protected override DllLoader GetDllLoader() => new _DllLoader();
@@ -190,7 +205,8 @@ public partial class App : ApplicationBase {
 		protected override void InitializeDependencies() {
 			base.InitializeDependencies();
 
-			//builder.RegisterInstance(application.AppSettingsService).As<IAppSettingsService>();
+			builder.RegisterInstance(application.AppSettingsService).As<IAppSettingsService>();
+			builder.RegisterInstance(application.AppProfileService).As<IAppProfileService>();
 		}
 	}
 

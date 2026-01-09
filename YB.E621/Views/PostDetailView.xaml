@@ -124,7 +124,8 @@
 					</Border>
 
 					<Border Grid.Column="2" BorderThickness="2,0,0,0" BorderBrush="LightGray">
-						<ContentControl Content="{Binding PostDetailDockViewModel.View}"/>
+						<local:PostDetailDockView/>
+						<!--<ContentControl Content="{Binding PostDetailDockViewModel.View}"/>-->
 					</Border>
 
 					<GridSplitter Width="2" Background="Transparent"/>

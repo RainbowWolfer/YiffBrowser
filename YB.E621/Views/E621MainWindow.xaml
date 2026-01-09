@@ -8,6 +8,7 @@
 	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
 	xmlns:local="clr-namespace:YB.E621.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:p="clr-namespace:YB.E621.Parameters"
 	xmlns:service="clr-namespace:YB.E621.Services"
 	xmlns:subs="clr-namespace:YB.E621.Views.Subs"
 	xmlns:wpf="RW.Common.WPF"
@@ -28,6 +29,8 @@
 			<wpf:CommandProxy x:Key="CloseTabCommand" Command="{Binding CloseTabCommand}"/>
 
 			<wpf:BindingProxy x:Key="ViewModel" Data="{Binding}"/>
+
+			<!--<p:ViewParameter x:Key="ViewParameter" ModuleType="{Binding ModuleType}"/>-->
 
 		</ResourceDictionary>
 	</Control.Resources>

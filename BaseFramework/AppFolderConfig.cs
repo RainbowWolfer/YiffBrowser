@@ -7,5 +7,6 @@ namespace BaseFramework;
 public class AppFolderConfig(IAppManager appManager) : FolderConfig(appManager) {
 
 	public string AppSettingsFilePath => Path.Combine(DataFolder, "AppSettings.json");
+	public string AppProfileFilePath => Path.Combine(DataFolder, "AppProfile.json");
 
 }

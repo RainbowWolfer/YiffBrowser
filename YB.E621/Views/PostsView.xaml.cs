@@ -1,4 +1,6 @@
-﻿using DevExpress.Mvvm;
+﻿using BaseFramework.Enums;
+using DevExpress.Mvvm;
+using RW.Common;
 using RW.Common.Helpers;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -26,9 +28,13 @@ public partial class PostsView : UserControl {
 	}
 }
 
-public class PostsViewModel : ViewModelBase {
+internal class PostsViewModel : ViewModelBase {
 	public const double ItemWidth = 396;
 	public const double ItemHeight = 50;
+
+	public event TypedEventHandler<PostsViewModel, E621Post?>? CurrentPostChanged;
+
+	public IPostDetailViewService PostDetailViewService => GetService<IPostDetailViewService>();
 
 	public ObservableCollection<PostCardControl> Items { get; } = [];
 	public ObservableCollection<PostCardControl> SelectedItems { get; } = [];
@@ -69,13 +75,29 @@ public class PostsViewModel : ViewModelBase {
 		set => SetProperty(() => MultiSelectingText, value);
 	}
 
-	public PostDetailViewModel PostDetailViewModel { get; }
+	public ModuleType ModuleType {
+		get => GetProperty(() => ModuleType);
+		private set => SetProperty(() => ModuleType, value);
+	}
+
+	public E621Post? CurrentPost {
+		get => GetProperty(() => CurrentPost);
+		set {
+			SetProperty(() => CurrentPost, value);
+			CurrentPostChanged?.Invoke(this, value);
+		}
+	}
+
+	protected override void OnParentViewModelChanged(object parentViewModel) {
+		base.OnParentViewModelChanged(parentViewModel);
+
+	}
 
 	protected override void OnParameterChanged(object parameter) {
 		base.OnParameterChanged(parameter);
 		TabItem = (PostTabItem)parameter;
 
-		//PostDetailViewModel = new PostDetailViewModel(TabItem.SiteType);
+		ModuleType = TabItem.SiteType;
 
 		SelectedItems.CollectionChanged += SelectedItems_CollectionChanged;
 
@@ -100,7 +122,7 @@ public class PostsViewModel : ViewModelBase {
 	//private DelegateCommand? loadedCommand;
 	//public IDelegateCommand LoadedCommand => loadedCommand ??= new(Loaded);
 	//private void Loaded() {
-		
+
 	//}
 
 	public ICommand PreviousPageCommand => new DelegateCommand(PreviousPage);
@@ -158,14 +180,13 @@ public class PostsViewModel : ViewModelBase {
 	}
 
 	private void ViewPostDetailDirect(E621Post? post) {
-		PostDetailViewModel.Post = post;
-		PostDetailViewModel.Focus();
+		CurrentPost = post;
+		PostDetailViewService.Focus();
 	}
 
 	public ICommand QuitPostDetailViewCommand => new DelegateCommand(QuitPostDetailView);
-
 	private void QuitPostDetailView() {
-		PostDetailViewModel.Back();
+		CurrentPost = null;
 	}
 
 }

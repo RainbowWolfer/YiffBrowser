@@ -128,14 +128,10 @@ public class E621MainWindowViewModel() : ViewModelBase {
 
 	public ObservableCollection<PostTabItem> Tabs { get; } = [];
 
-
 	public E621UserService UserService {
 		get => GetProperty(() => UserService);
 		private set => SetProperty(() => UserService, value);
 	}
-
-	public SearchViewModel SearchViewModel { get; }
-
 
 	public int TabSelectedIndex {
 		get => GetProperty(() => TabSelectedIndex);
