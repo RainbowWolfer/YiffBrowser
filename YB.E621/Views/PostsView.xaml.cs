@@ -84,9 +84,12 @@ internal class PostsViewModel : ViewModelBase {
 		get => GetProperty(() => CurrentPost);
 		set {
 			SetProperty(() => CurrentPost, value);
+			RaisePropertyChanged(() => CurrentHasPost);
 			CurrentPostChanged?.Invoke(this, value);
 		}
 	}
+
+	public bool CurrentHasPost => CurrentPost != null;
 
 	protected override void OnParentViewModelChanged(object parentViewModel) {
 		base.OnParentViewModelChanged(parentViewModel);

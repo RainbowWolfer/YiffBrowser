@@ -43,7 +43,7 @@
 			<Border>
 				<Grid>
 
-					<Border Visibility="{Binding PostDetailViewModel.HasPost, Converter={StaticResource Boolean2VisibilityReConverter}}">
+					<Border Visibility="{Binding CurrentHasPost, Converter={StaticResource Boolean2VisibilityReConverter}}">
 						<DockPanel>
 							<Border Padding="4" Background="LightGray" DockPanel.Dock="Top">
 
@@ -203,7 +203,7 @@
 						</DockPanel>
 					</Border>
 
-					<Border d:Visibility="Collapsed" Visibility="{Binding PostDetailViewModel.HasPost, Converter={StaticResource Boolean2VisibilityConverter}}">
+					<Border d:Visibility="Collapsed" Visibility="{Binding CurrentHasPost, Converter={StaticResource Boolean2VisibilityConverter}}">
 						<local:PostDetailView dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}" ex:ViewInitializeExtension.ModuleType="{Binding Source={StaticResource ViewModel}, Path=Data.ModuleType}">
 							<dxmvvm:Interaction.Behaviors>
 								<local:PostDetailViewService/>
