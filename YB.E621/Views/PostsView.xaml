@@ -204,11 +204,7 @@
 					</Border>
 
 					<Border d:Visibility="Collapsed" Visibility="{Binding CurrentHasPost, Converter={StaticResource Boolean2VisibilityConverter}}">
-						<local:PostDetailView dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}" ex:ViewInitializeExtension.ModuleType="{Binding Source={StaticResource ViewModel}, Path=Data.ModuleType}">
-							<dxmvvm:Interaction.Behaviors>
-								<local:PostDetailViewService/>
-							</dxmvvm:Interaction.Behaviors>
-						</local:PostDetailView>
+						<local:PostDetailView dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}" ex:ViewInitializeExtension.ModuleType="{Binding Source={StaticResource ViewModel}, Path=Data.ModuleType}"/>
 						<!--<ContentControl Content="{Binding PostDetailViewModel.View}"/>-->
 					</Border>
 

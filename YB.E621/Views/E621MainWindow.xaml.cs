@@ -156,12 +156,13 @@ public class E621MainWindowViewModel() : ViewModelBase {
 		UserService = E621UserService.GetUserService(ModuleType);
 		UserService.LoginChanged += UserService_LoginChanged;
 
-		//Tabs.Add(new PostsViewModel(ModuleType, ["order:rank"]));
-		//Tabs.Add(new PostsViewModel(ModuleType, ["type:gif", "order:filesize"]));
-		//Tabs.Add(new PostsViewModel(ModuleType, ["type:gif", "order:filesize"]));
-		Tabs.Add(new PostTabItem(ModuleType, ["type:gif"]));
-		//Tabs.Add(new PostsViewModel(ModuleType, ["type:gif"]));
-		//Tabs.Add(new PostsViewModel(ModuleType, ["type:webm"]));
+		//Tabs.Add(new PostTabItem(ModuleType, ["order:rank"]));
+		//Tabs.Add(new PostTabItem(ModuleType, ["type:gif", "order:filesize"]));
+		//Tabs.Add(new PostTabItem(ModuleType, ["type:gif", "order:filesize"]));
+		//Tabs.Add(new PostTabItem(ModuleType, ["type:gif"]));
+		Tabs.Add(new PostTabItem(ModuleType, ["feet"]));
+		//Tabs.Add(new PostTabItem(ModuleType, ["type:gif"]));
+		//Tabs.Add(new PostTabItem(ModuleType, ["type:webm"]));
 		TabSelectedIndex = 0;
 
 		Initialize();

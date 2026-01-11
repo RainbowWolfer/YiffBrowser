@@ -18,20 +18,6 @@ public partial class PostDetailView : UserControl {
 	}
 }
 
-public interface IPostDetailViewService {
-	void Focus();
-}
-
-internal class PostDetailViewService : ServiceBase, IPostDetailViewService {
-	private PostDetailViewModel GetViewModel() => (PostDetailViewModel)AssociatedObject.DataContext;
-
-	public void Focus() {
-		PostDetailViewModel viewModel = GetViewModel();
-		viewModel.Focus();
-	}
-
-}
-
 internal class PostDetailViewModel() : E621ViewModelBase {
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
 	public IUIObjectService<UserControl> UserControlService => GetService<ITypedUIObjectService>(nameof(UserControlService)).As<UserControl>();
@@ -68,6 +54,7 @@ internal class PostDetailViewModel() : E621ViewModelBase {
 
 	private void PostsViewModel_CurrentPostChanged(PostsViewModel sender, E621Post? args) {
 		Post = args;
+		Focus();
 	}
 
 	public void Focus() {
@@ -88,7 +75,7 @@ internal class PostDetailViewModel() : E621ViewModelBase {
 
 	public ICommand BackCommand => new DelegateCommand(Back);
 	public void Back() {
-		Post = null;
+		ParentViewModel.QuitPostDetailView();
 	}
 
 	public ICommand NextCommand => new DelegateCommand(Next);

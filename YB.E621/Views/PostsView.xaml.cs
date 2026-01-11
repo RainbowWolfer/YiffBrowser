@@ -34,8 +34,6 @@ internal class PostsViewModel : ViewModelBase {
 
 	public event TypedEventHandler<PostsViewModel, E621Post?>? CurrentPostChanged;
 
-	public IPostDetailViewService PostDetailViewService => GetService<IPostDetailViewService>();
-
 	public ObservableCollection<PostCardControl> Items { get; } = [];
 	public ObservableCollection<PostCardControl> SelectedItems { get; } = [];
 
@@ -91,6 +89,12 @@ internal class PostsViewModel : ViewModelBase {
 
 	public bool CurrentHasPost => CurrentPost != null;
 
+	protected override void OnInitializeInRuntime() {
+		base.OnInitializeInRuntime();
+
+		SelectedItems.CollectionChanged += SelectedItems_CollectionChanged;
+	}
+
 	protected override void OnParentViewModelChanged(object parentViewModel) {
 		base.OnParentViewModelChanged(parentViewModel);
 
@@ -98,15 +102,16 @@ internal class PostsViewModel : ViewModelBase {
 
 	protected override void OnParameterChanged(object parameter) {
 		base.OnParameterChanged(parameter);
-		TabItem = (PostTabItem)parameter;
+		if (parameter is PostTabItem tabItem) {
 
-		ModuleType = TabItem.SiteType;
+			TabItem = tabItem;
 
-		SelectedItems.CollectionChanged += SelectedItems_CollectionChanged;
+			ModuleType = tabItem.SiteType;
 
-		CurrentPage = 1;
+			CurrentPage = 1;
 
-		Refresh();
+			Refresh();
+		}
 	}
 
 	private void SelectedItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
@@ -184,11 +189,10 @@ internal class PostsViewModel : ViewModelBase {
 
 	private void ViewPostDetailDirect(E621Post? post) {
 		CurrentPost = post;
-		PostDetailViewService.Focus();
 	}
 
 	public ICommand QuitPostDetailViewCommand => new DelegateCommand(QuitPostDetailView);
-	private void QuitPostDetailView() {
+	public void QuitPostDetailView() {
 		CurrentPost = null;
 	}
 
