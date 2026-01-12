@@ -1,13 +1,15 @@
-﻿using BaseFramework.Enums;
+﻿using BaseFramework;
+using BaseFramework.Enums;
+using BaseFramework.Interfaces;
+using BaseFramework.ViewModelServices;
 using BaseFramework.Views;
-using BaseFramework.Views.Dialogs;
 using DevExpress.Mvvm;
 using DevExpress.Mvvm.UI;
+using RW.Base.WPF.Interfaces;
 using RW.Base.WPF.ViewModelServices;
 using RW.Common.WPF.Controls;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using YB.E621.Models.E621;
@@ -17,7 +19,7 @@ using YB.E621.Views.Subs;
 
 namespace YB.E621.Views;
 
-public partial class E621MainWindow : WindowBase {
+public partial class E621MainWindow : WindowBase, IMainWindow {
 
 	public E621MainWindow(ModuleType e621, ModuleNavigationActions moduleNavigationActions) {
 		InitializeComponent();
@@ -99,10 +101,6 @@ public partial class E621MainWindow : WindowBase {
 	//	});
 	//}
 
-	private void SettingsButton_Click(object sender, RoutedEventArgs e) {
-		AppSettingsDialogViewModel.ShowDialog(GetWindow((DependencyObject)sender));
-	}
-
 }
 
 public record class E621MainWindowParameter(
@@ -110,7 +108,7 @@ public record class E621MainWindowParameter(
 	ModuleNavigationActions ModuleNavigationActions
 );
 
-public class E621MainWindowViewModel() : ViewModelBase {
+public class E621MainWindowViewModel(IAppManager appManager) : ViewModelBase {
 
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
 	public ICurrentWindowServiceEx CurrentWindowService => GetService<ICurrentWindowServiceEx>();
@@ -118,6 +116,9 @@ public class E621MainWindowViewModel() : ViewModelBase {
 	public IUIObjectService<ButtonPopup> SearchPopupService => GetService<ITypedUIObjectService>(nameof(SearchPopupService)).As<ButtonPopup>();
 	public IUIObjectService<ButtonPopup> SitePopupService => GetService<ITypedUIObjectService>(nameof(SitePopupService)).As<ButtonPopup>();
 
+	public IDialogServiceEx AppSettingsDialog => GetService<IDialogServiceEx>(nameof(AppSettingsDialog));
+
+	public IAppManager AppManager { get; } = appManager;
 
 	public ModuleNavigationActions? ModuleNavigationActions { get; set; }
 
@@ -151,7 +152,7 @@ public class E621MainWindowViewModel() : ViewModelBase {
 		ModuleType = _parameter.ModuleType;
 		ModuleNavigationActions = _parameter.ModuleNavigationActions;
 
-		CurrentWindowService.GetWindow().Title = $"Yiff Browser - {ModuleType}";
+		CurrentWindowService.GetWindow().Title = $"{AppConfig.DisplayAppName} - {ModuleType}";
 
 		UserService = E621UserService.GetUserService(ModuleType);
 		UserService.LoginChanged += UserService_LoginChanged;
@@ -160,7 +161,7 @@ public class E621MainWindowViewModel() : ViewModelBase {
 		//Tabs.Add(new PostTabItem(ModuleType, ["type:gif", "order:filesize"]));
 		//Tabs.Add(new PostTabItem(ModuleType, ["type:gif", "order:filesize"]));
 		//Tabs.Add(new PostTabItem(ModuleType, ["type:gif"]));
-		Tabs.Add(new PostTabItem(ModuleType, ["feet"]));
+		//Tabs.Add(new PostTabItem(ModuleType, ["feet"]));
 		//Tabs.Add(new PostTabItem(ModuleType, ["type:gif"]));
 		//Tabs.Add(new PostTabItem(ModuleType, ["type:webm"]));
 		TabSelectedIndex = 0;
@@ -243,6 +244,18 @@ public class E621MainWindowViewModel() : ViewModelBase {
 		SitePopupService.Object.Hide();
 		ModuleNavigationActions?.ShowE926?.Invoke();
 	});
+
+
+
+	private DelegateCommand? showAppSettingsDialogCommand;
+	public IDelegateCommand ShowAppSettingsDialogCommand => showAppSettingsDialogCommand ??= new(ShowAppSettingsDialog, CanShowAppSettingsDialog);
+	private void ShowAppSettingsDialog() {
+		if (CanShowAppSettingsDialog()) {
+			AppSettingsDialog.ShowOKCancel(this, null);
+		}
+	}
+	private bool CanShowAppSettingsDialog() => true;
+
 
 }
 

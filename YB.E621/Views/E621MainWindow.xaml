@@ -39,6 +39,9 @@
 		<b:DispatcherServiceEx/>
 		<b:LoadedService Command="{Binding LoadedCommand}" OnlyOnce="True"/>
 		<b:CurrentWindowServiceEx/>
+
+		<bf:DialogService x:Name="AppSettingsDialog" ContentType="{x:Type bf:AppSettingsDialog}" ShowDialogWindow="False"/>
+
 	</dxmvvm:Interaction.Behaviors>
 
 	<Window.Style>
@@ -124,17 +127,21 @@
 							</Grid>
 						</Button>
 
-						<Button x:Name="SettingsButton"
+						<Button
 							Width="32"
 							Height="32"
-							Click="SettingsButton_Click"
+							Command="{Binding ShowAppSettingsDialogCommand}"
 							ToolTip="Settings">
 							<wpf:FontIcon Text="&#xE713;"/>
 						</Button>
 
 						<StackPanel>
 							<!-- Text="{Binding Source={x:Static bf:AppConfig.Version}}" -->
-							<TextBlock d:Text="1.0.0" FontSize="10" TextAlignment="Center"/>
+							<TextBlock
+								d:Text="1.0.0"
+								FontSize="10"
+								Text="{Binding AppManager.AppVersion.ShortVersion}"
+								TextAlignment="Center"/>
 							<TextBlock
 								FontSize="10"
 								Text="Debug"
@@ -151,6 +158,7 @@
 				Padding="0"
 				BorderThickness="0,1,0,0"
 				SelectedIndex="{Binding TabSelectedIndex, Mode=TwoWay}"
+				Visibility="{Binding Tabs.Count, Converter={StaticResource IListToVisibilityConverter}}"
 				ItemsSource="{Binding Tabs}"
 				d:ItemsSource="{d:SampleData ItemCount=15}">
 

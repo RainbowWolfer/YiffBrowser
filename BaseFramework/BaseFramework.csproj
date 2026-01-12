@@ -2,8 +2,6 @@
 
 	<PropertyGroup>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-
-		<RW_Common_Version>1.0.34</RW_Common_Version>
 	</PropertyGroup>
 
 	<ItemGroup>

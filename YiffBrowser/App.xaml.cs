@@ -2,6 +2,7 @@
 using BaseFramework;
 using BaseFramework.Enums;
 using BaseFramework.Helpers;
+using BaseFramework.Interfaces;
 using BaseFramework.Services;
 using RW.Base.WPF;
 using RW.Base.WPF.Configs;
@@ -15,6 +16,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows;
 using YB.E621.Views;
+using YiffBrowser.Services;
 
 namespace YiffBrowser;
 
@@ -24,9 +26,12 @@ public partial class App : ApplicationBase {
 
 	private static Window[] MainWindows { get; set; } = [];
 
+	private static readonly Stopwatch startupStopWatch = new();
+
 	static App() {
 		DebugConfig.Print = o => Debug.WriteLine(o);
 		DebugConfig.DebuggerBreak = Debugger.Break;
+		startupStopWatch.Start();
 	}
 
 	protected override bool EnablePipeServerStream => false;
@@ -38,6 +43,8 @@ public partial class App : ApplicationBase {
 	private AppSettingsService AppSettingsService { get; }
 	private AppProfileService AppProfileService { get; }
 
+	private SystemTrayIconService SystemTrayIconService { get; }
+
 	public App() {
 		instance = this;
 
@@ -45,7 +52,7 @@ public partial class App : ApplicationBase {
 		string _ = Directory.GetCurrentDirectory();
 		Directory.SetCurrentDirectory(appDirectory);
 
-		//ShutdownMode = ShutdownMode.OnExplicitShutdown;
+		ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
 		AppFolderConfig folderConfig = (AppFolderConfig)FolderConfig;
 
@@ -54,6 +61,19 @@ public partial class App : ApplicationBase {
 
 		AppProfileService = new AppProfileService(folderConfig);
 		AppProfileService.LoadSettings();
+
+		SystemTrayIconService = new SystemTrayIconService();
+		SystemTrayIconService.Initialize();
+
+		if (AppSettingsService.Model.EnableTrayIcon) {
+			SystemTrayIconService.Enable();
+		}
+
+	}
+
+	protected override void BeforeTotalShutdown() {
+		base.BeforeTotalShutdown();
+		SystemTrayIconService.Disable();
 	}
 
 	protected override void AfterLoadingModules() {
@@ -76,7 +96,17 @@ public partial class App : ApplicationBase {
 		}
 
 
-		MessageBox.Show($"{IntPtr.Size}");
+		//MessageBox.Show($"{IntPtr.Size}");
+	}
+
+	protected override void Loaded() {
+		base.Loaded();
+
+		ShowE6AI();
+
+		startupStopWatch.Stop();
+		Debug.WriteLine($"app started in {startupStopWatch.ElapsedMilliseconds} ms");
+		//MessageBox.Show($"app started in {startupStopWatch.ElapsedMilliseconds} ms");
 	}
 
 	//protected override void OnStartup(StartupEventArgs e) {
@@ -141,30 +171,31 @@ public partial class App : ApplicationBase {
 	private void ShowE926() => Window_E926.ActivateWindow();
 
 	private void Window_Closing(object? sender, CancelEventArgs e) {
-		//if (ShuttingDown) {
-		//	return;
-		//}
-		//int visibleCount = MainWindows.Count(x => x.Visibility == Visibility.Visible && x.IsVisible);
-		//if (visibleCount <= 1) {
-		//	//when last window calls close. ask for confirm close
-		//	if (MessageBox.Show("Are you sure to quit Yiff Browser?", "Exit Confirmation", MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK) {
-		//		e.Cancel = true;
-		//		return;
-		//	}
-		//	TotalShutdown();
-		//} else {
-		//	if (sender is Window window) {
-		//		window.Hide();
-		//		e.Cancel = true;
-		//	}
-		//}
+		if (AppManager.IsShuttingDown) {
+			return;
+		}
+		Window[] mainWindows = [.. Windows.OfType<IMainWindow>().Cast<Window>()];
+		int visibleCount = mainWindows.Count(x => x.Visibility == Visibility.Visible && x.IsVisible);
+		if (visibleCount <= 1) {
+			//when last window calls close. ask for confirm close
+			if (MessageBox.Show("Are you sure to quit Yiff Browser?", "Exit Confirmation", MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK) {
+				e.Cancel = true;
+				return;
+			}
+			TotalShutdown();
+		} else {
+			if (sender is Window window) {
+				window.Hide();
+				e.Cancel = true;
+			}
+		}
 	}
 
 	protected override CultureInfo? GetCultureInfo() {
 		return null;
 	}
 
-	protected override Window? GetMainWindow() => Window_E6AI;
+	protected override Window? GetMainWindow() => null;
 
 	protected override AppManager GetAppManager() => new _AppManager();
 	protected override DllLoader GetDllLoader() => new _DllLoader();
@@ -207,6 +238,7 @@ public partial class App : ApplicationBase {
 
 			builder.RegisterInstance(application.AppSettingsService).As<IAppSettingsService>();
 			builder.RegisterInstance(application.AppProfileService).As<IAppProfileService>();
+			builder.RegisterInstance(application.SystemTrayIconService).As<ISystemTrayIconService>();
 		}
 	}
 

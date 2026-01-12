@@ -11,7 +11,9 @@ using System.Windows.Markup;
 [assembly: XmlnsDefinition("BaseFramework", "BaseFramework.Models")]
 [assembly: XmlnsDefinition("BaseFramework", "BaseFramework.Models.Apps")]
 [assembly: XmlnsDefinition("BaseFramework", "BaseFramework.Services")]
+[assembly: XmlnsDefinition("BaseFramework", "BaseFramework.Utilities")]
 [assembly: XmlnsDefinition("BaseFramework", "BaseFramework.ViewModels")]
+[assembly: XmlnsDefinition("BaseFramework", "BaseFramework.ViewModelServices")]
 [assembly: XmlnsDefinition("BaseFramework", "BaseFramework.Views")]
 [assembly: XmlnsDefinition("BaseFramework", "BaseFramework.Views.Dialogs")]
 

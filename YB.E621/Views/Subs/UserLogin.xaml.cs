@@ -1,8 +1,7 @@
-﻿using BaseFramework.Enums;
-using DevExpress.Mvvm;
+﻿using DevExpress.Mvvm;
+using RW.Common.Helpers;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using YB.E621.Services;
 
 namespace YB.E621.Views.Subs;
@@ -41,11 +40,17 @@ public class UserLoginViewModel() : ViewModelBase {
 	}
 
 
-	public ICommand LoginCommand => new DelegateCommand(Login);
-	private async void Login() {
+
+	private AsyncCommand? loginCommand;
+	public IDelegateCommand LoginCommand => loginCommand ??= new(Login, CanLogin);
+	private async Task Login() {
 		Exception? exception = await UserService.TryLogin(Username, ApiKey);
 		if (exception != null) {
 			MessageBox.Show($"{exception.Message}", "Login Error", MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 	}
+	private bool CanLogin() {
+		return Username.IsNotBlank() && ApiKey.IsNotBlank();
+	}
+
 }

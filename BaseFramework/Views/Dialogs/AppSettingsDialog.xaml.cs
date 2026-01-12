@@ -1,24 +1,50 @@
-﻿using DevExpress.Mvvm;
-using System.Windows;
+﻿using AutoMapper;
+using BaseFramework.Services;
+using BaseFramework.ViewModels;
+using RW.Base.WPF.Extensions;
+using System.Windows.Controls;
 
 namespace BaseFramework.Views.Dialogs;
 
-public partial class AppSettingsDialog : WindowBase {
-    public AppSettingsDialog() {
-        InitializeComponent();
-    }
+public partial class AppSettingsDialog : UserControl {
+	public AppSettingsDialog() {
+		InitializeComponent();
+	}
 }
 
-public class AppSettingsDialogViewModel : ViewModelBase {
+public class AppSettingsDialogViewModel(
+	IAppSettingsService appSettingsService,
+	IMapper mapper
+) : DialogViewModelOkCancel<object> {
 
-    public static void ShowDialog(Window owner) {
-        //AppSettingsDialogViewModel viewModel = new();
-        //viewModel.View.Owner = owner;
-        //viewModel.View.ShowDialog();
-    }
+	public AppSettingsModel Model {
+		get => GetProperty(() => Model);
+		set => SetProperty(() => Model, value);
+	}
 
-    public AppSettingsDialogViewModel() {
+	protected override void OnInitialized() {
+		base.OnInitialized();
 
-    }
+		DialogTitle = $"{AppConfig.DisplayAppName} - Settings";
+
+		Model = mapper.Map<AppSettingsModel>(appSettingsService.Model);
+
+	}
+
+	protected override bool Validate(out string message) {
+		return base.Validate(out message);
+	}
+
+	protected override bool OnConfirmed() {
+		try {
+			mapper.Map(Model, appSettingsService.Model);
+			appSettingsService.SaveSettings();
+			return true;
+		} catch (Exception ex) {
+			DebugLoggerManager.LogHandledException(ex);
+			MessageBoxService.ShowError("Saving settings error", ex);
+			return false;
+		}
+	}
 
 }

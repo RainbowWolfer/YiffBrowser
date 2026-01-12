@@ -21,6 +21,6 @@ public class AppSettingsService(
 /// <summary> map to self </summary>
 [JsonObject]
 public class AppSettingsModel {
-
+	public bool EnableTrayIcon { get; set; }
 }
 
