@@ -5,6 +5,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="HandyControls" Version="3.6.0" />
 		<PackageReference Include="RW.Base.WPF" Version="$(RW_Common_Version)" />
 		<PackageReference Include="RW.Common" Version="$(RW_Common_Version)" />
 		<PackageReference Include="RW.Common.WPF" Version="$(RW_Common_Version)" />

@@ -135,6 +135,14 @@
 							<wpf:FontIcon Text="&#xE713;"/>
 						</Button>
 
+						<Button
+							Width="32"
+							Height="32"
+							Command="{Binding ShowAppSettingsDialogCommand}"
+							ToolTip="About">
+							<wpf:FontIcon Text="&#xE946;"/>
+						</Button>
+
 						<StackPanel>
 							<!-- Text="{Binding Source={x:Static bf:AppConfig.Version}}" -->
 							<TextBlock
@@ -154,69 +162,77 @@
 				</Grid>
 			</Border>
 
-			<TabControl
-				Padding="0"
-				BorderThickness="0,1,0,0"
-				SelectedIndex="{Binding TabSelectedIndex, Mode=TwoWay}"
-				Visibility="{Binding Tabs.Count, Converter={StaticResource IListToVisibilityConverter}}"
-				ItemsSource="{Binding Tabs}"
-				d:ItemsSource="{d:SampleData ItemCount=15}">
+			<Border Visibility="{Binding Tabs.Count, Converter={StaticResource IListToVisibilityConverter}}">
 
-				<TabControl.ItemContainerStyle>
-					<Style TargetType="TabItem" BasedOn="{StaticResource CustomTabItemStyle}">
-						<Setter Property="ContextMenu">
-							<Setter.Value>
-								<ContextMenu>
-									<MenuItem bf:IconExtension.Glyph="&#xE711;" Header="Close"/>
-								</ContextMenu>
-							</Setter.Value>
-						</Setter>
-					</Style>
-				</TabControl.ItemContainerStyle>
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="*"/>
+						<RowDefinition Height="auto"/>
+					</Grid.RowDefinitions>
 
-				<TabControl.ItemTemplate>
-					<DataTemplate>
-						<Grid MinWidth="100">
-							<DockPanel>
-								<Button Name="CloseTabButton"
-									Margin="2,0,0,0"
-									Padding="2"
-									VerticalAlignment="Center"
-									BorderThickness="0"
-									Background="Transparent"
-									Cursor="Hand"
-									DockPanel.Dock="Right"
-									ToolTip="Close this tab">
-									<wpf:FontIcon Text="&#xE711;"/>
-								</Button>
-								<TextBlock VerticalAlignment="Center" Text="{Binding Tags, Converter={StaticResource TagsDisplayConverter}}"/>
-							</DockPanel>
+					<Border>
+						<TabControl
+							Padding="0"
+							BorderThickness="0,1,0,0"
+							SelectedIndex="{Binding TabSelectedIndex, Mode=TwoWay}"
+							ItemsSource="{Binding Tabs}"
+							d:ItemsSource="{d:SampleData ItemCount=15}">
 
-							<wpf:ButtonPopup SourceButton="{Binding ElementName=CloseTabButton}">
-								<Border Style="{StaticResource ButtonPopupBorder}">
-									<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
-										<TextBlock Text="Sure to close this tab?"/>
-										<Button Padding="4,2" Command="{StaticResource CloseTabCommand}" CommandParameter="{Binding}">
-											<TextBlock Text="Confirm"/>
-										</Button>
-									</wpf:SpacingStackPanel>
-								</Border>
-							</wpf:ButtonPopup>
-						</Grid>
-					</DataTemplate>
-				</TabControl.ItemTemplate>
+							<TabControl.ItemContainerStyle>
+								<Style TargetType="TabItem" BasedOn="{StaticResource CustomTabItemStyle}">
+									<Setter Property="ContextMenu">
+										<Setter.Value>
+											<ContextMenu>
+												<MenuItem bf:IconExtension.Glyph="&#xE711;" Header="Close"/>
+											</ContextMenu>
+										</Setter.Value>
+									</Setter>
+								</Style>
+							</TabControl.ItemContainerStyle>
 
-				<TabControl.ContentTemplate>
-					<DataTemplate>
-						<!--<ContentControl Content="{Binding View}"/>-->
-						<Border x:Name="PART_Border">
-							<local:PostsView dxmvvm:ViewModelExtensions.Parameter="{Binding ElementName=PART_Border, Path=DataContext}" dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}"/>
-							<!--<ContentControl Content="{Binding View}" Focusable="False" IsTabStop="False"/>-->
-						</Border>
-					</DataTemplate>
-				</TabControl.ContentTemplate>
+							<TabControl.ItemTemplate>
+								<DataTemplate>
+									<Grid MinWidth="100">
+										<DockPanel>
+											<Button Name="CloseTabButton"
+												Margin="2,0,0,0"
+												Padding="2"
+												VerticalAlignment="Center"
+												BorderThickness="0"
+												Background="Transparent"
+												Cursor="Hand"
+												DockPanel.Dock="Right"
+												ToolTip="Close this tab">
+												<wpf:FontIcon Text="&#xE711;"/>
+											</Button>
+											<TextBlock VerticalAlignment="Center" Text="{Binding Tags, Converter={StaticResource TagsDisplayConverter}}"/>
+										</DockPanel>
 
-				<!--<TabItem>
+										<wpf:ButtonPopup SourceButton="{Binding ElementName=CloseTabButton}">
+											<Border Style="{StaticResource ButtonPopupBorder}">
+												<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
+													<TextBlock Text="Sure to close this tab?"/>
+													<Button Padding="4,2" Command="{StaticResource CloseTabCommand}" CommandParameter="{Binding}">
+														<TextBlock Text="Confirm"/>
+													</Button>
+												</wpf:SpacingStackPanel>
+											</Border>
+										</wpf:ButtonPopup>
+									</Grid>
+								</DataTemplate>
+							</TabControl.ItemTemplate>
+
+							<TabControl.ContentTemplate>
+								<DataTemplate>
+									<!--<ContentControl Content="{Binding View}"/>-->
+									<Border x:Name="PART_Border">
+										<local:PostsView dxmvvm:ViewModelExtensions.Parameter="{Binding ElementName=PART_Border, Path=DataContext}" dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}"/>
+										<!--<ContentControl Content="{Binding View}" Focusable="False" IsTabStop="False"/>-->
+									</Border>
+								</DataTemplate>
+							</TabControl.ContentTemplate>
+
+							<!--<TabItem>
 					<TabItem.Header>
 						<StackPanel Orientation="Horizontal">
 							<TextBlock Text="Default" VerticalAlignment="Center" Margin="0,0,2,0"/>
@@ -228,7 +244,16 @@
 					<ContentControl Content="{Binding PostsViewModel.View}"/>
 				</TabItem>-->
 
-			</TabControl>
+						</TabControl>
+					</Border>
+
+					<Border Grid.Row="1">
+						<!-- Dock Panels: Download progress -->
+					</Border>
+
+				</Grid>
+
+			</Border>
 		</DockPanel>
 
 		<wpf:ButtonPopup HorizontalOffset="6" Placement="Right" SourceButton="{Binding ElementName=UserButton}">

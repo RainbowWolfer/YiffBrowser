@@ -2,6 +2,6 @@
 
 namespace BaseFramework.Views;
 
-public class WindowBase : Window {
+public class WindowBase : HandyControl.Controls.Window {
 
 }
