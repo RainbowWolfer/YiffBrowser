@@ -18,8 +18,27 @@
 	mc:Ignorable="d">
 
 	<Control.Resources>
-
 		<wpf:CommandProxy x:Key="HandleItemCommand" Command="{Binding HandleItemCommand}"/>
+
+
+		<Style x:Key="CustomListBoxItemStyle.Local" TargetType="{x:Type ListBoxItem}">
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type ListBoxItem}">
+						<wpf:ClippingBorder x:Name="Bd"
+							Padding="0"
+							BorderThickness="1"
+							BorderBrush="Transparent"
+							Background="Transparent"
+							CornerRadius="4"
+							SnapsToDevicePixels="True">
+							<ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="True"/>
+						</wpf:ClippingBorder>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
 	</Control.Resources>
 
 	<dxmvvm:Interaction.Behaviors>
@@ -37,6 +56,7 @@
 				</Grid.ColumnDefinitions>
 
 				<bf:TextBoxExtend x:Name="SearchBox"
+					Style="{StaticResource TextBoxExtend}"
 					bf:ControlExtension.LoadedCommand="{Binding OnSearchTextBoxLoadedCommand}"
 					bf:ControlExtension.PreviewKeyDownCommand="{Binding OnSearchTextBoxPreviewKeyDownCommand}"
 					bf:TextBoxExtension.SelectionChangedCommand="{Binding OnSearchTextSelectionChangedCommand}"
@@ -51,8 +71,9 @@
 
 				<Button
 					Grid.Column="1"
-					Width="24"
+					Width="30"
 					Margin="4,0,0,0"
+					Padding="0"
 					Command="{Binding ClearCommand}"
 					DockPanel.Dock="Right"
 					ToolTip="Clear">
@@ -61,8 +82,9 @@
 
 				<Button
 					Grid.Column="2"
-					Width="24"
+					Width="30"
 					Margin="4,0,0,0"
+					Padding="0"
 					Command="{Binding SubmitCommand}"
 					DockPanel.Dock="Right"
 					ToolTip="Search">
@@ -89,9 +111,7 @@
 						</dxmvvm:Interaction.Behaviors>
 
 						<ListBox.ItemContainerStyle>
-							<Style TargetType="ListBoxItem" BasedOn="{StaticResource CustomListBoxItemStyle}">
-								<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-								<Setter Property="Padding" Value="0"/>
+							<Style TargetType="ListBoxItem" BasedOn="{StaticResource CustomListBoxItemStyle.Local}">
 								<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
 								<Setter Property="bf:ControlExtension.DoubleClickCommand" Value="{StaticResource HandleItemCommand}"/>
 								<Setter Property="bf:ControlExtension.DoubleClickCommandParameter" Value="{Binding}"/>
@@ -106,20 +126,24 @@
 
 					</ListBox>
 
-					<TextBlock
-						Margin="0,4,0,0"
-						VerticalAlignment="Top"
-						FontSize="16"
-						Text="{Binding AlternativeHintText}"
-						TextAlignment="Center"
-						Visibility="{Binding AlternativeHintText, Converter={StaticResource String2VisibilityConverter}}"/>
-					<ProgressBar
-						Height="6"
-						Margin="0,4,0,0"
-						VerticalAlignment="Top"
-						BorderThickness="0"
-						IsIndeterminate="True"
-						Visibility="{Binding IsLoading, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+					<StackPanel>
+						<ProgressBar
+							Height="6"
+							Margin="0,4,0,0"
+							VerticalAlignment="Top"
+							BorderThickness="0"
+							IsIndeterminate="True"
+							Visibility="{Binding IsLoading, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+
+						<TextBlock
+							Margin="0,4,0,0"
+							VerticalAlignment="Top"
+							FontSize="14"
+							Text="{Binding AlternativeHintText}"
+							TextAlignment="Center"
+							Visibility="{Binding AlternativeHintText, Converter={StaticResource String2VisibilityConverter}}"/>
+
+					</StackPanel>
 
 				</Grid>
 			</Border>

@@ -1317,7 +1317,7 @@
 
 	<Style x:Key="ButtonPopupBorder" TargetType="Border">
 		<Setter Property="Focusable" Value="False"/>
-		<Setter Property="BorderThickness" Value="2"/>
+		<Setter Property="BorderThickness" Value="1"/>
 		<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
 		<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
 		<Setter Property="Padding" Value="4"/>

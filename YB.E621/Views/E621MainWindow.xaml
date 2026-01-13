@@ -100,6 +100,15 @@
 
 					<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}" Grid.Row="1">
 
+						<Button
+							Style="{DynamicResource Button.Custom.Icon}"
+							Width="32"
+							Height="32"
+							Command="{Binding SwitchThemeCommand}"
+							ToolTip="Switch Theme">
+							<wpf:FontIcon Text="&#xF08C;"/>
+						</Button>
+
 						<Button x:Name="UserButton"
 							Style="{DynamicResource Button.Custom.Icon}"
 							Width="32"
@@ -264,7 +273,7 @@
 		</DockPanel>
 
 		<wpf:ButtonPopup
-			HorizontalOffset="6"
+			HorizontalOffset="8"
 			Placement="Right"
 			SourceButton="{Binding ElementName=UserButton}"
 			StaysOpen="False">
@@ -293,7 +302,10 @@
 		</wpf:ButtonPopup>
 
 		<!-- Placement="Right" HorizontalOffset="6" -->
-		<wpf:ButtonPopup x:Name="SearchPopup" SourceButton="{Binding ElementName=SearchButton}">
+		<wpf:ButtonPopup x:Name="SearchPopup"
+			SourceButton="{Binding ElementName=SearchButton}"
+			StaysOpen="False"
+			VerticalOffset="4">
 			<dxmvvm:Interaction.Behaviors>
 				<b:TypedUIObjectService Name="SearchPopupService"/>
 			</dxmvvm:Interaction.Behaviors>

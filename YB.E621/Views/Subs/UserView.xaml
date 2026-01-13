@@ -40,7 +40,13 @@
 			</StackPanel>
 
 			<Grid>
-				<Button Style="{DynamicResource ButtonPrimary}" HorizontalAlignment="Stretch" Command="{Binding LogoutCommand}">
+				<Button
+					Style="{DynamicResource ButtonPrimary}"
+					Height="20"
+					Margin="0,4,0,0"
+					Padding="0"
+					HorizontalAlignment="Stretch"
+					Command="{Binding LogoutCommand}">
 					<TextBlock Text="Logout"/>
 				</Button>
 			</Grid>

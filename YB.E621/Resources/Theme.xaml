@@ -206,6 +206,7 @@
 
 	<Style TargetType="c:SearchTagItemControl">
 		<Setter Property="Focusable" Value="False"/>
+		<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="c:SearchTagItemControl">
@@ -229,7 +230,7 @@
 								<TextBlock Margin="10,0,10,0" VerticalAlignment="Center" Text="{TemplateBinding FromName}"/>
 
 								<StackPanel Orientation="Horizontal" Visibility="{TemplateBinding ToName, Converter={StaticResource String2VisibilityConverter}}">
-									<wpf:FontIcon VerticalAlignment="Center" Text="&#xEA62;"/>
+									<wpf:FontIcon VerticalAlignment="Center" FontSize="12" Text="&#xEA62;"/>
 									<TextBlock Margin="10,0,10,0" VerticalAlignment="Center" Text="{TemplateBinding ToName}"/>
 								</StackPanel>
 

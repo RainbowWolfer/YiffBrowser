@@ -40,6 +40,9 @@
 
 			<Button
 				Style="{StaticResource ButtonPrimary}"
+				Height="20"
+				Margin="0,4,0,0"
+				Padding="0"
 				HorizontalAlignment="Stretch"
 				Command="{Binding LoginCommand}"
 				Visibility="{Binding UserService.IsUserLoading, Converter={StaticResource Boolean2VisibilityReConverter}}">
@@ -47,7 +50,7 @@
 			</Button>
 
 			<Border Visibility="{Binding UserService.IsUserLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
-				<ProgressBar IsIndeterminate="True"/>
+				<ProgressBar Style="{StaticResource ProgressBarBaseStyle}" Height="20" IsIndeterminate="True"/>
 			</Border>
 
 		</Grid>

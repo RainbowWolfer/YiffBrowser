@@ -3,6 +3,8 @@ using BaseFramework.Interfaces;
 using BaseFramework.ViewModelServices;
 using BaseFramework.Views;
 using DevExpress.Mvvm;
+using HandyControl.Themes;
+using HandyControl.Tools;
 using RW.Base.WPF.Extensions;
 using RW.Base.WPF.Interfaces;
 using RW.Base.WPF.ViewModelServices;
@@ -247,6 +249,18 @@ public class E621MainWindowViewModel(IAppManager appManager) : ViewModelBase {
 		}
 	}
 	private bool CanShowAppSettingsDialog() => true;
+
+
+	private DelegateCommand? switchThemeCommand;
+	public IDelegateCommand SwitchThemeCommand => switchThemeCommand ??= new(SwitchTheme);
+	private void SwitchTheme() {
+		if (ThemeManager.Current.ActualApplicationTheme is ApplicationTheme.Dark) {
+			ThemeManager.Current.ApplicationTheme = ApplicationTheme.Light;
+		} else {
+			ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
+		}
+	}
+
 
 }
 
