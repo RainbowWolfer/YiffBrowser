@@ -10,7 +10,7 @@ public static class NetCode {
 	//todo : make name and version variable
 	public const string USERAGENT = $"YiffBrowser/1.0 (by RainbowWolfer)";
 
-	public static async Task<HttpResult<string>> ReadURLAsync(string url, string username, string api, CancellationToken? token = null) {
+	public static async Task<HttpResult<string>> ReadURLAsync(string url, string? username, string? api, CancellationToken? token = null) {
 		Debug.WriteLine("Reading: " + url);
 
 		DateTime startDateTime = DateTime.Now;
@@ -60,7 +60,7 @@ public static class NetCode {
 		return hr;
 	}
 
-	public static async Task<HttpResult<string>> PutRequestAsync(string url, KeyValuePair<string, string> pair, string username, string api, CancellationToken? token = null) {
+	public static async Task<HttpResult<string>> PutRequestAsync(string url, KeyValuePair<string, string> pair, string? username, string? api, CancellationToken? token = null) {
 		DateTime startDateTime = DateTime.Now;
 		Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -104,7 +104,7 @@ public static class NetCode {
 		return hr;
 	}
 
-	public static async Task<HttpResult<string>> PostRequestAsync(string url, List<KeyValuePair<string, string>> pairs, string username, string api, CancellationToken? token = null) {
+	public static async Task<HttpResult<string>> PostRequestAsync(string url, List<KeyValuePair<string, string>> pairs, string? username, string? api, CancellationToken? token = null) {
 		DateTime startDateTime = DateTime.Now;
 		Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -146,7 +146,7 @@ public static class NetCode {
 		return hr;
 	}
 
-	public static async Task<HttpResult<string>> DeleteRequestAsync(string url, string username, string api, CancellationToken? token = null) {
+	public static async Task<HttpResult<string>> DeleteRequestAsync(string url, string? username, string? api, CancellationToken? token = null) {
 		DateTime startDateTime = DateTime.Now;
 		Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -189,7 +189,7 @@ public static class NetCode {
 		return hr;
 	}
 
-	public static void AddDefaultRequestHeaders(HttpClient client, string username, string api) {
+	public static void AddDefaultRequestHeaders(HttpClient client, string? username, string? api) {
 		//client.DefaultRequestHeaders.Add("User-Agent", USERAGENT);
 		//client.DefaultRequestHeaders.UserAgent.ParseAdd("MyApp/1.0 (by username@example.com)");
 		client.DefaultRequestHeaders.UserAgent.ParseAdd(USERAGENT);
@@ -198,7 +198,7 @@ public static class NetCode {
 		//AddAuthorizationHeader(client, "RainbowWolfer", "MUc9Um83YooHeFiyk6bM9vjt");
 	}
 
-	private static void AddAuthorizationHeader(HttpClient client, string username, string api) {
+	private static void AddAuthorizationHeader(HttpClient client, string? username, string? api) {
 		if (username.IsNotBlank() && api.IsNotBlank()) {
 			string encoded = Convert.ToBase64String(Encoding.GetEncoding("ISO-8859-1").GetBytes(username + ":" + api));
 			client.DefaultRequestHeaders.Add("Authorization", "Basic " + encoded);

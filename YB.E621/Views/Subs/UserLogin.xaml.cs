@@ -1,4 +1,5 @@
-﻿using DevExpress.Mvvm;
+﻿using BaseFramework.Services;
+using DevExpress.Mvvm;
 using RW.Common.Helpers;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,7 +14,7 @@ public partial class UserLogin : UserControl {
 	}
 }
 
-internal class UserLoginViewModel() : E621ViewModelBase {
+internal class UserLoginViewModel(IAppProfileService appProfileService) : E621ViewModelBase {
 	public string Username {
 		get => GetProperty(() => Username);
 		set {
@@ -38,7 +39,7 @@ internal class UserLoginViewModel() : E621ViewModelBase {
 	protected override void OnInitialize() {
 		UserService = E621UserService.GetUserService(ViewParameter.ModuleType);
 
-		(string? username, string? apiKey) = UserService.GetUser();
+		(string? username, string? apiKey) = appProfileService.GetUser(ViewParameter.ModuleType);
 
 		Username = username ?? string.Empty;
 		ApiKey = apiKey ?? string.Empty;
