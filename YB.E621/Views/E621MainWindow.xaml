@@ -6,6 +6,8 @@
 	xmlns:bf="BaseFramework"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+	xmlns:ex="clr-namespace:YB.E621.Extensions"
+	xmlns:hc="https://handyorg.github.io/handycontrol"
 	xmlns:local="clr-namespace:YB.E621.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:p="clr-namespace:YB.E621.Parameters"
@@ -14,25 +16,26 @@
 	xmlns:wpf="RW.Common.WPF"
 	d:DataContext="{d:DesignInstance Type=local:E621MainWindowViewModel}"
 	d:Title="E621 Window"
-	DataContext="{b:DISource Type=local:E621MainWindowViewModel}"
 	Width="1270"
 	Height="800"
 	WindowStartupLocation="CenterScreen"
 	mc:Ignorable="d">
 
 	<Control.Resources>
-		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml"/>
-			</ResourceDictionary.MergedDictionaries>
 
-			<wpf:CommandProxy x:Key="CloseTabCommand" Command="{Binding CloseTabCommand}"/>
+		<Style x:Key="ButtonDynamicStyle" TargetType="Button" BasedOn="{StaticResource ButtonDefault}">
+			<Style.Triggers>
+				<Trigger Property="IsEnabled" Value="False">
+					<Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+					<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+				</Trigger>
+			</Style.Triggers>
+		</Style>
 
-			<wpf:BindingProxy x:Key="ViewModel" Data="{Binding}"/>
+		<wpf:CommandProxy x:Key="CloseTabCommand" Command="{Binding CloseTabCommand}"/>
 
-			<!--<p:ViewParameter x:Key="ViewParameter" ModuleType="{Binding ModuleType}"/>-->
+		<wpf:BindingProxy x:Key="ViewModel" Data="{Binding}"/>
 
-		</ResourceDictionary>
 	</Control.Resources>
 
 	<dxmvvm:Interaction.Behaviors>
@@ -45,15 +48,15 @@
 	</dxmvvm:Interaction.Behaviors>
 
 	<Window.Style>
-		<Style TargetType="Window">
+		<Style TargetType="hc:Window" BasedOn="{StaticResource WindowWin10}">
 			<Style.Triggers>
-				<DataTrigger Binding="{Binding ModuleType}" Value="{x:Static bf:ModuleType.E621}">
+				<DataTrigger Binding="{Binding ViewParameter.ModuleType}" Value="{x:Static bf:ModuleType.E621}">
 					<Setter Property="Icon" Value="/BaseFramework;component/Resources/Icons/E621Icon.ico"/>
 				</DataTrigger>
-				<DataTrigger Binding="{Binding ModuleType}" Value="{x:Static bf:ModuleType.E6AI}">
+				<DataTrigger Binding="{Binding ViewParameter.ModuleType}" Value="{x:Static bf:ModuleType.E6AI}">
 					<Setter Property="Icon" Value="/BaseFramework;component/Resources/Icons/E6AI.ico"/>
 				</DataTrigger>
-				<DataTrigger Binding="{Binding ModuleType}" Value="{x:Static bf:ModuleType.E926}">
+				<DataTrigger Binding="{Binding ViewParameter.ModuleType}" Value="{x:Static bf:ModuleType.E926}">
 					<Setter Property="Icon" Value="/BaseFramework;component/Resources/Icons/E621Icon.ico"/>
 				</DataTrigger>
 			</Style.Triggers>
@@ -63,7 +66,7 @@
 	<Grid>
 
 		<DockPanel>
-			<Border Padding="4" Background="#bfbfbf" DockPanel.Dock="Left">
+			<Border Padding="4" Background="{DynamicResource RegionBrush}" DockPanel.Dock="Left">
 				<Grid>
 
 					<Grid.RowDefinitions>
@@ -72,21 +75,21 @@
 					</Grid.RowDefinitions>
 
 					<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
-
 						<Button x:Name="SiteButton"
-							Style="{StaticResource CustomButtonStyle2}"
+							Style="{StaticResource ButtonDefault}"
 							Width="32"
 							Height="32"
 							Padding="0"
 							ToolTip="Click to switch site">
 							<Button.Background>
-								<ImageBrush d:ImageSource="/BaseFramework;component/Resources/Icons/E621.png" ImageSource="{Binding ModuleType, Converter={StaticResource ModuleTypeIconConverter}}"/>
+								<ImageBrush d:ImageSource="/BaseFramework;component/Resources/Icons/E621.png" ImageSource="{Binding ViewParameter.ModuleType, Converter={StaticResource ModuleTypeIconConverter}}"/>
 							</Button.Background>
 						</Button>
 
 						<Border Style="{StaticResource VerticalSeparator}"/>
 
 						<Button x:Name="SearchButton"
+							Style="{DynamicResource Button.Custom.Icon}"
 							Width="32"
 							Height="32"
 							ToolTip="Search">
@@ -98,6 +101,7 @@
 					<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}" Grid.Row="1">
 
 						<Button x:Name="UserButton"
+							Style="{DynamicResource Button.Custom.Icon}"
 							Width="32"
 							Height="32"
 							ToolTip="User">
@@ -117,17 +121,19 @@
 									</wpf:FontIcon.Style>
 								</wpf:FontIcon>
 								<Border Visibility="{Binding UserService.IsUserLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
-									<ProgressBar
+									<!--<ProgressBar
 										Width="20"
 										Height="8"
 										BorderThickness="0"
 										Background="White"
-										IsIndeterminate="True"/>
+										IsIndeterminate="True"/>-->
+									<hc:CircleProgressBar Width="20" Height="20" IsIndeterminate="True"/>
 								</Border>
 							</Grid>
 						</Button>
 
 						<Button
+							Style="{DynamicResource Button.Custom.Icon}"
 							Width="32"
 							Height="32"
 							Command="{Binding ShowAppSettingsDialogCommand}"
@@ -136,6 +142,7 @@
 						</Button>
 
 						<Button
+							Style="{DynamicResource Button.Custom.Icon}"
 							Width="32"
 							Height="32"
 							Command="{Binding ShowAppSettingsDialogCommand}"
@@ -209,7 +216,7 @@
 										</DockPanel>
 
 										<wpf:ButtonPopup SourceButton="{Binding ElementName=CloseTabButton}">
-											<Border Style="{StaticResource ButtonPopupBorder}">
+											<Border Style="{DynamicResource ButtonPopupBorder}">
 												<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
 													<TextBlock Text="Sure to close this tab?"/>
 													<Button Padding="4,2" Command="{StaticResource CloseTabCommand}" CommandParameter="{Binding}">
@@ -256,7 +263,11 @@
 			</Border>
 		</DockPanel>
 
-		<wpf:ButtonPopup HorizontalOffset="6" Placement="Right" SourceButton="{Binding ElementName=UserButton}">
+		<wpf:ButtonPopup
+			HorizontalOffset="6"
+			Placement="Right"
+			SourceButton="{Binding ElementName=UserButton}"
+			StaysOpen="False">
 			<wpf:ButtonPopup.Style>
 				<Style TargetType="wpf:ButtonPopup">
 					<Style.Triggers>
@@ -269,13 +280,13 @@
 					</Style.Triggers>
 				</Style>
 			</wpf:ButtonPopup.Style>
-			<Border Style="{StaticResource ButtonPopupBorder}">
+			<Border Style="{DynamicResource ButtonPopupBorder}">
 				<Grid>
 					<Border Visibility="{Binding IsLoggedIn, Converter={StaticResource Boolean2VisibilityReConverter}}">
-						<subs:UserLogin dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}"/>
+						<subs:UserLogin ex:ViewInitializeExtension.ViewParameter="{Binding Source={StaticResource ViewModel}, Path=Data.ViewParameter}"/>
 					</Border>
 					<Border Visibility="{Binding IsLoggedIn, Converter={StaticResource Boolean2VisibilityConverter}}">
-						<subs:UserView dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}"/>
+						<subs:UserView ex:ViewInitializeExtension.ViewParameter="{Binding Source={StaticResource ViewModel}, Path=Data.ViewParameter}"/>
 					</Border>
 				</Grid>
 			</Border>
@@ -287,26 +298,30 @@
 				<b:TypedUIObjectService Name="SearchPopupService"/>
 			</dxmvvm:Interaction.Behaviors>
 
-			<Border Style="{StaticResource ButtonPopupBorder}" MinWidth="300">
-				<subs:SearchView dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}"/>
+			<Border Style="{DynamicResource ButtonPopupBorder}" MinWidth="300">
+				<subs:SearchView ex:ViewInitializeExtension.ViewParameter="{Binding Source={StaticResource ViewModel}, Path=Data.ViewParameter}"/>
 			</Border>
 		</wpf:ButtonPopup>
 
-		<wpf:ButtonPopup x:Name="SitePopup" SourceButton="{Binding ElementName=SiteButton}">
+		<wpf:ButtonPopup x:Name="SitePopup"
+			HorizontalOffset="8"
+			Placement="Right"
+			SourceButton="{Binding ElementName=SiteButton}">
 			<dxmvvm:Interaction.Behaviors>
 				<b:TypedUIObjectService Name="SitePopupService"/>
 			</dxmvvm:Interaction.Behaviors>
 
-			<Border Style="{StaticResource ButtonPopupBorder}">
+			<Border Style="{DynamicResource ButtonPopupBorder}">
 				<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
 
 					<Button
-						Style="{StaticResource CustomButtonStyle3}"
+						Style="{StaticResource ButtonDynamicStyle}"
 						Width="90"
+						Height="40"
 						Padding="4"
 						HorizontalContentAlignment="Left"
 						Command="{Binding ShowE621Command}"
-						IsEnabled="{Binding ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static bf:ModuleType.E621}}">
+						IsEnabled="{Binding ViewParameter.ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static bf:ModuleType.E621}}">
 						<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel3}">
 							<Border Width="32" Height="32" CornerRadius="4">
 								<Border.Background>
@@ -322,12 +337,13 @@
 					</Button>
 
 					<Button
-						Style="{StaticResource CustomButtonStyle3}"
+						Style="{StaticResource ButtonDynamicStyle}"
 						Width="90"
+						Height="40"
 						Padding="4"
 						HorizontalContentAlignment="Left"
 						Command="{Binding ShowE926Command}"
-						IsEnabled="{Binding ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static bf:ModuleType.E926}}">
+						IsEnabled="{Binding ViewParameter.ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static bf:ModuleType.E926}}">
 						<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel3}">
 							<Border Width="32" Height="32" CornerRadius="4">
 								<Border.Background>
@@ -339,12 +355,13 @@
 					</Button>
 
 					<Button
-						Style="{StaticResource CustomButtonStyle3}"
+						Style="{StaticResource ButtonDynamicStyle}"
 						Width="90"
+						Height="40"
 						Padding="4"
 						HorizontalContentAlignment="Left"
 						Command="{Binding ShowE6AICommand}"
-						IsEnabled="{Binding ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static bf:ModuleType.E6AI}}">
+						IsEnabled="{Binding ViewParameter.ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static bf:ModuleType.E6AI}}">
 						<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel3}">
 							<Border Width="32" Height="32" CornerRadius="4">
 								<Border.Background>

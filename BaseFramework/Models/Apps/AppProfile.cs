@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 
 namespace BaseFramework.Models.Apps;
 
+// todo
 [JsonObject]
 public class AppProfile {
     private static AppProfile? instance;

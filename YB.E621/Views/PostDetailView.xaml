@@ -19,12 +19,7 @@
 	mc:Ignorable="d">
 
 	<Control.Resources>
-		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml"/>
-			</ResourceDictionary.MergedDictionaries>
 
-		</ResourceDictionary>
 	</Control.Resources>
 
 	<dxmvvm:Interaction.Behaviors>

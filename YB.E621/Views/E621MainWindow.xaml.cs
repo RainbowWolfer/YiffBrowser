@@ -1,10 +1,9 @@
 ﻿using BaseFramework;
-using BaseFramework.Enums;
 using BaseFramework.Interfaces;
 using BaseFramework.ViewModelServices;
 using BaseFramework.Views;
 using DevExpress.Mvvm;
-using DevExpress.Mvvm.UI;
+using RW.Base.WPF.Extensions;
 using RW.Base.WPF.Interfaces;
 using RW.Base.WPF.ViewModelServices;
 using RW.Common.WPF.Controls;
@@ -13,6 +12,7 @@ using System.Diagnostics;
 using System.Windows.Input;
 using System.Windows.Threading;
 using YB.E621.Models.E621;
+using YB.E621.Parameters;
 using YB.E621.Services;
 using YB.E621.ViewModels;
 using YB.E621.Views.Subs;
@@ -21,10 +21,12 @@ namespace YB.E621.Views;
 
 public partial class E621MainWindow : WindowBase, IMainWindow {
 
-	public E621MainWindow(ModuleType e621, ModuleNavigationActions moduleNavigationActions) {
+	public E621MainWindow(ViewParameter viewParameter) {
 		InitializeComponent();
 
-		ViewModelExtensions.SetParameter(this, new E621MainWindowParameter(e621, moduleNavigationActions));
+		E621MainWindowViewModel viewModel = IoC.Resolve<E621MainWindowViewModel>()!;
+		viewModel.Initialize(viewParameter);
+		DataContext = viewModel;
 
 		//MeidaElement.LoadedBehavior = MediaState.Play;
 		//MeidaElement.Clock.
@@ -103,11 +105,6 @@ public partial class E621MainWindow : WindowBase, IMainWindow {
 
 }
 
-public record class E621MainWindowParameter(
-	ModuleType ModuleType,
-	ModuleNavigationActions ModuleNavigationActions
-);
-
 public class E621MainWindowViewModel(IAppManager appManager) : ViewModelBase {
 
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
@@ -120,12 +117,7 @@ public class E621MainWindowViewModel(IAppManager appManager) : ViewModelBase {
 
 	public IAppManager AppManager { get; } = appManager;
 
-	public ModuleNavigationActions? ModuleNavigationActions { get; set; }
-
-	public ModuleType ModuleType {
-		get => GetProperty(() => ModuleType);
-		private set => SetProperty(() => ModuleType, value);
-	}
+	public ViewParameter? ViewParameter { get; private set; }
 
 	public ObservableCollection<PostTabItem> Tabs { get; } = [];
 
@@ -144,17 +136,10 @@ public class E621MainWindowViewModel(IAppManager appManager) : ViewModelBase {
 		set => SetProperty(() => IsLoggedIn, value);
 	}
 
-	protected override void OnParameterChanged(object parameter) {
-		base.OnParameterChanged(parameter);
+	public void Initialize(ViewParameter parameter) {
+		ViewParameter = parameter;
 
-		E621MainWindowParameter _parameter = (E621MainWindowParameter)parameter;
-
-		ModuleType = _parameter.ModuleType;
-		ModuleNavigationActions = _parameter.ModuleNavigationActions;
-
-		CurrentWindowService.GetWindow().Title = $"{AppConfig.DisplayAppName} - {ModuleType}";
-
-		UserService = E621UserService.GetUserService(ModuleType);
+		UserService = E621UserService.GetUserService(parameter.ModuleType);
 		UserService.LoginChanged += UserService_LoginChanged;
 
 		//Tabs.Add(new PostTabItem(ModuleType, ["order:rank"]));
@@ -165,11 +150,20 @@ public class E621MainWindowViewModel(IAppManager appManager) : ViewModelBase {
 		//Tabs.Add(new PostTabItem(ModuleType, ["type:gif"]));
 		//Tabs.Add(new PostTabItem(ModuleType, ["type:webm"]));
 		TabSelectedIndex = 0;
-
-		Initialize();
 	}
 
-	private async void Initialize() {
+
+	private DelegateCommand? loadedCommand;
+	public IDelegateCommand LoadedCommand => loadedCommand ??= new(Loaded);
+	private void Loaded() {
+		if (ViewParameter != null) {
+			CurrentWindowService.GetWindow().Title = $"{AppConfig.DisplayAppName} - {ViewParameter.ModuleType}";
+		}
+		DispatcherService.Dispatcher.Invoke(Initialize, DispatcherPriority.Loaded);
+	}
+
+
+	private async Task Initialize() {
 		try {
 			if (UserService != null) {
 				await UserService.Initialize();
@@ -202,23 +196,21 @@ public class E621MainWindowViewModel(IAppManager appManager) : ViewModelBase {
 	//	TabSelectedIndex = 0;
 	//}
 
-
-	private DelegateCommand? loadedCommand;
-	public IDelegateCommand LoadedCommand => loadedCommand ??= new(Loaded);
-	private async void Loaded() {
-
-	}
-
 	private void SearchViewModel_SearchSubmit(SearchViewModel sender, string[] args) {
 		SearchPopupService.Object.Hide();
 
-		PostTabItem item = new(ModuleType, args);
-		Tabs.Add(item);
-		TabSelectedIndex = Tabs.Count - 1;
+		if (ViewParameter != null) {
 
-		DispatcherService.Dispatcher.BeginInvoke(() => {
-			CurrentWindowService.GetWindow().Focus();
-		}, DispatcherPriority.Loaded);
+			PostTabItem item = new(ViewParameter.ModuleType, args);
+			Tabs.Add(item);
+			TabSelectedIndex = Tabs.Count - 1;
+
+			DispatcherService.Dispatcher.BeginInvoke(() => {
+				CurrentWindowService.GetWindow().Focus();
+			}, DispatcherPriority.Loaded);
+
+		}
+
 	}
 
 	private void UserService_LoginChanged(E621User? sender, E621Post? args) {
@@ -232,17 +224,17 @@ public class E621MainWindowViewModel(IAppManager appManager) : ViewModelBase {
 
 	public ICommand ShowE621Command => new DelegateCommand(() => {
 		SitePopupService.Object.Hide();
-		ModuleNavigationActions?.ShowE621?.Invoke();
+		ViewParameter?.ModuleNavigationActions?.ShowE621?.Invoke();
 	});
 
 	public ICommand ShowE6AICommand => new DelegateCommand(() => {
 		SitePopupService.Object.Hide();
-		ModuleNavigationActions?.ShowE6AI?.Invoke();
+		ViewParameter?.ModuleNavigationActions?.ShowE6AI?.Invoke();
 	});
 
 	public ICommand ShowE926Command => new DelegateCommand(() => {
 		SitePopupService.Object.Hide();
-		ModuleNavigationActions?.ShowE926?.Invoke();
+		ViewParameter?.ModuleNavigationActions?.ShowE926?.Invoke();
 	});
 
 
@@ -255,7 +247,6 @@ public class E621MainWindowViewModel(IAppManager appManager) : ViewModelBase {
 		}
 	}
 	private bool CanShowAppSettingsDialog() => true;
-
 
 }
 

@@ -3,6 +3,7 @@ using RW.Common.Helpers;
 using System.Windows;
 using System.Windows.Controls;
 using YB.E621.Services;
+using YB.E621.ViewModels;
 
 namespace YB.E621.Views.Subs;
 
@@ -12,15 +13,21 @@ public partial class UserLogin : UserControl {
 	}
 }
 
-public class UserLoginViewModel() : ViewModelBase {
+internal class UserLoginViewModel() : E621ViewModelBase {
 	public string Username {
 		get => GetProperty(() => Username);
-		set => SetProperty(() => Username, value);
+		set {
+			SetProperty(() => Username, value);
+			LoginCommand.RaiseCanExecuteChanged();
+		}
 	}
 
 	public string ApiKey {
 		get => GetProperty(() => ApiKey);
-		set => SetProperty(() => ApiKey, value);
+		set {
+			SetProperty(() => ApiKey, value);
+			LoginCommand.RaiseCanExecuteChanged();
+		}
 	}
 
 	public E621UserService UserService {
@@ -28,18 +35,14 @@ public class UserLoginViewModel() : ViewModelBase {
 		private set => SetProperty(() => UserService, value);
 	}
 
-	protected override void OnParentViewModelChanged(object parentViewModel) {
-		base.OnParentViewModelChanged(parentViewModel);
-		E621MainWindowViewModel mainViewModel = (E621MainWindowViewModel)parentViewModel;
-		UserService = E621UserService.GetUserService(mainViewModel.ModuleType);
+	protected override void OnInitialize() {
+		UserService = E621UserService.GetUserService(ViewParameter.ModuleType);
 
 		(string? username, string? apiKey) = UserService.GetUser();
 
 		Username = username ?? string.Empty;
 		ApiKey = apiKey ?? string.Empty;
 	}
-
-
 
 	private AsyncCommand? loginCommand;
 	public IDelegateCommand LoginCommand => loginCommand ??= new(Login, CanLogin);

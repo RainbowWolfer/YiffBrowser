@@ -33,6 +33,7 @@
 		<Setter Property="TextAlignment" Value="Center"/>
 		<Setter Property="HorizontalAlignment" Value="Center"/>
 		<Setter Property="VerticalAlignment" Value="Center"/>
+		<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 	</Style>
 
 	<Style TargetType="wpf:FontIcon" BasedOn="{StaticResource FontIconBase}"/>
@@ -1281,6 +1282,8 @@
 
 	<Style x:Key="HorizontalIconTextBaseStyle" TargetType="c:HorizontalIconText">
 		<Setter Property="Focusable" Value="False"/>
+		<Setter Property="IconForeground" Value="{DynamicResource PrimaryTextBrush}"/>
+		<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="c:HorizontalIconText">
@@ -1315,8 +1318,8 @@
 	<Style x:Key="ButtonPopupBorder" TargetType="Border">
 		<Setter Property="Focusable" Value="False"/>
 		<Setter Property="BorderThickness" Value="2"/>
-		<Setter Property="BorderBrush" Value="LightGray"/>
-		<Setter Property="Background" Value="#F5F5F5"/>
+		<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+		<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
 		<Setter Property="Padding" Value="4"/>
 		<Setter Property="Margin" Value="10"/>
 		<Setter Property="CornerRadius" Value="4"/>
@@ -1578,7 +1581,14 @@
 	</Style>
 
 
+	<!--#region Styles-->
 
+
+	<Style x:Key="Button.Custom.Icon" TargetType="Button" BasedOn="{StaticResource ButtonDefault}">
+		<Setter Property="Padding" Value="0"/>
+	</Style>
+
+	<!--#endregion-->
 
 
 

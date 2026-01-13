@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using YB.E621.Models.E621;
 using YB.E621.Services;
+using YB.E621.ViewModels;
 
 namespace YB.E621.Views.Subs;
 
@@ -12,7 +13,7 @@ public partial class UserView : UserControl {
 	}
 }
 
-public class UserViewModel : ViewModelBase {
+internal class UserViewModel : E621ViewModelBase {
 
 	public E621User? User {
 		get => GetProperty(() => User);
@@ -29,11 +30,8 @@ public class UserViewModel : ViewModelBase {
 		private set => SetProperty(() => UserService, value);
 	}
 
-	protected override void OnParentViewModelChanged(object parentViewModel) {
-		base.OnParentViewModelChanged(parentViewModel);
-		E621MainWindowViewModel mainViewModel = (E621MainWindowViewModel)parentViewModel;
-
-		UserService = E621UserService.GetUserService(mainViewModel.ModuleType);
+	protected override void OnInitialize() {
+		UserService = E621UserService.GetUserService(ViewParameter.ModuleType);
 		UserService.LoginChanged += UserService_LoginChanged;
 	}
 

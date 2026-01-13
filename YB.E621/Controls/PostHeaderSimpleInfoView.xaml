@@ -13,27 +13,22 @@
 	mc:Ignorable="d">
 
 	<Control.Resources>
-		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml"/>
-			</ResourceDictionary.MergedDictionaries>
 
-			<Style x:Key="IDFlyoutInfoBorderStyle" TargetType="Border">
-				<Setter Property="Margin" Value="0,0,0,4"/>
-				<Setter Property="Background" Value="White"/>
-				<Setter Property="Padding" Value="10,5"/>
-				<Setter Property="CornerRadius" Value="5"/>
-			</Style>
+		<Style x:Key="IDFlyoutInfoBorderStyle" TargetType="Border">
+			<Setter Property="Margin" Value="0,0,0,4"/>
+			<Setter Property="Background" Value="White"/>
+			<Setter Property="Padding" Value="10,5"/>
+			<Setter Property="CornerRadius" Value="5"/>
+		</Style>
 
-			<Style x:Key="IDFlyoutInfoTextStyle" TargetType="TextBlock">
-				<Setter Property="Margin" Value="10,0,0,5"/>
-				<Setter Property="VerticalAlignment" Value="Center"/>
-				<Setter Property="Grid.Column" Value="1"/>
-				<Setter Property="FontWeight" Value="SemiBold"/>
-			</Style>
+		<Style x:Key="IDFlyoutInfoTextStyle" TargetType="TextBlock">
+			<Setter Property="Margin" Value="10,0,0,5"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="Grid.Column" Value="1"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+		</Style>
 
 
-		</ResourceDictionary>
 	</Control.Resources>
 
 	<Grid>

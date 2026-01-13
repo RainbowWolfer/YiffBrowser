@@ -13,7 +13,7 @@
 	mc:Ignorable="d">
 
 	<ResourceDictionary.MergedDictionaries>
-		<ResourceDictionary Source="pack://application:,,,/BaseFramework;component/Resources/Generic.xaml"/>
+		<ResourceDictionary Source="pack://application:,,,/BaseFramework;component/Resources/Theme.xaml"/>
 	</ResourceDictionary.MergedDictionaries>
 
 	<con:TagsDisplayConverter x:Key="TagsDisplayConverter"/>

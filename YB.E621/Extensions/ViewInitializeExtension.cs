@@ -1,5 +1,5 @@
-﻿using BaseFramework.Enums;
-using System.Windows;
+﻿using System.Windows;
+using YB.E621.Parameters;
 using YB.E621.ViewModels;
 
 namespace YB.E621.Extensions;
@@ -7,21 +7,21 @@ namespace YB.E621.Extensions;
 public static class ViewInitializeExtension {
 
 
-	public static ModuleType? GetModuleType(DependencyObject obj) => (ModuleType?)obj.GetValue(ModuleTypeProperty);
+	public static ViewParameter GetViewParameter(DependencyObject obj) => (ViewParameter)obj.GetValue(ViewParameterProperty);
 
-	public static void SetModuleType(DependencyObject obj, ModuleType? value) => obj.SetValue(ModuleTypeProperty, value);
+	public static void SetViewParameter(DependencyObject obj, ViewParameter value) => obj.SetValue(ViewParameterProperty, value);
 
-	public static readonly DependencyProperty ModuleTypeProperty = DependencyProperty.RegisterAttached(
-		"ModuleType",
-		typeof(ModuleType?),
+	public static readonly DependencyProperty ViewParameterProperty = DependencyProperty.RegisterAttached(
+		"ViewParameter",
+		typeof(ViewParameter),
 		typeof(ViewInitializeExtension),
-		new PropertyMetadata(null, OnModuleTypeChanged)
+		new PropertyMetadata(null, OnViewParameterChanged)
 	);
 
-	private static void OnModuleTypeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-		if (e.NewValue is ModuleType moduleType) {
+	private static void OnViewParameterChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		if (e.NewValue is ViewParameter viewParameter) {
 			if (d is FrameworkElement fe && fe.DataContext is E621ViewModelBase viewModelBase) {
-				viewModelBase.Initialize(moduleType);
+				viewModelBase.Initialize(viewParameter);
 			}
 		}
 	}

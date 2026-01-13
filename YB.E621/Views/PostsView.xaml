@@ -21,16 +21,11 @@
 	mc:Ignorable="d">
 
 	<Control.Resources>
-		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml"/>
-			</ResourceDictionary.MergedDictionaries>
 
-			<wpf:BindingProxy x:Key="ViewModel" Data="{Binding}"/>
+		<wpf:BindingProxy x:Key="ViewModel" Data="{Binding}"/>
 
-			<wpf:CommandProxy x:Key="ViewPostDetailCommand" Command="{Binding ViewPostDetailCommand}"/>
+		<wpf:CommandProxy x:Key="ViewPostDetailCommand" Command="{Binding ViewPostDetailCommand}"/>
 
-		</ResourceDictionary>
 	</Control.Resources>
 
 	<dxmvvm:Interaction.Behaviors>
@@ -204,7 +199,7 @@
 					</Border>
 
 					<Border d:Visibility="Collapsed" Visibility="{Binding CurrentHasPost, Converter={StaticResource Boolean2VisibilityConverter}}">
-						<local:PostDetailView dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}" ex:ViewInitializeExtension.ModuleType="{Binding Source={StaticResource ViewModel}, Path=Data.ModuleType}"/>
+						<!--<local:PostDetailView dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}" ex:ViewInitializeExtension.ModuleType="{Binding Source={StaticResource ViewModel}, Path=Data.ModuleType}"/>-->
 						<!--<ContentControl Content="{Binding PostDetailViewModel.View}"/>-->
 					</Border>
 

@@ -15,14 +15,9 @@
 	mc:Ignorable="d">
 
 	<Control.Resources>
-		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml"/>
-			</ResourceDictionary.MergedDictionaries>
 
-			<wpf:CommandProxy x:Key="CloseTabCommand" Command="{Binding CloseTabCommand}"/>
+		<wpf:CommandProxy x:Key="CloseTabCommand" Command="{Binding CloseTabCommand}"/>
 
-		</ResourceDictionary>
 	</Control.Resources>
 
 	<Grid>

@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using YB.E621.Models.E621;
 using YB.E621.Services;
+using YB.E621.ViewModels;
 
 namespace YB.E621.Views.Subs;
 
@@ -20,7 +21,7 @@ public partial class SearchView : UserControl {
 	}
 }
 
-public class SearchViewModel() : ViewModelBase {
+internal class SearchViewModel() : E621ViewModelBase {
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
 
 	public IUIObjectService<ListBox> MainListBoxService => GetService<ITypedUIObjectService>(nameof(MainListBoxService)).As<ListBox>();
@@ -77,13 +78,9 @@ public class SearchViewModel() : ViewModelBase {
 
 	public E621API? Api { get; private set; }
 
-	protected override void OnParentViewModelChanged(object parentViewModel) {
-		base.OnParentViewModelChanged(parentViewModel);
-
-		E621MainWindowViewModel mainViewModel = (E621MainWindowViewModel)parentViewModel;
-		Api = E621API.GetAPI(mainViewModel.ModuleType);
+	protected override void OnInitialize() {
+		Api = E621API.GetAPI(ViewParameter.ModuleType);
 	}
-
 
 	private DelegateCommand? loadedCommand;
 	public IDelegateCommand LoadedCommand => loadedCommand ??= new(Loaded);
@@ -359,6 +356,7 @@ public class SearchViewModel() : ViewModelBase {
 		}
 		return array;
 	}
+
 }
 
 public class SearchTagItem : BindableBase {

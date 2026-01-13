@@ -18,13 +18,8 @@
 	mc:Ignorable="d">
 
 	<Control.Resources>
-		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml"/>
-			</ResourceDictionary.MergedDictionaries>
 
-			<wpf:CommandProxy x:Key="HandleItemCommand" Command="{Binding HandleItemCommand}"/>
-		</ResourceDictionary>
+		<wpf:CommandProxy x:Key="HandleItemCommand" Command="{Binding HandleItemCommand}"/>
 	</Control.Resources>
 
 	<dxmvvm:Interaction.Behaviors>

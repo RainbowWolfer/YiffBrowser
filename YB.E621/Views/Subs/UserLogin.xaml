@@ -14,12 +14,12 @@
 	d:Background="White"
 	d:DataContext="{d:DesignInstance Type=local:UserLoginViewModel}"
 	DataContext="{b:DISource Type=local:UserLoginViewModel}"
-	Width="200"
+	Width="240"
 	Height="auto"
 	mc:Ignorable="d">
 
 	<Control.Resources>
-		<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Generic.xaml"/>
+
 	</Control.Resources>
 
 	<dxmvvm:Interaction.Behaviors>
@@ -37,20 +37,19 @@
 		<TextBox Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}"/>
 
 		<Grid Margin="0,4,0,0">
-			<Button Command="{Binding LoginCommand}" Visibility="{Binding UserService.IsUserLoading, Converter={StaticResource Boolean2VisibilityReConverter}}">
+
+			<Button
+				Style="{StaticResource ButtonPrimary}"
+				HorizontalAlignment="Stretch"
+				Command="{Binding LoginCommand}"
+				Visibility="{Binding UserService.IsUserLoading, Converter={StaticResource Boolean2VisibilityReConverter}}">
 				<TextBlock Text="Login"/>
 			</Button>
 
-			<Border
-				Height="20"
-				Padding="6"
-				BorderThickness="1"
-				BorderBrush="Gray"
-				Background="White"
-				CornerRadius="4"
-				Visibility="{Binding UserService.IsUserLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
-				<ProgressBar BorderThickness="0" IsIndeterminate="True"/>
+			<Border Visibility="{Binding UserService.IsUserLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
+				<ProgressBar IsIndeterminate="True"/>
 			</Border>
+
 		</Grid>
 
 	</wpf:SpacingStackPanel>

@@ -15,6 +15,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Windows;
+using YB.E621.Parameters;
 using YB.E621.Views;
 using YiffBrowser.Services;
 
@@ -82,9 +83,20 @@ public partial class App : ApplicationBase {
 		try {
 			ModuleNavigationActions moduleNavigationActions = new(ShowE621, ShowE6AI, ShowE926);
 
-			Window_E621 = new E621MainWindow(ModuleType.E621, moduleNavigationActions);
-			Window_E926 = new E621MainWindow(ModuleType.E926, moduleNavigationActions);
-			Window_E6AI = new E621MainWindow(ModuleType.E6AI, moduleNavigationActions);
+			Window_E621 = new E621MainWindow(new ViewParameter() {
+				ModuleType = ModuleType.E621,
+				ModuleNavigationActions = moduleNavigationActions,
+			});
+
+			Window_E926 = new E621MainWindow(new ViewParameter() {
+				ModuleType = ModuleType.E926,
+				ModuleNavigationActions = moduleNavigationActions,
+			});
+
+			Window_E6AI = new E621MainWindow(new ViewParameter() {
+				ModuleType = ModuleType.E6AI,
+				ModuleNavigationActions = moduleNavigationActions,
+			});
 
 			MainWindows = [Window_E621, Window_E926, Window_E6AI];
 			foreach (Window window in MainWindows) {
@@ -103,6 +115,7 @@ public partial class App : ApplicationBase {
 		base.Loaded();
 
 		ShowE6AI();
+		//new Window1().Show();
 
 		startupStopWatch.Stop();
 		Debug.WriteLine($"app started in {startupStopWatch.ElapsedMilliseconds} ms");
