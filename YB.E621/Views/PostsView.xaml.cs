@@ -1,5 +1,6 @@
 ﻿using BaseFramework.Enums;
 using DevExpress.Mvvm;
+using RW.Base.WPF.Extensions;
 using RW.Common;
 using RW.Common.Helpers;
 using System.Collections.ObjectModel;
@@ -15,8 +16,12 @@ using YB.E621.ViewModels;
 namespace YB.E621.Views;
 
 public partial class PostsView : UserControl {
-	public PostsView() {
+	public PostsView(PostTabItem postTabItem) {
 		InitializeComponent();
+
+		PostsViewModel viewModel = IoC.Resolve<PostsViewModel>()!;
+		viewModel.Initialize(postTabItem);
+		DataContext = viewModel;
 	}
 
 	private void ListBoxItem_RequestBringIntoView(object sender, RequestBringIntoViewEventArgs e) {
@@ -28,7 +33,7 @@ public partial class PostsView : UserControl {
 	}
 }
 
-internal class PostsViewModel : ViewModelBase {
+internal class PostsViewModel() : ViewModelBase {
 	public const double ItemWidth = 396;
 	public const double ItemHeight = 50;
 
@@ -95,23 +100,15 @@ internal class PostsViewModel : ViewModelBase {
 		SelectedItems.CollectionChanged += SelectedItems_CollectionChanged;
 	}
 
-	protected override void OnParentViewModelChanged(object parentViewModel) {
-		base.OnParentViewModelChanged(parentViewModel);
 
-	}
+	public void Initialize(PostTabItem postTabItem) {
+		TabItem = postTabItem;
 
-	protected override void OnParameterChanged(object parameter) {
-		base.OnParameterChanged(parameter);
-		if (parameter is PostTabItem tabItem) {
+		ModuleType = postTabItem.ViewParameter.ModuleType;
 
-			TabItem = tabItem;
+		CurrentPage = 1;
 
-			ModuleType = tabItem.SiteType;
-
-			CurrentPage = 1;
-
-			Refresh();
-		}
+		Refresh();
 	}
 
 	private void SelectedItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {

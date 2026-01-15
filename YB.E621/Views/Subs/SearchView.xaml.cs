@@ -78,8 +78,15 @@ internal class SearchViewModel() : E621ViewModelBase {
 
 	public E621API? Api { get; private set; }
 
+	private E621MainWindowViewModel? parentViewModel;
+
 	protected override void OnInitialize() {
 		Api = E621API.GetAPI(ViewParameter.ModuleType);
+	}
+
+	protected override void OnParentViewModelChanged(object parentViewModel) {
+		base.OnParentViewModelChanged(parentViewModel);
+		this.parentViewModel = (E621MainWindowViewModel?)parentViewModel;
 	}
 
 	private DelegateCommand? loadedCommand;
@@ -97,7 +104,9 @@ internal class SearchViewModel() : E621ViewModelBase {
 	public ICommand SubmitCommand => new DelegateCommand(Submit);
 
 	private void Submit() {
-		SearchSubmit?.Invoke(this, GetSearchTags());
+		string[] tags = GetSearchTags();
+		SearchSubmit?.Invoke(this, tags);
+		parentViewModel?.SearchSubmit(tags);
 	}
 
 	public ICommand OnSearchTextBoxLoadedCommand => new DelegateCommand(OnSearchTextBoxLoaded);

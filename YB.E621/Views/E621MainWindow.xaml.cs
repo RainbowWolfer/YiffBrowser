@@ -4,7 +4,6 @@ using BaseFramework.ViewModelServices;
 using BaseFramework.Views;
 using DevExpress.Mvvm;
 using HandyControl.Themes;
-using HandyControl.Tools;
 using RW.Base.WPF.Extensions;
 using RW.Base.WPF.Interfaces;
 using RW.Base.WPF.ViewModelServices;
@@ -17,7 +16,6 @@ using YB.E621.Models.E621;
 using YB.E621.Parameters;
 using YB.E621.Services;
 using YB.E621.ViewModels;
-using YB.E621.Views.Subs;
 
 namespace YB.E621.Views;
 
@@ -30,10 +28,7 @@ public partial class E621MainWindow : WindowBase, IMainWindow {
 		viewModel.Initialize(viewParameter);
 		DataContext = viewModel;
 
-		//MeidaElement.LoadedBehavior = MediaState.Play;
-		//MeidaElement.Clock.
-
-		Test();
+		//Test();
 	}
 
 	private async void Test() {
@@ -151,7 +146,15 @@ public class E621MainWindowViewModel(IAppManager appManager) : ViewModelBase {
 		//Tabs.Add(new PostTabItem(ModuleType, ["feet"]));
 		//Tabs.Add(new PostTabItem(ModuleType, ["type:gif"]));
 		//Tabs.Add(new PostTabItem(ModuleType, ["type:webm"]));
+		Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
 		TabSelectedIndex = 0;
+	}
+
+	private PostTabItem CreateTabItem(string[] tags) {
+		PostTabItem item = new(this, tags);
+		return item;
 	}
 
 
@@ -198,12 +201,12 @@ public class E621MainWindowViewModel(IAppManager appManager) : ViewModelBase {
 	//	TabSelectedIndex = 0;
 	//}
 
-	private void SearchViewModel_SearchSubmit(SearchViewModel sender, string[] args) {
+	public void SearchSubmit(string[] tags) {
 		SearchPopupService.Object.Hide();
 
 		if (ViewParameter != null) {
 
-			PostTabItem item = new(ViewParameter.ModuleType, args);
+			PostTabItem item = CreateTabItem(tags);
 			Tabs.Add(item);
 			TabSelectedIndex = Tabs.Count - 1;
 

@@ -21,9 +21,9 @@
 				<ResourceDictionary Source="pack://application:,,,/BaseFramework;component/Resources/Theme.xaml"/>
 				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Theme.xaml"/>
 
-				<!--<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Light.xaml"/>-->
-				<!--<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
-				<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Dark.xaml"/>-->
+				<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
+				<!--<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Dark.xaml"/>-->
+				<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Light.xaml"/>
 
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>

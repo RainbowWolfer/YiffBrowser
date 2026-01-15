@@ -3,6 +3,7 @@ using BaseFramework.ViewModels;
 using BaseFramework.Views;
 using DevExpress.Mvvm.Native;
 using DevExpress.Mvvm.UI;
+using RW.Common.WPF.Extensions;
 using RW.Common.WPF.Helpers;
 using System.Diagnostics;
 using System.Windows;
@@ -18,6 +19,20 @@ public interface IDialogServiceEx {
 public record class DialogResult(bool? DialogResultFlag, DialogCommand? ResultDialogCommand);
 
 public class DialogService : ServiceBase, IDialogServiceEx {
+
+	private static Dictionary<Type, DialogWindowWrapper> windowPool = [];
+
+	public bool SingleInstance {
+		get => (bool)GetValue(SingleInstanceProperty);
+		set => SetValue(SingleInstanceProperty, value);
+	}
+
+	public static readonly DependencyProperty SingleInstanceProperty = DependencyProperty.Register(
+		nameof(SingleInstance),
+		typeof(bool),
+		typeof(DialogService),
+		new PropertyMetadata(false)
+	);
 
 
 
@@ -105,6 +120,13 @@ public class DialogService : ServiceBase, IDialogServiceEx {
 			throw new Exception("DataContext is not IDialogViewModel");
 		}
 
+		if (SingleInstance && !ShowDialogWindow) {
+			if (windowPool.TryGetValue(ContentType, out DialogWindowWrapper? _dialogWindowWrapper)) {
+				_dialogWindowWrapper.Window.ShowAndActivate();
+				return new DialogResult(null, null);
+			}
+		}
+
 		Window window = CreateWindow();
 
 		dialogViewModel.InitializeDialogCommands();
@@ -113,48 +135,75 @@ public class DialogService : ServiceBase, IDialogServiceEx {
 			Window = window,
 			Content = frameworkElement,
 			DialogViewModel = dialogViewModel,
+			ShowDialogWindow = ShowDialogWindow,
 		};
 
-		window.Content = dialogWindowWrapper;
+		windowPool[ContentType] = dialogWindowWrapper;
 
-		if (SetOwner) {
+		window.Closed += (s, e) => {
+			windowPool.Remove(ContentType);
+		};
+
+		try {
+
+			window.Content = dialogWindowWrapper;
+
+			Window? owner;
 			if (parameter is IDialogOwnerSetter dialogOwnerSetter) {
-				window.Owner = dialogOwnerSetter.Owner;
+				owner = dialogOwnerSetter.Owner;
 			} else {
-				window.Owner = Window.GetWindow(AssociatedObject);
+				owner = Window.GetWindow(AssociatedObject);
 			}
-		}
 
-		window.SetBinding(Window.TitleProperty, new Binding(nameof(dialogViewModel.DialogTitle)) { Source = dialogViewModel });
-		window.SetBinding(Window.IconProperty, new Binding(nameof(dialogViewModel.DialogIcon)) { Source = dialogViewModel });
+			if (SetOwner) {
+				window.Owner = owner;
+			} else {
+				if (owner != null && window is WindowBase windowBase) {
+					windowBase.CenterToOwner = owner;
+				}
+			}
 
-		dialogViewModel.DialogWindowParameter.Do(it => {
-			window.ResizeMode = it.ResizeMode;
-			window.SizeToContent = it.SizeToContent;
-			window.WindowStartupLocation = it.WindowStartupLocation;
-			window.ShowInTaskbar = it.ShowInTaskbar;
+			window.SetBinding(Window.TitleProperty, new Binding(nameof(dialogViewModel.DialogTitle)) { Source = dialogViewModel });
+			if (dialogViewModel.CustomDialogIcon) {
+				window.SetBinding(Window.IconProperty, new Binding(nameof(dialogViewModel.DialogIcon)) { Source = dialogViewModel });
+			}
 
-			window.AllowsTransparency = it.AllowsTransparency;
-			window.AllowDrop = it.AllowDrop;
-			window.Topmost = it.TopMost;
-		});
+			dialogViewModel.DialogWindowParameter.Do(it => {
+				if (it.ResizeMode is ResizeMode.NoResize && window is WindowBase windowBase) {
+					window.ResizeMode = ResizeMode.CanMinimize;
+					windowBase.SpecialNoResize = true;
+				} else {
+					window.ResizeMode = it.ResizeMode;
+				}
+				window.WindowStyle = it.WindowStyle;
+				window.SizeToContent = it.SizeToContent;
+				window.WindowStartupLocation = it.WindowStartupLocation;
+				window.ShowInTaskbar = it.ShowInTaskbar;
 
-		if (dialogViewModel.DialogWindowParameter.EscapeToClose) {
-			WindowHotKeyActionsHelper.PopupWindowEscape(window);
-		}
+				window.AllowsTransparency = it.AllowsTransparency;
+				window.AllowDrop = it.AllowDrop;
+				window.Topmost = it.TopMost;
+			});
 
-		ViewModelExtensions.SetParentViewModel(frameworkElement, parentViewModel ?? new object());// to avoid null
-		ViewModelExtensions.SetParameter(frameworkElement, parameter);
+			if (dialogViewModel.DialogWindowParameter.EscapeToClose) {
+				WindowHotKeyActionsHelper.PopupWindowEscape(window);
+			}
 
-		dialogViewModel.OnWindowInitialized(window);
+			ViewModelExtensions.SetParentViewModel(frameworkElement, parentViewModel ?? new object());// to avoid null
+			ViewModelExtensions.SetParameter(frameworkElement, parameter);
 
-		if (ShowDialogWindow) {
-			bool? resultFlag = window.ShowDialog();
-			DialogCommand resultCommand = dialogWindowWrapper.ResultDialogCommand;
-			return new DialogResult(resultFlag, resultCommand);
-		} else {
-			window.Show();
-			return new DialogResult(null, null);
+			dialogViewModel.OnWindowInitialized(window);
+
+			if (ShowDialogWindow) {
+				bool? resultFlag = window.ShowDialog();
+				DialogCommand resultCommand = dialogWindowWrapper.ResultDialogCommand;
+				return new DialogResult(resultFlag, resultCommand);
+			} else {
+				window.Show();
+				return new DialogResult(null, null);
+			}
+		} finally {
+
 		}
 	}
 

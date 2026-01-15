@@ -68,6 +68,21 @@ public class DialogWindowWrapper : ContentControl {
 
 
 
+
+
+	public bool ShowDialogWindow {
+		get => (bool)GetValue(ShowDialogWindowProperty);
+		set => SetValue(ShowDialogWindowProperty, value);
+	}
+
+	public static readonly DependencyProperty ShowDialogWindowProperty = DependencyProperty.Register(
+		nameof(ShowDialogWindow),
+		typeof(bool),
+		typeof(DialogWindowWrapper),
+		new PropertyMetadata(null)
+	);
+
+
 	//public ICommand Command {
 	//	get => (ICommand)GetValue(CommandProperty);
 	//	private set => SetValue(CommandPropertyKey, value);
@@ -104,7 +119,9 @@ public class DialogWindowWrapper : ContentControl {
 			}
 			if (result.CloseWindow) {
 				ResultDialogCommand = command;
-				Window.DialogResult = result.DialogResultFlag;
+				if (ShowDialogWindow) {
+					Window.DialogResult = result.DialogResultFlag;
+				}
 				Window.Close();
 				DialogViewModel.OnWindowClosed();
 			}
@@ -113,4 +130,17 @@ public class DialogWindowWrapper : ContentControl {
 	private bool CanDialogButton(DialogCommand command) => command != null;
 
 
+}
+
+
+public class DialogWindowWrapperButtonTemplateSelector : DataTemplateSelector {
+	public DataTemplate? Default { get; set; }
+	public DataTemplate? Primary { get; set; }
+
+	public override DataTemplate? SelectTemplate(object item, DependencyObject container) {
+		if (item is DialogCommand dialogCommand && dialogCommand.IsPrimary) {
+			return Primary;
+		}
+		return Default;
+	}
 }

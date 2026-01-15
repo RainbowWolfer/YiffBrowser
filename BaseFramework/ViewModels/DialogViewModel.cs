@@ -9,6 +9,7 @@ namespace BaseFramework.ViewModels;
 
 public interface IDialogViewModel {
 	string DialogTitle { get; }
+	bool CustomDialogIcon { get; }
 	ImageSource? DialogIcon { get; }
 
 	DialogWindowParameter DialogWindowParameter { get; }
@@ -52,6 +53,11 @@ public class DialogCommand : BindableBase {
 	public bool IsEnabled {
 		get => GetProperty(() => IsEnabled);
 		set => SetProperty(() => IsEnabled, value);
+	}
+
+	public bool IsPrimary {
+		get => GetProperty(() => IsPrimary);
+		set => SetProperty(() => IsPrimary, value);
 	}
 
 	public DialogCommand() {
@@ -123,6 +129,11 @@ public abstract class DialogViewModel<T> : ViewModelBase, IDialogViewModel {
 	public string DialogTitle {
 		get => GetProperty(() => DialogTitle);
 		set => SetProperty(() => DialogTitle, value);
+	}
+
+	public bool CustomDialogIcon {
+		get => GetProperty(() => CustomDialogIcon);
+		set => SetProperty(() => CustomDialogIcon, value);
 	}
 
 	public ImageSource? DialogIcon {
@@ -249,7 +260,9 @@ public abstract class DialogViewModelOkCancel<T> : DialogViewModel<T> {
 	protected DialogCommand CancelDialogCommand { get; }
 
 	public DialogViewModelOkCancel() {
-		ConfirmDialogCommand = new DialogCommand(MessageBoxResult.OK, "Confirm", ConfirmCommand);
+		ConfirmDialogCommand = new DialogCommand(MessageBoxResult.OK, "Confirm", ConfirmCommand) {
+			IsPrimary = true,
+		};
 		CancelDialogCommand = new DialogCommand(MessageBoxResult.Cancel, "Cancel", CancelCommand);
 	}
 

@@ -5,6 +5,7 @@
 	xmlns:b="RW.Base.WPF"
 	xmlns:bf="BaseFramework"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:dd="urn:gong-wpf-dragdrop"
 	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
 	xmlns:ex="clr-namespace:YB.E621.Extensions"
 	xmlns:hc="https://handyorg.github.io/handycontrol"
@@ -43,7 +44,10 @@
 		<b:LoadedService Command="{Binding LoadedCommand}" OnlyOnce="True"/>
 		<b:CurrentWindowServiceEx/>
 
-		<bf:DialogService x:Name="AppSettingsDialog" ContentType="{x:Type bf:AppSettingsDialog}" ShowDialogWindow="False"/>
+		<bf:DialogService x:Name="AppSettingsDialog"
+			ContentType="{x:Type bf:AppSettingsDialog}"
+			ShowDialogWindow="False"
+			SingleInstance="True"/>
 
 	</dxmvvm:Interaction.Behaviors>
 
@@ -150,14 +154,14 @@
 							<wpf:FontIcon Text="&#xE713;"/>
 						</Button>
 
-						<Button
+						<!--<Button
 							Style="{DynamicResource Button.Custom.Icon}"
 							Width="32"
 							Height="32"
 							Command="{Binding ShowAppSettingsDialogCommand}"
 							ToolTip="About">
 							<wpf:FontIcon Text="&#xE946;"/>
-						</Button>
+						</Button>-->
 
 						<StackPanel>
 							<!-- Text="{Binding Source={x:Static bf:AppConfig.Version}}" -->
@@ -190,12 +194,15 @@
 						<TabControl
 							Padding="0"
 							BorderThickness="0,1,0,0"
+							dd:DragDrop.IsDragSource="True"
+							dd:DragDrop.IsDropTarget="True"
 							SelectedIndex="{Binding TabSelectedIndex, Mode=TwoWay}"
 							ItemsSource="{Binding Tabs}"
 							d:ItemsSource="{d:SampleData ItemCount=15}">
 
+
 							<TabControl.ItemContainerStyle>
-								<Style TargetType="TabItem" BasedOn="{StaticResource CustomTabItemStyle}">
+								<Style TargetType="TabItem" BasedOn="{StaticResource TabItemStyle}">
 									<Setter Property="ContextMenu">
 										<Setter.Value>
 											<ContextMenu>
@@ -242,8 +249,8 @@
 								<DataTemplate>
 									<!--<ContentControl Content="{Binding View}"/>-->
 									<Border x:Name="PART_Border">
-										<local:PostsView dxmvvm:ViewModelExtensions.Parameter="{Binding ElementName=PART_Border, Path=DataContext}" dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}"/>
-										<!--<ContentControl Content="{Binding View}" Focusable="False" IsTabStop="False"/>-->
+										<!--<local:PostsView dxmvvm:ViewModelExtensions.Parameter="{Binding ElementName=PART_Border, Path=DataContext}" dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}"/>-->
+										<ContentControl Content="{Binding View}" Focusable="False" IsTabStop="False"/>
 									</Border>
 								</DataTemplate>
 							</TabControl.ContentTemplate>
@@ -311,7 +318,7 @@
 			</dxmvvm:Interaction.Behaviors>
 
 			<Border Style="{DynamicResource ButtonPopupBorder}" MinWidth="300">
-				<subs:SearchView ex:ViewInitializeExtension.ViewParameter="{Binding Source={StaticResource ViewModel}, Path=Data.ViewParameter}"/>
+				<subs:SearchView dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}" ex:ViewInitializeExtension.ViewParameter="{Binding Source={StaticResource ViewModel}, Path=Data.ViewParameter}"/>
 			</Border>
 		</wpf:ButtonPopup>
 
