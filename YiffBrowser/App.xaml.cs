@@ -83,8 +83,8 @@ public partial class App : ApplicationBase {
 	protected override void BeforeLoadingModules() {
 		base.BeforeLoadingModules();
 
-		//Resources.MergedDictionaries.RemoveAt(Resources.MergedDictionaries.Count - 1);
-		//Resources.MergedDictionaries.RemoveAt(Resources.MergedDictionaries.Count - 1);
+		Resources.MergedDictionaries.RemoveAt(2);
+		Resources.MergedDictionaries.RemoveAt(2);
 	}
 
 	protected override void AfterLoadingModules() {

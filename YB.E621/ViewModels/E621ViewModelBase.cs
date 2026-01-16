@@ -1,5 +1,6 @@
 ﻿using BaseFramework.Enums;
 using DevExpress.Mvvm;
+using System.Windows;
 using YB.E621.Parameters;
 
 namespace YB.E621.ViewModels;

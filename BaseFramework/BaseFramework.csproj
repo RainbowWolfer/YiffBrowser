@@ -6,8 +6,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="gong-wpf-dragdrop" Version="4.0.0" />
-		<PackageReference Include="HandyControl" Version="3.5.1" />
-		<!--<PackageReference Include="HandyControls" Version="3.6.0" />-->
+		<!--<PackageReference Include="HandyControl" Version="3.5.1" />-->
+		<PackageReference Include="HandyControls" Version="3.6.0" />
 	</ItemGroup>
 
 	<ItemGroup>

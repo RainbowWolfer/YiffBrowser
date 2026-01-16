@@ -78,7 +78,7 @@ internal class SearchViewModel() : E621ViewModelBase {
 
 	public E621API? Api { get; private set; }
 
-	private E621MainWindowViewModel? parentViewModel;
+	private E621MainViewModel? parentViewModel;
 
 	protected override void OnInitialize() {
 		Api = E621API.GetAPI(ViewParameter.ModuleType);
@@ -86,7 +86,7 @@ internal class SearchViewModel() : E621ViewModelBase {
 
 	protected override void OnParentViewModelChanged(object parentViewModel) {
 		base.OnParentViewModelChanged(parentViewModel);
-		this.parentViewModel = (E621MainWindowViewModel?)parentViewModel;
+		this.parentViewModel = (E621MainViewModel?)parentViewModel;
 	}
 
 	private DelegateCommand? loadedCommand;

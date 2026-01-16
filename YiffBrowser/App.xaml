@@ -15,14 +15,14 @@
 
 				<!--<ResourceDictionary Source="pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent.xaml"/>-->
 
-				<!--<hc:ThemeResources UsingSystemTheme="True"/>
-				<hc:Theme/>-->
+				<hc:ThemeResources UsingSystemTheme="True"/>
+				<hc:Theme/>
 
 				<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
-				<!--<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Dark.xaml"/>-->
+				<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Dark.xaml"/>
 				<!--<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Light.xaml"/>-->
 
-				<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Basic/Colors/ColorsDark.xaml"/>
+				<!--<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Basic/Colors/ColorsDark.xaml"/>-->
 
 
 

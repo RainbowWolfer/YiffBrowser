@@ -15,7 +15,7 @@ using YB.E621.ViewModels;
 
 namespace YB.E621.Views;
 
-public partial class PostsView : UserControl {
+internal partial class PostsView : UserControl {
 	public PostsView(PostTabItem postTabItem) {
 		InitializeComponent();
 
