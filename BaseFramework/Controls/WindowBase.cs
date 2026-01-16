@@ -2,9 +2,9 @@
 using System.Windows;
 using System.Windows.Interop;
 
-namespace BaseFramework.Views;
+namespace BaseFramework.Controls;
 
-public class WindowBase : HandyControl.Controls.Window {
+public class WindowBase : CustomWindow {
 
 
 	public bool SpecialNoResize {
@@ -44,7 +44,7 @@ public class WindowBase : HandyControl.Controls.Window {
 		base.OnSourceInitialized(e);
 
 		if (SpecialNoResize) {
-			IntPtr hwnd = new WindowInteropHelper(this).Handle;
+			nint hwnd = new WindowInteropHelper(this).Handle;
 			int style = GetWindowLong(hwnd, GWL_STYLE);
 
 			// 去掉最大化和最小化按钮
@@ -74,8 +74,8 @@ public class WindowBase : HandyControl.Controls.Window {
 	private const int WS_THICKFRAME = 0x00040000;
 
 	[DllImport("user32.dll", SetLastError = true)]
-	private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+	private static extern int GetWindowLong(nint hWnd, int nIndex);
 
 	[DllImport("user32.dll", SetLastError = true)]
-	private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+	private static extern int SetWindowLong(nint hWnd, int nIndex, int dwNewLong);
 }

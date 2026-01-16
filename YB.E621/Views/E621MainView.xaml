@@ -243,7 +243,6 @@
 	<dxmvvm:Interaction.Behaviors>
 		<b:DispatcherServiceEx/>
 		<b:LoadedService Command="{Binding LoadedCommand}" OnlyOnce="True"/>
-		<b:CurrentWindowServiceEx/>
 
 		<bf:DialogService x:Name="AppSettingsDialog"
 			ContentType="{x:Type bf:AppSettingsDialog}"

@@ -1,6 +1,5 @@
 ﻿using BaseFramework.Controls;
 using BaseFramework.ViewModels;
-using BaseFramework.Views;
 using DevExpress.Mvvm.Native;
 using DevExpress.Mvvm.UI;
 using RW.Common.WPF.Extensions;

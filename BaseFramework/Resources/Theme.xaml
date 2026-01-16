@@ -6,6 +6,9 @@
 	xmlns:conv="clr-namespace:BaseFramework.Converters"
 	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
 	xmlns:e="clr-namespace:BaseFramework.Extensions"
+	xmlns:hc="https://handyorg.github.io/handycontrol"
+	xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+	xmlns:sw="clr-namespace:System.Windows;assembly=PresentationFramework"
 	xmlns:views="clr-namespace:BaseFramework.Views"
 	xmlns:vm="clr-namespace:BaseFramework.ViewModels"
 	xmlns:vms="clr-namespace:BaseFramework.ViewModelServices"
@@ -1613,12 +1616,151 @@
 	</Style>
 
 
-	<Style x:Key="WindowBase" TargetType="views:WindowBase" BasedOn="{StaticResource WindowWin10}">
-		<Setter Property="Icon" Value="pack://application:,,,/BaseFramework;component/Resources/Icons/YiffBrowserIcon.png"/>
-		<Setter Property="ShowIcon" Value="True"/>
+	<DropShadowEffect x:Key="WindowShadow"
+		BlurRadius="15"
+		Opacity="0.5"
+		ShadowDepth="0"
+		Color="Black"/>
+
+	<Style x:Key="CustomWindow" TargetType="c:CustomWindow" BasedOn="{StaticResource BaseStyle}">
+		<Setter Property="BorderThickness" Value="1"/>
+
+		<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+		<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+		<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+
+		<Setter Property="TitleBarBackground" Value="{DynamicResource RegionBrush}"/>
+
+		<Setter Property="WindowStyle" Value="None"/>
+		<Setter Property="AllowsTransparency" Value="True"/>
+
+		<Setter Property="UseLayoutRounding" Value="True"/>
+		<Setter Property="SnapsToDevicePixels" Value="True"/>
+
+		<Setter Property="shell:WindowChrome.WindowChrome">
+			<Setter.Value>
+				<shell:WindowChrome
+					CaptionHeight="32"
+					CornerRadius="0"
+					GlassFrameThickness="0"
+					ResizeBorderThickness="8"
+					UseAeroCaptionButtons="False"/>
+			</Setter.Value>
+		</Setter>
+
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="c:CustomWindow">
+					<Border x:Name="WindowBorder" Background="#01FFFFFF" Effect="{DynamicResource WindowShadow}">
+						<Border
+							Margin="8"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							Background="{TemplateBinding Background}">
+							<Grid>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="*"/>
+								</Grid.RowDefinitions>
+
+								<Grid x:Name="PART_TitleBar"
+									Grid.Row="0"
+									Height="32"
+									Background="{TemplateBinding TitleBarBackground}">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="Auto"/>
+										<ColumnDefinition Width="*"/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+
+									<Image
+										Grid.Column="0"
+										Width="16"
+										Height="16"
+										Margin="8,0"
+										VerticalAlignment="Center"
+										Source="{TemplateBinding Icon}"/>
+									<TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{TemplateBinding Title}"/>
+
+									<StackPanel Grid.Column="2" shell:WindowChrome.IsHitTestVisibleInChrome="True" Orientation="Horizontal">
+										<Button Name="ButtonMin"
+											Style="{StaticResource ButtonIcon}"
+											Width="45"
+											Height="29"
+											BorderThickness="1,0,1,0"
+											hc:IconElement.Geometry="{StaticResource WindowMinGeometry}"
+											hc:IconElement.Height="10"
+											hc:IconElement.Width="10"
+											Background="{TemplateBinding OtherButtonBackground}"
+											Command="sw:SystemCommands.MinimizeWindowCommand"
+											Foreground="{TemplateBinding OtherButtonForeground}"
+											IsTabStop="False"/>
+										<Button Name="ButtonMax"
+											Style="{StaticResource ButtonIcon}"
+											Width="46"
+											Height="29"
+											BorderThickness="1,0,1,0"
+											hc:IconElement.Geometry="{StaticResource WindowMaxGeometry}"
+											hc:IconElement.Height="10"
+											hc:IconElement.Width="10"
+											Background="{TemplateBinding OtherButtonBackground}"
+											Command="sw:SystemCommands.MaximizeWindowCommand"
+											Foreground="{TemplateBinding OtherButtonForeground}"
+											IsTabStop="False"/>
+										<Button Name="ButtonRestore"
+											Style="{StaticResource ButtonIcon}"
+											Width="46"
+											Height="29"
+											BorderThickness="1,0,1,0"
+											hc:IconElement.Geometry="{StaticResource WindowRestoreGeometry}"
+											hc:IconElement.Height="10"
+											hc:IconElement.Width="10"
+											Background="{TemplateBinding OtherButtonBackground}"
+											Command="sw:SystemCommands.RestoreWindowCommand"
+											Foreground="{TemplateBinding OtherButtonForeground}"
+											IsTabStop="False"/>
+										<Button Name="ButtonClose"
+											Style="{StaticResource ButtonIcon}"
+											Width="46"
+											Height="29"
+											BorderThickness="1,0,0,0"
+											hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+											hc:IconElement.Height="10"
+											hc:IconElement.Width="10"
+											Background="{TemplateBinding CloseButtonBackground}"
+											Command="sw:SystemCommands.CloseWindowCommand"
+											Foreground="{TemplateBinding CloseButtonForeground}"
+											IsTabStop="False"/>
+									</StackPanel>
+								</Grid>
+
+								<AdornerDecorator Grid.Row="1">
+									<ContentPresenter ClipToBounds="True" Content="{TemplateBinding Content}"/>
+								</AdornerDecorator>
+							</Grid>
+						</Border>
+					</Border>
+
+					<ControlTemplate.Triggers>
+						<Trigger Property="WindowState" Value="Maximized">
+							<Setter TargetName="WindowBorder" Property="Padding" Value="8"/>
+							<Setter TargetName="BtnMax" Property="Visibility" Value="Collapsed"/>
+							<Setter TargetName="BtnRestore" Property="Visibility" Value="Visible"/>
+							<Setter TargetName="WindowBorder" Property="BorderThickness" Value="0"/>
+						</Trigger>
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
 	</Style>
 
-	<Style TargetType="views:WindowBase" BasedOn="{StaticResource WindowBase}"/>
+
+	<Style x:Key="WindowBase" TargetType="c:WindowBase" BasedOn="{StaticResource CustomWindow}">
+		<Setter Property="Icon" Value="pack://application:,,,/BaseFramework;component/Resources/Icons/YiffBrowserIcon.png"/>
+		<!--<Setter Property="ShowIcon" Value="True"/>-->
+	</Style>
+
+	<Style TargetType="c:WindowBase" BasedOn="{StaticResource WindowBase}"/>
 
 	<Style TargetType="c:DialogWindowWrapper">
 		<Setter Property="Padding" Value="4,0,4,4"/>

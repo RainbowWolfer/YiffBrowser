@@ -264,7 +264,6 @@
 
 
 
-
 	<ControlTemplate x:Key="WindowWin10Template.Custom" TargetType="hc:Window">
 		<Border
 			BorderThickness="{TemplateBinding BorderThickness}"

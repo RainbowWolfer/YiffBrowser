@@ -19,6 +19,7 @@
 	xmlns:wpf="RW.Common.WPF"
 	d:DataContext="{d:DesignInstance Type=local:E621MainWindowViewModel}"
 	d:Title="E621 Window"
+	DataContext="{b:DISource Type=local:E621MainWindowViewModel}"
 	Width="1270"
 	Height="800"
 	Margin="0"
@@ -40,7 +41,7 @@
 
 	<Window.Style>
 
-		<Style TargetType="hc:Window" BasedOn="{StaticResource WindowWin10.Custom}">
+		<Style TargetType="bf:WindowBase" BasedOn="{StaticResource WindowBase}">
 			<Style.Triggers>
 				<DataTrigger Binding="{Binding ViewParameter.ModuleType}" Value="{x:Static bf:ModuleType.E621}">
 					<Setter Property="Icon" Value="/BaseFramework;component/Resources/Icons/E621Icon.ico"/>

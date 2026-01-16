@@ -104,9 +104,6 @@ internal class E621MainViewModel(IAppManager appManager) : ViewModelBase {
 	private DelegateCommand? loadedCommand;
 	public IDelegateCommand LoadedCommand => loadedCommand ??= new(Loaded);
 	private void Loaded() {
-		if (ViewParameter != null) {
-			CurrentWindowService.GetWindow().Title = $"{AppConfig.DisplayAppName} - {ViewParameter.ModuleType}";
-		}
 		DispatcherService.Dispatcher.Invoke(Initialize, DispatcherPriority.Loaded);
 	}
 
