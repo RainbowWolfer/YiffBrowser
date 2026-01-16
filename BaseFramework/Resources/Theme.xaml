@@ -532,7 +532,7 @@
 		</ControlTemplate.Triggers>
 	</ControlTemplate>
 
-	<Style x:Key="CustomMenuItemStyle" TargetType="{x:Type MenuItem}">
+	<!--<Style x:Key="CustomMenuItemStyle" TargetType="{x:Type MenuItem}">
 		<Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
 		<Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
 		<Setter Property="Background" Value="Transparent"/>
@@ -590,9 +590,13 @@
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>
-	</Style>
+	</Style>-->
 
-	<Style TargetType="ToolTip">
+
+	<Style TargetType="Menu" BasedOn="{StaticResource Menu.Small}"/>
+	<Style TargetType="ContextMenu" BasedOn="{StaticResource ContextMenu.Small}"/>
+
+	<!--<Style TargetType="ToolTip">
 		<Setter Property="OverridesDefaultStyle" Value="True"/>
 		<Setter Property="HasDropShadow" Value="True"/>
 		<Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -616,7 +620,7 @@
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>
-	</Style>
+	</Style>-->
 
 	<Style TargetType="c:BoolContent">
 		<Setter Property="Template">
@@ -1549,6 +1553,18 @@
 	</Style>
 
 	<Style TargetType="Button" BasedOn="{StaticResource CustomButtonStyle}"/>
+
+	<Style x:Key="CustomButtonStyle.Danger" TargetType="{x:Type Button}" BasedOn="{StaticResource ButtonDefault}">
+		<Setter Property="Background" Value="Transparent"/>
+		<Style.Triggers>
+			<Trigger Property="UIElement.IsMouseOver" Value="True">
+				<Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+			</Trigger>
+			<Trigger Property="IsPressed" Value="True">
+				<Setter Property="Background" Value="{DynamicResource DarkDangerBrush}"/>
+			</Trigger>
+		</Style.Triggers>
+	</Style>
 
 
 	<Style TargetType="c:ImageViewer">

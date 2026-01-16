@@ -70,6 +70,7 @@
 				</bf:TextBoxExtend>
 
 				<Button
+					Style="{StaticResource Button.Custom.Icon}"
 					Grid.Column="1"
 					Width="30"
 					Margin="4,0,0,0"
@@ -81,6 +82,7 @@
 				</Button>
 
 				<Button
+					Style="{StaticResource Button.Custom.Icon}"
 					Grid.Column="2"
 					Width="30"
 					Margin="4,0,0,0"

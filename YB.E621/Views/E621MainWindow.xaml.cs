@@ -146,8 +146,22 @@ public class E621MainWindowViewModel(IAppManager appManager) : ViewModelBase {
 		//Tabs.Add(new PostTabItem(ModuleType, ["feet"]));
 		//Tabs.Add(new PostTabItem(ModuleType, ["type:gif"]));
 		//Tabs.Add(new PostTabItem(ModuleType, ["type:webm"]));
-		Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
 		Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
 		TabSelectedIndex = 0;
 	}
@@ -257,11 +271,11 @@ public class E621MainWindowViewModel(IAppManager appManager) : ViewModelBase {
 	private DelegateCommand? switchThemeCommand;
 	public IDelegateCommand SwitchThemeCommand => switchThemeCommand ??= new(SwitchTheme);
 	private void SwitchTheme() {
-		if (ThemeManager.Current.ActualApplicationTheme is ApplicationTheme.Dark) {
-			ThemeManager.Current.ApplicationTheme = ApplicationTheme.Light;
-		} else {
-			ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
-		}
+		//if (ThemeManager.Current.ActualApplicationTheme is ApplicationTheme.Dark) {
+		//	ThemeManager.Current.ApplicationTheme = ApplicationTheme.Light;
+		//} else {
+		//	ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
+		//}
 	}
 
 

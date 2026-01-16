@@ -55,6 +55,9 @@ public partial class App : ApplicationBase {
 
 		ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
+		//Resources
+
+
 		AppFolderConfig folderConfig = (AppFolderConfig)FolderConfig;
 
 		AppSettingsService = new AppSettingsService(folderConfig);
@@ -75,6 +78,13 @@ public partial class App : ApplicationBase {
 	protected override void BeforeTotalShutdown() {
 		base.BeforeTotalShutdown();
 		SystemTrayIconService.Disable();
+	}
+
+	protected override void BeforeLoadingModules() {
+		base.BeforeLoadingModules();
+
+		//Resources.MergedDictionaries.RemoveAt(Resources.MergedDictionaries.Count - 1);
+		//Resources.MergedDictionaries.RemoveAt(Resources.MergedDictionaries.Count - 1);
 	}
 
 	protected override void AfterLoadingModules() {
@@ -224,6 +234,7 @@ public partial class App : ApplicationBase {
 	private class _DllLoader() : DllLoader() {
 		protected override IEnumerable<string> AdditionalSkipSet() {
 			yield return "XamlAnimatedGif";
+			yield return "GongSolutions";
 		}
 
 		protected override void AfterInitialized(IReadOnlyDictionary<string, Assembly> pool, IReadOnlyDictionary<string, Type> types) {

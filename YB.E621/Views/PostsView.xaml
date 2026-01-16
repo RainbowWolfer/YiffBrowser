@@ -8,6 +8,7 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
 	xmlns:ex="clr-namespace:YB.E621.Extensions"
+	xmlns:hc="https://handyorg.github.io/handycontrol"
 	xmlns:local="clr-namespace:YB.E621.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:models="clr-namespace:YB.E621.Models"
@@ -39,7 +40,7 @@
 
 					<Border Visibility="{Binding CurrentHasPost, Converter={StaticResource Boolean2VisibilityReConverter}}">
 						<DockPanel>
-							<Border Padding="4" Background="{DynamicResource SecondaryRegionBrush}" DockPanel.Dock="Top">
+							<Border Padding="4" Background="{DynamicResource RegionBrush}" DockPanel.Dock="Top">
 
 								<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Center" IsEnabled="{Binding IsLoading, Converter={StaticResource Boolean2BooleanReConverter}}">
 									<Button
@@ -112,9 +113,11 @@
 
 							<c1:PostCardListBox x:Name="PostsListBox"
 								Padding="2"
-								BorderThickness="0"
+								BorderThickness="0,1,0,0"
+								BorderBrush="{DynamicResource BorderBrush}"
 								bf:SelectorExtension.SelectedItems="{Binding SelectedItems}"
 								AllowSelection="{Binding IsMultiSelecting}"
+								Background="{DynamicResource RegionBrush}"
 								VirtualizingPanel.IsVirtualizing="False"
 								VirtualizingPanel.ScrollUnit="Pixel"
 								ItemsSource="{Binding Items}"
@@ -130,13 +133,17 @@
 														BorderBrush="{TemplateBinding BorderBrush}"
 														Background="{TemplateBinding Background}"
 														SnapsToDevicePixels="True">
-														<ScrollViewer
+														<hc:ScrollViewer
+															Style="{x:Null}"
 															Padding="{TemplateBinding Padding}"
+															hc:ScrollViewerAttach.AutoHide="False"
+															hc:ScrollViewerAttach.Orientation="Vertical"
 															CanContentScroll="True"
 															HorizontalScrollBarVisibility="Disabled"
+															IsInertiaEnabled="True"
 															VerticalScrollBarVisibility="Auto">
 															<ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-														</ScrollViewer>
+														</hc:ScrollViewer>
 													</Border>
 												</ControlTemplate>
 											</Setter.Value>
@@ -199,7 +206,7 @@
 					</Border>
 
 					<Border d:Visibility="Collapsed" Visibility="{Binding CurrentHasPost, Converter={StaticResource Boolean2VisibilityConverter}}">
-						<!--<local:PostDetailView dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}" ex:ViewInitializeExtension.ModuleType="{Binding Source={StaticResource ViewModel}, Path=Data.ModuleType}"/>-->
+						<local:PostDetailView dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}"/>
 						<!--<ContentControl Content="{Binding PostDetailViewModel.View}"/>-->
 					</Border>
 

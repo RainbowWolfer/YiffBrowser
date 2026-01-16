@@ -12,13 +12,12 @@ using YB.E621.ViewModels;
 namespace YB.E621.Views;
 
 public partial class PostDetailView : UserControl {
-
 	public PostDetailView() {
 		InitializeComponent();
 	}
 }
 
-internal class PostDetailViewModel() : E621ViewModelBase {
+internal class PostDetailViewModel() : ViewModelBase {
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
 	public IUIObjectService<UserControl> UserControlService => GetService<ITypedUIObjectService>(nameof(UserControlService)).As<UserControl>();
 
@@ -35,21 +34,19 @@ internal class PostDetailViewModel() : E621ViewModelBase {
 
 	public PostDetailDockViewModel PostDetailDockViewModel { get; } = new();
 
-
 	public PostsViewModel ParentViewModel {
 		get => GetProperty(() => ParentViewModel);
 		private set => SetProperty(() => ParentViewModel, value);
 	}
 
-	protected override void OnInitialize() {
-		Post = null;
-	}
-
 	protected override void OnParentViewModelChanged(object parentViewModel) {
 		base.OnParentViewModelChanged(parentViewModel);
 
+		Post = null;
+
 		ParentViewModel = (PostsViewModel)parentViewModel;
 		ParentViewModel.CurrentPostChanged += PostsViewModel_CurrentPostChanged;
+
 	}
 
 	private void PostsViewModel_CurrentPostChanged(PostsViewModel sender, E621Post? args) {

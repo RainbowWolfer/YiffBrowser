@@ -15,15 +15,22 @@
 
 				<!--<ResourceDictionary Source="pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent.xaml"/>-->
 
-				<hc:ThemeResources UsingSystemTheme="True"/>
-				<hc:Theme/>
-
-				<ResourceDictionary Source="pack://application:,,,/BaseFramework;component/Resources/Theme.xaml"/>
-				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Theme.xaml"/>
+				<!--<hc:ThemeResources UsingSystemTheme="True"/>
+				<hc:Theme/>-->
 
 				<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
 				<!--<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Dark.xaml"/>-->
-				<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Light.xaml"/>
+				<!--<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Light.xaml"/>-->
+
+				<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Basic/Colors/ColorsDark.xaml"/>
+
+
+
+
+
+
+				<ResourceDictionary Source="pack://application:,,,/BaseFramework;component/Resources/Theme.xaml"/>
+				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Theme.xaml"/>
 
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
