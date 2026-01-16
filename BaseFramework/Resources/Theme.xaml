@@ -1683,54 +1683,31 @@
 									<TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{TemplateBinding Title}"/>
 
 									<StackPanel Grid.Column="2" shell:WindowChrome.IsHitTestVisibleInChrome="True" Orientation="Horizontal">
-										<Button Name="ButtonMin"
-											Style="{StaticResource ButtonIcon}"
-											Width="45"
-											Height="29"
-											BorderThickness="1,0,1,0"
-											hc:IconElement.Geometry="{StaticResource WindowMinGeometry}"
-											hc:IconElement.Height="10"
-											hc:IconElement.Width="10"
-											Background="{TemplateBinding OtherButtonBackground}"
+										<Button
+											Style="{StaticResource YourButtonStyle}"
+											Width="46"
+											Height="32"
 											Command="sw:SystemCommands.MinimizeWindowCommand"
-											Foreground="{TemplateBinding OtherButtonForeground}"
-											IsTabStop="False"/>
-										<Button Name="ButtonMax"
-											Style="{StaticResource ButtonIcon}"
+											Content="—"/>
+										<Button x:Name="BtnMax"
+											Style="{StaticResource YourButtonStyle}"
 											Width="46"
-											Height="29"
-											BorderThickness="1,0,1,0"
-											hc:IconElement.Geometry="{StaticResource WindowMaxGeometry}"
-											hc:IconElement.Height="10"
-											hc:IconElement.Width="10"
-											Background="{TemplateBinding OtherButtonBackground}"
+											Height="32"
 											Command="sw:SystemCommands.MaximizeWindowCommand"
-											Foreground="{TemplateBinding OtherButtonForeground}"
-											IsTabStop="False"/>
-										<Button Name="ButtonRestore"
-											Style="{StaticResource ButtonIcon}"
+											Content="☐"/>
+										<Button x:Name="BtnRestore"
+											Style="{StaticResource YourButtonStyle}"
 											Width="46"
-											Height="29"
-											BorderThickness="1,0,1,0"
-											hc:IconElement.Geometry="{StaticResource WindowRestoreGeometry}"
-											hc:IconElement.Height="10"
-											hc:IconElement.Width="10"
-											Background="{TemplateBinding OtherButtonBackground}"
+											Height="32"
 											Command="sw:SystemCommands.RestoreWindowCommand"
-											Foreground="{TemplateBinding OtherButtonForeground}"
-											IsTabStop="False"/>
-										<Button Name="ButtonClose"
-											Style="{StaticResource ButtonIcon}"
+											Content="❐"
+											Visibility="Collapsed"/>
+										<Button
+											Style="{StaticResource YourCloseButtonStyle}"
 											Width="46"
-											Height="29"
-											BorderThickness="1,0,0,0"
-											hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-											hc:IconElement.Height="10"
-											hc:IconElement.Width="10"
-											Background="{TemplateBinding CloseButtonBackground}"
+											Height="32"
 											Command="sw:SystemCommands.CloseWindowCommand"
-											Foreground="{TemplateBinding CloseButtonForeground}"
-											IsTabStop="False"/>
+											Content="✕"/>
 									</StackPanel>
 								</Grid>
 

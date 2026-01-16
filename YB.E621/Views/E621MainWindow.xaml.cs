@@ -6,7 +6,7 @@ using YB.E621.Parameters;
 
 namespace YB.E621.Views;
 
-public partial class E621MainWindow : WindowBase, IMainWindow {
+public partial class E621MainWindow : HandyControl.Controls.Window, IMainWindow {
 
 	public E621MainWindow(ViewParameter viewParameter) {
 		InitializeComponent();

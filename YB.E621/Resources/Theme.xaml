@@ -265,143 +265,146 @@
 
 
 	<ControlTemplate x:Key="WindowWin10Template.Custom" TargetType="hc:Window">
-		<Border
-			BorderThickness="{TemplateBinding BorderThickness}"
-			BorderBrush="{TemplateBinding BorderBrush}"
-			Background="{TemplateBinding Background}"
-			SnapsToDevicePixels="True">
-			<Grid Margin="{TemplateBinding Padding}">
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto"/>
-					<RowDefinition/>
-				</Grid.RowDefinitions>
-				<Grid Name="PART_NonClientArea" Background="{TemplateBinding NonClientAreaBackground}" TextElement.Foreground="{TemplateBinding NonClientAreaForeground}">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition/>
-						<ColumnDefinition Width="Auto"/>
-					</Grid.ColumnDefinitions>
-					<StackPanel Name="ButtonPanel"
-						Grid.Column="1"
-						HorizontalAlignment="Right"
-						VerticalAlignment="Top"
-						shell:WindowChrome.IsHitTestVisibleInChrome="True"
-						Orientation="Horizontal"
-						UseLayoutRounding="True">
-						<Button Name="ButtonMin"
-							Style="{StaticResource ButtonIcon}"
-							Width="45"
-							Height="29"
-							BorderThickness="1,0,1,0"
-							hc:IconElement.Geometry="{StaticResource WindowMinGeometry}"
-							hc:IconElement.Height="10"
-							hc:IconElement.Width="10"
-							Background="{TemplateBinding OtherButtonBackground}"
-							Command="sw:SystemCommands.MinimizeWindowCommand"
-							Foreground="{TemplateBinding OtherButtonForeground}"
-							IsTabStop="False"/>
-						<Button Name="ButtonMax"
-							Style="{StaticResource ButtonIcon}"
-							Width="46"
-							Height="29"
-							BorderThickness="1,0,1,0"
-							hc:IconElement.Geometry="{StaticResource WindowMaxGeometry}"
-							hc:IconElement.Height="10"
-							hc:IconElement.Width="10"
-							Background="{TemplateBinding OtherButtonBackground}"
-							Command="sw:SystemCommands.MaximizeWindowCommand"
-							Foreground="{TemplateBinding OtherButtonForeground}"
-							IsTabStop="False"/>
-						<Button Name="ButtonRestore"
-							Style="{StaticResource ButtonIcon}"
-							Width="46"
-							Height="29"
-							BorderThickness="1,0,1,0"
-							hc:IconElement.Geometry="{StaticResource WindowRestoreGeometry}"
-							hc:IconElement.Height="10"
-							hc:IconElement.Width="10"
-							Background="{TemplateBinding OtherButtonBackground}"
-							Command="sw:SystemCommands.RestoreWindowCommand"
-							Foreground="{TemplateBinding OtherButtonForeground}"
-							IsTabStop="False"/>
-						<Button Name="ButtonClose"
-							Style="{StaticResource ButtonIcon}"
-							Width="46"
-							Height="29"
-							BorderThickness="1,0,0,0"
-							hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-							hc:IconElement.Height="10"
-							hc:IconElement.Width="10"
-							Background="{TemplateBinding CloseButtonBackground}"
-							Command="sw:SystemCommands.CloseWindowCommand"
-							Foreground="{TemplateBinding CloseButtonForeground}"
-							IsTabStop="False"/>
-					</StackPanel>
-					<Grid Grid.Column="0">
+		<Border Background="#01FFFFFF" SnapsToDevicePixels="True">
+			<Border
+				Margin="0"
+				BorderThickness="{TemplateBinding BorderThickness}"
+				BorderBrush="{TemplateBinding BorderBrush}"
+				Background="{TemplateBinding Background}">
+				<Grid Margin="{TemplateBinding Padding}">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition/>
+					</Grid.RowDefinitions>
+					<Grid Name="PART_NonClientArea" Background="{TemplateBinding NonClientAreaBackground}" TextElement.Foreground="{TemplateBinding NonClientAreaForeground}">
 						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="Auto"/>
-							<ColumnDefinition Width="Auto"/>
 							<ColumnDefinition/>
+							<ColumnDefinition Width="Auto"/>
 						</Grid.ColumnDefinitions>
-						<Button Name="ButtonIcon"
-							Style="{StaticResource ButtonCustom}"
-							Margin="10,0,0,0"
-							VerticalAlignment="Center"
-							shell:WindowChrome.IsHitTestVisibleInChrome="True"
-							Background="Transparent"
-							Command="{x:Static sw:SystemCommands.ShowSystemMenuCommand}">
-							<Button.Visibility>
-								<MultiBinding Converter="{StaticResource BooleanArr2VisibilityConverter}">
-									<MultiBinding.Bindings>
-										<Binding Path="ShowIcon" RelativeSource="{RelativeSource TemplatedParent}"/>
-										<Binding Path="Icon" Converter="{StaticResource Object2BooleanConverter}" RelativeSource="{RelativeSource TemplatedParent}"/>
-									</MultiBinding.Bindings>
-								</MultiBinding>
-							</Button.Visibility>
-							<hc:Interaction.Triggers>
-								<hc:EventTrigger EventName="MouseDoubleClick">
-									<hc:InvokeCommandAction Command="{x:Static sw:SystemCommands.CloseWindowCommand}"/>
-								</hc:EventTrigger>
-							</hc:Interaction.Triggers>
-							<Image
-								Width="16"
-								Height="16"
-								VerticalAlignment="Center"
-								IsHitTestVisible="False"
-								Source="{TemplateBinding Icon}"/>
-						</Button>
-						<TextBlock
+						<StackPanel Name="ButtonPanel"
 							Grid.Column="1"
-							Padding="10,0,0,0"
-							VerticalAlignment="Center"
-							Text="{TemplateBinding Title}">
-							<TextBlock.Visibility>
-								<MultiBinding Converter="{StaticResource BooleanArr2VisibilityConverter}">
-									<MultiBinding.Bindings>
-										<Binding Path="ShowTitle" RelativeSource="{RelativeSource TemplatedParent}"/>
-										<Binding Path="Title" Converter="{StaticResource Object2BooleanConverter}" RelativeSource="{RelativeSource TemplatedParent}"/>
-									</MultiBinding.Bindings>
-								</MultiBinding>
-							</TextBlock.Visibility>
-						</TextBlock>
-						<ContentPresenter x:Name="ContentPresenterMain"
-							Grid.Column="2"
+							HorizontalAlignment="Right"
+							VerticalAlignment="Top"
 							shell:WindowChrome.IsHitTestVisibleInChrome="True"
-							Content="{TemplateBinding NonClientAreaContent}"/>
+							Orientation="Horizontal"
+							UseLayoutRounding="True">
+							<Button Name="ButtonMin"
+								Style="{StaticResource ButtonIcon}"
+								Width="45"
+								Height="29"
+								BorderThickness="1,0,1,0"
+								hc:IconElement.Geometry="{StaticResource WindowMinGeometry}"
+								hc:IconElement.Height="10"
+								hc:IconElement.Width="10"
+								Background="{TemplateBinding OtherButtonBackground}"
+								Command="sw:SystemCommands.MinimizeWindowCommand"
+								Foreground="{TemplateBinding OtherButtonForeground}"
+								IsTabStop="False"/>
+							<Button Name="ButtonMax"
+								Style="{StaticResource ButtonIcon}"
+								Width="46"
+								Height="29"
+								BorderThickness="1,0,1,0"
+								hc:IconElement.Geometry="{StaticResource WindowMaxGeometry}"
+								hc:IconElement.Height="10"
+								hc:IconElement.Width="10"
+								Background="{TemplateBinding OtherButtonBackground}"
+								Command="sw:SystemCommands.MaximizeWindowCommand"
+								Foreground="{TemplateBinding OtherButtonForeground}"
+								IsTabStop="False"/>
+							<Button Name="ButtonRestore"
+								Style="{StaticResource ButtonIcon}"
+								Width="46"
+								Height="29"
+								BorderThickness="1,0,1,0"
+								hc:IconElement.Geometry="{StaticResource WindowRestoreGeometry}"
+								hc:IconElement.Height="10"
+								hc:IconElement.Width="10"
+								Background="{TemplateBinding OtherButtonBackground}"
+								Command="sw:SystemCommands.RestoreWindowCommand"
+								Foreground="{TemplateBinding OtherButtonForeground}"
+								IsTabStop="False"/>
+							<Button Name="ButtonClose"
+								Style="{StaticResource ButtonIcon}"
+								Width="46"
+								Height="29"
+								BorderThickness="1,0,0,0"
+								hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+								hc:IconElement.Height="10"
+								hc:IconElement.Width="10"
+								Background="{TemplateBinding CloseButtonBackground}"
+								Command="sw:SystemCommands.CloseWindowCommand"
+								Foreground="{TemplateBinding CloseButtonForeground}"
+								IsTabStop="False"/>
+						</StackPanel>
+						<Grid Grid.Column="0">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="Auto"/>
+								<ColumnDefinition Width="Auto"/>
+								<ColumnDefinition/>
+							</Grid.ColumnDefinitions>
+							<Button Name="ButtonIcon"
+								Style="{StaticResource ButtonCustom}"
+								Margin="10,0,0,0"
+								VerticalAlignment="Center"
+								shell:WindowChrome.IsHitTestVisibleInChrome="True"
+								Background="Transparent"
+								Command="{x:Static sw:SystemCommands.ShowSystemMenuCommand}">
+								<Button.Visibility>
+									<MultiBinding Converter="{StaticResource BooleanArr2VisibilityConverter}">
+										<MultiBinding.Bindings>
+											<Binding Path="ShowIcon" RelativeSource="{RelativeSource TemplatedParent}"/>
+											<Binding Path="Icon" Converter="{StaticResource Object2BooleanConverter}" RelativeSource="{RelativeSource TemplatedParent}"/>
+										</MultiBinding.Bindings>
+									</MultiBinding>
+								</Button.Visibility>
+								<hc:Interaction.Triggers>
+									<hc:EventTrigger EventName="MouseDoubleClick">
+										<hc:InvokeCommandAction Command="{x:Static sw:SystemCommands.CloseWindowCommand}"/>
+									</hc:EventTrigger>
+								</hc:Interaction.Triggers>
+								<Image
+									Width="16"
+									Height="16"
+									VerticalAlignment="Center"
+									IsHitTestVisible="False"
+									Source="{TemplateBinding Icon}"/>
+							</Button>
+							<TextBlock
+								Grid.Column="1"
+								Padding="10,0,0,0"
+								VerticalAlignment="Center"
+								Text="{TemplateBinding Title}">
+								<TextBlock.Visibility>
+									<MultiBinding Converter="{StaticResource BooleanArr2VisibilityConverter}">
+										<MultiBinding.Bindings>
+											<Binding Path="ShowTitle" RelativeSource="{RelativeSource TemplatedParent}"/>
+											<Binding Path="Title" Converter="{StaticResource Object2BooleanConverter}" RelativeSource="{RelativeSource TemplatedParent}"/>
+										</MultiBinding.Bindings>
+									</MultiBinding>
+								</TextBlock.Visibility>
+							</TextBlock>
+							<ContentPresenter x:Name="ContentPresenterMain"
+								Grid.Column="2"
+								shell:WindowChrome.IsHitTestVisibleInChrome="True"
+								Content="{TemplateBinding NonClientAreaContent}"/>
+						</Grid>
 					</Grid>
+					<AdornerDecorator Grid.Row="1">
+						<ContentPresenter ClipToBounds="True"/>
+					</AdornerDecorator>
+					<ResizeGrip x:Name="ResizeGrip"
+						Grid.Row="1"
+						Width="10"
+						Height="10"
+						HorizontalAlignment="Right"
+						VerticalAlignment="Bottom"
+						IsTabStop="False"
+						Visibility="Collapsed"/>
 				</Grid>
-				<AdornerDecorator Grid.Row="1">
-					<ContentPresenter ClipToBounds="True"/>
-				</AdornerDecorator>
-				<ResizeGrip x:Name="ResizeGrip"
-					Grid.Row="1"
-					Width="10"
-					Height="10"
-					HorizontalAlignment="Right"
-					VerticalAlignment="Bottom"
-					IsTabStop="False"
-					Visibility="Collapsed"/>
-			</Grid>
+			</Border>
 		</Border>
+
 		<ControlTemplate.Triggers>
 			<Trigger Property="IsActive" Value="False">
 				<Setter TargetName="ContentPresenterMain" Property="Opacity" Value=".8"/>
@@ -459,10 +462,10 @@
 		<!--<Setter Property="shell:WindowChrome.WindowChrome">
 			<Setter.Value>
 				<shell:WindowChrome
-					CaptionHeight="1"
-					CornerRadius="110"
-					GlassFrameThickness="10"
-					ResizeBorderThickness="18"/>
+					CaptionHeight="32"
+					CornerRadius="8"
+					GlassFrameThickness="0"
+					ResizeBorderThickness="2"/>
 			</Setter.Value>
 		</Setter>-->
 

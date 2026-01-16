@@ -1,4 +1,4 @@
-﻿<bf:WindowBase
+﻿<hc:Window
 	x:Class="YB.E621.Views.E621MainWindow"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -41,7 +41,9 @@
 
 	<Window.Style>
 
-		<Style TargetType="bf:WindowBase" BasedOn="{StaticResource WindowBase}">
+		<Style TargetType="hc:Window" BasedOn="{StaticResource WindowWin10.Custom}">
+			<!--<Setter Property="AllowsTransparency" Value="True"/>
+			<Setter Property="WindowStyle" Value="None"/>-->
 			<Style.Triggers>
 				<DataTrigger Binding="{Binding ViewParameter.ModuleType}" Value="{x:Static bf:ModuleType.E621}">
 					<Setter Property="Icon" Value="/BaseFramework;component/Resources/Icons/E621Icon.ico"/>
@@ -61,4 +63,4 @@
 		<Border x:Name="Root"/>
 	</Grid>
 
-</bf:WindowBase>
+</hc:Window>
