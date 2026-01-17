@@ -1,9 +1,6 @@
-﻿using BaseFramework;
-using BaseFramework.Interfaces;
+﻿using BaseFramework.Services;
 using BaseFramework.ViewModelServices;
-using BaseFramework.Views;
 using DevExpress.Mvvm;
-using HandyControl.Themes;
 using RW.Base.WPF.Extensions;
 using RW.Base.WPF.Interfaces;
 using RW.Base.WPF.ViewModelServices;
@@ -31,7 +28,7 @@ public partial class E621MainView : UserControl {
 	}
 }
 
-internal class E621MainViewModel(IAppManager appManager) : ViewModelBase {
+internal class E621MainViewModel(IAppManager appManager, IThemeManager themeManager) : ViewModelBase {
 
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
 	public ICurrentWindowServiceEx CurrentWindowService => GetService<ICurrentWindowServiceEx>();
@@ -68,31 +65,6 @@ internal class E621MainViewModel(IAppManager appManager) : ViewModelBase {
 		UserService = E621UserService.GetUserService(parameter.ModuleType);
 		UserService.LoginChanged += UserService_LoginChanged;
 
-		//Tabs.Add(new PostTabItem(ModuleType, ["order:rank"]));
-		//Tabs.Add(new PostTabItem(ModuleType, ["type:gif", "order:filesize"]));
-		//Tabs.Add(new PostTabItem(ModuleType, ["type:gif", "order:filesize"]));
-		//Tabs.Add(new PostTabItem(ModuleType, ["type:gif"]));
-		//Tabs.Add(new PostTabItem(ModuleType, ["feet"]));
-		//Tabs.Add(new PostTabItem(ModuleType, ["type:gif"]));
-		//Tabs.Add(new PostTabItem(ModuleType, ["type:webm"]));
-		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-		TabSelectedIndex = 0;
 	}
 
 	private PostTabItem CreateTabItem(string[] tags) {
@@ -104,11 +76,40 @@ internal class E621MainViewModel(IAppManager appManager) : ViewModelBase {
 	private DelegateCommand? loadedCommand;
 	public IDelegateCommand LoadedCommand => loadedCommand ??= new(Loaded);
 	private void Loaded() {
-		DispatcherService.Dispatcher.Invoke(Initialize, DispatcherPriority.Loaded);
+		DispatcherService.Dispatcher.Invoke(() => {
+			Initialize();
+
+			//Tabs.Add(new PostTabItem(ModuleType, ["order:rank"]));
+			//Tabs.Add(new PostTabItem(ModuleType, ["type:gif", "order:filesize"]));
+			//Tabs.Add(new PostTabItem(ModuleType, ["type:gif", "order:filesize"]));
+			//Tabs.Add(new PostTabItem(ModuleType, ["type:gif"]));
+			//Tabs.Add(new PostTabItem(ModuleType, ["feet"]));
+			//Tabs.Add(new PostTabItem(ModuleType, ["type:gif"]));
+			//Tabs.Add(new PostTabItem(ModuleType, ["type:webm"]));
+			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			TabSelectedIndex = 0;
+
+		}, DispatcherPriority.Loaded);
+
 	}
 
-
-	private async Task Initialize() {
+	private async void Initialize() {
 		try {
 			if (UserService != null) {
 				await UserService.Initialize();
@@ -197,11 +198,7 @@ internal class E621MainViewModel(IAppManager appManager) : ViewModelBase {
 	private DelegateCommand? switchThemeCommand;
 	public IDelegateCommand SwitchThemeCommand => switchThemeCommand ??= new(SwitchTheme);
 	private void SwitchTheme() {
-		if (ThemeManager.Current.ActualApplicationTheme is ApplicationTheme.Dark) {
-			ThemeManager.Current.ApplicationTheme = ApplicationTheme.Light;
-		} else {
-			ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
-		}
+		themeManager.ToggleTheme();
 	}
 
 

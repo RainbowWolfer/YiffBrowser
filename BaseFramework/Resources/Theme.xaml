@@ -3,6 +3,7 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:base="RW.Base.WPF"
 	xmlns:c="clr-namespace:BaseFramework.Controls"
+	xmlns:controlzEx="urn:controlzex"
 	xmlns:conv="clr-namespace:BaseFramework.Converters"
 	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
 	xmlns:e="clr-namespace:BaseFramework.Extensions"
@@ -1615,129 +1616,91 @@
 		<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
 	</Style>
 
+	<Style x:Key="WindowBaseStyle" TargetType="c:WindowBase" BasedOn="{StaticResource {x:Type controlzEx:WindowChromeWindow}}">
+		<Setter Property="Icon" Value="pack://application:,,,/BaseFramework;component/Resources/Icons/YiffBrowserIcon.png"/>
+		<Setter Property="controlzEx:WindowBackdropManager.BackdropType" Value="Mica"/>
+		<Setter Property="UseNativeCaptionButtons" Value="True"/>
+		<Setter Property="CaptionColor" Value="Transparent"/>
+		<Setter Property="CornerPreference" Value="Round"/>
+		<Setter Property="NCActiveBrush" Value="Transparent"/>
+		<Setter Property="NCNonActiveBrush" Value="Transparent"/>
+		<Setter Property="GlowColor" Value="{DynamicResource BorderColor}"/>
+		<Setter Property="NonActiveGlowColor" Value="{DynamicResource BorderColor}"/>
 
-	<DropShadowEffect x:Key="WindowShadow"
-		BlurRadius="15"
-		Opacity="0.5"
-		ShadowDepth="0"
-		Color="Black"/>
-
-	<Style x:Key="CustomWindow" TargetType="c:CustomWindow" BasedOn="{StaticResource BaseStyle}">
-		<Setter Property="BorderThickness" Value="1"/>
-
-		<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-		<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
-		<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-
-		<Setter Property="TitleBarBackground" Value="{DynamicResource RegionBrush}"/>
-
-		<Setter Property="WindowStyle" Value="None"/>
-		<Setter Property="AllowsTransparency" Value="True"/>
-
-		<Setter Property="UseLayoutRounding" Value="True"/>
 		<Setter Property="SnapsToDevicePixels" Value="True"/>
+		<Setter Property="UseLayoutRounding" Value="True"/>
 
-		<!--<Setter Property="shell:WindowChrome.WindowChrome">
-			<Setter.Value>
-				<shell:WindowChrome
-					CaptionHeight="32"
-					CornerRadius="0"
-					GlassFrameThickness="0"
-					ResizeBorderThickness="8"
-					UseAeroCaptionButtons="False"/>
-			</Setter.Value>
-		</Setter>-->
+	</Style>
+
+	<Style TargetType="c:WindowBase" BasedOn="{StaticResource WindowBaseStyle}"/>
+
+	<Style x:Key="WindowContentStyle" TargetType="c:WindowContent">
+
+		<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+		<Setter Property="VerticalContentAlignment" Value="Stretch"/>
 
 		<Setter Property="Template">
 			<Setter.Value>
-				<ControlTemplate TargetType="c:CustomWindow">
-					<Border x:Name="WindowBorder" Background="#01FFFFFF" Effect="{DynamicResource WindowShadow}">
-						<Border
-							Margin="8"
-							BorderThickness="{TemplateBinding BorderThickness}"
-							BorderBrush="{TemplateBinding BorderBrush}"
-							Background="{TemplateBinding Background}">
-							<Grid>
-								<Grid.RowDefinitions>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="*"/>
-								</Grid.RowDefinitions>
+				<ControlTemplate TargetType="c:WindowContent">
 
-								<Grid x:Name="PART_TitleBar"
-									Grid.Row="0"
-									Height="32"
-									Background="{TemplateBinding TitleBarBackground}">
-									<Grid.ColumnDefinitions>
-										<ColumnDefinition Width="Auto"/>
-										<ColumnDefinition Width="*"/>
-										<ColumnDefinition Width="Auto"/>
-									</Grid.ColumnDefinitions>
+					<Grid SnapsToDevicePixels="True">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="30"/>
+							<RowDefinition Height="*"/>
+						</Grid.RowDefinitions>
 
+						<Grid Grid.Row="0" controlzEx:NonClientControlProperties.HitTestResult="CAPTION" controlzEx:WindowChrome.IsHitTestVisibleInChrome="False">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition/>
+								<ColumnDefinition Width="Auto"/>
+							</Grid.ColumnDefinitions>
+
+							<Grid Grid.Column="0" Background="Transparent">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="Auto"/>
+									<ColumnDefinition Width="Auto"/>
+									<ColumnDefinition/>
+								</Grid.ColumnDefinitions>
+								<Button Name="ButtonIcon"
+									Style="{StaticResource ButtonCustom}"
+									Margin="10,0,0,0"
+									VerticalAlignment="Center"
+									controlzEx:WindowChrome.IsHitTestVisibleInChrome="True"
+									Background="Transparent">
 									<Image
-										Grid.Column="0"
 										Width="16"
 										Height="16"
-										Margin="8,0"
 										VerticalAlignment="Center"
-										Source="{TemplateBinding Icon}"/>
-									<TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{TemplateBinding Title}"/>
-
-									<StackPanel Grid.Column="2" shell:WindowChrome.IsHitTestVisibleInChrome="True" Orientation="Horizontal">
-										<Button x:Name="BtnMinimize"
-											Width="46"
-											Height="32"
-											Command="sw:SystemCommands.MinimizeWindowCommand"
-											Content="—"
-											WindowChrome.IsHitTestVisibleInChrome="True"/>
-										<Button x:Name="BtnMax"
-											Width="46"
-											Height="32"
-											Command="sw:SystemCommands.MaximizeWindowCommand"
-											Content="☐"
-											WindowChrome.IsHitTestVisibleInChrome="True"/>
-										<Button x:Name="BtnRestore"
-											Width="46"
-											Height="32"
-											Command="sw:SystemCommands.RestoreWindowCommand"
-											Content="❐"
-											Visibility="Collapsed"
-											WindowChrome.IsHitTestVisibleInChrome="True"/>
-										<Button Name="BtnClose"
-											Width="46"
-											Height="32"
-											Command="sw:SystemCommands.CloseWindowCommand"
-											Content="✕"
-											WindowChrome.IsHitTestVisibleInChrome="True"/>
-									</StackPanel>
-								</Grid>
-
-								<AdornerDecorator Grid.Row="1">
-									<ContentPresenter ClipToBounds="True" Content="{TemplateBinding Content}"/>
-								</AdornerDecorator>
+										IsHitTestVisible="False"
+										Source="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Icon}"/>
+								</Button>
+								<TextBlock
+									Grid.Column="1"
+									Padding="10,0,0,0"
+									VerticalAlignment="Center"
+									Foreground="{DynamicResource PrimaryTextBrush}"
+									Text="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Title}"/>
 							</Grid>
-						</Border>
-					</Border>
 
-					<ControlTemplate.Triggers>
-						<Trigger Property="WindowState" Value="Maximized">
-							<Setter TargetName="WindowBorder" Property="Padding" Value="8"/>
-							<Setter TargetName="BtnMax" Property="Visibility" Value="Collapsed"/>
-							<Setter TargetName="BtnRestore" Property="Visibility" Value="Visible"/>
-							<Setter TargetName="WindowBorder" Property="BorderThickness" Value="0"/>
-						</Trigger>
-					</ControlTemplate.Triggers>
+						</Grid>
+
+						<Border Grid.Row="1" Background="{DynamicResource RegionBrush}">
+							<ContentPresenter
+								HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+								VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+								Content="{TemplateBinding Content}"
+								ContentStringFormat="{TemplateBinding ContentStringFormat}"
+								ContentTemplate="{TemplateBinding ContentTemplate}"
+								RecognizesAccessKey="True"/>
+						</Border>
+					</Grid>
+
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>
 	</Style>
 
-
-	<Style x:Key="WindowBase" TargetType="c:WindowBase" BasedOn="{StaticResource CustomWindow}">
-		<Setter Property="Icon" Value="pack://application:,,,/BaseFramework;component/Resources/Icons/YiffBrowserIcon.png"/>
-		<!--<Setter Property="ShowIcon" Value="True"/>-->
-	</Style>
-
-	<Style TargetType="c:WindowBase" BasedOn="{StaticResource WindowBase}"/>
+	<Style TargetType="c:WindowContent" BasedOn="{StaticResource WindowContentStyle}"/>
 
 	<Style TargetType="c:DialogWindowWrapper">
 		<Setter Property="Padding" Value="4,0,4,4"/>

@@ -135,7 +135,6 @@
 														Background="{TemplateBinding Background}"
 														SnapsToDevicePixels="True">
 														<hc:ScrollViewer
-															Style="{x:Null}"
 															Padding="{TemplateBinding Padding}"
 															hc:ScrollViewerAttach.AutoHide="False"
 															hc:ScrollViewerAttach.Orientation="Vertical"
