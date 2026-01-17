@@ -1,29 +1,21 @@
-﻿using System.Runtime.InteropServices;
+﻿using ControlzEx;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using System.Windows.Interop;
 
 namespace BaseFramework.Controls;
 
-public class WindowBase : CustomWindow {
+public class WindowBase : WindowChromeWindow {
 
+	public nint WindowHandle { get; private set; }
+	public HwndSource? HwndSource { get; private set; }
 
-	public bool SpecialNoResize {
-		get => (bool)GetValue(SpecialNoResizeProperty);
-		set => SetValue(SpecialNoResizeProperty, value);
+	static WindowBase() {
+		DefaultStyleKeyProperty.OverrideMetadata(typeof(WindowBase), new FrameworkPropertyMetadata(typeof(WindowBase)));
 	}
 
-
-	public static readonly DependencyProperty SpecialNoResizeProperty = DependencyProperty.Register(
-		nameof(SpecialNoResize),
-		typeof(bool),
-		typeof(WindowBase),
-		new PropertyMetadata(false)
-	);
-
-
-
-	public Window CenterToOwner {
-		get => (Window)GetValue(CenterToOwnerProperty);
+	public Window? CenterToOwner {
+		get => (Window?)GetValue(CenterToOwnerProperty);
 		set => SetValue(CenterToOwnerProperty, value);
 	}
 
@@ -34,27 +26,29 @@ public class WindowBase : CustomWindow {
 		new PropertyMetadata(null)
 	);
 
-
-
 	public WindowBase() {
 
+	}
+
+	public override void OnApplyTemplate() {
+		base.OnApplyTemplate();
+
+		if (GetTemplateChild("ButtonIcon") is ButtonBase button) {
+			button.Click += (s, e) => {
+				System.Windows.SystemCommands.ShowSystemMenuCommand.Execute(null, button);
+			};
+
+			button.MouseDoubleClick += (s, e) => {
+				Close();
+			};
+		}
 	}
 
 	protected override void OnSourceInitialized(EventArgs e) {
 		base.OnSourceInitialized(e);
 
-		if (SpecialNoResize) {
-			nint hwnd = new WindowInteropHelper(this).Handle;
-			int style = GetWindowLong(hwnd, GWL_STYLE);
-
-			// 去掉最大化和最小化按钮
-			style &= ~WS_MAXIMIZEBOX;
-			style &= ~WS_MINIMIZEBOX;
-			// 去掉可调整大小的边框
-			style &= ~WS_THICKFRAME;
-
-			SetWindowLong(hwnd, GWL_STYLE, style);
-		}
+		//WindowHandle = new WindowInteropHelper(this).Handle;
+		//HwndSource = HwndSource.FromHwnd(WindowHandle);
 
 		if (CenterToOwner != null) {
 			double ownerLeft = CenterToOwner.Left;
@@ -67,15 +61,4 @@ public class WindowBase : CustomWindow {
 		}
 	}
 
-
-	private const int GWL_STYLE = -16;
-	private const int WS_MAXIMIZEBOX = 0x00010000;
-	private const int WS_MINIMIZEBOX = 0x00020000;
-	private const int WS_THICKFRAME = 0x00040000;
-
-	[DllImport("user32.dll", SetLastError = true)]
-	private static extern int GetWindowLong(nint hWnd, int nIndex);
-
-	[DllImport("user32.dll", SetLastError = true)]
-	private static extern int SetWindowLong(nint hWnd, int nIndex, int dwNewLong);
 }

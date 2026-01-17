@@ -1,123 +1,24 @@
-﻿<controlzEx:WindowChromeWindow Name="Window"
+﻿<bf:WindowBase Name="Window"
 	x:Class="YB.E621.Views.E621MainWindow"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:b="RW.Base.WPF"
 	xmlns:bf="BaseFramework"
-	xmlns:controlzEx="urn:controlzex"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:dd="urn:gong-wpf-dragdrop"
-	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
-	xmlns:ex="clr-namespace:YB.E621.Extensions"
-	xmlns:hc="https://handyorg.github.io/handycontrol"
-	xmlns:hc_c="clr-namespace:HandyControl.Controls;assembly=HandyControl"
 	xmlns:local="clr-namespace:YB.E621.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:p="clr-namespace:YB.E621.Parameters"
-	xmlns:service="clr-namespace:YB.E621.Services"
-	xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-	xmlns:subs="clr-namespace:YB.E621.Views.Subs"
-	xmlns:sw="clr-namespace:System.Windows;assembly=PresentationFramework"
-	xmlns:wpf="RW.Common.WPF"
 	d:DataContext="{d:DesignInstance Type=local:E621MainWindowViewModel}"
 	d:Title="E621 Window"
+	Style="{StaticResource WindowBaseStyle}"
 	DataContext="{b:DISource Type=local:E621MainWindowViewModel}"
 	Width="1270"
 	Height="800"
-	controlzEx:WindowBackdropManager.BackdropType="Mica"
-	CaptionColor="Transparent"
-	CornerPreference="Round"
-	FlowDirection="LeftToRight"
-	GlowColor="{DynamicResource BorderColor}"
-	Icon="/BaseFramework;component/Resources/Icons/E621Icon.ico"
-	NCActiveBrush="Transparent"
-	NCNonActiveBrush="Transparent"
-	NonActiveGlowColor="{DynamicResource BorderColor}"
-	ResizeMode="CanResizeWithGrip"
-	SizeToContent="Manual"
-	UseNativeCaptionButtons="True"
+	ResizeMode="CanResize"
 	WindowStartupLocation="CenterScreen"
 	mc:Ignorable="d">
 
-	<!--<WindowChrome.WindowChrome>
-		<WindowChrome
-			CaptionHeight="32"
-			CornerRadius="0"
-			GlassFrameThickness="0"
-			ResizeBorderThickness="5"/>
-	</WindowChrome.WindowChrome>-->
-
-	<!--<shell:WindowChrome.WindowChrome>
-		<shell:WindowChrome
-			CaptionHeight="29"
-			CornerRadius="0"
-			GlassFrameThickness="0"
-			ResizeBorderThickness="20"/>
-	</shell:WindowChrome.WindowChrome>-->
-
-	<!--<Window.Style>
-
-		<Style TargetType="bf:CustomWindow" BasedOn="{StaticResource CustomWindow}">
-			<Style.Triggers>
-				<DataTrigger Binding="{Binding ViewParameter.ModuleType}" Value="{x:Static bf:ModuleType.E621}">
-					<Setter Property="Icon" Value="/BaseFramework;component/Resources/Icons/E621Icon.ico"/>
-				</DataTrigger>
-				<DataTrigger Binding="{Binding ViewParameter.ModuleType}" Value="{x:Static bf:ModuleType.E6AI}">
-					<Setter Property="Icon" Value="/BaseFramework;component/Resources/Icons/E6AI.ico"/>
-				</DataTrigger>
-				<DataTrigger Binding="{Binding ViewParameter.ModuleType}" Value="{x:Static bf:ModuleType.E926}">
-					<Setter Property="Icon" Value="/BaseFramework;component/Resources/Icons/E621Icon.ico"/>
-				</DataTrigger>
-			</Style.Triggers>
-		</Style>
-
-	</Window.Style>-->
-
-	<Grid SnapsToDevicePixels="True">
-		<Grid.RowDefinitions>
-			<RowDefinition Height="30"/>
-			<!--<RowDefinition Height="Auto"/>-->
-			<RowDefinition Height="*"/>
-		</Grid.RowDefinitions>
-
-		<Grid Grid.Row="0" controlzEx:NonClientControlProperties.HitTestResult="CAPTION" controlzEx:WindowChrome.IsHitTestVisibleInChrome="False">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition/>
-				<ColumnDefinition Width="Auto"/>
-			</Grid.ColumnDefinitions>
-
-			<Grid Grid.Column="0" Background="Transparent">
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="Auto"/>
-					<ColumnDefinition Width="Auto"/>
-					<ColumnDefinition/>
-				</Grid.ColumnDefinitions>
-				<Button Name="ButtonIcon"
-					Style="{StaticResource ButtonCustom}"
-					Margin="10,0,0,0"
-					VerticalAlignment="Center"
-					bf:ControlExtension.DoubleClickCommand="{x:Static sw:SystemCommands.CloseWindowCommand}"
-					controlzEx:WindowChrome.IsHitTestVisibleInChrome="True"
-					Background="Transparent"
-					Command="{x:Static sw:SystemCommands.ShowSystemMenuCommand}">
-					<Image
-						Width="16"
-						Height="16"
-						VerticalAlignment="Center"
-						IsHitTestVisible="False"
-						Source="{Binding ElementName=Window, Path=Icon}"/>
-				</Button>
-				<TextBlock
-					Grid.Column="1"
-					Padding="10,0,0,0"
-					VerticalAlignment="Center"
-					Foreground="{DynamicResource PrimaryTextBrush}"
-					Text="{Binding ElementName=Window, Path=Title}"/>
-			</Grid>
-
-		</Grid>
-
-		<Border x:Name="Root" Grid.Row="1" Background="{DynamicResource RegionBrush}"/>
+	<Grid>
+		<Border x:Name="Root" Background="{DynamicResource RegionBrush}"/>
 	</Grid>
 
-</controlzEx:WindowChromeWindow>
+</bf:WindowBase>

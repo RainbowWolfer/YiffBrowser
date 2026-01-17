@@ -168,12 +168,7 @@ public class DialogService : ServiceBase, IDialogServiceEx {
 			}
 
 			dialogViewModel.DialogWindowParameter.Do(it => {
-				if (it.ResizeMode is ResizeMode.NoResize && window is WindowBase windowBase) {
-					window.ResizeMode = ResizeMode.CanMinimize;
-					windowBase.SpecialNoResize = true;
-				} else {
-					window.ResizeMode = it.ResizeMode;
-				}
+				window.ResizeMode = it.ResizeMode;
 				window.WindowStyle = it.WindowStyle;
 				window.SizeToContent = it.SizeToContent;
 				window.WindowStartupLocation = it.WindowStartupLocation;

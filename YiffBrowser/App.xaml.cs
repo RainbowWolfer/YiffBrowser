@@ -235,6 +235,7 @@ public partial class App : ApplicationBase {
 		protected override IEnumerable<string> AdditionalSkipSet() {
 			yield return "XamlAnimatedGif";
 			yield return "GongSolutions";
+			yield return "ControlzEx";
 		}
 
 		protected override void AfterInitialized(IReadOnlyDictionary<string, Assembly> pool, IReadOnlyDictionary<string, Type> types) {
