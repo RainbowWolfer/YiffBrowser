@@ -2,7 +2,6 @@
 using BaseFramework.Controls;
 using BaseFramework.Enums;
 using BaseFramework.Interfaces;
-using ControlzEx;
 using DevExpress.Mvvm;
 using RW.Common.Helpers;
 using System.Windows.Media.Imaging;
