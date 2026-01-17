@@ -37,8 +37,8 @@ public class WindowBase : WindowChromeWindow {
 	protected override void OnSourceInitialized(EventArgs e) {
 		base.OnSourceInitialized(e);
 
-		//WindowHandle = new WindowInteropHelper(this).Handle;
-		//HwndSource = HwndSource.FromHwnd(WindowHandle);
+		WindowHandle = new WindowInteropHelper(this).Handle;
+		HwndSource = HwndSource.FromHwnd(WindowHandle);
 
 		if (CenterToOwner != null) {
 			double ownerLeft = CenterToOwner.Left;
