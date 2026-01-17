@@ -1637,7 +1637,7 @@
 		<Setter Property="UseLayoutRounding" Value="True"/>
 		<Setter Property="SnapsToDevicePixels" Value="True"/>
 
-		<Setter Property="shell:WindowChrome.WindowChrome">
+		<!--<Setter Property="shell:WindowChrome.WindowChrome">
 			<Setter.Value>
 				<shell:WindowChrome
 					CaptionHeight="32"
@@ -1646,7 +1646,7 @@
 					ResizeBorderThickness="8"
 					UseAeroCaptionButtons="False"/>
 			</Setter.Value>
-		</Setter>
+		</Setter>-->
 
 		<Setter Property="Template">
 			<Setter.Value>
@@ -1683,31 +1683,31 @@
 									<TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{TemplateBinding Title}"/>
 
 									<StackPanel Grid.Column="2" shell:WindowChrome.IsHitTestVisibleInChrome="True" Orientation="Horizontal">
-										<Button
-											Style="{StaticResource YourButtonStyle}"
+										<Button x:Name="BtnMinimize"
 											Width="46"
 											Height="32"
 											Command="sw:SystemCommands.MinimizeWindowCommand"
-											Content="—"/>
+											Content="—"
+											WindowChrome.IsHitTestVisibleInChrome="True"/>
 										<Button x:Name="BtnMax"
-											Style="{StaticResource YourButtonStyle}"
 											Width="46"
 											Height="32"
 											Command="sw:SystemCommands.MaximizeWindowCommand"
-											Content="☐"/>
+											Content="☐"
+											WindowChrome.IsHitTestVisibleInChrome="True"/>
 										<Button x:Name="BtnRestore"
-											Style="{StaticResource YourButtonStyle}"
 											Width="46"
 											Height="32"
 											Command="sw:SystemCommands.RestoreWindowCommand"
 											Content="❐"
-											Visibility="Collapsed"/>
-										<Button
-											Style="{StaticResource YourCloseButtonStyle}"
+											Visibility="Collapsed"
+											WindowChrome.IsHitTestVisibleInChrome="True"/>
+										<Button Name="BtnClose"
 											Width="46"
 											Height="32"
 											Command="sw:SystemCommands.CloseWindowCommand"
-											Content="✕"/>
+											Content="✕"
+											WindowChrome.IsHitTestVisibleInChrome="True"/>
 									</StackPanel>
 								</Grid>
 
