@@ -4,12 +4,15 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:bf="BaseFramework"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:hc="https://handyorg.github.io/handycontrol"
 	xmlns:local="clr-namespace:YB.E621.Controls"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:wpf="RW.Common.WPF"
 	d:Background="White"
 	d:DesignHeight="450"
 	d:DesignWidth="200"
+	SnapsToDevicePixels="True"
+	UseLayoutRounding="True"
 	mc:Ignorable="d">
 
 	<Control.Resources>
@@ -18,7 +21,7 @@
 
 	<Grid>
 		<ListBox x:Name="TagsistBox"
-			Style="{StaticResource CustomListBoxStyle}"
+			Style="{StaticResource ListBox.Custom}"
 			BorderThickness="0"
 			bf:BorderExtension.CornerRadius="0"
 			bf:ListBoxExtension.ClickBlankToDeselect="True"
@@ -40,7 +43,11 @@
 							<Setter Property="Template">
 								<Setter.Value>
 									<ControlTemplate>
-										<Expander IsExpanded="True">
+										<Expander
+											Padding="0"
+											BorderThickness="0"
+											hc:BorderElement.CornerRadius="0"
+											IsExpanded="True">
 											<Expander.Header>
 												<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel}">
 													<TextBlock FontWeight="SemiBold" Text="{Binding Name}"/>
@@ -70,7 +77,11 @@
 							</Grid.ColumnDefinitions>
 
 							<Border Grid.Column="1">
-								<TextBlock Foreground="{Binding Category, Converter={StaticResource E621TagCategoryBrushConverter}}" Text="{Binding Text}" TextTrimming="CharacterEllipsis"/>
+								<TextBlock
+									VerticalAlignment="Center"
+									Foreground="{Binding Category, Converter={StaticResource E621TagCategoryBrushConverter}}"
+									Text="{Binding Text}"
+									TextTrimming="CharacterEllipsis"/>
 							</Border>
 
 							<Button
@@ -95,7 +106,7 @@
 			</ListBox.ItemTemplate>
 
 			<ListBox.ItemContainerStyle>
-				<Style TargetType="ListBoxItem" BasedOn="{StaticResource CustomListBoxItemStyle}">
+				<Style TargetType="ListBoxItem" BasedOn="{StaticResource ListBoxItem.Custom}">
 					<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
 					<Setter Property="ContextMenu">
 						<Setter.Value>

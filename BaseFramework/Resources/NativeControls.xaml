@@ -1206,12 +1206,6 @@
 		</Style.Triggers>
 	</Style>
 
-	<Style x:Key="SelectableTextBlock" TargetType="TextBox" BasedOn="{StaticResource CustomTextBoxStyle}">
-		<Setter Property="BorderThickness" Value="0"/>
-		<Setter Property="Padding" Value="0"/>
-		<Setter Property="IsReadOnly" Value="True"/>
-	</Style>
-
 	<Style x:Key="CustomButtonStyle" TargetType="{x:Type Button}">
 		<Setter Property="FocusVisualStyle" Value="{StaticResource CustomFocusVisual}"/>
 		<Setter Property="Background" Value="{StaticResource Button.Static.Background}"/>

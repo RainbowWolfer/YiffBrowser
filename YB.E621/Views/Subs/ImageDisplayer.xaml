@@ -21,6 +21,7 @@
 			<Border>
 				<Grid>
 					<bf:ImageViewer x:Name="ImageViewer"
+						BorderThickness="0"
 						IsEnabled="{Binding IsFileReady}"
 						MouseDoubleClick="ImageViewer_MouseDoubleClick"
 						MouseUp="ImageViewer_MouseUp"/>
@@ -46,7 +47,7 @@
 								MinWidth="100"
 								Margin="4,0,0,0"
 								Padding="4,0"
-								Background="#e6e6e6"
+								Background="{DynamicResource BorderBrush}"
 								CornerRadius="4"
 								DockPanel.Dock="Right">
 								<TextBlock
@@ -70,7 +71,7 @@
 								<TextBlock
 									d:Text="Loading Error : Exception"
 									VerticalAlignment="Center"
-									Foreground="Red"
+									Foreground="{DynamicResource DangerBrush}"
 									Text="{Binding ErrorMessage}"
 									TextAlignment="Center"/>
 							</Border>
