@@ -234,6 +234,15 @@
 
 				<TabItem>
 					<TabItem.Header>
+						<c:HorizontalIconText Width="100" Glyph="&#xE8F1;" Text="Dependencies"/>
+					</TabItem.Header>
+
+
+
+				</TabItem>
+
+				<TabItem>
+					<TabItem.Header>
 						<c:HorizontalIconText Width="100" Glyph="&#xE946;" Text="About"/>
 					</TabItem.Header>
 

@@ -31,7 +31,7 @@ public partial class E621MainView : UserControl {
 internal class E621MainViewModel(IAppManager appManager, IThemeManager themeManager) : ViewModelBase {
 
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
-	public ICurrentWindowServiceEx CurrentWindowService => GetService<ICurrentWindowServiceEx>();
+	public IUIObjectService<UserControl> UserControl => GetService<ITypedUIObjectService>(nameof(UserControl)).As<UserControl>();
 
 	public IUIObjectService<ButtonPopup> SearchPopupService => GetService<ITypedUIObjectService>(nameof(SearchPopupService)).As<ButtonPopup>();
 	public IUIObjectService<ButtonPopup> SitePopupService => GetService<ITypedUIObjectService>(nameof(SitePopupService)).As<ButtonPopup>();
@@ -152,7 +152,7 @@ internal class E621MainViewModel(IAppManager appManager, IThemeManager themeMana
 			TabSelectedIndex = Tabs.Count - 1;
 
 			DispatcherService.Dispatcher.BeginInvoke(() => {
-				CurrentWindowService.GetWindow().Focus();
+				UserControl.Focus();
 			}, DispatcherPriority.Loaded);
 
 		}

@@ -79,7 +79,7 @@ internal class PostDetailViewModel() : ViewModelBase {
 	public ICommand PreviousCommand => new DelegateCommand(Previous);
 
 	private void Next() {
-
+		//ParentViewModel
 	}
 
 	private void Previous() {

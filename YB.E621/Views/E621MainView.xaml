@@ -241,6 +241,7 @@
 	</Control.Resources>
 
 	<dxmvvm:Interaction.Behaviors>
+		<b:TypedUIObjectService Name="UserControl"/>
 		<b:DispatcherServiceEx/>
 		<b:LoadedService Command="{Binding LoadedCommand}" OnlyOnce="True"/>
 
