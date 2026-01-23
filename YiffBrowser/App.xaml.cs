@@ -117,7 +117,6 @@ public partial class App : ApplicationBase {
 			Fatal(ex);
 		}
 
-
 		//MessageBox.Show($"{IntPtr.Size}");
 	}
 
@@ -129,6 +128,8 @@ public partial class App : ApplicationBase {
 
 		startupStopWatch.Stop();
 		Debug.WriteLine($"app started in {startupStopWatch.ElapsedMilliseconds} ms");
+
+		((_AppManager)AppManager).AppStartupTimeSpan = TimeSpan.FromMilliseconds(startupStopWatch.ElapsedMilliseconds);
 		//MessageBox.Show($"app started in {startupStopWatch.ElapsedMilliseconds} ms");
 	}
 
@@ -229,6 +230,11 @@ public partial class App : ApplicationBase {
 		public override string AppName => AppConfig.AppName;
 		public override string BuildMode => AppConfig.IsRelease ? "Release" : "Debug";
 		public override bool IsRelease => AppConfig.IsRelease;
+
+		public TimeSpan AppStartupTimeSpan {
+			get => GetProperty(() => AppStartupTimeSpan);
+			set => SetProperty(() => AppStartupTimeSpan, value);
+		}
 	}
 
 	private class _DllLoader() : DllLoader() {

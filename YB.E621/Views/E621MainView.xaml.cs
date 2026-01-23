@@ -102,7 +102,7 @@ internal class E621MainViewModel(IAppManager appManager, IThemeManager themeMana
 			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
 			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
 			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-			Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
 			TabSelectedIndex = 0;
 
 		}, DispatcherPriority.Loaded);

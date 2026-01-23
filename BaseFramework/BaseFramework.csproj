@@ -5,16 +5,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="RW.Base.WPF" Version="$(RW_Common_Version)" />
+		<PackageReference Include="RW.Common" Version="$(RW_Common_Version)" />
+		<PackageReference Include="RW.Common.WPF" Version="$(RW_Common_Version)" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="ControlzEx" Version="7.0.2" />
 		<PackageReference Include="gong-wpf-dragdrop" Version="4.0.0" />
 		<!--<PackageReference Include="HandyControl" Version="3.5.1" />-->
 		<PackageReference Include="HandyControls" Version="3.6.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Include="RW.Base.WPF" Version="$(RW_Common_Version)" />
-		<PackageReference Include="RW.Common" Version="$(RW_Common_Version)" />
-		<PackageReference Include="RW.Common.WPF" Version="$(RW_Common_Version)" />
 	</ItemGroup>
 
 	<ItemGroup>

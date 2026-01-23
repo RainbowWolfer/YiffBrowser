@@ -19,7 +19,7 @@ public record class DialogResult(bool? DialogResultFlag, DialogCommand? ResultDi
 
 public class DialogService : ServiceBase, IDialogServiceEx {
 
-	private static Dictionary<Type, DialogWindowWrapper> windowPool = [];
+	private static readonly Dictionary<Type, DialogWindowWrapper> windowPool = [];
 
 	public bool SingleInstance {
 		get => (bool)GetValue(SingleInstanceProperty);
@@ -144,7 +144,6 @@ public class DialogService : ServiceBase, IDialogServiceEx {
 		};
 
 		try {
-
 			window.Content = dialogWindowWrapper;
 
 			Window? owner;
@@ -168,7 +167,11 @@ public class DialogService : ServiceBase, IDialogServiceEx {
 			}
 
 			dialogViewModel.DialogWindowParameter.Do(it => {
-				window.ResizeMode = it.ResizeMode;
+				if (window is WindowBase windowBase) {
+					windowBase.MyResizeMode = it.ResizeMode;// to make ResizeMode working properly
+				} else {
+					window.ResizeMode = it.ResizeMode;
+				}
 				window.WindowStyle = it.WindowStyle;
 				window.SizeToContent = it.SizeToContent;
 				window.WindowStartupLocation = it.WindowStartupLocation;
@@ -202,7 +205,10 @@ public class DialogService : ServiceBase, IDialogServiceEx {
 	}
 
 	protected virtual Window CreateWindow() {
-		return new WindowBase();
+		WindowBase window = new() {
+			//Style = (Style)Application.Current.TryFindResource("WindowBaseStyle")
+		};
+		return window;
 	}
 
 }

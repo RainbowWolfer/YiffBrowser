@@ -226,7 +226,7 @@
 	</Style>
 
 	<Style x:Key="DialogBackgroundBorder" TargetType="Border">
-		<Setter Property="Margin" Value="0,8,0,0"/>
+		<Setter Property="Margin" Value="4,4,4,0"/>
 		<Setter Property="CornerRadius" Value="4"/>
 		<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
 		<Setter Property="BorderThickness" Value="1"/>
@@ -255,6 +255,7 @@
 
 		<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
 		<Setter Property="VerticalContentAlignment" Value="Stretch"/>
+		<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
 
 		<Setter Property="Template">
 			<Setter.Value>
@@ -301,7 +302,7 @@
 
 						</Grid>
 
-						<Border Grid.Row="1" Background="{DynamicResource RegionBrush}">
+						<Border Grid.Row="1" Background="{TemplateBinding Background}">
 							<ContentPresenter
 								HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
 								VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
@@ -320,76 +321,78 @@
 	<Style TargetType="c:WindowContent" BasedOn="{StaticResource WindowContentStyle}"/>
 
 	<Style TargetType="c:DialogWindowWrapper">
-		<Setter Property="Padding" Value="4,0,4,4"/>
+		<Setter Property="Padding" Value="0"/>
 		<Setter Property="IsTabStop" Value="False"/>
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="c:DialogWindowWrapper">
-					<Border
-						Padding="{TemplateBinding Padding}"
-						BorderThickness="{TemplateBinding BorderThickness}"
-						BorderBrush="{TemplateBinding BorderBrush}"
-						Background="{TemplateBinding Background}">
-						<Grid>
-							<Grid.RowDefinitions>
-								<RowDefinition Height="*"/>
-								<RowDefinition Height="auto"/>
-							</Grid.RowDefinitions>
+					<c:WindowContent>
+						<Border
+							Padding="{TemplateBinding Padding}"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							Background="{TemplateBinding Background}">
+							<Grid>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="*"/>
+									<RowDefinition Height="auto"/>
+								</Grid.RowDefinitions>
 
-							<wpf:ClippingBorder Grid.Row="0" Padding="{TemplateBinding Padding}">
-								<ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"/>
-							</wpf:ClippingBorder>
+								<wpf:ClippingBorder Grid.Row="0" Padding="{TemplateBinding Padding}">
+									<ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"/>
+								</wpf:ClippingBorder>
 
-							<Border Grid.Row="1">
-								<ItemsControl
-									Margin="4"
-									HorizontalAlignment="Right"
-									Focusable="False"
-									IsTabStop="False"
-									ItemsSource="{TemplateBinding DialogCommands}">
+								<Border Grid.Row="1">
+									<ItemsControl
+										Margin="4"
+										HorizontalAlignment="Right"
+										Focusable="False"
+										IsTabStop="False"
+										ItemsSource="{TemplateBinding DialogCommands}">
 
-									<ItemsControl.ItemsPanel>
-										<ItemsPanelTemplate>
-											<StackPanel Orientation="Horizontal"/>
-										</ItemsPanelTemplate>
-									</ItemsControl.ItemsPanel>
+										<ItemsControl.ItemsPanel>
+											<ItemsPanelTemplate>
+												<StackPanel Orientation="Horizontal"/>
+											</ItemsPanelTemplate>
+										</ItemsControl.ItemsPanel>
 
-									<ItemsControl.ItemTemplateSelector>
-										<c:DialogWindowWrapperButtonTemplateSelector>
+										<ItemsControl.ItemTemplateSelector>
+											<c:DialogWindowWrapperButtonTemplateSelector>
 
-											<c:DialogWindowWrapperButtonTemplateSelector.Default>
-												<DataTemplate DataType="{x:Type vm:DialogCommand}">
-													<Button
-														Style="{StaticResource ButtonDefault}"
-														MinWidth="80"
-														Margin="4"
-														Command="{Binding RelativeSource={RelativeSource AncestorType=c:DialogWindowWrapper}, Path=DialogButtonCommand}"
-														CommandParameter="{Binding}"
-														Content="{Binding Content}"
-														IsEnabled="{Binding IsEnabled}"/>
-												</DataTemplate>
-											</c:DialogWindowWrapperButtonTemplateSelector.Default>
+												<c:DialogWindowWrapperButtonTemplateSelector.Default>
+													<DataTemplate DataType="{x:Type vm:DialogCommand}">
+														<Button
+															Style="{StaticResource ButtonDefault}"
+															MinWidth="80"
+															Margin="4"
+															Command="{Binding RelativeSource={RelativeSource AncestorType=c:DialogWindowWrapper}, Path=DialogButtonCommand}"
+															CommandParameter="{Binding}"
+															Content="{Binding Content}"
+															IsEnabled="{Binding IsEnabled}"/>
+													</DataTemplate>
+												</c:DialogWindowWrapperButtonTemplateSelector.Default>
 
-											<c:DialogWindowWrapperButtonTemplateSelector.Primary>
-												<DataTemplate DataType="{x:Type vm:DialogCommand}">
-													<Button
-														Style="{StaticResource ButtonPrimary}"
-														MinWidth="80"
-														Margin="4"
-														Command="{Binding RelativeSource={RelativeSource AncestorType=c:DialogWindowWrapper}, Path=DialogButtonCommand}"
-														CommandParameter="{Binding}"
-														Content="{Binding Content}"
-														IsEnabled="{Binding IsEnabled}"/>
-												</DataTemplate>
-											</c:DialogWindowWrapperButtonTemplateSelector.Primary>
+												<c:DialogWindowWrapperButtonTemplateSelector.Primary>
+													<DataTemplate DataType="{x:Type vm:DialogCommand}">
+														<Button
+															Style="{StaticResource ButtonPrimary}"
+															MinWidth="80"
+															Margin="4"
+															Command="{Binding RelativeSource={RelativeSource AncestorType=c:DialogWindowWrapper}, Path=DialogButtonCommand}"
+															CommandParameter="{Binding}"
+															Content="{Binding Content}"
+															IsEnabled="{Binding IsEnabled}"/>
+													</DataTemplate>
+												</c:DialogWindowWrapperButtonTemplateSelector.Primary>
 
-										</c:DialogWindowWrapperButtonTemplateSelector>
-									</ItemsControl.ItemTemplateSelector>
+											</c:DialogWindowWrapperButtonTemplateSelector>
+										</ItemsControl.ItemTemplateSelector>
 
-								</ItemsControl>
-							</Border>
-						</Grid>
-					</Border>
+									</ItemsControl>
+								</Border>
+							</Grid>
+						</Border>
+					</c:WindowContent>
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>
@@ -405,7 +408,7 @@
 	<Style TargetType="c:TextBoxExtend" BasedOn="{StaticResource TextBoxExtend}"/>
 
 	<Style x:Key="DialogStyle" TargetType="UserControl">
-		<Setter Property="Padding" Value="4"/>
+		<Setter Property="Padding" Value="4,4,4,0"/>
 		<Setter Property="dxmvvm:Interaction.BehaviorsTemplate">
 			<Setter.Value>
 				<DataTemplate DataType="{x:Type vm:IDialogViewModel}">

@@ -9,6 +9,7 @@ using System.Windows.Markup;
 [assembly: XmlnsDefinition("BaseFramework", "BaseFramework.Helpers")]
 [assembly: XmlnsDefinition("BaseFramework", "BaseFramework.Interfaces")]
 [assembly: XmlnsDefinition("BaseFramework", "BaseFramework.Models")]
+[assembly: XmlnsDefinition("BaseFramework", "BaseFramework.Resources")]
 [assembly: XmlnsDefinition("BaseFramework", "BaseFramework.Services")]
 [assembly: XmlnsDefinition("BaseFramework", "BaseFramework.Utilities")]
 [assembly: XmlnsDefinition("BaseFramework", "BaseFramework.ViewModels")]

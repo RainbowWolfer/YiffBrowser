@@ -3,11 +3,17 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:base="RW.Base.WPF"
+	xmlns:bf="clr-namespace:BaseFramework"
 	xmlns:c="clr-namespace:BaseFramework.Controls"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+	xmlns:hc="https://handyorg.github.io/handycontrol"
 	xmlns:hc_c="clr-namespace:HandyControl.Controls;assembly=HandyControl"
 	xmlns:local="clr-namespace:BaseFramework.Views.Dialogs"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:models="clr-namespace:BaseFramework.Models"
+	xmlns:services="clr-namespace:BaseFramework.Services"
+	xmlns:sri="clr-namespace:System.Runtime.InteropServices;assembly=netstandard"
 	xmlns:tools="clr-namespace:HandyControl.Tools;assembly=HandyControl"
 	xmlns:views="clr-namespace:BaseFramework.Views"
 	xmlns:wpf="RW.Common.WPF"
@@ -205,51 +211,251 @@
 			</Setter>
 		</Style>
 
+		<Style x:Key="TabItemHeader" TargetType="c:HorizontalIconText" BasedOn="{StaticResource HorizontalIconTextBaseStyle}">
+			<Setter Property="Width" Value="120"/>
+		</Style>
+
 	</UserControl.Resources>
 
+	<dxmvvm:Interaction.Behaviors>
+		<dxmvvm:SaveFileDialogService/>
+	</dxmvvm:Interaction.Behaviors>
+
+	<!--<c:WindowContent>-->
 	<Border Style="{StaticResource DialogBackgroundBorder}">
 		<Grid Width="600" Height="400" Margin="6">
 			<TabControl Style="{StaticResource TabControlCapsule.Custom}" TabStripPlacement="Left">
 
 				<TabItem>
 					<TabItem.Header>
-						<c:HorizontalIconText Width="100" Glyph="&#xE9E9;" Text="General"/>
+						<c:HorizontalIconText Style="{StaticResource TabItemHeader}" Glyph="&#xE9E9;" Text="General"/>
 					</TabItem.Header>
 
 				</TabItem>
 
 				<TabItem>
 					<TabItem.Header>
-						<c:HorizontalIconText Width="100" Glyph="&#xF577;" Text="View"/>
+						<c:HorizontalIconText Style="{StaticResource TabItemHeader}" Glyph="&#xF577;" Text="View"/>
 					</TabItem.Header>
 
 				</TabItem>
 
 				<TabItem>
 					<TabItem.Header>
-						<c:HorizontalIconText Width="100" Glyph="&#xE896;" Text="Download"/>
+						<c:HorizontalIconText Style="{StaticResource TabItemHeader}" Glyph="&#xE896;" Text="Download"/>
 					</TabItem.Header>
 
 				</TabItem>
 
 				<TabItem>
 					<TabItem.Header>
-						<c:HorizontalIconText Width="100" Glyph="&#xE8F1;" Text="Dependencies"/>
+						<c:HorizontalIconText Style="{StaticResource TabItemHeader}" Glyph="&#xE838;" Text="Data Folders"/>
 					</TabItem.Header>
 
-
+					<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}" Margin="20">
+						<hc:TextBox hc:TitleElement.Title="Exe Folder" IsReadOnly="True" Text="{Binding AppFolderConfig.AppFolder, Mode=OneWay}"/>
+						<hc:TextBox hc:TitleElement.Title="App Data Folder" IsReadOnly="True" Text="{Binding AppFolderConfig.TargetFolder, Mode=OneWay}"/>
+					</wpf:SpacingStackPanel>
 
 				</TabItem>
 
 				<TabItem>
 					<TabItem.Header>
-						<c:HorizontalIconText Width="100" Glyph="&#xE946;" Text="About"/>
+						<c:HorizontalIconText Style="{StaticResource TabItemHeader}" Glyph="&#xEBC3;" Text="Service Providers"/>
 					</TabItem.Header>
 
+					<ScrollViewer Margin="4" Padding="16" hc:ScrollViewerAttach.AutoHide="False">
+						<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel}">
+							<TextBlock Text="TODO"/>
+							<TextBlock Text="E621"/>
+							<TextBlock Text="E926"/>
+							<TextBlock Text="E6AI"/>
+							<TextBlock Text="..."/>
+						</wpf:SpacingStackPanel>
+					</ScrollViewer>
+
+				</TabItem>
+
+				<TabItem>
+					<TabItem.Header>
+						<c:HorizontalIconText Style="{StaticResource TabItemHeader}" Glyph="&#xE8F1;" Text="Dependencies"/>
+					</TabItem.Header>
+
+					<ScrollViewer Margin="4" Padding="16" hc:ScrollViewerAttach.AutoHide="False">
+						<ItemsControl ItemsSource="{Binding Source={x:Static services:ProjectDependencies.AllDependencies}}">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate DataType="models:DependencyDescriptor">
+									<Border Background="Transparent">
+										<Grid>
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition Width="30"/>
+												<ColumnDefinition Width="*"/>
+												<ColumnDefinition Width="auto"/>
+												<ColumnDefinition Width="auto"/>
+											</Grid.ColumnDefinitions>
+
+											<StackPanel Orientation="Horizontal">
+												<TextBlock>
+													<TextBlock.Text>
+														<MultiBinding Converter="{StaticResource IListToIndexConverter}">
+															<Binding Path="Items" RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+															<Binding/>
+														</MultiBinding>
+													</TextBlock.Text>
+												</TextBlock>
+												<!--<TextBlock Text="."/>-->
+											</StackPanel>
+
+											<Border Grid.Column="1">
+												<DockPanel>
+													<TextBlock Text="{Binding Name}"/>
+													<Border x:Name="IndicatorBroder"
+														Height="1"
+														Margin="10,0,10,-4"
+														VerticalAlignment="Center"
+														Background="{DynamicResource BorderBrush}"
+														Visibility="Collapsed"/>
+												</DockPanel>
+											</Border>
+
+											<Border Grid.Column="2">
+												<TextBlock Text="{Binding Version}"/>
+											</Border>
+
+											<Border Grid.Column="3" Margin="10,0,0,0">
+												<TextBlock>
+													<c:HyperlinkEx wpf:ToolTipExtension.FastToolTip="True" NavigateString="{Binding SourceURL}">Source</c:HyperlinkEx>
+												</TextBlock>
+											</Border>
+
+										</Grid>
+									</Border>
+
+									<DataTemplate.Triggers>
+										<Trigger Property="IsMouseOver" Value="True">
+											<Setter TargetName="IndicatorBroder" Property="Visibility" Value="Visible"/>
+										</Trigger>
+									</DataTemplate.Triggers>
+
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</ScrollViewer>
+
+				</TabItem>
+
+				<TabItem>
+					<TabItem.Header>
+						<c:HorizontalIconText Style="{StaticResource TabItemHeader}" Glyph="&#xE946;" Text="About"/>
+					</TabItem.Header>
+
+					<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel}" Margin="20">
+
+						<DockPanel>
+							<Image Height="80" VerticalAlignment="Top" Source="/BaseFramework;component/Resources/Icons/YiffBrowserIcon.png"/>
+							<Border>
+								<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel}">
+									<TextBlock Margin="10,4" FontSize="32" Text="{x:Static bf:AppConfig.DisplayAppName}"/>
+									<TextBlock Margin="10,0" FontSize="16" Text="{Binding AppManager.AppFullVersion}"/>
+								</wpf:SpacingStackPanel>
+							</Border>
+						</DockPanel>
+
+						<Separator Margin="0,10"/>
+
+						<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel}">
+							<TextBlock>
+								<Run Text="Made By"/>
+								<Run Text="{Binding AppManager.Author, Mode=OneWay}"/>
+								<c:HyperlinkEx wpf:ToolTipExtension.FastToolTip="True" NavigateString="{x:Static bf:AppConfig.GithubURL}">Github</c:HyperlinkEx>
+							</TextBlock>
+
+							<TextBlock>
+								<Run Text="Project Source Code"/>
+								<c:HyperlinkEx wpf:ToolTipExtension.FastToolTip="True" NavigateString="{x:Static bf:AppConfig.ProjectRepositoryURL}">Github</c:HyperlinkEx>
+							</TextBlock>
+
+						</wpf:SpacingStackPanel>
+
+						<Separator Margin="0,10"/>
+
+						<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel}">
+							<TextBlock>
+								<Run Text="Framework Environment:"/>
+								<Run Text="{x:Static sri:RuntimeInformation.FrameworkDescription}"/>
+							</TextBlock>
+
+							<TextBlock>
+								<Run Text="System Name:"/>
+								<Run Text="{x:Static sri:RuntimeInformation.OSDescription}"/>
+							</TextBlock>
+
+							<TextBlock>
+								<Run Text="System Architecture:"/>
+								<Run Text="{Binding Source={x:Static sri:RuntimeInformation.OSArchitecture}, Converter={StaticResource ToStringConverter}, Mode=OneWay}"/>
+							</TextBlock>
+
+							<TextBlock>
+								<Run Text="Process Architecture:"/>
+								<Run Text="{Binding Source={x:Static sri:RuntimeInformation.ProcessArchitecture}, Converter={StaticResource ToStringConverter}, Mode=OneWay}"/>
+							</TextBlock>
+
+							<TextBlock>
+								<Run Text="App Start Time:"/>
+								<Run Text="{Binding AppManager.AppStartTime, Mode=OneWay}"/>
+							</TextBlock>
+
+							<TextBlock>
+								<Run Text="Language Used:"/>
+								<Run Text="{Binding AppManager.Language, Mode=OneWay}"/>
+							</TextBlock>
+
+							<TextBlock>
+								<Run Text="Session ID:"/>
+								<Run Text="{Binding AppManager.SessionID, Mode=OneWay}"/>
+							</TextBlock>
+
+							<TextBlock>
+								<Run Text="App Startup Time:"/>
+								<!-- , StringFormat='{}{0:mm\\:ss\\:ffff}' -->
+								<Run Text="{Binding AppManager.AppStartupTimeSpan, Mode=OneWay}"/>
+							</TextBlock>
+
+							<Border Margin="0,4,0,0">
+								<Button
+									Style="{StaticResource ButtonDefault}"
+									Width="190"
+									Padding="8,0"
+									HorizontalAlignment="Right"
+									Command="{Binding GenerateDiagnosticsFileCommand}">
+									<c:BoolContent Bool="{Binding IsGeneratingDiagnosticsFile}">
+										<c:BoolContent.FalseContent>
+											<TextBlock Text="Generate Diagnotics File"/>
+										</c:BoolContent.FalseContent>
+										<c:BoolContent.TrueContent>
+											<DockPanel>
+												<hc:CircleProgressBar
+													Width="16"
+													Height="16"
+													Margin="0,0,4,0"
+													IsIndeterminate="True"/>
+												<TextBlock VerticalAlignment="Center" Text="Generate Diagnotics File"/>
+											</DockPanel>
+										</c:BoolContent.TrueContent>
+									</c:BoolContent>
+								</Button>
+							</Border>
+
+						</wpf:SpacingStackPanel>
+
+						<!--<Separator Margin="0,10"/>-->
+
+					</wpf:SpacingStackPanel>
 				</TabItem>
 
 			</TabControl>
 		</Grid>
 	</Border>
+	<!--</c:WindowContent>-->
 
 </UserControl>

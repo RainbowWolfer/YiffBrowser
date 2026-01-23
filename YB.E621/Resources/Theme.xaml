@@ -131,7 +131,7 @@
 											BitmapImage="{TemplateBinding BitmapImage}"
 											GifImage="{TemplateBinding GifImage}"
 											Stretch="UniformToFill"
-											Visibility="Visible"/>
+											Visibility="Collapsed"/>
 									</Border>
 								</Border>
 

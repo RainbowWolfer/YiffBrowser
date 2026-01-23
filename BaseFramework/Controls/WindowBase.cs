@@ -1,6 +1,5 @@
 ﻿using ControlzEx;
 using System.Windows;
-using System.Windows.Controls.Primitives;
 using System.Windows.Interop;
 
 namespace BaseFramework.Controls;
@@ -26,6 +25,8 @@ public class WindowBase : WindowChromeWindow {
 		new PropertyMetadata(null)
 	);
 
+	public ResizeMode? MyResizeMode { get; set; }
+
 	public WindowBase() {
 
 	}
@@ -49,6 +50,16 @@ public class WindowBase : WindowChromeWindow {
 			Left = ownerLeft + ((ownerWidth - ActualWidth) / 2);
 			Top = ownerTop + ((ownerHeight - ActualHeight) / 2);
 		}
+
+		if (MyResizeMode != null) {
+			ResizeMode = MyResizeMode.Value;
+		}
+		Test();
+	}
+
+	private async void Test() {
+		await Task.Delay(3000);
+		//ResizeMode = ResizeMode.NoResize;
 	}
 
 }
