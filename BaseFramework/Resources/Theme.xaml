@@ -28,6 +28,10 @@
 
 	<FontFamily x:Key="IconPack">./Fonts/Segoe Fluent Icons.ttf#Segoe Fluent Icons</FontFamily>
 
+	<Style TargetType="TextBlock">
+		<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+	</Style>
+
 	<Style x:Key="TextBlockIcon" TargetType="TextBlock">
 		<Setter Property="FontFamily" Value="{StaticResource IconPack}"/>
 		<Setter Property="FontSize" Value="16"/>
@@ -49,6 +53,7 @@
 
 	<Style TargetType="ContentControl">
 		<Setter Property="Focusable" Value="False"/>
+		<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 	</Style>
 
 	<Style TargetType="Menu" BasedOn="{StaticResource Menu.Small}"/>
@@ -246,6 +251,8 @@
 
 		<Setter Property="SnapsToDevicePixels" Value="True"/>
 		<Setter Property="UseLayoutRounding" Value="True"/>
+
+		<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 
 	</Style>
 

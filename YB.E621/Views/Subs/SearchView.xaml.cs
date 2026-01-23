@@ -44,7 +44,7 @@ internal class SearchViewModel() : E621ViewModelBase {
 
 
 	public string SearchText {
-		get => GetProperty(() => SearchText);
+		get => GetProperty(() => SearchText) ?? string.Empty;
 		set {
 			SetProperty(() => SearchText, value);
 			OnSearchTextChanged();
@@ -365,6 +365,15 @@ internal class SearchViewModel() : E621ViewModelBase {
 		}
 		return array;
 	}
+
+
+
+	private DelegateCommand? openSearchPanelCommand;
+	public IDelegateCommand OpenSearchPanelCommand => openSearchPanelCommand ??= new(OpenSearchPanel);
+	private void OpenSearchPanel() {
+		parentViewModel?.ShowSearchPanel();
+	}
+
 
 }
 

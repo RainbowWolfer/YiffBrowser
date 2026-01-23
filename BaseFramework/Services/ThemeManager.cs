@@ -42,7 +42,7 @@ internal class ThemeManager() : IThemeManager {
 				if (handle != IntPtr.Zero) {
 					window.Dispatcher.BeginInvoke(new Action(() => {
 						object? r = _ControlzEx.SetImmersiveDarkMode.Invoke(null, [handle, isDark]);
-						Debug.WriteLine(r);
+						//Debug.WriteLine(r);
 
 						window.InvalidateArrange();
 						window.InvalidateMeasure();
