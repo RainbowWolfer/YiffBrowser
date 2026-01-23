@@ -54,12 +54,7 @@ public class WindowBase : WindowChromeWindow {
 		if (MyResizeMode != null) {
 			ResizeMode = MyResizeMode.Value;
 		}
-		Test();
-	}
 
-	private async void Test() {
-		await Task.Delay(3000);
-		//ResizeMode = ResizeMode.NoResize;
 	}
 
 }

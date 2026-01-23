@@ -44,11 +44,11 @@ internal class ThemeManager() : IThemeManager {
 						object? r = _ControlzEx.SetImmersiveDarkMode.Invoke(null, [handle, isDark]);
 						Debug.WriteLine(r);
 
-						//window.InvalidateArrange();
-						//window.InvalidateMeasure();
-						//window.InvalidateVisual();
-						//window.UpdateDefaultStyle();
-						//window.UpdateLayout();
+						window.InvalidateArrange();
+						window.InvalidateMeasure();
+						window.InvalidateVisual();
+						window.UpdateDefaultStyle();
+						window.UpdateLayout();
 
 						if (window.WindowState == WindowState.Maximized) {
 							window.WindowState = WindowState.Normal;
@@ -62,7 +62,7 @@ internal class ThemeManager() : IThemeManager {
 							window.Width = width;
 						}
 
-						//SetWindowPos(handle, IntPtr.Zero, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+						SetWindowPos(handle, IntPtr.Zero, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
 						//WindowBackdropType type = WindowBackdropManager.GetBackdropType(window);
 						//WindowBackdropManager.UpdateBackdrop(window, type);
