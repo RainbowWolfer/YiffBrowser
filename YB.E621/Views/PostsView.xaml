@@ -43,68 +43,79 @@
 						<DockPanel>
 							<Border Padding="4" Background="{DynamicResource RegionBrush}" DockPanel.Dock="Top">
 
-								<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Center" IsEnabled="{Binding IsLoading, Converter={StaticResource Boolean2BooleanReConverter}}">
-									<Button
-										Style="{StaticResource Button.Custom.Icon}"
-										Width="30"
-										Height="30"
-										Command="{Binding RefreshCommand}"
-										ToolTip="Refresh">
-										<wpf:FontIcon Text="&#xE72C;"/>
-									</Button>
+								<Grid>
+									<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Left">
+										<Button Width="100">
+											<Button.Background>
+												<ImageBrush ImageSource="https://static1.e6ai.net/data/4e/41/4e410c6dd24c6470cd932326a821a0c9.png" Stretch="UniformToFill"/>
+											</Button.Background>
+										</Button>
+									</wpf:SpacingStackPanel>
 
-									<Border Style="{StaticResource HorizontalSeparator}"/>
+									<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Center" IsEnabled="{Binding IsLoading, Converter={StaticResource Boolean2BooleanReConverter}}">
+										<Button
+											Style="{StaticResource Button.Custom.Icon}"
+											Width="30"
+											Height="30"
+											Command="{Binding RefreshCommand}"
+											ToolTip="Refresh">
+											<wpf:FontIcon Text="&#xE72C;"/>
+										</Button>
 
-									<Button
-										Style="{StaticResource Button.Custom.Icon}"
-										Width="30"
-										Height="30"
-										Command="{Binding PreviousPageCommand}"
-										IsEnabled="{Binding CanGoLeft}"
-										ToolTip="Previous Page">
-										<wpf:FontIcon Text="&#xE76B;"/>
-									</Button>
+										<Border Style="{StaticResource HorizontalSeparator}"/>
 
-									<Button x:Name="CurrentPageButton"
-										Style="{StaticResource Button.Custom.Icon}"
-										Width="30"
-										Height="30"
-										ToolTip="Current Page">
-										<TextBlock d:Text="99" FontSize="16" Text="{Binding CurrentPage}"/>
-									</Button>
+										<Button
+											Style="{StaticResource Button.Custom.Icon}"
+											Width="30"
+											Height="30"
+											Command="{Binding PreviousPageCommand}"
+											IsEnabled="{Binding CanGoLeft}"
+											ToolTip="Previous Page">
+											<wpf:FontIcon Text="&#xE76B;"/>
+										</Button>
 
-									<Button
-										Style="{StaticResource Button.Custom.Icon}"
-										Width="30"
-										Height="30"
-										Command="{Binding NextPageCommand}"
-										ToolTip="Next Page">
-										<wpf:FontIcon Text="&#xE76C;"/>
-									</Button>
+										<Button x:Name="CurrentPageButton"
+											Style="{StaticResource Button.Custom.Icon}"
+											Width="30"
+											Height="30"
+											ToolTip="Current Page">
+											<TextBlock d:Text="99" FontSize="16" Text="{Binding CurrentPage}"/>
+										</Button>
 
-									<Border Style="{StaticResource HorizontalSeparator}"/>
+										<Button
+											Style="{StaticResource Button.Custom.Icon}"
+											Width="30"
+											Height="30"
+											Command="{Binding NextPageCommand}"
+											ToolTip="Next Page">
+											<wpf:FontIcon Text="&#xE76C;"/>
+										</Button>
 
-									<Button
-										Style="{StaticResource Button.Custom.Icon}"
-										Width="30"
-										Height="30"
-										Command="{Binding DownloadCommand}"
-										ToolTip="Download">
-										<wpf:FontIcon Text="&#xE896;"/>
-									</Button>
+										<Border Style="{StaticResource HorizontalSeparator}"/>
 
-									<ToggleButton Height="30" MinWidth="30" IsChecked="{Binding IsMultiSelecting, Mode=TwoWay}">
-										<ToggleButton.ToolTip>
-											<TextBlock Foreground="Black" Text="Toggle Selection"/>
-										</ToggleButton.ToolTip>
-										<bf:HorizontalIconText
-											d:Text="(1/75)"
-											Glyph="&#xE152;"
-											IconForeground="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Foreground}"
-											Text="{Binding MultiSelectingText}"/>
-									</ToggleButton>
+										<Button
+											Style="{StaticResource Button.Custom.Icon}"
+											Width="30"
+											Height="30"
+											Command="{Binding DownloadCommand}"
+											ToolTip="Download">
+											<wpf:FontIcon Text="&#xE896;"/>
+										</Button>
 
-								</wpf:SpacingStackPanel>
+										<ToggleButton Height="30" MinWidth="30" IsChecked="{Binding IsMultiSelecting, Mode=TwoWay}">
+											<ToggleButton.ToolTip>
+												<TextBlock Foreground="Black" Text="Toggle Selection"/>
+											</ToggleButton.ToolTip>
+											<bf:HorizontalIconText
+												d:Text="(1/75)"
+												Glyph="&#xE152;"
+												IconForeground="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Foreground}"
+												Text="{Binding MultiSelectingText}"/>
+										</ToggleButton>
+
+									</wpf:SpacingStackPanel>
+
+								</Grid>
 
 							</Border>
 

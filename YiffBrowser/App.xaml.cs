@@ -123,8 +123,10 @@ public partial class App : ApplicationBase {
 	protected override void Loaded() {
 		base.Loaded();
 
+
+		//new TestWindow().Show();
 		ShowE6AI();
-		//new Window1().Show();
+		//ShowE621();
 
 		startupStopWatch.Stop();
 		Debug.WriteLine($"app started in {startupStopWatch.ElapsedMilliseconds} ms");
@@ -242,6 +244,17 @@ public partial class App : ApplicationBase {
 			yield return "XamlAnimatedGif";
 			yield return "GongSolutions";
 			yield return "ControlzEx";
+			yield return "Flyleaf";
+			yield return "Dragablz";
+			yield return "MaterialDesign";
+			yield return "SharpGen";
+			yield return "Vortice";
+			yield return "WpfColorFontDialog";
+		}
+
+		public override void Initialize() {
+			base.Initialize();
+
 		}
 
 		protected override void AfterInitialized(IReadOnlyDictionary<string, Assembly> pool, IReadOnlyDictionary<string, Type> types) {

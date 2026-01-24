@@ -19,6 +19,7 @@
 	<ResourceDictionary.MergedDictionaries>
 		<ResourceDictionary Source="pack://application:,,,/RW.Common.WPF;component/Resources/Generic.xaml"/>
 		<ResourceDictionary Source="/BaseFramework;component/Resources/NativeControls.xaml"/>
+		<ResourceDictionary Source="/BaseFramework;component/Resources/PlaybackControls.xaml"/>
 	</ResourceDictionary.MergedDictionaries>
 
 	<conv:PassThroughConverter x:Key="PassThroughConverter"/>

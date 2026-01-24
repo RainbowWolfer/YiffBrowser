@@ -35,6 +35,7 @@
 						<Button x:Name="ReloadButton"
 							Width="20"
 							Height="20"
+							Padding="0"
 							BorderThickness="0"
 							Click="ReloadButton_Click"
 							ToolTip="Reload this image">

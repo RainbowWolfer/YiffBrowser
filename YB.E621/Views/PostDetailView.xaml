@@ -125,7 +125,52 @@
 					</Border>
 
 					<Border Grid.Column="1">
-						<subs:ImageDisplayer Post="{Binding Post}"/>
+						<ContentControl Focusable="False" IsTabStop="False">
+							<ContentControl.Style>
+								<Style TargetType="ContentControl" BasedOn="{StaticResource BaseStyle}">
+									<Style.Triggers>
+
+										<DataTrigger Binding="{Binding DisplayType}" Value="{x:Static local:PostDisplayType.Image}">
+											<Setter Property="Content">
+												<Setter.Value>
+													<subs:ImageDisplayer Post="{Binding Post}"/>
+												</Setter.Value>
+											</Setter>
+										</DataTrigger>
+
+										<DataTrigger Binding="{Binding DisplayType}" Value="{x:Static local:PostDisplayType.Video}">
+											<Setter Property="Content">
+												<Setter.Value>
+													<subs:VideoDisplayer Post="{Binding Post}"/>
+												</Setter.Value>
+											</Setter>
+										</DataTrigger>
+
+										<DataTrigger Binding="{Binding DisplayType}" Value="{x:Static local:PostDisplayType.NotSupported}">
+											<Setter Property="Content">
+												<Setter.Value>
+													<Border>
+														<TextBlock Text="Not Supported"/>
+													</Border>
+												</Setter.Value>
+											</Setter>
+										</DataTrigger>
+
+										<DataTrigger Binding="{Binding DisplayType}" Value="{x:Static local:PostDisplayType.Unknown}">
+											<Setter Property="Content">
+												<Setter.Value>
+													<Border>
+														<TextBlock Text="Unknown"/>
+													</Border>
+												</Setter.Value>
+											</Setter>
+										</DataTrigger>
+
+									</Style.Triggers>
+								</Style>
+							</ContentControl.Style>
+						</ContentControl>
+
 					</Border>
 
 					<Border Grid.Column="2" BorderThickness="1,0,0,0" BorderBrush="{DynamicResource BorderBrush}">

@@ -120,29 +120,14 @@ internal class E621MainViewModel(IApplication application, IAppManager appManage
 		DispatcherService.Dispatcher.Invoke(() => {
 			Initialize();
 
-			//Tabs.Add(new PostTabItem(ModuleType, ["order:rank"]));
+			//Tabs.Add(CreateTabItem(["order:rank"]));
+			Tabs.Add(CreateTabItem(["type:webm"]));
 			//Tabs.Add(new PostTabItem(ModuleType, ["type:gif", "order:filesize"]));
 			//Tabs.Add(new PostTabItem(ModuleType, ["type:gif", "order:filesize"]));
 			//Tabs.Add(new PostTabItem(ModuleType, ["type:gif"]));
 			//Tabs.Add(new PostTabItem(ModuleType, ["feet"]));
 			//Tabs.Add(new PostTabItem(ModuleType, ["type:gif"]));
 			//Tabs.Add(new PostTabItem(ModuleType, ["type:webm"]));
-			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
 			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
 			TabSelectedIndex = 0;
 

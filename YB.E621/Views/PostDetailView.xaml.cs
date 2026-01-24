@@ -1,13 +1,13 @@
-﻿using BaseFramework.ViewModels;
+﻿using BaseFramework.Enums;
+using BaseFramework.ViewModels;
 using DevExpress.Mvvm;
-using DevExpress.Mvvm.UI;
 using RW.Base.WPF.ViewModelServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using YB.E621.Helpers;
 using YB.E621.Models.E621;
-using YB.E621.ViewModels;
 
 namespace YB.E621.Views;
 
@@ -15,6 +15,13 @@ public partial class PostDetailView : UserControl {
 	public PostDetailView() {
 		InitializeComponent();
 	}
+}
+
+public enum PostDisplayType {
+	Unknown,
+	NotSupported,
+	Image,
+	Video,
 }
 
 internal class PostDetailViewModel() : ViewModelBase {
@@ -26,6 +33,22 @@ internal class PostDetailViewModel() : ViewModelBase {
 		private set {
 			SetProperty(() => Post, value);
 			PostDetailDockViewModel.Post = value;
+			RaisePropertyChanged(() => FileType);
+			RaisePropertyChanged(() => DisplayType);
+		}
+	}
+
+	public FileType FileType => Post?.GetFileType() ?? FileType.Unknown;
+
+	public PostDisplayType DisplayType {
+		get {
+			return FileType switch {
+				FileType.Unknown => PostDisplayType.Unknown,
+				FileType.ANIM => PostDisplayType.NotSupported,
+				FileType.PNG or FileType.JPG or FileType.GIF => PostDisplayType.Image,
+				FileType.WEBM => PostDisplayType.Video,
+				_ => PostDisplayType.Unknown,
+			};
 		}
 	}
 
