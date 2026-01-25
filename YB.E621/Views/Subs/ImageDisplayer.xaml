@@ -3,6 +3,7 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:bf="BaseFramework"
+	xmlns:c="clr-namespace:YB.E621.Controls"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:local="clr-namespace:YB.E621.Views.Subs"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -29,57 +30,16 @@
 				</Grid>
 			</Border>
 
-			<Border x:Name="LoadingBorder" Padding="4" VerticalAlignment="Top">
-				<DockPanel>
-					<Border Margin="0,0,4,0" DockPanel.Dock="Left">
-						<Button x:Name="ReloadButton"
-							Width="20"
-							Height="20"
-							Padding="0"
-							BorderThickness="0"
-							Click="ReloadButton_Click"
-							ToolTip="Reload this image">
-							<wpf:FontIcon FontSize="10" Text="&#xE72C;"/>
-						</Button>
-					</Border>
-					<Grid>
-						<DockPanel d:Visibility="Collapsed" Visibility="{Binding ErrorMessage, Converter={StaticResource String2VisibilityReConverter}}">
-							<Border
-								MinWidth="100"
-								Margin="4,0,0,0"
-								Padding="4,0"
-								Background="{DynamicResource BorderBrush}"
-								CornerRadius="4"
-								DockPanel.Dock="Right">
-								<TextBlock
-									d:Text="100KB / 200KB"
-									VerticalAlignment="Center"
-									Text="{Binding DownloadInfo}"
-									TextAlignment="Center"/>
-							</Border>
-							<ProgressBar x:Name="ProgressBar"
-								Height="20"
-								BorderThickness="0"
-								IsIndeterminate="True"/>
-						</DockPanel>
-						<DockPanel d:Visibility="Visible" Visibility="{Binding ErrorMessage, Converter={StaticResource String2VisibilityConverter}}">
-							<Border
-								Margin="4,0,0,0"
-								Padding="4,0"
-								Background="#f7c9ba"
-								CornerRadius="4"
-								DockPanel.Dock="Right">
-								<TextBlock
-									d:Text="Loading Error : Exception"
-									VerticalAlignment="Center"
-									Foreground="{DynamicResource DangerBrush}"
-									Text="{Binding ErrorMessage}"
-									TextAlignment="Center"/>
-							</Border>
-						</DockPanel>
-					</Grid>
-				</DockPanel>
-			</Border>
+			<c:LoadingProgresControl
+				Margin="4"
+				VerticalAlignment="Top"
+				wpf:ToolTipExtension.FastToolTip="True"
+				DownloadInfo="{Binding LoadingStatus.DownloadInfo}"
+				ErrorMessage="{Binding LoadingStatus.ErrorMessage}"
+				Progress="{Binding LoadingStatus.Progress}"
+				ReloadCommand="{Binding ReloadCommand}"
+				ToolTip="{Binding LoadingStatus.ToolTip}"
+				Visibility="{Binding LoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}"/>
 
 		</Grid>
 	</Grid>

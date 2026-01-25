@@ -733,4 +733,75 @@
 		</Setter>
 	</Style>
 
+
+
+
+
+
+	<Style x:Key="LoadingProgresControl" TargetType="c:LoadingProgresControl" BasedOn="{StaticResource BaseStyle}">
+		<Setter Property="Focusable" Value="False"/>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="c:LoadingProgresControl">
+					<Border Background="Transparent">
+
+						<DockPanel>
+							<Border Margin="0,0,4,0" DockPanel.Dock="Left">
+								<Button x:Name="ReloadButton"
+									Width="20"
+									Height="20"
+									Padding="0"
+									BorderThickness="0"
+									ToolTip="Reload">
+									<wpf:FontIcon FontSize="10" Text="&#xE72C;"/>
+								</Button>
+							</Border>
+							<Grid>
+								<DockPanel Visibility="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=ErrorMessage, Converter={StaticResource String2VisibilityReConverter}}">
+									<Border
+										MinWidth="100"
+										Margin="4,0,0,0"
+										Padding="4,0"
+										Background="{DynamicResource BorderBrush}"
+										CornerRadius="4"
+										DockPanel.Dock="Right">
+										<TextBlock
+											d:Text="100KB / 200KB"
+											VerticalAlignment="Center"
+											Text="{TemplateBinding DownloadInfo}"
+											TextAlignment="Center"/>
+									</Border>
+									<ProgressBar x:Name="ProgressBar"
+										Height="20"
+										Minimum="0"
+										Maximum="1"
+										BorderThickness="0"
+										wpf:ProgressBarExtension.Progress="{TemplateBinding Progress}"
+										IsIndeterminate="True"/>
+								</DockPanel>
+								<DockPanel Visibility="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=ErrorMessage, Converter={StaticResource String2VisibilityConverter}}">
+									<Border
+										Margin="4,0,0,0"
+										Padding="4,0"
+										Background="#f7c9ba"
+										CornerRadius="4"
+										DockPanel.Dock="Right">
+										<TextBlock
+											d:Text="Loading Error : Exception"
+											VerticalAlignment="Center"
+											Foreground="{DynamicResource DangerBrush}"
+											Text="{TemplateBinding ErrorMessage}"
+											TextAlignment="Center"/>
+									</Border>
+								</DockPanel>
+							</Grid>
+						</DockPanel>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style TargetType="c:LoadingProgresControl" BasedOn="{StaticResource LoadingProgresControl}"/>
+
 </ResourceDictionary>

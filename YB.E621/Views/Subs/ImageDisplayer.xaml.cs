@@ -1,6 +1,8 @@
 ﻿using BaseFramework.Enums;
 using BaseFramework.Models;
 using BaseFramework.Services;
+using BaseFramework.ViewModels;
+using DevExpress.Mvvm;
 using RW.Common.Helpers;
 using System.Windows;
 using System.Windows.Controls;
@@ -43,37 +45,22 @@ public partial class ImageDisplayer : UserControl {
 
 	public static readonly DependencyProperty IsFileReadyProperty = IsFileReadyPropertyKey.DependencyProperty;
 
-
-
-	public string DownloadInfo {
-		get => (string)GetValue(DownloadInfoProperty);
-		private set => SetValue(DownloadInfoPropertyKey, value);
+	public LoadingStatusViewModel LoadingStatus {
+		get => (LoadingStatusViewModel)GetValue(LoadingStatusProperty);
+		private set => SetValue(LoadingStatusPropertyKey, value);
 	}
 
-	public static readonly DependencyPropertyKey DownloadInfoPropertyKey = DependencyProperty.RegisterReadOnly(
-		nameof(DownloadInfo),
-		typeof(string),
+	private static readonly DependencyPropertyKey LoadingStatusPropertyKey = DependencyProperty.RegisterReadOnly(
+		nameof(LoadingStatus),
+		typeof(LoadingStatusViewModel),
 		typeof(ImageDisplayer),
-		new PropertyMetadata(string.Empty)
+		new PropertyMetadata(new LoadingStatusViewModel())
 	);
 
-	public static readonly DependencyProperty DownloadInfoProperty = DownloadInfoPropertyKey.DependencyProperty;
+	public static readonly DependencyProperty LoadingStatusProperty = LoadingStatusPropertyKey.DependencyProperty;
 
 
 
-	public string ErrorMessage {
-		get => (string)GetValue(ErrorMessageProperty);
-		private set => SetValue(ErrorMessagePropertyKey, value);
-	}
-
-	public static readonly DependencyPropertyKey ErrorMessagePropertyKey = DependencyProperty.RegisterReadOnly(
-		nameof(ErrorMessage),
-		typeof(string),
-		typeof(ImageDisplayer),
-		new PropertyMetadata(string.Empty)
-	);
-
-	public static readonly DependencyProperty ErrorMessageProperty = ErrorMessagePropertyKey.DependencyProperty;
 
 
 	public ImageDisplayer() {
@@ -104,9 +91,7 @@ public partial class ImageDisplayer : UserControl {
 			return;
 		}
 
-		ErrorMessage = string.Empty;
-		ProgressBar.IsIndeterminate = true;
-		LoadingBorder.Visibility = Visibility.Visible;
+		LoadingStatus.InitialLoading();
 
 		IsFileReady = false;
 		fileSize = post.File?.Size ?? 0;
@@ -149,7 +134,7 @@ public partial class ImageDisplayer : UserControl {
 			if (file.HasCompleted) {
 				SetImageContent(file);
 				//ImageViewer.SetBitmapImage(file.Image);
-				LoadingBorder.Visibility = Visibility.Collapsed;
+				LoadingStatus.DoneLoading();
 				IsFileReady = true;
 			} else {
 				file.Initialize();
@@ -182,21 +167,20 @@ public partial class ImageDisplayer : UserControl {
 			return;
 		}
 		if (args.HasCompleted) {
-			LoadingBorder.Visibility = Visibility.Collapsed;
+			LoadingStatus.DoneLoading();
 			if (sender.Image != null) {
 				SetImageContent(sender);
 				//ImageViewer.SetBitmapImage(sender.Image);
 				IsFileReady = true;
 			}
 		} else if (args.HasError) {
-			LoadingBorder.Visibility = Visibility.Visible;
-			ErrorMessage = $"Loading Error : {args.Exception?.Message}";
+			LoadingStatus.LoadingError($"Loading Error : {args.Exception?.Message}");
 		} else {
-			LoadingBorder.Visibility = Visibility.Visible;
-			ProgressBar.IsIndeterminate = false;
-			ProgressBar.Value = args.Progress;
+			double progress = args.Progress / 100d;
 			long downloaded = (long)(fileSize * (args.Progress / 100d));
-			DownloadInfo = $"{downloaded.FileSizeToKB()} / {fileSize.FileSizeToKB()}";
+			string downloadInfo = $"{downloaded.FileSizeToKB()} / {fileSize.FileSizeToKB()}";
+
+			LoadingStatus.SetProgress(progress, downloadInfo);
 		}
 	}
 
@@ -210,7 +194,10 @@ public partial class ImageDisplayer : UserControl {
 		}, DispatcherPriority.Loaded);
 	}
 
-	private void ReloadButton_Click(object sender, RoutedEventArgs e) {
+
+	private DelegateCommand? reloadCommand;
+	public IDelegateCommand ReloadCommand => reloadCommand ??= new(Reload);
+	private void Reload() {
 		file?.Clear();
 		Update();
 	}

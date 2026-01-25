@@ -26,6 +26,7 @@
 	<conv:NumberToKBConverter x:Key="NumberToKBConverter"/>
 	<conv:SubStringConverter x:Key="SubStringConverter"/>
 	<conv:TimeDurationConverter x:Key="TimeDurationConverter"/>
+	<conv:PlaybackTickToTimeSpanConverter x:Key="PlaybackTickToTimeSpanConverter"/>
 
 	<FontFamily x:Key="IconPack">./Fonts/Segoe Fluent Icons.ttf#Segoe Fluent Icons</FontFamily>
 
@@ -58,6 +59,7 @@
 	</Style>
 
 	<Style TargetType="Menu" BasedOn="{StaticResource Menu.Small}"/>
+	<!-- todo: customize contextmenu style -->
 	<Style TargetType="ContextMenu" BasedOn="{StaticResource ContextMenu.Small}"/>
 
 	<Style TargetType="c:BoolContent">

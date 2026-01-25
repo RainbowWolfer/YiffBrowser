@@ -140,32 +140,76 @@
 						<Grid DataContext="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}}">
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition Width="auto"/>
+								<ColumnDefinition Width="auto"/>
 								<ColumnDefinition Width="*"/>
 							</Grid.ColumnDefinitions>
 
-							<StackPanel Orientation="Horizontal">
+							<Border x:Name="PlayTimeBorder" Background="Transparent">
+								<Border.ContextMenu>
+									<ContextMenu>
+										<MenuItem Header="1"/>
+										<MenuItem Header="2"/>
+										<MenuItem Header="3"/>
+									</ContextMenu>
+								</Border.ContextMenu>
+								<StackPanel
+									Margin="10,0,10,0"
+									VerticalAlignment="Center"
+									Orientation="Horizontal"
+									TextBlock.FontSize="14">
+									<TextBlock Text="{Binding Player.CurTime, Converter={StaticResource PlaybackTickToTimeSpanConverter}}"/>
+									<TextBlock Text=" / "/>
+									<TextBlock Text="{Binding Player.Duration, Converter={StaticResource PlaybackTickToTimeSpanConverter}}"/>
+								</StackPanel>
+							</Border>
+
+							<StackPanel Grid.Column="1" Orientation="Horizontal">
 								<Button
 									Width="30"
 									Height="30"
 									Padding="0"
 									BorderThickness="0"
 									hc:BorderElement.CornerRadius="0"
-									Command="{Binding Player.Commands.TogglePlayPause}">
-									<c:BoolContent Bool="{Binding Player.IsPlaying}">
+									Command="{Binding Player.Commands.TogglePlayPause}"
+									ToolTip="Toggle Play\Pause">
+									<c:BoolContent Bool="{Binding IsPlaying}">
 
 										<c:BoolContent.TrueContent>
-											<wpf:FontIcon Text="&#xE768;"/>
+											<wpf:FontIcon Text="&#xE769;"/>
 										</c:BoolContent.TrueContent>
 
 										<c:BoolContent.FalseContent>
-											<wpf:FontIcon Text="&#xE769;"/>
+											<wpf:FontIcon Text="&#xE768;"/>
 										</c:BoolContent.FalseContent>
 
 									</c:BoolContent>
 								</Button>
+
+								<RepeatButton
+									Width="30"
+									Height="30"
+									Padding="0"
+									BorderThickness="0"
+									hc:BorderElement.CornerRadius="0"
+									Command="{Binding Player.Commands.ShowFramePrev}"
+									ToolTip="Previous Frame">
+									<wpf:FontIcon Text="&#xF5A1;"/>
+								</RepeatButton>
+
+								<RepeatButton
+									Width="30"
+									Height="30"
+									Padding="0"
+									BorderThickness="0"
+									hc:BorderElement.CornerRadius="0"
+									Command="{Binding Player.Commands.ShowFrameNext}"
+									ToolTip="Next Frame">
+									<wpf:FontIcon Text="&#xF5A4;"/>
+								</RepeatButton>
+
 							</StackPanel>
 
-							<Border Grid.Column="1" Background="Transparent" ClipToBounds="True">
+							<Border Grid.Column="2" Background="Transparent" ClipToBounds="True">
 								<c:SliderEx x:Name="PositionSlider"
 									Style="{StaticResource Slider.Playback}"
 									Margin="8,0"
@@ -175,7 +219,7 @@
 									IsMoveToPointEnabled="True"
 									LargeChange="{Binding Player.Config.Player.SeekOffset2}"
 									SmallChange="{Binding Player.Config.Player.SeekOffset}"
-									Value="{Binding Player.CurTime}"/>
+									Value="{Binding CurTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 							</Border>
 
 						</Grid>

@@ -1,6 +1,9 @@
 ﻿using BaseFramework.Enums;
+using BaseFramework.ViewModels;
+using DevExpress.Mvvm;
 using FlyleafLib;
 using FlyleafLib.MediaPlayer;
+using RW.Common.Helpers;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
@@ -46,17 +49,44 @@ public partial class VideoDisplayer : UserControl {
 		new PropertyMetadata(false)
 	);
 
+	public LoadingStatusViewModel LoadingStatus {
+		get => (LoadingStatusViewModel)GetValue(LoadingStatusProperty);
+		private set => SetValue(LoadingStatusPropertyKey, value);
+	}
 
+	private static readonly DependencyPropertyKey LoadingStatusPropertyKey = DependencyProperty.RegisterReadOnly(
+		nameof(LoadingStatus),
+		typeof(LoadingStatusViewModel),
+		typeof(VideoDisplayer),
+		new PropertyMetadata(new LoadingStatusViewModel())
+	);
+
+	public static readonly DependencyProperty LoadingStatusProperty = LoadingStatusPropertyKey.DependencyProperty;
+
+	public bool IsFileReady {
+		get => (bool)GetValue(IsFileReadyProperty);
+		private set => SetValue(IsFileReadyPropertyKey, value);
+	}
+
+	public static readonly DependencyPropertyKey IsFileReadyPropertyKey = DependencyProperty.RegisterReadOnly(
+		nameof(IsFileReady),
+		typeof(bool),
+		typeof(VideoDisplayer),
+		new PropertyMetadata(false)
+	);
+
+	public static readonly DependencyProperty IsFileReadyProperty = IsFileReadyPropertyKey.DependencyProperty;
 
 
 	private readonly DispatcherTimer dispatcherTimer;
+
+	private long fileSize = 0;
 
 	public Player Player { get; }
 	public Config Config { get; }
 
 	public VideoDisplayer() {
 		InitializeComponent();
-		Slider slider = new();
 
 		//if (ViewHelper.IsInDesignerMode) {
 		//	return;
@@ -68,7 +98,7 @@ public partial class VideoDisplayer : UserControl {
 			LoopPlayback = true,
 		};
 
-		dispatcherTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(500), DispatcherPriority.Normal, Tick, Dispatcher) {
+		dispatcherTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(10), DispatcherPriority.Normal, Tick, Dispatcher) {
 			IsEnabled = false,
 		};
 
@@ -109,7 +139,7 @@ public partial class VideoDisplayer : UserControl {
 	}
 
 	private void Tick(object? sender, EventArgs e) {
-
+		
 	}
 
 	private void Update() {
@@ -121,24 +151,25 @@ public partial class VideoDisplayer : UserControl {
 			return;
 		}
 
+		IsFileReady = false;
+		fileSize = post.File?.Size ?? 0;
+
 		string? url = post.File?.URL;
 		if (url != null) {
+			LoadingStatus.InitialLoading();
+
 			MemoryStream memoryStream = new();
 			await Download(url, memoryStream);
 
 			Player.Open(memoryStream);
 			Player.Play();
-
 		}
 
 	}
 
 	private async Task Download(string url, MemoryStream memoryStream) {
-		//if (!System.IO.File.Exists(tempFile)) {
 		try {
 			using HttpClient client = new();
-			// 使用 HttpCompletionOption.ResponseHeadersRead 
-			// 这样我们拿到 Header 就可以知道文件总大小，而不用等下载完
 			using HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
 			response.EnsureSuccessStatusCode();
 
@@ -155,22 +186,28 @@ public partial class VideoDisplayer : UserControl {
 				await memoryStream.WriteAsync(buffer, 0, read);
 				totalRead += read;
 				if (canReportProgress) {
-					double progress = (double)totalRead / totalBytes * 100;
-					// 打印进度
-					Debug.WriteLine($"下载进度: {progress:F2}% ({totalRead}/{totalBytes} bytes)");
+					double progress = (double)totalRead / totalBytes;
+					long downloaded = (long)(fileSize * progress);
+					string downloadInfo = $"{downloaded.FileSizeToKB()} / {fileSize.FileSizeToKB()}";
 
-					// 如果你 UI 上有 ProgressBar，可以在这里更新
-					// Dispatcher.Invoke(() => downloadProgressBar.Value = progress);
+					LoadingStatus.SetProgress(progress, downloadInfo);
 				}
 			}
-			Debug.WriteLine("下载完成！");
+
+			LoadingStatus.DoneLoading();
+			IsFileReady = true;
 		} catch (Exception ex) {
-			Debug.WriteLine($"下载出错: {ex.Message}");
+			LoadingStatus.LoadingError($"Loading Error : {ex.Message}");
 			return;
 		}
-		//}
-		//// 调用 Flyleaf 播放本地文件
-		//await Player.OpenAsync(tempFile);
 	}
+
+
+	private DelegateCommand? reloadCommand;
+	public IDelegateCommand ReloadCommand => reloadCommand ??= new(Reload);
+	private void Reload() {
+
+	}
+
 
 }
