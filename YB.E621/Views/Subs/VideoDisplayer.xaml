@@ -19,32 +19,13 @@
 			KeyBindings="None"
 			ToggleFullScreenOnDoubleClick="None">
 			<Grid DataContext="{Binding HostDataContext}" Background="Transparent" Visibility="{Binding ShowControls, Converter={StaticResource Boolean2VisibilityConverter}}">
-
-				<bf:SliderEx
-					Style="{StaticResource Slider.Playback}"
-					Width="450"
-					Height="420"
-					Margin="20"
-					VerticalAlignment="Bottom"
-					Maximum="{Binding Player.Duration}"
-					Background="#01FFFFFF"
-					IsMoveToPointEnabled="True"
-					LargeChange="{Binding Player.Config.Player.SeekOffset2}"
-					PreviewMouseLeftButtonDown="Slider_DragStarted"
-					PreviewMouseLeftButtonDown2="Slider_DragStarted"
-					PreviewMouseLeftButtonUp="Slider_DragCompleted"
-					SmallChange="{Binding Player.Config.Player.SeekOffset}"
-					ValueChanged="SliderEx_ValueChanged"
-					Value="{Binding Player.CurTime}"/>
-
-				<StackPanel Orientation="Horizontal">
-					<Button Command="{Binding Player.Commands.Play}" Content="Play"/>
-					<Button Command="{Binding Player.Commands.Pause}" Content="Pause"/>
-					<!--<Button Command="{Binding Player.Commands.Stop}" Content="Stop"/>-->
-					<!--<Button Command="{Binding Player.Commands.TogglePlayPause}" Content="TogglePlayPause"/>-->
-					<!--<Button Command="{Binding Player.Commands.ToggleReversePlayback}" Content="ToggleReversePlayback"/>-->
-				</StackPanel>
-
+				<bf:PlaybackControl
+					Height="30"
+					VerticalAlignment="Top"
+					BorderThickness="0,0,0,1"
+					BorderBrush="{DynamicResource BorderBrush}"
+					Background="{DynamicResource RegionBrush}"
+					Player="{Binding Player}"/>
 			</Grid>
 		</fl:FlyleafHost>
 

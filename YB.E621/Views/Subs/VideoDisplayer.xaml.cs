@@ -123,75 +123,14 @@ public partial class VideoDisplayer : UserControl {
 
 		string? url = post.File?.URL;
 		if (url != null) {
-			//string tempFile = Path.Combine(Path.GetTempPath(), $"{post.File.Md5}.webm");
-
 			MemoryStream memoryStream = new();
 			await Download(url, memoryStream);
 
 			Player.Open(memoryStream);
 			Player.Play();
 
-			//Stopwatch stopwatch = Stopwatch.StartNew();
-			//await DownloadAndPlay(url, tempFile);
-			//stopwatch.Stop();
-			//Debug.WriteLine($"{stopwatch.ElapsedMilliseconds} ms");
-
-			//OpenCompletedArgs args = Player.Open(tempFile);
-			//Player.Play();
-
-			//if (!System.IO.File.Exists(tempFile)) {
-			//	using HttpClient client = new();
-			//	byte[] data = await client.GetByteArrayAsync(url);
-			//	System.IO.File.WriteAllBytes(tempFile, data);
-			//}
-
-			//Player.Open(@"C:\Users\rainb\AppData\Local\Temp\497e94fde67e4b26b7f0dd9743bc4cf8.webm");
-
 		}
 
-	}
-
-
-	private async Task DownloadAndPlay(string url, string tempFile) {
-		//if (!System.IO.File.Exists(tempFile)) {
-		try {
-			using HttpClient client = new();
-			// 使用 HttpCompletionOption.ResponseHeadersRead 
-			// 这样我们拿到 Header 就可以知道文件总大小，而不用等下载完
-			using HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
-			response.EnsureSuccessStatusCode();
-
-			long totalBytes = response.Content.Headers.ContentLength ?? -1L;
-			bool canReportProgress = totalBytes != -1;
-
-			using Stream contentStream = await response.Content.ReadAsStreamAsync();
-			using var fileStream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
-
-			byte[] buffer = new byte[8192];
-			long totalRead = 0;
-			int read;
-
-			while ((read = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0) {
-				await fileStream.WriteAsync(buffer, 0, read);
-				totalRead += read;
-
-				if (canReportProgress) {
-					double progress = (double)totalRead / totalBytes * 100;
-					// 打印进度
-					Debug.WriteLine($"下载进度: {progress:F2}% ({totalRead}/{totalBytes} bytes)");
-
-					// 如果你 UI 上有 ProgressBar，可以在这里更新
-					// Dispatcher.Invoke(() => downloadProgressBar.Value = progress);
-				}
-			}
-			Debug.WriteLine("下载完成！");
-		} catch (Exception ex) {
-			Debug.WriteLine($"下载出错: {ex.Message}");
-			return;
-		}
-		//}
-		//// 调用 Flyleaf 播放本地文件
-		//await Player.OpenAsync(tempFile);
 	}
 
 	private async Task Download(string url, MemoryStream memoryStream) {
@@ -234,22 +173,4 @@ public partial class VideoDisplayer : UserControl {
 		//await Player.OpenAsync(tempFile);
 	}
 
-	private bool wasPlayingBeforeDrag;
-
-	private void Slider_DragStarted(object sender, MouseButtonEventArgs e) {
-		wasPlayingBeforeDrag = Player.IsPlaying;
-		Dispatcher.BeginInvoke(() => {
-			Player.Pause();
-		}, DispatcherPriority.Background);
-	}
-
-	private void Slider_DragCompleted(object sender, MouseButtonEventArgs e) {
-		if (wasPlayingBeforeDrag) {
-			Player.Play();
-		}
-	}
-
-	private void SliderEx_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
-		Debug.WriteLine(e.NewValue);
-	}
 }
