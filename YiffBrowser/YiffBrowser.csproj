@@ -16,6 +16,40 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="FFmpeg\avcodec-62.dll" />
+	  <None Remove="FFmpeg\avdevice-62.dll" />
+	  <None Remove="FFmpeg\avfilter-11.dll" />
+	  <None Remove="FFmpeg\avformat-62.dll" />
+	  <None Remove="FFmpeg\avutil-60.dll" />
+	  <None Remove="FFmpeg\swresample-6.dll" />
+	  <None Remove="FFmpeg\swscale-9.dll" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="FFmpeg\avcodec-62.dll">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="FFmpeg\avdevice-62.dll">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="FFmpeg\avfilter-11.dll">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="FFmpeg\avformat-62.dll">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="FFmpeg\avutil-60.dll">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="FFmpeg\swresample-6.dll">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="FFmpeg\swscale-9.dll">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\BaseFramework\BaseFramework.csproj" />
 		<ProjectReference Include="..\YB.E621\YB.E621.csproj" />
 	</ItemGroup>
