@@ -7,6 +7,7 @@
 	xmlns:c="clr-namespace:YB.E621.Controls"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+	xmlns:ex="clr-namespace:YB.E621.Extensions"
 	xmlns:local="clr-namespace:YB.E621.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:subs="clr-namespace:YB.E621.Views.Subs"
@@ -174,7 +175,7 @@
 					</Border>
 
 					<Border Grid.Column="2" BorderThickness="1,0,0,0" BorderBrush="{DynamicResource BorderBrush}">
-						<local:PostDetailDockView/>
+						<local:PostDetailDockView ModuleType="{Binding ParentViewModel.ModuleType}" Post="{Binding Post}"/>
 						<!--<ContentControl Content="{Binding PostDetailDockViewModel.View}"/>-->
 					</Border>
 

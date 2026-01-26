@@ -822,4 +822,37 @@
 		</Setter>
 	</Style>
 
+
+
+	<Style x:Key="CommentControl" TargetType="c:CommentControl">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="c:CommentControl">
+					<wpf:ClippingBorder Background="{DynamicResource SecondaryRegionBrush}" CornerRadius="{DynamicResource DefaultCornerRadius}">
+						<Grid DataContext="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}}">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="150"/>
+								<ColumnDefinition Width="*"/>
+							</Grid.ColumnDefinitions>
+
+							<Border Grid.Column="0" Padding="8" Background="{DynamicResource BorderBrush}">
+								<StackPanel>
+									<TextBlock Text="{Binding Comment.CreatorName}"/>
+									<Image MaxHeight="100" Source="https://static1.e621.net/data/0a/78/0a78dc26a8a41b9308759875e1b30f64.png" Stretch="UniformToFill"/>
+								</StackPanel>
+							</Border>
+
+							<Border Grid.Column="1">
+								<TextBlock Text="{Binding Comment.Body}"/>
+							</Border>
+
+						</Grid>
+					</wpf:ClippingBorder>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style TargetType="c:CommentControl" BasedOn="{StaticResource CommentControl}"/>
+
 </ResourceDictionary>

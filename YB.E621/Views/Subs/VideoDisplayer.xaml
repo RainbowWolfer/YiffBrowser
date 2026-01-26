@@ -20,6 +20,7 @@
 			DetachedDragMove="None"
 			KeyBindings="None"
 			ToggleFullScreenOnDoubleClick="None">
+
 			<Border DataContext="{Binding HostDataContext}" Background="Transparent">
 				<StackPanel>
 					<Border Visibility="{Binding ShowControls, Converter={StaticResource Boolean2VisibilityConverter}}">
@@ -45,6 +46,7 @@
 
 				</StackPanel>
 			</Border>
+
 		</fl:FlyleafHost>
 
 		<!--<MediaElement Name="MediaElement"/>-->

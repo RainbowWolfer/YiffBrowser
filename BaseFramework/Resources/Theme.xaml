@@ -414,7 +414,119 @@
 		</Setter>
 	</Style>
 
+	<Style x:Key="ToggleButton.Custom" TargetType="ToggleButton">
+		<Setter Property="BorderThickness" Value="1"/>
+		<Setter Property="hc:BorderElement.CornerRadius" Value="{StaticResource DefaultCornerRadius}"/>
+		<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
+		<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+		<Setter Property="HorizontalContentAlignment" Value="Center"/>
+		<Setter Property="VerticalContentAlignment" Value="Center"/>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="ToggleButton">
+					<hc:SimplePanel>
+						<Border Background="{TemplateBinding Background}" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius), RelativeSource={RelativeSource TemplatedParent}}"/>
+						<Border BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius), RelativeSource={RelativeSource TemplatedParent}}">
+							<ContentPresenter x:Name="ContentPresenterMain"
+								HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+								VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+								RecognizesAccessKey="True"
+								SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+						</Border>
+						<Border x:Name="BorderChecked"
+							Margin="0"
+							BorderThickness="4"
+							BorderBrush="{DynamicResource PrimaryBrush}"
+							CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius), RelativeSource={RelativeSource TemplatedParent}}"
+							Visibility="Collapsed"/>
+					</hc:SimplePanel>
 
+					<ControlTemplate.Triggers>
+						<Trigger Property="IsChecked" Value="true">
+							<Setter TargetName="BorderChecked" Property="Visibility" Value="Visible"/>
+						</Trigger>
+						<Trigger Property="Content" Value="{x:Null}">
+							<Setter TargetName="ContentPresenterMain" Property="Visibility" Value="Collapsed"/>
+						</Trigger>
+					</ControlTemplate.Triggers>
+
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+
+		<Style.Triggers>
+			<Trigger Property="IsMouseOver" Value="True">
+				<Setter Property="Opacity" Value=".9"/>
+				<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+			</Trigger>
+			<Trigger Property="IsPressed" Value="True">
+				<Setter Property="Opacity" Value=".6"/>
+				<Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
+			</Trigger>
+			<Trigger Property="IsEnabled" Value="False">
+				<Setter Property="Opacity" Value="0.4"/>
+			</Trigger>
+		</Style.Triggers>
+
+	</Style>
+
+	<Style x:Key="ToggleButton.Custom.Soild" TargetType="ToggleButton">
+		<Setter Property="BorderThickness" Value="1"/>
+		<Setter Property="hc:BorderElement.CornerRadius" Value="{StaticResource DefaultCornerRadius}"/>
+		<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
+		<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+		<Setter Property="HorizontalContentAlignment" Value="Center"/>
+		<Setter Property="VerticalContentAlignment" Value="Center"/>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="ToggleButton">
+					<hc:SimplePanel>
+						<Border Background="{TemplateBinding Background}" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius), RelativeSource={RelativeSource TemplatedParent}}"/>
+
+						<Border x:Name="BorderChecked"
+							Margin="0"
+							BorderThickness="0"
+							Background="{DynamicResource PrimaryBrush}"
+							CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius), RelativeSource={RelativeSource TemplatedParent}}"
+							Visibility="Collapsed"/>
+
+						<Border BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius), RelativeSource={RelativeSource TemplatedParent}}">
+							<ContentPresenter x:Name="ContentPresenterMain"
+								HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+								VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+								RecognizesAccessKey="True"
+								SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+						</Border>
+					</hc:SimplePanel>
+
+					<ControlTemplate.Triggers>
+						<Trigger Property="IsChecked" Value="true">
+							<Setter TargetName="BorderChecked" Property="Visibility" Value="Visible"/>
+						</Trigger>
+						<Trigger Property="Content" Value="{x:Null}">
+							<Setter TargetName="ContentPresenterMain" Property="Visibility" Value="Collapsed"/>
+						</Trigger>
+					</ControlTemplate.Triggers>
+
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+
+		<Style.Triggers>
+			<Trigger Property="IsMouseOver" Value="True">
+				<Setter Property="Opacity" Value=".9"/>
+				<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+			</Trigger>
+			<Trigger Property="IsPressed" Value="True">
+				<Setter Property="Opacity" Value=".6"/>
+				<Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
+			</Trigger>
+			<Trigger Property="IsEnabled" Value="False">
+				<Setter Property="Opacity" Value="0.4"/>
+			</Trigger>
+		</Style.Triggers>
+
+	</Style>
 
 	<!--#endregion-->
 

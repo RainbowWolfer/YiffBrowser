@@ -1,4 +1,5 @@
 ﻿using BaseFramework.Enums;
+using BaseFramework.Helpers;
 using BaseFramework.ViewModels;
 using DevExpress.Mvvm;
 using FlyleafLib;
@@ -9,6 +10,7 @@ using System.IO;
 using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 using YB.E621.Helpers;
@@ -117,11 +119,29 @@ public partial class VideoDisplayer : UserControl {
 		FlyleafHost.Player = Player;
 
 		FlyleafHost.Surface.MouseDown += Surface_MouseDown;
+		FlyleafHost.Surface.MouseDoubleClick += Surface_MouseDoubleClick;
+		FlyleafHost.Surface.ContextMenu = CreateContextMenu();
+
+		FlyleafHost.Surface.SetBinding(ContextMenuService.IsEnabledProperty, new Binding(nameof(IsFileReady)) {
+			Source = this,
+		});
 
 		Loaded += VideoDisplayer_Loaded;
 		Unloaded += VideoDisplayer_Unloaded;
 
 		Player.Stop();
+	}
+
+	private void Surface_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
+		Player.TogglePlayPauseEx();
+
+		Dispatcher.BeginInvoke(() => {
+			if (Player.Status is Status.Playing) {
+				ShowControls = false;
+			} else {
+				ShowControls = true;
+			}
+		}, DispatcherPriority.Normal);
 	}
 
 	private void Surface_MouseDown(object sender, MouseButtonEventArgs e) {
@@ -139,7 +159,7 @@ public partial class VideoDisplayer : UserControl {
 	}
 
 	private void Tick(object? sender, EventArgs e) {
-		
+
 	}
 
 	private void Update() {
@@ -209,5 +229,19 @@ public partial class VideoDisplayer : UserControl {
 
 	}
 
+
+	private ContextMenu CreateContextMenu() {
+		ContextMenu contextMenu = new();
+
+		contextMenu.Items.Add(new MenuItem() {
+			Header = "1",
+		});
+
+		contextMenu.Items.Add(new MenuItem() {
+			Header = "2",
+		});
+
+		return contextMenu;
+	}
 
 }

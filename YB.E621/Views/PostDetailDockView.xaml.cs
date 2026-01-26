@@ -1,50 +1,69 @@
-﻿using DevExpress.Mvvm;
+﻿using BaseFramework.Enums;
+using BaseFramework.ViewModels;
 using RW.Common.Helpers;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using YB.E621.Models.E621;
+using YB.E621.Services;
 
 namespace YB.E621.Views;
 
-public partial class PostDetailDockView : UserControl {
+public partial class PostDetailDockView : UserControl, INotifyPropertyChanged {
+	public event PropertyChangedEventHandler? PropertyChanged;
+	private void Raise(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
-	public PostDetailDockView() {
-		InitializeComponent();
+
+
+	public ModuleType? ModuleType {
+		get => (ModuleType?)GetValue(ModuleTypeProperty);
+		set => SetValue(ModuleTypeProperty, value);
 	}
-}
 
-public class PostDetailDockViewModel : ViewModelBase {
-	private string description = string.Empty;
-	private string[] sourceURLs = [];
+	public static readonly DependencyProperty ModuleTypeProperty = DependencyProperty.Register(
+		nameof(ModuleType),
+		typeof(ModuleType?),
+		typeof(PostDetailDockView),
+		new PropertyMetadata(null, OnModuleTypeChanged)
+	);
 
-
-	public E621Post? Post {
-		get => GetProperty(() => Post);
-		set {
-			SetProperty(() => Post, value);
-			Update();
+	private static void OnModuleTypeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		if (d is PostDetailDockView view) {
+			view.LoadComments();
 		}
 	}
 
-
-	public string Description {
-		get => GetProperty(() => Description);
-		set => SetProperty(() => Description, value);
+	public E621Post Post {
+		get => (E621Post)GetValue(PostProperty);
+		set => SetValue(PostProperty, value);
 	}
 
+	public static readonly DependencyProperty PostProperty = DependencyProperty.Register(
+		nameof(Post),
+		typeof(E621Post),
+		typeof(PostDetailDockView),
+		new PropertyMetadata(null, OnPostChanged)
+	);
 
-	public string[] SourceURLs {
-		get => GetProperty(() => SourceURLs);
-		set {
-			SetProperty(() => SourceURLs, value);
-			RaisePropertyChanged(() => SourceTitle);
+	private static void OnPostChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		if (d is PostDetailDockView view) {
+			view.Raise(nameof(Description));
+			view.Raise(nameof(SourceTitle));
+			view.Raise(nameof(SourceURLs));
+			view.LoadComments();
 		}
 	}
+
+	public string Description => Post?.Description.NotBlankCheck() ?? "No Description";
+	public string[] SourceURLs => Post?.Sources?.ToArray() ?? [];
 
 	public string SourceTitle {
 		get {
-			if (sourceURLs.IsEmpty()) {
+			if (SourceURLs.IsEmpty()) {
 				return "No Source";
-			} else if (sourceURLs.Length == 1) {
+			} else if (SourceURLs.Length == 1) {
 				return "Source";
 			} else {
 				return "Sources";
@@ -52,13 +71,53 @@ public class PostDetailDockViewModel : ViewModelBase {
 		}
 	}
 
-	public PostDetailDockViewModel() {
+	public ObservableCollection<E621Comment> Comments { get; } = [];
 
+	public LoadingStatusViewModel LoadingStatus { get; } = new();
+
+	private CancellationTokenSource? comment_cts;
+
+	private async void LoadComments() {
+		if (ModuleType is null || Post is null) {
+			return;
+		}
+
+		comment_cts?.Cancel();
+
+		CancellationTokenSource newCts = new();
+		comment_cts = newCts;
+		CancellationToken token = newCts.Token;
+
+		try {
+			LoadingStatus.InitialLoading();
+
+			token.ThrowIfCancellationRequested();
+			Comments.Clear();
+
+			E621Comment[] comments = await E621API.GetAPI(ModuleType.Value).GetCommentsAsync(Post.ID, token);
+			
+			token.ThrowIfCancellationRequested();
+
+			foreach (E621Comment item in comments) {
+				Comments.Add(item);
+			}
+
+		} catch (OperationCanceledException) {
+
+		} catch (Exception ex) {
+			if (!token.IsCancellationRequested) {
+				LoadingStatus.LoadingError(ex.Message);
+				Debug.WriteLine(ex);
+			}
+		} finally {
+			if (!token.IsCancellationRequested) {
+				LoadingStatus.DoneLoading();
+			}
+		}
 	}
 
-	private void Update() {
-		Description = Post?.Description.NotBlankCheck() ?? "No Description";
-		SourceURLs = Post?.Sources?.ToArray() ?? [];
-	}
 
+	public PostDetailDockView() {
+		InitializeComponent();
+	}
 }

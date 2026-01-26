@@ -32,7 +32,6 @@ internal class PostDetailViewModel() : ViewModelBase {
 		get => GetProperty(() => Post);
 		private set {
 			SetProperty(() => Post, value);
-			PostDetailDockViewModel.Post = value;
 			RaisePropertyChanged(() => FileType);
 			RaisePropertyChanged(() => DisplayType);
 		}
@@ -54,8 +53,6 @@ internal class PostDetailViewModel() : ViewModelBase {
 
 	public GridDefinitionModel LeftSideGrid { get; } = new(true, 150, new GridLength(220, GridUnitType.Pixel));
 	public GridDefinitionModel RightSideGrid { get; } = new(false, 150, new GridLength(300, GridUnitType.Pixel));
-
-	public PostDetailDockViewModel PostDetailDockViewModel { get; } = new();
 
 	public PostsViewModel ParentViewModel {
 		get => GetProperty(() => ParentViewModel);

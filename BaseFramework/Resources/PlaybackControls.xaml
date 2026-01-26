@@ -35,7 +35,7 @@
 							<ThicknessAnimation
 								Storyboard.TargetName="BorderDot"
 								Storyboard.TargetProperty="BorderThickness"
-								To="2"
+								To="4"
 								Duration="0:0:.1"/>
 						</Storyboard>
 					</BeginStoryboard>
@@ -163,51 +163,136 @@
 								</StackPanel>
 							</Border>
 
-							<StackPanel Grid.Column="1" Orientation="Horizontal">
-								<Button
-									Width="30"
-									Height="30"
-									Padding="0"
-									BorderThickness="0"
-									hc:BorderElement.CornerRadius="0"
-									Command="{Binding Player.Commands.TogglePlayPause}"
-									ToolTip="Toggle Play\Pause">
-									<c:BoolContent Bool="{Binding IsPlaying}">
+							<Grid Grid.Column="1">
+								<StackPanel Orientation="Horizontal">
 
-										<c:BoolContent.TrueContent>
-											<wpf:FontIcon Text="&#xE769;"/>
-										</c:BoolContent.TrueContent>
+									<Button x:Name="PlayButton"
+										Width="30"
+										Height="30"
+										Padding="0"
+										BorderThickness="0"
+										hc:BorderElement.CornerRadius="0"
+										ToolTip="Toggle Play\Pause">
+										<c:BoolContent Bool="{Binding IsPlaying}">
 
-										<c:BoolContent.FalseContent>
-											<wpf:FontIcon Text="&#xE768;"/>
-										</c:BoolContent.FalseContent>
+											<c:BoolContent.TrueContent>
+												<wpf:FontIcon Text="&#xE769;"/>
+											</c:BoolContent.TrueContent>
 
-									</c:BoolContent>
-								</Button>
+											<c:BoolContent.FalseContent>
+												<wpf:FontIcon Text="&#xE768;"/>
+											</c:BoolContent.FalseContent>
 
-								<RepeatButton
-									Width="30"
-									Height="30"
-									Padding="0"
-									BorderThickness="0"
-									hc:BorderElement.CornerRadius="0"
-									Command="{Binding Player.Commands.ShowFramePrev}"
-									ToolTip="Previous Frame">
-									<wpf:FontIcon Text="&#xF5A1;"/>
-								</RepeatButton>
+										</c:BoolContent>
+									</Button>
 
-								<RepeatButton
-									Width="30"
-									Height="30"
-									Padding="0"
-									BorderThickness="0"
-									hc:BorderElement.CornerRadius="0"
-									Command="{Binding Player.Commands.ShowFrameNext}"
-									ToolTip="Next Frame">
-									<wpf:FontIcon Text="&#xF5A4;"/>
-								</RepeatButton>
+									<RepeatButton
+										Width="30"
+										Height="30"
+										Padding="0"
+										BorderThickness="0"
+										hc:BorderElement.CornerRadius="0"
+										Command="{Binding Player.Commands.ShowFramePrev}"
+										ToolTip="Previous Frame">
+										<wpf:FontIcon Text="&#xF5A1;"/>
+									</RepeatButton>
 
-							</StackPanel>
+									<RepeatButton
+										Width="30"
+										Height="30"
+										Padding="0"
+										BorderThickness="0"
+										hc:BorderElement.CornerRadius="0"
+										Command="{Binding Player.Commands.ShowFrameNext}"
+										ToolTip="Next Frame">
+										<wpf:FontIcon Text="&#xF5A4;"/>
+									</RepeatButton>
+
+									<ToggleButton
+										Style="{StaticResource ToggleButton.Custom.Soild}"
+										Width="30"
+										Height="30"
+										Padding="0"
+										BorderThickness="0"
+										hc:BorderElement.CornerRadius="0"
+										IsChecked="{Binding Player.LoopPlayback, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+										ToolTip="Loop">
+										<wpf:FontIcon Text="&#xEF3B;"/>
+									</ToggleButton>
+
+									<ToggleButton
+										Style="{StaticResource ToggleButton.Custom.Soild}"
+										Width="30"
+										Height="30"
+										Padding="0"
+										BorderThickness="0"
+										hc:BorderElement.CornerRadius="0"
+										IsChecked="{Binding Player.ReversePlayback, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+										ToolTip="Reverse Playback">
+										<wpf:FontIcon Text="&#xE97A;"/>
+									</ToggleButton>
+
+									<Button x:Name="VolumnButton"
+										Width="30"
+										Height="30"
+										Padding="0"
+										BorderThickness="0"
+										hc:BorderElement.CornerRadius="0"
+										IsEnabled="{Binding Player.Audio.IsOpened}"
+										ToolTip="Volumn">
+										<c:BoolContent Bool="{Binding Player.Audio.Mute}">
+											<c:BoolContent.TrueContent>
+												<wpf:FontIcon Text="&#xE74F;"/>
+											</c:BoolContent.TrueContent>
+											<c:BoolContent.FalseContent>
+												<wpf:FontIcon Text="&#xE767;"/>
+											</c:BoolContent.FalseContent>
+										</c:BoolContent>
+									</Button>
+
+								</StackPanel>
+
+								<wpf:ButtonPopup Placement="Bottom" SourceButton="{Binding ElementName=VolumnButton}">
+									<Border Style="{DynamicResource ButtonPopupBorder}" IsEnabled="{Binding Player.Audio.IsOpened}">
+										<Grid Margin="2">
+											<StackPanel Orientation="Horizontal">
+												<Border Width="30" Background="{DynamicResource BorderBrush}" CornerRadius="4">
+													<TextBlock
+														VerticalAlignment="Center"
+														FontSize="14"
+														Text="{Binding Player.Audio.Volume}"
+														TextAlignment="Center"/>
+												</Border>
+
+												<Slider
+													Width="200"
+													Margin="8,0"
+													VerticalAlignment="Center"
+													Value="{Binding Player.Audio.Volume}"/>
+
+												<Button Command="{Binding Player.Commands.ToggleMute}">
+													<c:BoolContent Bool="{Binding Player.Audio.Mute}">
+														<c:BoolContent.TrueContent>
+															<wpf:FontIcon Text="&#xE74F;"/>
+														</c:BoolContent.TrueContent>
+														<c:BoolContent.FalseContent>
+															<wpf:FontIcon Text="&#xE767;"/>
+														</c:BoolContent.FalseContent>
+													</c:BoolContent>
+												</Button>
+
+												<!--<TextBlock
+													Width="100"
+													VerticalAlignment="Center"
+													FontSize="14"
+													Text="{Binding Player.Audio.IsOpened}"/>-->
+
+											</StackPanel>
+										</Grid>
+									</Border>
+								</wpf:ButtonPopup>
+
+							</Grid>
 
 							<Border Grid.Column="2" Background="Transparent" ClipToBounds="True">
 								<c:SliderEx x:Name="PositionSlider"

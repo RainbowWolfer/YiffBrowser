@@ -1,7 +1,9 @@
-﻿using FlyleafLib.MediaPlayer;
+﻿using BaseFramework.Helpers;
+using FlyleafLib.MediaPlayer;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -63,6 +65,14 @@ public class PlaybackControl : ContentControl, INotifyPropertyChanged {
 			playTimeBorder.PreviewMouseDown += PlayTimeBorder_PreviewMouseDown;
 		}
 
+		if (GetTemplateChild("PlayButton") is ButtonBase playButton) {
+			playButton.Click += PlayButton_Click;
+		}
+
+	}
+
+	private void PlayButton_Click(object sender, RoutedEventArgs e) {
+		Player?.TogglePlayPauseEx();
 	}
 
 	private void PlayTimeBorder_PreviewMouseDown(object sender, MouseButtonEventArgs e) {
