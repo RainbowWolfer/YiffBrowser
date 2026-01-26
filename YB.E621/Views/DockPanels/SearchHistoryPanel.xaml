@@ -1,0 +1,109 @@
+﻿<UserControl
+	x:Class="YB.E621.Views.DockPanels.SearchHistoryPanel"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:b="RW.Base.WPF"
+	xmlns:bf="BaseFramework"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:dd="urn:gong-wpf-dragdrop"
+	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+	xmlns:hc="https://handyorg.github.io/handycontrol"
+	xmlns:local="clr-namespace:YB.E621.Views.DockPanels"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:wpf="RW.Common.WPF"
+	d:DataContext="{d:DesignInstance Type=local:SearchHistoryPanelViewModel}"
+	d:DesignHeight="300"
+	d:DesignWidth="800"
+	DataContext="{b:DISource Type=local:SearchHistoryPanelViewModel}"
+	mc:Ignorable="d">
+
+	<Grid Margin="4">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<Border Grid.Row="0">
+			<DockPanel>
+				<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel3}" Margin="4">
+					<Button>
+						<wpf:FontIcon Text="&#xE72C;"/>
+					</Button>
+
+					<hc:SearchBar
+						Style="{StaticResource SearchBarPlus}"
+						Width="250"
+						hc:InfoElement.Placeholder="Search Sontent"
+						hc:InfoElement.ShowClearButton="True"/>
+
+				</wpf:SpacingStackPanel>
+
+				<hc:Pagination
+					Margin="4"
+					HorizontalAlignment="Right"
+					MaxPageCount="100"
+					MaxPageInterval="4"/>
+			</DockPanel>
+		</Border>
+
+		<Border Grid.Row="1">
+			<DataGrid
+				Style="{StaticResource DataGrid.Custom}"
+				Margin="4"
+				wpf:DataGridExtension.CanUnselectAllWidthEscape="True"
+				wpf:DataGridExtension.CanUnselectAllWithBlankArea="True"
+				AutoGenerateColumns="False"
+				IsReadOnly="True"
+				SelectionMode="Extended"
+				SelectionUnit="FullRow"
+				ItemsSource="{Binding DataList}">
+				<DataGrid.Columns>
+					<DataGridTextColumn Width="140" Header="Date Time"/>
+					<DataGridTextColumn Width="*" Header="Content"/>
+					<DataGridTemplateColumn Width="200" Header="Action">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<Grid>
+									<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}">
+
+										<Button Padding="2,0" BorderThickness="0" Background="Transparent">
+											<bf:HorizontalIconText Glyph="&#xE8C8;" Text="Copy"/>
+										</Button>
+
+										<Button Padding="2,0" BorderThickness="0" Background="Transparent">
+											<bf:HorizontalIconText Glyph="&#xE721;" Text="Search"/>
+										</Button>
+
+										<Button Name="DeleteButton"
+											Padding="2,0"
+											BorderThickness="0"
+											Background="Transparent">
+											<bf:HorizontalIconText
+												Foreground="{DynamicResource DangerBrush}"
+												Glyph="&#xE894;"
+												IconForeground="{DynamicResource DangerBrush}"
+												Text="Delete"/>
+										</Button>
+
+									</wpf:SpacingStackPanel>
+
+									<wpf:ButtonPopup SourceButton="{Binding ElementName=DeleteButton}">
+										<Border Style="{DynamicResource ButtonPopupBorder}">
+											<StackPanel>
+												<TextBlock Text="Sure to delete this record?"/>
+												<Button Margin="0,4,0,0" HorizontalAlignment="Stretch" Content="Confirm"/>
+											</StackPanel>
+										</Border>
+									</wpf:ButtonPopup>
+
+								</Grid>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn>
+				</DataGrid.Columns>
+			</DataGrid>
+		</Border>
+
+	</Grid>
+
+</UserControl>

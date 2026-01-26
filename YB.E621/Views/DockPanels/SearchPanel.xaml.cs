@@ -1,10 +1,20 @@
 ﻿using BaseFramework.Attributes;
+using BaseFramework.Controls;
 using BaseFramework.Events;
+using DevExpress.Mvvm;
 using RW.Base.WPF.Events;
+using RW.Base.WPF.ViewModelServices;
+using RW.Common.Helpers;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Threading;
+using YB.E621.Controls;
 using YB.E621.Interfaces;
+using YB.E621.Models.E621;
 using YB.E621.Services;
 using YB.E621.ViewModels;
+using YB.E621.Views.Subs;
 
 namespace YB.E621.Views.DockPanels;
 
@@ -23,17 +33,13 @@ internal class SearchPanelItem : DockPanelItemBase<SearchPanel> {
 
 internal class SearchPanelViewModel(IEventAggregator eventAggregator) : DockPanelViewModelBase<SearchPanelItem> {
 
+	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
 
-	//public string SearchText {
-	//	get => GetProperty(() => SearchText) ?? string.Empty;
-	//	set {
-	//		SetProperty(() => SearchText, value);
-	//		OnSearchTextChanged();
-	//	}
-	//}
+	public IUIObjectService<ListBox> MainListBoxService => GetService<ITypedUIObjectService>(nameof(MainListBoxService)).As<ListBox>();
+	public IUIObjectService<TextBoxExtend> SearchBoxService => GetService<ITypedUIObjectService>(nameof(SearchBoxService)).As<TextBoxExtend>();
 
 
-
+	public TagsSearchService TagsSearchService { get; } = new();
 
 	public E621API? Api { get; private set; }
 
@@ -43,12 +49,108 @@ internal class SearchPanelViewModel(IEventAggregator eventAggregator) : DockPane
 	protected override void OnInitialized() {
 		base.OnInitialized();
 		Api = E621API.GetAPI(ViewParameter.ModuleType);
+		TagsSearchService.Api = Api;
 		eventAggregator.GetEvent<ThemeChangedEvent>().Subscribe(OnThemeChanged);
 	}
 
 	private void OnThemeChanged(ThemeChangedEventArgs args) {
-	
+		foreach (object? item in MainListBoxService.Object.Items) {
+			if (MainListBoxService.Object.ItemContainerGenerator.ContainerFromItem(item) is ListBoxItem listBoxItem
+				&& RW.Common.WPF.Helpers.ViewHelper.FindChild<SearchTagItemControl>(listBoxItem) is SearchTagItemControl control
+			) {
+				control.Refresh();
+			}
+		}
 	}
+
+	private DelegateCommand? loadedCommand;
+	public IDelegateCommand LoadedCommand => loadedCommand ??= new(Loaded);
+	private void Loaded() {
+		SearchBoxService.Focus();
+	}
+
+
+
+	public ICommand OnSearchTextSelectionChangedCommand => new DelegateCommand<RoutedEventArgs>(e => {
+		TagsSearchService.OnSearchTextSelectionChanged();
+	});
+
+	public ICommand OnSearchTextBoxPreviewKeyDownCommand => new DelegateCommand<KeyEventArgs>(OnSearchTextBoxPreviewKeyDown);
+	private void OnSearchTextBoxPreviewKeyDown(KeyEventArgs args) {
+		ListBox mainListBox = MainListBoxService.Object;
+		if (args.Key == Key.Up && mainListBox.Items.IsNotEmpty()) {
+			mainListBox.SelectedIndex = NumberHelper.Clamp(mainListBox.SelectedIndex - 1, 0, mainListBox.Items.Count - 1);
+			args.Handled = true;
+		} else if (args.Key == Key.Down && mainListBox.Items.IsNotEmpty()) {
+			mainListBox.SelectedIndex = NumberHelper.Clamp(mainListBox.SelectedIndex + 1, 0, mainListBox.Items.Count - 1);
+			args.Handled = true;
+		} else if (args.Key == Key.Enter) {
+			if (TagsSearchService.SelectedItem != null) {
+				HandleItem(TagsSearchService.SelectedItem);
+			} else {
+				Submit();
+			}
+			args.Handled = true;
+		} else if (args.Key == Key.Escape) {
+			mainListBox.UnselectAll();
+			args.Handled = true;
+		}
+	}
+
+	public ICommand SubmitCommand => new DelegateCommand(Submit);
+	private void Submit() {
+		string[] tags = TagsSearchService.GetSearchTags();
+		MainViewModel?.SearchSubmit(tags);
+	}
+
+
+	public ICommand HandleItemCommand => new DelegateCommand<SearchTagItem?>(HandleItem);
+	private async void HandleItem(SearchTagItem? item) {
+		if (item is null) {
+			return;
+		}
+		E621AutoComplete autoComplete = item.AutoComplete;
+		string tag = autoComplete.Name ?? string.Empty;
+
+		int lastSpace = TagsSearchService.SearchText.LastIndexOf(' ');
+		if (lastSpace == -1) {
+			TagsSearchService.SearchText = tag;
+		} else {
+			string cut = TagsSearchService.SearchText[..lastSpace].Trim();
+			TagsSearchService.SearchText = $"{cut} {tag}";
+		}
+
+		TagsSearchService.CalculateCurrentTags();
+
+		TagsSearchService.InternalChange = true;
+
+		FocusSearchBox();
+		PutSelectionAtTheEnd();
+
+		//strange issue: if dont wait a little, double clicking will cause popup to lose focus and auto close
+		await Task.Delay(100);
+		TagsSearchService.AutoCompletes.Clear();
+	}
+
+	private void PutSelectionAtTheEnd() {
+		TagsSearchService.SearchTextSelectionStart = TagsSearchService.SearchText.Length;
+	}
+
+	public ICommand OnSearchTextBoxLoadedCommand => new DelegateCommand(OnSearchTextBoxLoaded);
+	private void OnSearchTextBoxLoaded() => FocusSearchBox();
+
+	public void FocusSearchBox() {
+		DispatcherService.Dispatcher.Invoke(SearchBoxService.Focus, DispatcherPriority.Loaded);
+	}
+
+
+
+	private DelegateCommand? openSearchHistoryPanelCommand;
+	public IDelegateCommand OpenSearchHistoryPanelCommand => openSearchHistoryPanelCommand ??= new(OpenSearchHistoryPanel);
+	private void OpenSearchHistoryPanel() {
+		MainViewModel?.ShowSearchHistoryPanel();
+	}
+
 
 
 }

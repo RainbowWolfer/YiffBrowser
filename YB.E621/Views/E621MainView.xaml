@@ -36,6 +36,8 @@
 
 		<wpf:CommandProxy x:Key="CloseTabCommand" Command="{Binding CloseTabCommand}"/>
 		<wpf:CommandProxy x:Key="CloseDockPanelCommand" Command="{Binding CloseDockPanelCommand}"/>
+		<wpf:CommandProxy x:Key="CollapseDockPanelCommand" Command="{Binding CollapseDockPanelCommand}"/>
+		<wpf:CommandProxy x:Key="DockPanelTabItemHeaderDoubleClickCommand" Command="{Binding DockPanelTabItemHeaderDoubleClickCommand}"/>
 
 		<wpf:BindingProxy x:Key="ViewModel" Data="{Binding}"/>
 
@@ -206,7 +208,10 @@
 
 						<Grid.RowDefinitions>
 							<RowDefinition Height="*" MinHeight="100"/>
-							<RowDefinition x:Name="BottomRow" MaxHeight="600" local:E621MainViewExtension.DockPanelShow="{Binding DockPanelManager.HasDockPanels}"/>
+							<RowDefinition x:Name="BottomRow"
+								MaxHeight="600"
+								local:E621MainViewExtension.DockPanelShow="{Binding DockPanelManager.HasDockPanels}"
+								local:E621MainViewExtension.IsDockPanelCollapsed="{Binding IsDockPanelCollapsed}"/>
 						</Grid.RowDefinitions>
 
 						<Border Visibility="{Binding Tabs.Count, Converter={StaticResource IListToVisibilityConverter}}">
@@ -321,13 +326,22 @@
 							Visibility="{Binding DockPanelManager.HasDockPanels, Converter={StaticResource Boolean2VisibilityConverter}}">
 							<Grid>
 								<TabControl
-									Style="{StaticResource TabControl.Custom.DockPanel}"
-									BorderThickness="1,0,0,1"
 									dd:DragDrop.IsDragSource="True"
 									dd:DragDrop.IsDropTarget="True"
 									SelectedItem="{Binding SelectedDockPanelItem}"
 									TabStripPlacement="Bottom"
 									ItemsSource="{Binding DockPanelManager.DockPanels}">
+
+									<TabControl.Style>
+										<Style TargetType="TabControl" BasedOn="{StaticResource TabControl.Custom.DockPanel}">
+											<Setter Property="BorderThickness" Value="1,0,0,1"/>
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding IsDockPanelCollapsed}" Value="True">
+													<Setter Property="BorderThickness" Value="1,0,0,0"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</TabControl.Style>
 
 									<TabControl.ItemTemplate>
 										<DataTemplate DataType="{x:Type i:IDockPanel}">
@@ -337,6 +351,7 @@
 
 									<TabControl.ItemContainerStyle>
 										<Style TargetType="TabItem" BasedOn="{StaticResource TabItem.Custom.DockPanel}">
+											<Setter Property="bf:ControlExtension.DoubleClickCommand" Value="{StaticResource DockPanelTabItemHeaderDoubleClickCommand}"/>
 											<Setter Property="ContextMenu">
 												<Setter.Value>
 													<ContextMenu>
@@ -350,7 +365,7 @@
 
 									<TabControl.ContentTemplate>
 										<DataTemplate DataType="{x:Type i:IDockPanel}">
-											<Border>
+											<Border Visibility="{Binding Source={StaticResource ViewModel}, Path=Data.IsDockPanelCollapsed, Converter={StaticResource Boolean2VisibilityReConverter}}">
 												<DockPanel>
 													<Border
 														Height="20"
@@ -367,17 +382,31 @@
 															<Border Padding="6,0">
 																<TextBlock VerticalAlignment="Center" Text="{Binding Name}"/>
 															</Border>
-															<Button
-																Grid.Column="1"
-																Width="20"
-																Height="20"
-																Padding="0"
-																BorderThickness="1,0,0,0"
-																hc:BorderElement.CornerRadius="0"
-																Command="{StaticResource CloseDockPanelCommand}"
-																CommandParameter="{Binding}">
-																<wpf:FontIcon FontSize="10" Text="&#xE8BB;"/>
-															</Button>
+
+															<StackPanel Grid.Column="1" Orientation="Horizontal">
+
+																<Button
+																	Width="20"
+																	Height="20"
+																	Padding="0"
+																	BorderThickness="1,0,0,0"
+																	hc:BorderElement.CornerRadius="0"
+																	Command="{StaticResource CollapseDockPanelCommand}">
+																	<wpf:FontIcon FontSize="10" Text="&#xE70D;"/>
+																</Button>
+
+																<Button
+																	Width="20"
+																	Height="20"
+																	Padding="0"
+																	BorderThickness="1,0,0,0"
+																	hc:BorderElement.CornerRadius="0"
+																	Command="{StaticResource CloseDockPanelCommand}"
+																	CommandParameter="{Binding}">
+																	<wpf:FontIcon FontSize="10" Text="&#xE8BB;"/>
+																</Button>
+															</StackPanel>
+
 														</Grid>
 													</Border>
 													<ContentControl Content="{Binding Content}"/>
@@ -387,6 +416,7 @@
 									</TabControl.ContentTemplate>
 
 								</TabControl>
+
 								<Button
 									Width="30"
 									Height="30"
@@ -406,11 +436,18 @@
 						<GridSplitter
 							Grid.Row="1"
 							Height="20"
-							Margin="0,0,20,0"
+							Margin="0,0,40,0"
 							HorizontalAlignment="Stretch"
 							VerticalAlignment="Top"
-							Background="Transparent"
-							Visibility="{Binding DockPanelManager.HasDockPanels, Converter={StaticResource Boolean2VisibilityConverter}}">
+							bf:ControlExtension.DoubleClickCommand="{Binding DockPanelGridSplitterDoubleClickCommand}"
+							Background="Transparent">
+
+							<GridSplitter.Visibility>
+								<MultiBinding Converter="{StaticResource BooleanArr2VisibilityConverter}">
+									<Binding Path="DockPanelManager.HasDockPanels"/>
+									<Binding Path="IsDockPanelCollapsed" Converter="{StaticResource Boolean2BooleanReConverter}"/>
+								</MultiBinding>
+							</GridSplitter.Visibility>
 
 							<GridSplitter.ContextMenu>
 								<ContextMenu>

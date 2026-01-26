@@ -5,6 +5,7 @@ using RW.Base.WPF.Interfaces;
 using RW.Common.Helpers;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Windows;
 using YB.E621.Interfaces;
@@ -87,11 +88,11 @@ internal class DockPanelManager : BindableBase {
 	private IDockPanel CreateDockPanel(Type type) {
 		IDockPanel instance = (IDockPanel)Activator.CreateInstance(type)!;
 
-		if(instance is IDockPanelEx dockPanelEx) {
+		if (instance is IDockPanelEx dockPanelEx) {
 			dockPanelEx.Initialize(new DockPanelParameter(
 				instance,
-				mainViewModel,
-				viewParameter
+				mainViewModel!,
+				viewParameter!
 			));
 		}
 

@@ -804,4 +804,22 @@
 
 	<Style TargetType="c:LoadingProgresControl" BasedOn="{StaticResource LoadingProgresControl}"/>
 
+	<Style x:Key="ListBoxItem.SearchTags" TargetType="{x:Type ListBoxItem}">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type ListBoxItem}">
+					<wpf:ClippingBorder x:Name="Bd"
+						Padding="0"
+						BorderThickness="1"
+						BorderBrush="Transparent"
+						Background="Transparent"
+						CornerRadius="4"
+						SnapsToDevicePixels="True">
+						<ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="True"/>
+					</wpf:ClippingBorder>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
 </ResourceDictionary>

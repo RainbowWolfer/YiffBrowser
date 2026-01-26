@@ -1,5 +1,6 @@
 ﻿using ControlzEx;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Interop;
 
 namespace BaseFramework.Controls;
@@ -29,6 +30,14 @@ public class WindowBase : WindowChromeWindow {
 
 	public WindowBase() {
 
+	}
+
+	protected override void OnMouseDown(MouseButtonEventArgs e) {
+		base.OnMouseDown(e);
+
+		if (Content is FrameworkElement frameworkElement) {
+			frameworkElement.Focus();
+		}
 	}
 
 	public override void OnApplyTemplate() {

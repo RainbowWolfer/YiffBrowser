@@ -21,24 +21,6 @@
 		<wpf:CommandProxy x:Key="HandleItemCommand" Command="{Binding HandleItemCommand}"/>
 
 
-		<Style x:Key="CustomListBoxItemStyle.Local" TargetType="{x:Type ListBoxItem}">
-			<Setter Property="Template">
-				<Setter.Value>
-					<ControlTemplate TargetType="{x:Type ListBoxItem}">
-						<wpf:ClippingBorder x:Name="Bd"
-							Padding="0"
-							BorderThickness="1"
-							BorderBrush="Transparent"
-							Background="Transparent"
-							CornerRadius="4"
-							SnapsToDevicePixels="True">
-							<ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="True"/>
-						</wpf:ClippingBorder>
-					</ControlTemplate>
-				</Setter.Value>
-			</Setter>
-		</Style>
-
 	</Control.Resources>
 
 	<dxmvvm:Interaction.Behaviors>
@@ -52,8 +34,6 @@
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="*"/>
 					<ColumnDefinition Width="auto"/>
-					<ColumnDefinition Width="auto"/>
-					<ColumnDefinition Width="auto"/>
 				</Grid.ColumnDefinitions>
 
 				<bf:TextBoxExtend x:Name="SearchBox"
@@ -63,49 +43,59 @@
 					bf:TextBoxExtension.SelectionChangedCommand="{Binding OnSearchTextSelectionChangedCommand}"
 					AcceptsReturn="False"
 					AcceptsTab="False"
-					BindableSelectionStart="{Binding SearchTextSelectionStart, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-					Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+					BindableSelectionStart="{Binding TagsSearchService.SearchTextSelectionStart, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+					Text="{Binding TagsSearchService.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
 					<dxmvvm:Interaction.Behaviors>
 						<b:TypedUIObjectService Name="SearchBoxService"/>
 					</dxmvvm:Interaction.Behaviors>
 				</bf:TextBoxExtend>
 
-				<Button
-					Style="{StaticResource Button.Custom.Icon}"
-					Grid.Column="1"
-					Width="30"
-					Margin="4,0,0,0"
-					Padding="0"
-					Command="{Binding ClearCommand}"
-					DockPanel.Dock="Right"
-					ToolTip="Clear">
-					<wpf:FontIcon Text="&#xE711;"/>
-				</Button>
+				<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" Grid.Column="1" Margin="4,0,0,0">
 
-				<Button
-					Style="{StaticResource Button.Custom.Icon}"
-					Grid.Column="2"
-					Width="30"
-					Margin="4,0,0,0"
-					Padding="0"
-					Command="{Binding SubmitCommand}"
-					DockPanel.Dock="Right"
-					ToolTip="Search">
-					<wpf:FontIcon Text="&#xE721;"/>
-				</Button>
 
-				<Button
-					Style="{StaticResource Button.Custom.Icon}"
-					Grid.Column="3"
-					Width="30"
-					Margin="4,0,0,0"
-					Padding="0"
-					Command="{Binding OpenSearchPanelCommand}"
-					DockPanel.Dock="Right"
-					ToolTip="Open Search Panel">
-					<wpf:FontIcon Text="&#xE8A7;"/>
-				</Button>
+					<Button
+						Style="{StaticResource Button.Custom.Icon}"
+						Width="30"
+						Padding="0"
+						Command="{Binding TagsSearchService.ClearCommand}"
+						DockPanel.Dock="Right"
+						ToolTip="Clear">
+						<wpf:FontIcon Text="&#xE711;"/>
+					</Button>
 
+					<Button
+						Style="{StaticResource Button.Custom.Icon}"
+						Width="30"
+						Padding="0"
+						Command="{Binding SubmitCommand}"
+						DockPanel.Dock="Right"
+						ToolTip="Search">
+						<wpf:FontIcon Text="&#xE721;"/>
+					</Button>
+
+					<Border Style="{StaticResource HorizontalSeparator}"/>
+
+					<Button
+						Style="{StaticResource Button.Custom.Icon}"
+						Width="30"
+						Padding="0"
+						Command="{Binding OpenSearchPanelCommand}"
+						DockPanel.Dock="Right"
+						ToolTip="Open Search Panel">
+						<wpf:FontIcon Text="&#xE8A7;"/>
+					</Button>
+
+					<Button
+						Style="{StaticResource Button.Custom.Icon}"
+						Width="30"
+						Padding="0"
+						Command="{Binding OpenSearchHistoryPanelCommand}"
+						DockPanel.Dock="Right"
+						ToolTip="Open Search History Panel">
+						<wpf:FontIcon Text="&#xE81C;"/>
+					</Button>
+
+				</wpf:SpacingStackPanel>
 			</Grid>
 
 			<Border>
@@ -116,9 +106,9 @@
 						bf:ListBoxExtension.ClickBlankToDeselect="True"
 						bf:ListBoxExtension.EscapeToDeselect="True"
 						ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-						SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-						Visibility="{Binding AutoCompletes.Count, Converter={StaticResource IListToVisibilityConverter}}"
-						ItemsSource="{Binding AutoCompletes}"
+						SelectedItem="{Binding TagsSearchService.SelectedItem, Mode=TwoWay}"
+						Visibility="{Binding TagsSearchService.AutoCompletes.Count, Converter={StaticResource IListToVisibilityConverter}}"
+						ItemsSource="{Binding TagsSearchService.AutoCompletes}"
 						d:ItemsSource="{d:SampleData ItemCount=3}">
 
 						<dxmvvm:Interaction.Behaviors>
@@ -132,7 +122,7 @@
 						</ListBox.ItemsPanel>
 
 						<ListBox.ItemContainerStyle>
-							<Style TargetType="ListBoxItem" BasedOn="{StaticResource CustomListBoxItemStyle.Local}">
+							<Style TargetType="ListBoxItem" BasedOn="{StaticResource ListBoxItem.SearchTags}">
 								<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
 								<Setter Property="bf:ControlExtension.DoubleClickCommand" Value="{StaticResource HandleItemCommand}"/>
 								<Setter Property="bf:ControlExtension.DoubleClickCommandParameter" Value="{Binding}"/>
@@ -154,15 +144,15 @@
 							VerticalAlignment="Top"
 							BorderThickness="0"
 							IsIndeterminate="True"
-							Visibility="{Binding IsLoading, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+							Visibility="{Binding TagsSearchService.IsLoading, Converter={StaticResource Boolean2VisibilityConverter}}"/>
 
 						<TextBlock
 							Margin="0,4,0,0"
 							VerticalAlignment="Top"
 							FontSize="14"
-							Text="{Binding AlternativeHintText}"
+							Text="{Binding TagsSearchService.AlternativeHintText}"
 							TextAlignment="Center"
-							Visibility="{Binding AlternativeHintText, Converter={StaticResource String2VisibilityConverter}}"/>
+							Visibility="{Binding TagsSearchService.AlternativeHintText, Converter={StaticResource String2VisibilityConverter}}"/>
 
 					</StackPanel>
 

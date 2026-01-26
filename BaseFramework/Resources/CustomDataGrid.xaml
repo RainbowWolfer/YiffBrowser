@@ -1,0 +1,414 @@
+﻿<ResourceDictionary
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:hc="https://handyorg.github.io/handycontrol"
+	xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+	<Style x:Key="DataGridColumnHeader.Custom" TargetType="DataGridColumnHeader">
+		<Setter Property="VerticalContentAlignment" Value="Center"/>
+		<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+		<Setter Property="Padding" Value="8,0"/>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="DataGridColumnHeader">
+					<hc:SimplePanel>
+						<Border
+							Padding="{TemplateBinding Padding}"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							Background="Transparent">
+							<Grid HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition/>
+									<ColumnDefinition Width="Auto"/>
+								</Grid.ColumnDefinitions>
+								<ContentPresenter VerticalAlignment="Center" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+								<ToggleButton x:Name="ToggleButtonSortDirection"
+									Style="{StaticResource ToggleButtonIconTransparent}"
+									Grid.Column="1"
+									Width="20"
+									Height="{x:Static system:Double.NaN}"
+									Padding="4,0"
+									VerticalAlignment="Center"
+									hc:IconSwitchElement.Geometry="{StaticResource DownGeometry}"
+									hc:IconSwitchElement.GeometrySelected="{StaticResource UpGeometry}"
+									Foreground="{DynamicResource PrimaryBrush}"
+									IsEnabled="False"
+									Opacity="1"/>
+							</Grid>
+						</Border>
+						<Thumb x:Name="PART_LeftHeaderGripper" Style="{StaticResource ColumnHeaderGripperStyle}" HorizontalAlignment="Left"/>
+						<Thumb x:Name="PART_RightHeaderGripper" Style="{StaticResource ColumnHeaderGripperStyle}" HorizontalAlignment="Right"/>
+					</hc:SimplePanel>
+					<ControlTemplate.Triggers>
+						<Trigger Property="SortDirection" Value="{x:Null}">
+							<Setter TargetName="ToggleButtonSortDirection" Property="Visibility" Value="Collapsed"/>
+						</Trigger>
+						<Trigger Property="SortDirection" Value="Ascending">
+							<Setter TargetName="ToggleButtonSortDirection" Property="IsChecked" Value="True"/>
+						</Trigger>
+						<Trigger Property="SortDirection" Value="Descending">
+							<Setter TargetName="ToggleButtonSortDirection" Property="IsChecked" Value="False"/>
+						</Trigger>
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+		<Style.Triggers>
+			<Trigger Property="SortDirection" Value="Ascending">
+				<Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+			</Trigger>
+			<Trigger Property="SortDirection" Value="Descending">
+				<Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+				<Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+			</Trigger>
+		</Style.Triggers>
+	</Style>
+
+
+	<Style x:Key="DataGridRowHeader.Custom" TargetType="DataGridRowHeader">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="DataGridRowHeader">
+					<hc:SimplePanel HorizontalAlignment="Center">
+						<Border
+							Padding="{TemplateBinding Padding}"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							Background="Transparent">
+							<StackPanel Orientation="Horizontal">
+								<ContentPresenter VerticalAlignment="Center" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+							</StackPanel>
+						</Border>
+						<Thumb x:Name="PART_TopHeaderGripper" Style="{StaticResource RowHeaderGripperStyle}" VerticalAlignment="Top"/>
+						<Thumb x:Name="PART_BottomHeaderGripper" Style="{StaticResource RowHeaderGripperStyle}" VerticalAlignment="Bottom"/>
+					</hc:SimplePanel>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style x:Key="DataGridRow.Custom" TargetType="DataGridRow">
+		<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
+		<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+		<Setter Property="SnapsToDevicePixels" Value="true"/>
+		<Setter Property="Margin" Value="0,0,0,2"/>
+		<Setter Property="Padding" Value="0,6"/>
+		<Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
+		<Setter Property="ValidationErrorTemplate">
+			<Setter.Value>
+				<ControlTemplate>
+					<TextBlock
+						Margin="2,0,0,0"
+						VerticalAlignment="Center"
+						Foreground="Red"
+						Text="!"/>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="DataGridRow">
+					<SelectiveScrollingGrid>
+						<SelectiveScrollingGrid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="*"/>
+						</SelectiveScrollingGrid.ColumnDefinitions>
+						<SelectiveScrollingGrid.RowDefinitions>
+							<RowDefinition Height="*"/>
+							<RowDefinition Height="Auto"/>
+						</SelectiveScrollingGrid.RowDefinitions>
+						<Border x:Name="DGR_Border"
+							Grid.ColumnSpan="2"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							Background="{TemplateBinding Background}"
+							CornerRadius="4"
+							SnapsToDevicePixels="True"/>
+						<DataGridCellsPresenter
+							Grid.Row="0"
+							Grid.Column="1"
+							MinHeight="{TemplateBinding MinHeight}"
+							VerticalContentAlignment="Center"
+							ItemsPanel="{TemplateBinding ItemsPanel}"
+							SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+						<DataGridDetailsPresenter
+							Grid.Row="1"
+							Grid.Column="1"
+							SelectiveScrollingGrid.SelectiveScrollingOrientation="{Binding AreRowDetailsFrozen, ConverterParameter={x:Static SelectiveScrollingOrientation.Vertical}, Converter={x:Static DataGrid.RowDetailsScrollingConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+							Visibility="{TemplateBinding DetailsVisibility}"/>
+						<DataGridRowHeader
+							Grid.Row="0"
+							Grid.Column="0"
+							SelectiveScrollingGrid.SelectiveScrollingOrientation="Vertical"
+							Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.Row}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+					</SelectiveScrollingGrid>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+		<Style.Triggers>
+			<Trigger Property="IsMouseOver" Value="true">
+				<Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}"/>
+			</Trigger>
+			<Trigger Property="IsSelected" Value="True">
+				<Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+				<Setter Property="TextElement.Foreground" Value="{DynamicResource TextIconBrush}"/>
+			</Trigger>
+			<MultiTrigger>
+				<MultiTrigger.Conditions>
+					<Condition Property="IsSelected" Value="true"/>
+					<Condition Property="Selector.IsSelectionActive" Value="false"/>
+				</MultiTrigger.Conditions>
+				<Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}"/>
+				<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			</MultiTrigger>
+		</Style.Triggers>
+	</Style>
+
+	<Style x:Key="DataGridCell.Custom" TargetType="DataGridCell">
+		<Setter Property="FocusVisualStyle">
+			<Setter.Value>
+				<Style>
+					<Setter Property="Control.Template">
+						<Setter.Value>
+							<ControlTemplate>
+								<Rectangle
+									Margin="2"
+									Opacity=".6"
+									RadiusX="4"
+									RadiusY="4"
+									SnapsToDevicePixels="true"
+									Stroke="{DynamicResource SecondaryBorderBrush}"
+									StrokeDashArray="1 1"
+									StrokeThickness="2"/>
+							</ControlTemplate>
+						</Setter.Value>
+					</Setter>
+				</Style>
+			</Setter.Value>
+		</Setter>
+		<Setter Property="Background" Value="Transparent"/>
+		<Setter Property="BorderBrush" Value="Transparent"/>
+		<Setter Property="BorderThickness" Value="0"/>
+		<Setter Property="VerticalContentAlignment" Value="Center"/>
+		<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+		<Setter Property="Padding" Value="6,0"/>
+		<Setter Property="hc:BorderElement.CornerRadius" Value="{StaticResource DefaultCornerRadius}"/>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="DataGridCell">
+					<Border Background="Transparent">
+						<Border
+							Margin="0,0,4,0"
+							Padding="{TemplateBinding Padding}"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							Background="{TemplateBinding Background}"
+							CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius), RelativeSource={RelativeSource TemplatedParent}}"
+							SnapsToDevicePixels="True">
+							<ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+						</Border>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+		<Style.Triggers>
+			<MultiDataTrigger>
+				<MultiDataTrigger.Conditions>
+					<Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="true"/>
+					<Condition Binding="{Binding SelectionUnit, RelativeSource={RelativeSource FindAncestor, AncestorType=DataGrid}}" Value="Cell"/>
+				</MultiDataTrigger.Conditions>
+				<Setter Property="Foreground" Value="{DynamicResource TextIconBrush}"/>
+				<Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+			</MultiDataTrigger>
+			<MultiDataTrigger>
+				<MultiDataTrigger.Conditions>
+					<Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="true"/>
+					<Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="False"/>
+					<Condition Binding="{Binding SelectionUnit, RelativeSource={RelativeSource FindAncestor, AncestorType=DataGrid}}" Value="CellOrRowHeader"/>
+				</MultiDataTrigger.Conditions>
+				<Setter Property="Foreground" Value="{DynamicResource TextIconBrush}"/>
+				<Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+			</MultiDataTrigger>
+			<MultiDataTrigger>
+				<MultiDataTrigger.Conditions>
+					<Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="true"/>
+					<Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True"/>
+					<Condition Binding="{Binding SelectionUnit, RelativeSource={RelativeSource FindAncestor, AncestorType=DataGrid}}" Value="CellOrRowHeader"/>
+				</MultiDataTrigger.Conditions>
+				<Setter Property="Foreground" Value="{DynamicResource TextIconBrush}"/>
+			</MultiDataTrigger>
+			<MultiDataTrigger>
+				<MultiDataTrigger.Conditions>
+					<Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="true"/>
+					<Condition Binding="{Binding SelectionUnit, RelativeSource={RelativeSource FindAncestor, AncestorType=DataGrid}}" Value="FullRow"/>
+				</MultiDataTrigger.Conditions>
+				<Setter Property="Foreground" Value="{DynamicResource TextIconBrush}"/>
+			</MultiDataTrigger>
+			<!--<MultiTrigger>
+				<MultiTrigger.Conditions>
+					<Condition Property="IsSelected" Value="true"/>
+					<Condition Property="Selector.IsSelectionActive" Value="false"/>
+				</MultiTrigger.Conditions>
+				<Setter Property="Background" Value="{DynamicResource DarkDefaultBrush}"/>
+				<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			</MultiTrigger>-->
+		</Style.Triggers>
+	</Style>
+
+	<Style x:Key="DataGridTextColumn.Custom" TargetType="TextBlock">
+		<Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+	</Style>
+
+	<Style x:Key="DataGrid.Custom" TargetType="DataGrid">
+		<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+		<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+		<Setter Property="BorderThickness" Value="1"/>
+		<Setter Property="GridLinesVisibility" Value="None"/>
+		<Setter Property="RowDetailsVisibilityMode" Value="VisibleWhenSelected"/>
+		<Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+		<Setter Property="ScrollViewer.PanningMode" Value="Both"/>
+		<Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+		<Setter Property="EnableRowVirtualization" Value="True"/>
+		<Setter Property="CanUserAddRows" Value="False"/>
+		<Setter Property="CanUserDeleteRows" Value="False"/>
+		<Setter Property="CanUserReorderColumns" Value="False"/>
+		<Setter Property="CanUserResizeRows" Value="False"/>
+		<Setter Property="ColumnHeaderStyle" Value="{StaticResource DataGridColumnHeader.Custom}"/>
+		<Setter Property="RowHeaderStyle" Value="{StaticResource DataGridRowHeader.Custom}"/>
+		<Setter Property="RowStyle" Value="{StaticResource DataGridRow.Custom}"/>
+		<Setter Property="CellStyle" Value="{StaticResource DataGridCell.Custom}"/>
+		<Setter Property="Padding" Value="6"/>
+		<Setter Property="hc:DataGridAttach.TextColumnStyle" Value="{StaticResource DataGridTextColumn.Custom}"/>
+		<Setter Property="hc:DataGridAttach.ComboBoxColumnStyle" Value="{StaticResource DataGridComboBoxColumnStyle}"/>
+		<Setter Property="hc:DataGridAttach.CheckBoxColumnStyle" Value="{StaticResource CheckBoxBaseStyle}"/>
+		<Setter Property="hc:DataGridAttach.EditingCheckBoxColumnStyle" Value="{StaticResource CheckBoxBaseStyle}"/>
+		<Setter Property="hc:DataGridAttach.ApplyDefaultStyle" Value="True"/>
+		<Setter Property="hc:BorderElement.CornerRadius" Value="{StaticResource DefaultCornerRadius}"/>
+
+		<Setter Property="RowHeight" Value="24"/>
+		<Setter Property="ColumnHeaderHeight" Value="20"/>
+		<Setter Property="hc:DataGridAttach.EditingTextColumnStyle" Value="{StaticResource DataGridEditingTextColumnStyle.Small}"/>
+		<Setter Property="hc:DataGridAttach.EditingComboBoxColumnStyle" Value="{StaticResource DataGridEditingComboBoxColumnStyle.Small}"/>
+
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="DataGrid">
+					<ControlTemplate.Resources>
+						<Storyboard x:Key="StoryboardMouseEnter">
+							<DoubleAnimationUsingKeyFrames Storyboard.TargetName="PART_VerticalScrollBar" Storyboard.TargetProperty="Opacity">
+								<EasingDoubleKeyFrame KeyTime="0:0:.2" Value=".8"/>
+							</DoubleAnimationUsingKeyFrames>
+							<DoubleAnimationUsingKeyFrames Storyboard.TargetName="PART_HorizontalScrollBar" Storyboard.TargetProperty="Opacity">
+								<EasingDoubleKeyFrame KeyTime="0:0:.2" Value=".8"/>
+							</DoubleAnimationUsingKeyFrames>
+						</Storyboard>
+						<Storyboard x:Key="StoryboardMouseLeave">
+							<DoubleAnimationUsingKeyFrames Storyboard.TargetName="PART_VerticalScrollBar" Storyboard.TargetProperty="Opacity">
+								<EasingDoubleKeyFrame KeyTime="0:0:.2" Value="0"/>
+							</DoubleAnimationUsingKeyFrames>
+							<DoubleAnimationUsingKeyFrames Storyboard.TargetName="PART_HorizontalScrollBar" Storyboard.TargetProperty="Opacity">
+								<EasingDoubleKeyFrame KeyTime="0:0:.2" Value="0"/>
+							</DoubleAnimationUsingKeyFrames>
+						</Storyboard>
+					</ControlTemplate.Resources>
+					<Border
+						Padding="{TemplateBinding Padding}"
+						BorderThickness="{TemplateBinding BorderThickness}"
+						BorderBrush="{TemplateBinding BorderBrush}"
+						Background="{TemplateBinding Background}"
+						CornerRadius="{Binding Path=(hc:BorderElement.CornerRadius), RelativeSource={RelativeSource TemplatedParent}}"
+						SnapsToDevicePixels="True">
+						<ScrollViewer x:Name="DG_ScrollViewer" Focusable="false">
+							<ScrollViewer.Template>
+								<ControlTemplate TargetType="ScrollViewer">
+									<Grid>
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="Auto"/>
+											<ColumnDefinition Width="*"/>
+											<ColumnDefinition Width="Auto"/>
+										</Grid.ColumnDefinitions>
+										<Grid.RowDefinitions>
+											<RowDefinition Height="Auto"/>
+											<RowDefinition Height="*"/>
+										</Grid.RowDefinitions>
+										<hc:SimplePanel Width="{Binding CellsPanelHorizontalOffset, RelativeSource={RelativeSource AncestorType=DataGrid}, Converter={StaticResource DoubleMinConverter}}" Margin="0,0,0,6" Visibility="Collapsed">
+											<CheckBox HorizontalAlignment="Center"/>
+										</hc:SimplePanel>
+										<DataGridColumnHeadersPresenter x:Name="PART_ColumnHeadersPresenter"
+											Grid.Row="0"
+											Grid.Column="1"
+											Grid.ColumnSpan="2"
+											Margin="0,0,0,6"
+											Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.Column}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+										<ScrollContentPresenter x:Name="PART_ScrollContentPresenter"
+											Grid.Row="1"
+											Grid.Column="0"
+											Grid.ColumnSpan="3"
+											HorizontalAlignment="Stretch"
+											VerticalAlignment="Stretch"
+											CanContentScroll="{TemplateBinding CanContentScroll}"/>
+										<hc:ToggleBlock
+											Grid.Row="1"
+											Grid.Column="0"
+											Grid.ColumnSpan="3"
+											HorizontalContentAlignment="Stretch"
+											VerticalContentAlignment="Stretch"
+											IsChecked="{Binding HasItems, RelativeSource={RelativeSource AncestorType=DataGrid}, Mode=OneWay}">
+											<hc:ToggleBlock.UnCheckedContent>
+												<hc:Empty BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" Background="{DynamicResource RegionBrush}"/>
+											</hc:ToggleBlock.UnCheckedContent>
+										</hc:ToggleBlock>
+										<ScrollBar x:Name="PART_VerticalScrollBar"
+											Style="{StaticResource ScrollBarBaseStyle}"
+											Grid.Row="1"
+											Grid.Column="2"
+											Maximum="{TemplateBinding ScrollableHeight}"
+											Opacity="0"
+											Orientation="Vertical"
+											ViewportSize="{TemplateBinding ViewportHeight}"
+											Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+											Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"/>
+										<ScrollBar x:Name="PART_HorizontalScrollBar"
+											Style="{StaticResource ScrollBarBaseStyle}"
+											Grid.Row="1"
+											Grid.Column="1"
+											VerticalAlignment="Bottom"
+											Maximum="{TemplateBinding ScrollableWidth}"
+											Opacity="0"
+											Orientation="Horizontal"
+											ViewportSize="{TemplateBinding ViewportWidth}"
+											Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"
+											Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"/>
+									</Grid>
+									<ControlTemplate.Triggers>
+										<EventTrigger RoutedEvent="MouseEnter">
+											<BeginStoryboard Storyboard="{StaticResource StoryboardMouseEnter}"/>
+										</EventTrigger>
+										<EventTrigger RoutedEvent="MouseLeave">
+											<BeginStoryboard Storyboard="{StaticResource StoryboardMouseLeave}"/>
+										</EventTrigger>
+									</ControlTemplate.Triggers>
+								</ControlTemplate>
+							</ScrollViewer.Template>
+							<ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+						</ScrollViewer>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+		<Style.Triggers>
+			<MultiTrigger>
+				<MultiTrigger.Conditions>
+					<Condition Property="IsGrouping" Value="true"/>
+					<Condition Property="VirtualizingPanel.IsVirtualizingWhenGrouping" Value="false"/>
+				</MultiTrigger.Conditions>
+				<Setter Property="ScrollViewer.CanContentScroll" Value="false"/>
+			</MultiTrigger>
+		</Style.Triggers>
+	</Style>
+
+
+	<Style TargetType="DataGrid" BasedOn="{StaticResource DataGrid.Custom}"/>
+
+</ResourceDictionary>
