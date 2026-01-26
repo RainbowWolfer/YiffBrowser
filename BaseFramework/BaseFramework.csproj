@@ -88,8 +88,4 @@
 		<Resource Include="Resources\Icons\YiffBrowserPSD.psd" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Folder Include="Events\" />
-	</ItemGroup>
-
 </Project>

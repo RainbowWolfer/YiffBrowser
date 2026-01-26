@@ -16,7 +16,32 @@
 	d:DesignWidth="800"
 	DataContext="{b:DISource Type=local:SearchPanelViewModel}"
 	mc:Ignorable="d">
+
 	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="*"/>
+			<ColumnDefinition Width="*"/>
+			<ColumnDefinition Width="*"/>
+		</Grid.ColumnDefinitions>
+
+		<Border Grid.Column="1">
+
+			<bf:TextBoxExtend x:Name="SearchBox"
+				Style="{StaticResource TextBoxExtend}"
+				bf:ControlExtension.LoadedCommand="{Binding OnSearchTextBoxLoadedCommand}"
+				bf:ControlExtension.PreviewKeyDownCommand="{Binding OnSearchTextBoxPreviewKeyDownCommand}"
+				bf:TextBoxExtension.SelectionChangedCommand="{Binding OnSearchTextSelectionChangedCommand}"
+				AcceptsReturn="False"
+				AcceptsTab="False"
+				BindableSelectionStart="{Binding SearchTextSelectionStart, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+				Text="{Binding SearchTe xt, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+				<dxmvvm:Interaction.Behaviors>
+					<b:TypedUIObjectService Name="SearchBoxService"/>
+				</dxmvvm:Interaction.Behaviors>
+			</bf:TextBoxExtend>
+
+		</Border>
 
 	</Grid>
+
 </UserControl>

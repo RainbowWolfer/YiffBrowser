@@ -1,6 +1,8 @@
 ﻿using BaseFramework.Controls;
+using BaseFramework.Events;
 using BaseFramework.Helpers;
 using DevExpress.Mvvm;
+using RW.Base.WPF.Events;
 using RW.Base.WPF.ViewModelServices;
 using RW.Common;
 using RW.Common.Helpers;
@@ -9,6 +11,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using YB.E621.Controls;
 using YB.E621.Models.E621;
 using YB.E621.Services;
 using YB.E621.ViewModels;
@@ -21,7 +24,7 @@ public partial class SearchView : UserControl {
 	}
 }
 
-internal class SearchViewModel() : E621ViewModelBase {
+internal class SearchViewModel(IEventAggregator eventAggregator) : E621ViewModelBase {
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
 
 	public IUIObjectService<ListBox> MainListBoxService => GetService<ITypedUIObjectService>(nameof(MainListBoxService)).As<ListBox>();
@@ -82,6 +85,17 @@ internal class SearchViewModel() : E621ViewModelBase {
 
 	protected override void OnInitialize() {
 		Api = E621API.GetAPI(ViewParameter.ModuleType);
+		eventAggregator.GetEvent<ThemeChangedEvent>().Subscribe(OnThemeChanged);
+	}
+
+	private void OnThemeChanged(ThemeChangedEventArgs args) {
+		foreach (object? item in MainListBoxService.Object.Items) {
+			if (MainListBoxService.Object.ItemContainerGenerator.ContainerFromItem(item) is ListBoxItem listBoxItem
+				&& RW.Common.WPF.Helpers.ViewHelper.FindChild<SearchTagItemControl>(listBoxItem) is SearchTagItemControl control
+			) {
+				control.Refresh();
+			}
+		}
 	}
 
 	protected override void OnParentViewModelChanged(object parentViewModel) {

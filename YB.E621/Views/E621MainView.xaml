@@ -335,6 +335,19 @@
 										</DataTemplate>
 									</TabControl.ItemTemplate>
 
+									<TabControl.ItemContainerStyle>
+										<Style TargetType="TabItem" BasedOn="{StaticResource TabItem.Custom.DockPanel}">
+											<Setter Property="ContextMenu">
+												<Setter.Value>
+													<ContextMenu>
+														<MenuItem Header="1"/>
+														<MenuItem Header="2"/>
+													</ContextMenu>
+												</Setter.Value>
+											</Setter>
+										</Style>
+									</TabControl.ItemContainerStyle>
+
 									<TabControl.ContentTemplate>
 										<DataTemplate DataType="{x:Type i:IDockPanel}">
 											<Border>
@@ -345,6 +358,7 @@
 														BorderBrush="{DynamicResource BorderBrush}"
 														Background="{DynamicResource SecondaryRegionBrush}"
 														DockPanel.Dock="Top">
+
 														<Grid>
 															<Grid.ColumnDefinitions>
 																<ColumnDefinition Width="*"/>
@@ -396,7 +410,16 @@
 							HorizontalAlignment="Stretch"
 							VerticalAlignment="Top"
 							Background="Transparent"
-							Visibility="{Binding DockPanelManager.HasDockPanels, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+							Visibility="{Binding DockPanelManager.HasDockPanels, Converter={StaticResource Boolean2VisibilityConverter}}">
+
+							<GridSplitter.ContextMenu>
+								<ContextMenu>
+									<MenuItem Header="1"/>
+									<MenuItem Header="2"/>
+								</ContextMenu>
+							</GridSplitter.ContextMenu>
+
+						</GridSplitter>
 
 					</Grid>
 

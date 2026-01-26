@@ -12,7 +12,7 @@ public partial class TagsManagementPanel : UserControl {
 }
 
 [DockPanelID(nameof(TagsManagementPanelItem), remainInstance: true)]
-public class TagsManagementPanelItem : DockPanelItemBase<TagsManagementPanel> {
+internal class TagsManagementPanelItem : DockPanelItemBase<TagsManagementPanel> {
 	public TagsManagementPanelItem() {
 		Name = "Tags Management";
 	}

@@ -1,7 +1,8 @@
 ﻿using BaseFramework.Controls;
+using BaseFramework.Events;
 using HandyControl.Themes;
 using RW.Base.WPF.DependencyInjections;
-using System.Diagnostics;
+using RW.Base.WPF.Events;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -11,10 +12,14 @@ using System.Windows.Threading;
 namespace BaseFramework.Services;
 
 public interface IThemeManager : ISingletonDependency {
+	event TypedEventHandler<IThemeManager, ThemeChangedEventArgs>? ThemeChanged;
+
+	bool IsDarkTheme();
 	void ToggleTheme();
 }
 
-internal class ThemeManager() : IThemeManager {
+internal class ThemeManager(IEventAggregator eventAggregator) : IThemeManager {
+	public event TypedEventHandler<IThemeManager, ThemeChangedEventArgs>? ThemeChanged;
 
 	private class _ControlzEx {
 		public static readonly Assembly AssemblyControlzEx = Assembly.Load("ControlzEx");
@@ -22,6 +27,10 @@ internal class ThemeManager() : IThemeManager {
 		public static readonly MethodInfo SetImmersiveDarkMode = DwmHelper.GetMethod("SetImmersiveDarkMode", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)!;
 	}
 
+	public bool IsDarkTheme() {
+		HandyControl.Themes.ThemeManager c = HandyControl.Themes.ThemeManager.Current;
+		return c.ActualApplicationTheme is ApplicationTheme.Dark;
+	}
 
 	[SecurityCritical]
 	public void ToggleTheme() {
@@ -89,6 +98,10 @@ internal class ThemeManager() : IThemeManager {
 				}
 			}
 		}
+
+		ThemeChangedEventArgs args = new(IsDarkTheme());
+		eventAggregator.GetEvent<ThemeChangedEvent>().Publish(args);
+		ThemeChanged?.Invoke(this, args);
 
 	}
 

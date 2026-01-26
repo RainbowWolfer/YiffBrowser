@@ -105,7 +105,7 @@ internal class E621MainViewModel(IApplication application, IAppManager appManage
 		UserService = E621UserService.GetUserService(parameter.ModuleType);
 		UserService.LoginChanged += UserService_LoginChanged;
 
-		DockPanelManager.Initialize(application);
+		DockPanelManager.Initialize(application, this);
 	}
 
 	private PostTabItem CreateTabItem(string[] tags) {
@@ -121,7 +121,7 @@ internal class E621MainViewModel(IApplication application, IAppManager appManage
 			Initialize();
 
 			//Tabs.Add(CreateTabItem(["order:rank"]));
-			Tabs.Add(CreateTabItem(["type:webm"]));
+
 			//Tabs.Add(new PostTabItem(ModuleType, ["type:gif", "order:filesize"]));
 			//Tabs.Add(new PostTabItem(ModuleType, ["type:gif", "order:filesize"]));
 			//Tabs.Add(new PostTabItem(ModuleType, ["type:gif"]));

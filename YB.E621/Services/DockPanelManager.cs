@@ -8,6 +8,8 @@ using System.Collections.Specialized;
 using System.Reflection;
 using System.Windows;
 using YB.E621.Interfaces;
+using YB.E621.Parameters;
+using YB.E621.Views;
 
 namespace YB.E621.Services;
 
@@ -21,6 +23,9 @@ internal class DockPanelManager : BindableBase {
 	private readonly Dictionary<Type, DockPanelIDAttribute> attributesPool = [];
 	private readonly Dictionary<Type, IDockPanel> dockPanelInstances = [];
 
+	private ViewParameter? viewParameter;
+	private E621MainViewModel? mainViewModel;
+
 	public DockPanelManager() {
 		DockPanels.CollectionChanged += DockPanels_CollectionChanged;
 	}
@@ -30,7 +35,10 @@ internal class DockPanelManager : BindableBase {
 		RaisePropertyChanged(() => HasDockPanels);
 	}
 
-	public async void Initialize(IApplication application) {
+	public async void Initialize(IApplication application, E621MainViewModel mainViewModel) {
+		this.mainViewModel = mainViewModel;
+		this.viewParameter = mainViewModel.ViewParameter;
+
 		Type[] types = ReflectionHelper.FindAllDerivedTypes<IDockPanel>(application.DllLoader.GetTypes());
 		foreach (Type type in types) {
 			if (type.GetCustomAttribute<DockPanelIDAttribute>() is { } attribute) {
@@ -61,13 +69,13 @@ internal class DockPanelManager : BindableBase {
 		} else {
 			if (attributesPool.TryGetValue(type, out DockPanelIDAttribute? attribute) && attribute.RemainInstance) {
 				if (!dockPanelInstances.TryGetValue(type, out IDockPanel? dockPanel)) {
-					dockPanel = (IDockPanel)Activator.CreateInstance(type)!;
+					dockPanel = CreateDockPanel(type);
 				}
-				DockPanels.Add(dockPanel);
 				dockPanelInstances[type] = dockPanel;
+				DockPanels.Add(dockPanel);
 				return dockPanel;
 			} else {
-				IDockPanel instance = (IDockPanel)Activator.CreateInstance(type)!;
+				IDockPanel instance = CreateDockPanel(type);
 				DockPanels.Add(instance);
 				return instance;
 			}
@@ -75,6 +83,21 @@ internal class DockPanelManager : BindableBase {
 	}
 
 	#endregion
+
+	private IDockPanel CreateDockPanel(Type type) {
+		IDockPanel instance = (IDockPanel)Activator.CreateInstance(type)!;
+
+		if(instance is IDockPanelEx dockPanelEx) {
+			dockPanelEx.Initialize(new DockPanelParameter(
+				instance,
+				mainViewModel,
+				viewParameter
+			));
+		}
+
+
+		return instance;
+	}
 
 	public void Close(IDockPanel dockPanel) {
 		DockPanels.Remove(dockPanel);

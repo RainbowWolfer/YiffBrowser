@@ -125,6 +125,12 @@
 							<b:TypedUIObjectService Name="MainListBoxService"/>
 						</dxmvvm:Interaction.Behaviors>
 
+						<ListBox.ItemsPanel>
+							<ItemsPanelTemplate>
+								<StackPanel/>
+							</ItemsPanelTemplate>
+						</ListBox.ItemsPanel>
+
 						<ListBox.ItemContainerStyle>
 							<Style TargetType="ListBoxItem" BasedOn="{StaticResource CustomListBoxItemStyle.Local}">
 								<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>

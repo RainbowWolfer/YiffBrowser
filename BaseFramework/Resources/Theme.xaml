@@ -19,6 +19,7 @@
 	<ResourceDictionary.MergedDictionaries>
 		<ResourceDictionary Source="pack://application:,,,/RW.Common.WPF;component/Resources/Generic.xaml"/>
 		<ResourceDictionary Source="/BaseFramework;component/Resources/NativeControls.xaml"/>
+		<ResourceDictionary Source="/BaseFramework;component/Resources/CustomMenu.xaml"/>
 		<ResourceDictionary Source="/BaseFramework;component/Resources/PlaybackControls.xaml"/>
 	</ResourceDictionary.MergedDictionaries>
 
@@ -60,7 +61,7 @@
 
 	<Style TargetType="Menu" BasedOn="{StaticResource Menu.Small}"/>
 	<!-- todo: customize contextmenu style -->
-	<Style TargetType="ContextMenu" BasedOn="{StaticResource ContextMenu.Small}"/>
+	<Style TargetType="ContextMenu" BasedOn="{StaticResource ContextMenu.Custom}"/>
 
 	<Style TargetType="c:BoolContent">
 		<Setter Property="Template">

@@ -3,6 +3,8 @@ using DevExpress.Mvvm;
 using DevExpress.Mvvm.UI;
 using System.Reflection;
 using System.Windows;
+using YB.E621.Parameters;
+using YB.E621.Views;
 
 namespace YB.E621.Interfaces;
 
@@ -19,7 +21,17 @@ public interface IDockPanel {
 	string? GetDockPanelID();
 }
 
-public abstract class DockPanelItemBase<T> : BindableBase, IDockPanel where T : FrameworkElement, new() {
+internal interface IDockPanelEx : IDockPanel {
+	void Initialize(DockPanelParameter parameter);
+}
+
+internal record class DockPanelParameter(
+	IDockPanel DockPanel,
+	E621MainViewModel E621MainView,
+	ViewParameter ViewParameter
+);
+
+internal abstract class DockPanelItemBase<T> : BindableBase, IDockPanelEx where T : FrameworkElement, new() {
 
 	public Guid InstanceID { get; set; } = Guid.NewGuid();
 
@@ -34,7 +46,10 @@ public abstract class DockPanelItemBase<T> : BindableBase, IDockPanel where T : 
 
 	public DockPanelItemBase() {
 		Content = new T();
-		ViewModelExtensions.SetParameter(Content, this);
+	}
+
+	public void Initialize(DockPanelParameter parameter) {
+		ViewModelExtensions.SetParameter(Content, parameter);
 	}
 
 	public virtual void Closed() {
