@@ -1,10 +1,13 @@
 ﻿using BaseFramework.Attributes;
 using BaseFramework.Controls;
 using BaseFramework.Events;
+using BaseFramework.ViewModels;
 using DevExpress.Mvvm;
 using RW.Base.WPF.Events;
 using RW.Base.WPF.ViewModelServices;
 using RW.Common.Helpers;
+using RW.Common.WPF.Helpers;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -37,13 +40,19 @@ internal class SearchPanelViewModel(IEventAggregator eventAggregator) : DockPane
 
 	public IUIObjectService<ListBox> MainListBoxService => GetService<ITypedUIObjectService>(nameof(MainListBoxService)).As<ListBox>();
 	public IUIObjectService<TextBoxExtend> SearchBoxService => GetService<ITypedUIObjectService>(nameof(SearchBoxService)).As<TextBoxExtend>();
+	public IUIObjectService<TextBox> RandomTagsTextBoxService => GetService<ITypedUIObjectService>(nameof(RandomTagsTextBoxService)).As<TextBox>();
 
+
+	public string RandomTagText {
+		get => GetProperty(() => RandomTagText);
+		set => SetProperty(() => RandomTagText, value);
+	}
+
+	public LoadingStatusViewModel RandomTagsLoadingStatus { get; } = new();
 
 	public TagsSearchService TagsSearchService { get; } = new();
 
 	public E621API? Api { get; private set; }
-
-
 
 
 	protected override void OnInitialized() {
@@ -56,7 +65,7 @@ internal class SearchPanelViewModel(IEventAggregator eventAggregator) : DockPane
 	private void OnThemeChanged(ThemeChangedEventArgs args) {
 		foreach (object? item in MainListBoxService.Object.Items) {
 			if (MainListBoxService.Object.ItemContainerGenerator.ContainerFromItem(item) is ListBoxItem listBoxItem
-				&& RW.Common.WPF.Helpers.ViewHelper.FindChild<SearchTagItemControl>(listBoxItem) is SearchTagItemControl control
+				&& ViewHelper.FindChild<SearchTagItemControl>(listBoxItem) is SearchTagItemControl control
 			) {
 				control.Refresh();
 			}
@@ -150,6 +159,56 @@ internal class SearchPanelViewModel(IEventAggregator eventAggregator) : DockPane
 	private void OpenSearchHistoryPanel() {
 		MainViewModel?.ShowSearchHistoryPanel();
 	}
+
+
+
+
+	private DelegateCommand? copyRandomTagsCommand;
+	public IDelegateCommand CopyRandomTagsCommand => copyRandomTagsCommand ??= new(CopyRandomTags, CanCopyRandomTags);
+	private void CopyRandomTags() {
+		if (CanCopyRandomTags()) {
+			RandomTagText.ReplaceLineEndings(" ").CopyToClipboard();
+		}
+	}
+	private bool CanCopyRandomTags() => RandomTagText.IsNotBlank();
+
+
+	private AsyncCommand? getRandomTagsCommand;
+	public IDelegateCommand GetRandomTagsCommand => getRandomTagsCommand ??= new(GetRandomTags, CanGetRandomTags);
+	private async Task GetRandomTags() {
+		if (CanGetRandomTags()) {
+			try {
+				RandomTagsLoadingStatus.InitialLoading();
+
+				E621Post[] posts = await Api.GetPostsByTagsAsync(new E621PostParameters() {
+					Page = 1,
+					Tags = ["limit:1", "order:random"],
+					UsePageLimit = false,
+				});
+
+				if (posts.IsNotEmpty()) {
+					IEnumerable<string> tags = posts.Where(x => x.Tags != null).SelectMany(x => x.Tags!.GetAllTags());
+
+					if (tags.IsNotEmpty()) {
+						int countToTake = RandomHelper.Shared.Next(4, 8);
+						string[] randomTags = [.. tags.Distinct().OrderBy(x => RandomHelper.Shared.Next()).Take(countToTake)];
+
+						RandomTagText = string.Join(Environment.NewLine, randomTags);
+					}
+
+				}
+
+				RandomTagsTextBoxService.Focus();
+
+				RandomTagsLoadingStatus.DoneLoading();
+			} catch (Exception ex) {
+				RandomTagsLoadingStatus.LoadingError(ex.Message);
+				RandomTagText = ex.Message;
+			}
+		}
+	}
+	[MemberNotNullWhen(true, nameof(Api))]
+	private bool CanGetRandomTags() => Api != null && !RandomTagsLoadingStatus.ShowLoading;
 
 
 

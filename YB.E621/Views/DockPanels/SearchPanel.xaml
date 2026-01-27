@@ -56,8 +56,19 @@
 							<ComboBoxItem Content="Rating: Explicit"/>
 						</hc:ComboBox>
 
+						<hc:ComboBox>
+							<ComboBoxItem Content="Type: ALL"/>
+							<ComboBoxItem Content="Type: PNG"/>
+							<ComboBoxItem Content="Type: JPG"/>
+							<ComboBoxItem Content="Type: GIF"/>
+							<ComboBoxItem Content="Type: WEBM"/>
+							<ComboBoxItem Content="Type: ANIM"/>
+						</hc:ComboBox>
+
 						<Button Name="ButtonScore" Content="Score"/>
 						<Button Name="ButtonFavoriteCount" Content="Favorite Count"/>
+
+						<Button Name="ButtonRandomTags" Content="Get Random Tags"/>
 
 						<ToggleButton Style="{StaticResource ToggleButtonSwitch}" HorizontalContentAlignment="Left" Content="Is In Pool"/>
 						<ToggleButton Style="{StaticResource ToggleButtonSwitch}" HorizontalContentAlignment="Left" Content="Is Child Post"/>
@@ -128,6 +139,41 @@
 					</Border>
 				</wpf:ButtonPopup>
 
+				<wpf:ButtonPopup HorizontalOffset="4" Placement="Right" SourceButton="{Binding ElementName=ButtonRandomTags}">
+					<Border Style="{DynamicResource ButtonPopupBorder}" Width="200">
+						<StackPanel>
+
+							<DockPanel>
+								<Button Command="{Binding CopyRandomTagsCommand}" ToolTip="Copy">
+									<wpf:FontIcon Text="&#xE8C8;"/>
+								</Button>
+								<Border Width="4"/>
+								<Button HorizontalAlignment="Stretch" Command="{Binding GetRandomTagsCommand}" Content="Get Random Tags"/>
+							</DockPanel>
+
+							<ProgressBar
+								Height="6"
+								Margin="0,4,0,0"
+								IsIndeterminate="True"
+								Visibility="{Binding RandomTagsLoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+
+							<hc:TextBox
+								MinHeight="160"
+								Margin="0,4,0,0"
+								Padding="8,6"
+								VerticalContentAlignment="Top"
+								IsReadOnly="True"
+								Text="{Binding RandomTagText, Mode=OneWay}"
+								TextWrapping="Wrap">
+								<dxmvvm:Interaction.Behaviors>
+									<b:TypedUIObjectService Name="RandomTagsTextBoxService"/>
+								</dxmvvm:Interaction.Behaviors>
+							</hc:TextBox>
+
+						</StackPanel>
+					</Border>
+				</wpf:ButtonPopup>
+
 			</Grid>
 		</Border>
 
@@ -147,6 +193,7 @@
 							VerticalContentAlignment="Top"
 							bf:ControlExtension.LoadedCommand="{Binding OnSearchTextBoxLoadedCommand}"
 							bf:ControlExtension.PreviewKeyDownCommand="{Binding OnSearchTextBoxPreviewKeyDownCommand}"
+							bf:TextBoxExtension.ReplaceNewlineOnPaste="True"
 							bf:TextBoxExtension.SelectionChangedCommand="{Binding OnSearchTextSelectionChangedCommand}"
 							hc:InfoElement.Placeholder="Search tags here"
 							hc:ScrollViewerAttach.AutoHide="False"

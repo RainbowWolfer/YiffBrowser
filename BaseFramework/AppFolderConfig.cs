@@ -9,4 +9,6 @@ public class AppFolderConfig(IAppManager appManager) : FolderConfig(appManager) 
 	public string AppSettingsFilePath => Path.Combine(DataFolder, "AppSettings.json");
 	public string AppProfileFilePath => Path.Combine(DataFolder, "AppProfile.json");
 
+	public string AppDatabaseFilePath => Path.Combine(DataFolder, "AppData.db");
+
 }

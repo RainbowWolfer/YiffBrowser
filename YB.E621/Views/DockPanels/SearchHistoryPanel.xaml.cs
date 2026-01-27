@@ -2,9 +2,9 @@
 using BaseFramework.ViewModels;
 using DevExpress.Mvvm;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 using YB.E621.Interfaces;
+using YB.E621.Services;
 using YB.E621.ViewModels;
 
 namespace YB.E621.Views.DockPanels;
@@ -22,7 +22,9 @@ internal class SearchHistoryPanelItem : DockPanelItemBase<SearchHistoryPanel> {
 	}
 }
 
-internal class SearchHistoryPanelViewModel() : DockPanelViewModelBase<SearchHistoryPanelItem> {
+internal class SearchHistoryPanelViewModel(
+	ISearchRecordHistoryService searchRecordHistoryService
+) : DockPanelViewModelBase<SearchHistoryPanelItem> {
 	public ObservableCollection<string> DataList { get; } = [];
 
 
@@ -55,6 +57,8 @@ internal class SearchHistoryPanelViewModel() : DockPanelViewModelBase<SearchHist
 		if (CanRefresh()) {
 			LoadingStatus.InitialLoading();
 			try {
+				searchRecordHistoryService.
+
 				await Task.Delay(3000);
 				LoadingStatus.DoneLoading();
 			} catch (Exception ex) {

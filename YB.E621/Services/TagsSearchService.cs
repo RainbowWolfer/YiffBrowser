@@ -258,5 +258,86 @@ internal class TagsSearchService : BindableBase {
 		return array;
 	}
 
+	private void PutSelectionAtTheEnd() {
+		SearchTextSelectionStart = SearchText.Length;
+	}
+
+	private string? FindMeta(string root) {//order:score
+		string text = " " + SearchText + " ";
+		string textLower = text.ToLower();
+		int startIndex = textLower.IndexOf(root);
+		if (startIndex == -1) {
+			return null;
+		}
+		int endIndex = -1;
+		for (int i = startIndex; i < textLower.Length; i++) {
+			if (textLower[i] == ' ') {
+				endIndex = i;
+				break;
+			}
+		}
+		if (endIndex == -1) {
+			return null;
+		}
+		return text[startIndex..endIndex];
+	}
+
+	private void ReplaceMeta(string root, string target) {
+		InternalChange = true;
+		string? found = FindMeta(root);
+		if (found.IsNotBlank()) {
+			SearchText = SearchText.Replace(found, target).Trim();
+		} else {
+			if (target.IsNotBlank()) {
+				SearchText = (SearchText.Trim() + " " + target).Trim();
+			}
+		}
+		//FocusSearchBox();
+		PutSelectionAtTheEnd();
+	}
+
+	private void UpdateMetaViews() {
+		if (CurrentTags == null) {
+			return;
+		}
+
+		//if (CurrentTags.Contains("order:new")) {
+		//	OrderDropDownText = "New";
+		//} else if (CurrentTags.Contains("order:rank")) {
+		//	OrderDropDownText = "Rank";
+		//} else if (CurrentTags.Contains("order:random")) {
+		//	OrderDropDownText = "Random";
+		//} else if (CurrentTags.Contains("order:favorite")) {
+		//	OrderDropDownText = "Favorite";
+		//} else if (CurrentTags.Contains("order:score")) {
+		//	OrderDropDownText = "Score";
+		//} else {
+		//	OrderDropDownText = "Order";
+		//}
+
+		//if (CurrentTags.Contains("type:jpg")) {
+		//	TypeDropDownText = "JPG";
+		//} else if (CurrentTags.Contains("type:png")) {
+		//	TypeDropDownText = "PNG";
+		//} else if (CurrentTags.Contains("type:gif")) {
+		//	TypeDropDownText = "GIF";
+		//} else if (CurrentTags.Contains("type:webm")) {
+		//	TypeDropDownText = "WEBM";
+		//} else if (CurrentTags.Contains("type:anim")) {
+		//	TypeDropDownText = "ANIM";
+		//} else {
+		//	TypeDropDownText = "Type";
+		//}
+
+		//if (CurrentTags.Contains("rating:safe")) {
+		//	RatingDropDownText = "Safe";
+		//} else if (CurrentTags.Contains("rating:questionable")) {
+		//	RatingDropDownText = "Questionable";
+		//} else if (CurrentTags.Contains("rating:explicit")) {
+		//	RatingDropDownText = "Explicit";
+		//} else {
+		//	RatingDropDownText = "Rating";
+		//}
+	}
 
 }

@@ -12,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using YB.E621.Interfaces;
+using YB.E621.Models.Database;
 using YB.E621.Models.E621;
 using YB.E621.Parameters;
 using YB.E621.Services;
@@ -78,7 +79,12 @@ internal static class E621MainViewExtension {
 	}
 }
 
-internal class E621MainViewModel(IApplication application, IAppManager appManager, IThemeManager themeManager) : ViewModelBase {
+internal class E621MainViewModel(
+	IApplication application,
+	IAppManager appManager,
+	IThemeManager themeManager,
+	ISearchRecordHistoryService searchRecordHistoryService
+) : ViewModelBase {
 
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
 	public IUIObjectService<UserControl> UserControl => GetService<ITypedUIObjectService>(nameof(UserControl)).As<UserControl>();
@@ -206,6 +212,7 @@ internal class E621MainViewModel(IApplication application, IAppManager appManage
 				UserControl.Focus();
 			}, DispatcherPriority.Loaded);
 
+			searchRecordHistoryService.AddRecord(SearchTagsRecord.Create(tags), ViewParameter.ModuleType);
 		}
 
 	}
