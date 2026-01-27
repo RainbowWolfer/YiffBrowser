@@ -102,6 +102,10 @@ public partial class PostDetailDockView : UserControl, INotifyPropertyChanged {
 				Comments.Add(item);
 			}
 
+			if (!token.IsCancellationRequested) {
+				LoadingStatus.DoneLoading();
+			}
+
 		} catch (OperationCanceledException) {
 
 		} catch (Exception ex) {
@@ -110,9 +114,7 @@ public partial class PostDetailDockView : UserControl, INotifyPropertyChanged {
 				Debug.WriteLine(ex);
 			}
 		} finally {
-			if (!token.IsCancellationRequested) {
-				LoadingStatus.DoneLoading();
-			}
+			
 		}
 	}
 

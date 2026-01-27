@@ -1,4 +1,6 @@
 ﻿using BaseFramework.Interfaces;
+using BaseFramework.Services;
+using RW.Base.WPF.Extensions;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -14,9 +16,16 @@ public partial class SystemTrayContextMenu : ContextMenu {
 
 	private void DisableTrayIcon_Click(object sender, RoutedEventArgs e) {
 		systemTrayIconService.Disable();
+		IAppSettingsService appSettingsService = IoC.GetService<IAppSettingsService>();
+		appSettingsService.Model.EnableTrayIcon = false;
+		appSettingsService.SaveSettings();
+
+		systemTrayIconService.ActivateWindow2();
 	}
 
 	private void Exit_Click(object sender, RoutedEventArgs e) {
-
+		App.Instance.Dispatcher.Invoke(() => {
+			App.Instance.AskExit();
+		});
 	}
 }

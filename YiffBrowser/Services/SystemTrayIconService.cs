@@ -1,6 +1,10 @@
 ﻿using BaseFramework;
+using BaseFramework.Events;
 using BaseFramework.Interfaces;
+using RW.Base.WPF.Events;
+using RW.Base.WPF.Extensions;
 using RW.Common.WPF.Controls;
+using RW.Common.WPF.Extensions;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using YiffBrowser.Controls;
@@ -11,8 +15,19 @@ internal class SystemTrayIconService : ISystemTrayIconService {
 
 	private NotifyIcon? notifyIcon;
 
-	public void Initialize() {
+	public bool IsEnabled => notifyIcon != null;
 
+	public void Initialize() {
+		IEventAggregator eventAggregator = IoC.EventAggregator;
+		eventAggregator.GetEvent<AppSettingsChangedEvent>().Subscribe(OnAppSettingsChanged);
+	}
+
+	private void OnAppSettingsChanged(AppSettingsChangedEventArgs args) {
+		if (args.Model.EnableTrayIcon) {
+			Enable();
+		} else {
+			Disable();
+		}
 	}
 
 	public void Enable() {
@@ -33,7 +48,23 @@ internal class SystemTrayIconService : ISystemTrayIconService {
 	}
 
 	private void NotifyIcon_MouseDoubleClick(object sender, RoutedEventArgs e) {
-		notifyIcon?.Dispose();
+		ActivateWindow();
+	}
+
+	public void ActivateWindow() {
+		IEnumerable<Window> windows = App.Instance.GetMainWindows();
+		if (windows.FirstOrDefault(x => x.Visibility is Visibility.Visible && x.IsVisible) is { } activeWindow) {
+			activeWindow.ShowAndActivate();
+		} else {
+			windows.FirstOrDefault()?.ShowAndActivate();
+		}
+	}
+
+	public void ActivateWindow2() {
+		IEnumerable<Window> windows = App.Instance.GetMainWindows();
+		if (windows.FirstOrDefault(x => x.Visibility is Visibility.Visible && x.IsVisible) is not { } activeWindow) {
+			windows.FirstOrDefault()?.ShowAndActivate();
+		}
 	}
 
 	public void Disable() {

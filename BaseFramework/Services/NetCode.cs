@@ -1,4 +1,6 @@
-﻿using RW.Common.Helpers;
+﻿using RW.Base.WPF.Extensions;
+using RW.Base.WPF.Interfaces;
+using RW.Common.Helpers;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
@@ -7,8 +9,12 @@ using System.Text;
 namespace BaseFramework.Services;
 
 public static class NetCode {
-	//todo : make name and version variable
-	public const string USERAGENT = $"YiffBrowser/1.0 (by RainbowWolfer)";
+	public static string UserAgent {
+		get {
+			IAppManager appManager = IoC.GetService<IAppManager>();
+			return $"{AppConfig.AppName}/{appManager.AppVersion.ShortVersion} (by {appManager.Author})";
+		}
+	}
 
 	public static async Task<HttpResult<string>> ReadURLAsync(string url, string? username, string? api, CancellationToken? token = null) {
 		Debug.WriteLine("Reading: " + url);
@@ -192,7 +198,7 @@ public static class NetCode {
 	public static void AddDefaultRequestHeaders(HttpClient client, string? username, string? api) {
 		//client.DefaultRequestHeaders.Add("User-Agent", USERAGENT);
 		//client.DefaultRequestHeaders.UserAgent.ParseAdd("MyApp/1.0 (by username@example.com)");
-		client.DefaultRequestHeaders.UserAgent.ParseAdd(USERAGENT);
+		client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
 		AddAuthorizationHeader(client, username, api);
 		//AddAuthorizationHeader(client, "RainbowWolfer", "WUwPNbGDrfXnQoHfvU1nR3TD");
 		//AddAuthorizationHeader(client, "RainbowWolfer", "MUc9Um83YooHeFiyk6bM9vjt");

@@ -2,7 +2,6 @@
 using DevExpress.Mvvm;
 using RW.Common.Helpers;
 using System.Collections.ObjectModel;
-using System.Windows;
 using System.Windows.Input;
 using YB.E621.Models.E621;
 using YB.E621.Views.Subs;
@@ -245,8 +244,9 @@ internal class TagsSearchService : BindableBase {
 	}
 
 	public string GetSearchText() {
-		//todo : remove newline
-		return SearchText.Trim().ToLower();
+		string text = SearchText.Trim().ToLower();
+		text = text.ReplaceLineEndings(" ");
+		return text;
 	}
 
 	public string[] GetSearchTags() {

@@ -26,7 +26,11 @@
 		<Border Grid.Row="0">
 			<DockPanel>
 				<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel3}" Margin="4">
-					<Button>
+					<Button Command="{Binding GotoSearchPanelCommand}" ToolTip="Goto Search Panel">
+						<bf:HorizontalIconText Glyph="&#xE721;" Text="Search Panel"/>
+					</Button>
+
+					<Button Command="{Binding RefreshCommand}" ToolTip="Refresh">
 						<wpf:FontIcon Text="&#xE72C;"/>
 					</Button>
 
@@ -42,66 +46,85 @@
 					Margin="4"
 					HorizontalAlignment="Right"
 					MaxPageCount="100"
-					MaxPageInterval="4"/>
+					MaxPageInterval="4"
+					PageIndex="{Binding PageIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 			</DockPanel>
 		</Border>
 
 		<Border Grid.Row="1">
-			<DataGrid
-				Style="{StaticResource DataGrid.Custom}"
-				Margin="4"
-				wpf:DataGridExtension.CanUnselectAllWidthEscape="True"
-				wpf:DataGridExtension.CanUnselectAllWithBlankArea="True"
-				AutoGenerateColumns="False"
-				IsReadOnly="True"
-				SelectionMode="Extended"
-				SelectionUnit="FullRow"
-				ItemsSource="{Binding DataList}">
-				<DataGrid.Columns>
-					<DataGridTextColumn Width="140" Header="Date Time"/>
-					<DataGridTextColumn Width="*" Header="Content"/>
-					<DataGridTemplateColumn Width="200" Header="Action">
-						<DataGridTemplateColumn.CellTemplate>
-							<DataTemplate>
-								<Grid>
-									<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}">
+			<Grid>
 
-										<Button Padding="2,0" BorderThickness="0" Background="Transparent">
-											<bf:HorizontalIconText Glyph="&#xE8C8;" Text="Copy"/>
-										</Button>
+				<DataGrid
+					Style="{StaticResource DataGrid.Custom}"
+					Margin="4"
+					wpf:DataGridExtension.CanUnselectAllWidthEscape="True"
+					wpf:DataGridExtension.CanUnselectAllWithBlankArea="True"
+					AutoGenerateColumns="False"
+					IsReadOnly="True"
+					SelectionMode="Extended"
+					SelectionUnit="FullRow"
+					ItemsSource="{Binding DataList}">
+					<DataGrid.Columns>
+						<DataGridTextColumn Width="140" Header="Date Time"/>
+						<DataGridTextColumn Width="*" Header="Content"/>
+						<DataGridTemplateColumn Width="200" Header="Action">
+							<DataGridTemplateColumn.CellTemplate>
+								<DataTemplate>
+									<Grid>
+										<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}">
 
-										<Button Padding="2,0" BorderThickness="0" Background="Transparent">
-											<bf:HorizontalIconText Glyph="&#xE721;" Text="Search"/>
-										</Button>
+											<Button Padding="2,0" BorderThickness="0" Background="Transparent">
+												<bf:HorizontalIconText Glyph="&#xE8C8;" Text="Copy"/>
+											</Button>
 
-										<Button Name="DeleteButton"
-											Padding="2,0"
-											BorderThickness="0"
-											Background="Transparent">
-											<bf:HorizontalIconText
-												Foreground="{DynamicResource DangerBrush}"
-												Glyph="&#xE894;"
-												IconForeground="{DynamicResource DangerBrush}"
-												Text="Delete"/>
-										</Button>
+											<Button Padding="2,0" BorderThickness="0" Background="Transparent">
+												<bf:HorizontalIconText Glyph="&#xE721;" Text="Search"/>
+											</Button>
 
-									</wpf:SpacingStackPanel>
+											<Button Name="DeleteButton"
+												Padding="2,0"
+												BorderThickness="0"
+												Background="Transparent">
+												<bf:HorizontalIconText
+													Foreground="{DynamicResource DangerBrush}"
+													Glyph="&#xE894;"
+													IconForeground="{DynamicResource DangerBrush}"
+													Text="Delete"/>
+											</Button>
 
-									<wpf:ButtonPopup SourceButton="{Binding ElementName=DeleteButton}">
-										<Border Style="{DynamicResource ButtonPopupBorder}">
-											<StackPanel>
-												<TextBlock Text="Sure to delete this record?"/>
-												<Button Margin="0,4,0,0" HorizontalAlignment="Stretch" Content="Confirm"/>
-											</StackPanel>
-										</Border>
-									</wpf:ButtonPopup>
+										</wpf:SpacingStackPanel>
 
-								</Grid>
-							</DataTemplate>
-						</DataGridTemplateColumn.CellTemplate>
-					</DataGridTemplateColumn>
-				</DataGrid.Columns>
-			</DataGrid>
+										<wpf:ButtonPopup SourceButton="{Binding ElementName=DeleteButton}">
+											<Border Style="{DynamicResource ButtonPopupBorder}">
+												<StackPanel>
+													<TextBlock Text="Sure to delete this record?"/>
+													<Button Margin="0,4,0,0" HorizontalAlignment="Stretch" Content="Confirm"/>
+												</StackPanel>
+											</Border>
+										</wpf:ButtonPopup>
+
+									</Grid>
+								</DataTemplate>
+							</DataGridTemplateColumn.CellTemplate>
+						</DataGridTemplateColumn>
+					</DataGrid.Columns>
+				</DataGrid>
+
+				<Border HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding LoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
+					<ProgressBar Width="150" Height="8" IsIndeterminate="True"/>
+				</Border>
+
+				<Border HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding LoadingStatus.ErrorMessage, Converter={StaticResource String2VisibilityConverter}}">
+					<TextBlock
+						MaxWidth="300"
+						FontSize="14"
+						Foreground="{DynamicResource DangerBrush}"
+						Text="{Binding LoadingStatus.ErrorMessage}"
+						TextAlignment="Center"
+						TextWrapping="Wrap"/>
+				</Border>
+
+			</Grid>
 		</Border>
 
 	</Grid>

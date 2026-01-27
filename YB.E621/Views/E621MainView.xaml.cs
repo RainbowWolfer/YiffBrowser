@@ -145,7 +145,7 @@ internal class E621MainViewModel(IApplication application, IAppManager appManage
 		DispatcherService.Dispatcher.Invoke(() => {
 			Initialize();
 
-			Tabs.Add(CreateTabItem(["order:rank"]));
+			//Tabs.Add(CreateTabItem(["order:rank"]));
 
 			//Tabs.Add(new PostTabItem(ModuleType, ["type:gif", "order:filesize"]));
 			//Tabs.Add(new PostTabItem(ModuleType, ["type:gif", "order:filesize"]));

@@ -2,15 +2,26 @@
 	x:Class="YiffBrowser.Controls.SystemTrayContextMenu"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:b="RW.Base.WPF"
+	xmlns:bf="BaseFramework"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:local="clr-namespace:YiffBrowser.Controls"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:wpf="RW.Common.WPF"
 	d:DesignHeight="450"
 	d:DesignWidth="800"
+	Style="{DynamicResource ContextMenu.Custom}"
 	mc:Ignorable="d">
 
 	<MenuItem Header="1"/>
-	<MenuItem x:Name="DisableTrayIcon" Click="DisableTrayIcon_Click" Header="Disable Tray Icon"/>
-	<MenuItem x:Name="Exit" Click="Exit_Click" Header="Exit"/>
+	<MenuItem x:Name="DisableTrayIcon"
+		bf:IconExtension.Glyph=""
+		Click="DisableTrayIcon_Click"
+		Header="Disable Tray Icon"/>
+	<Separator/>
+	<MenuItem x:Name="Exit"
+		bf:IconExtension.Glyph="&#xE711;"
+		Click="Exit_Click"
+		Header="Exit"/>
 
 </ContextMenu>

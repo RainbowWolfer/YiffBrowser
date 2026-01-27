@@ -31,9 +31,6 @@ public class E621UserService(ModuleType moduleType) : BindableBase {
 
 	public ModuleType ModuleType { get; } = moduleType;
 
-	// todo : remove BindObject xaml usage
-	//public BindObject<bool> IsUserLoading { get; } = false;
-
 	public bool IsUserLoading {
 		get => GetProperty(() => IsUserLoading);
 		set => SetProperty(() => IsUserLoading, value);

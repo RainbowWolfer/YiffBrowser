@@ -4,6 +4,7 @@ using BaseFramework.Enums;
 using BaseFramework.Helpers;
 using BaseFramework.Interfaces;
 using BaseFramework.Services;
+using BaseFramework.ViewModelServices;
 using RW.Base.WPF;
 using RW.Base.WPF.Configs;
 using RW.Base.WPF.Extensions;
@@ -67,12 +68,6 @@ public partial class App : ApplicationBase {
 		AppProfileService.LoadSettings();
 
 		SystemTrayIconService = new SystemTrayIconService();
-		SystemTrayIconService.Initialize();
-
-		if (AppSettingsService.Model.EnableTrayIcon) {
-			SystemTrayIconService.Enable();
-		}
-
 	}
 
 	protected override void BeforeTotalShutdown() {
@@ -115,6 +110,12 @@ public partial class App : ApplicationBase {
 
 		} catch (Exception ex) {
 			Fatal(ex);
+		}
+
+		SystemTrayIconService.Initialize();
+
+		if (AppSettingsService.Model.EnableTrayIcon) {
+			SystemTrayIconService.Enable();
 		}
 
 		//MessageBox.Show($"{IntPtr.Size}");
@@ -200,20 +201,35 @@ public partial class App : ApplicationBase {
 		if (AppManager.IsShuttingDown) {
 			return;
 		}
-		Window[] mainWindows = [.. Windows.OfType<IMainWindow>().Cast<Window>()];
-		int visibleCount = mainWindows.Count(x => x.Visibility == Visibility.Visible && x.IsVisible);
-		if (visibleCount <= 1) {
-			//when last window calls close. ask for confirm close
-			if (MessageBox.Show("Are you sure to quit Yiff Browser?", "Exit Confirmation", MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK) {
-				e.Cancel = true;
+
+		if (!SystemTrayIconService.IsEnabled) {
+			int visibleCount = GetMainWindows().Count(x => x.Visibility == Visibility.Visible && x.IsVisible);
+			if (visibleCount <= 1) {
+				//when last window calls close. ask for confirm close.
+				if (!AskExit()) {
+					e.Cancel = true;
+				}
 				return;
 			}
+		}
+
+		if (sender is Window window) {
+			window.Hide();
+			e.Cancel = true;
+		}
+
+	}
+
+	public IEnumerable<Window> GetMainWindows() {
+		return [.. Windows.OfType<IMainWindow>().Cast<Window>()];
+	}
+
+	public bool AskExit() {
+		if (new MessageBoxServiceEx().ShowOkCancelQuestion("Are you sure to quit Yiff Browser?")) {
 			TotalShutdown();
+			return true;
 		} else {
-			if (sender is Window window) {
-				window.Hide();
-				e.Cancel = true;
-			}
+			return false;
 		}
 	}
 

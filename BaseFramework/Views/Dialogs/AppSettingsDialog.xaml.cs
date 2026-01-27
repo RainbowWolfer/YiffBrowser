@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using BaseFramework.Events;
 using BaseFramework.Resources;
 using BaseFramework.Services;
 using BaseFramework.ViewModels;
 using DevExpress.Mvvm;
+using RW.Base.WPF.Events;
 using RW.Base.WPF.Extensions;
 using RW.Base.WPF.Interfaces;
 using RW.Base.WPF.Services;
@@ -20,6 +22,7 @@ public partial class AppSettingsDialog : UserControl {
 }
 
 public class AppSettingsDialogViewModel(
+	IEventAggregator eventAggregator,
 	IApplication application,
 	IAppSettingsService appSettingsService,
 	IMapper mapper,
@@ -60,6 +63,7 @@ public class AppSettingsDialogViewModel(
 		try {
 			mapper.Map(Model, appSettingsService.Model);
 			appSettingsService.SaveSettings();
+			eventAggregator.GetEvent<AppSettingsChangedEvent>().Publish(new AppSettingsChangedEventArgs(appSettingsService.Model));
 			return true;
 		} catch (Exception ex) {
 			DebugLoggerManager.LogHandledException(ex);
@@ -92,11 +96,11 @@ public class AppSettingsDialogViewModel(
 					DiagnosticsService.CreateDiagnosticsZip(application, stopwatch, new DiagnosticsService.Parameter(
 						ZipPath: filePath,
 						Folders: [
-							new DiagnosticsService.Folder(AppFolderConfig.LoggingFolder, SearchOption: 
+							new DiagnosticsService.Folder(AppFolderConfig.LoggingFolder, SearchOption:
 							SearchOption.AllDirectories, CutOffTimeSpan: TimeSpan.FromDays(30)),
-							new DiagnosticsService.Folder(AppFolderConfig.DebugFolder, SearchOption: 
+							new DiagnosticsService.Folder(AppFolderConfig.DebugFolder, SearchOption:
 							SearchOption.AllDirectories, CutOffTimeSpan: TimeSpan.FromDays(30)),
-							new DiagnosticsService.Folder(AppFolderConfig.DataFolder, SearchOption: 
+							new DiagnosticsService.Folder(AppFolderConfig.DataFolder, SearchOption:
 							SearchOption.AllDirectories),
 						]
 					));

@@ -231,6 +231,15 @@
 						<c:HorizontalIconText Style="{StaticResource TabItemHeader}" Glyph="&#xE9E9;" Text="General"/>
 					</TabItem.Header>
 
+					<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
+						<GroupBox Margin="10,4" Padding="4" Header="App">
+							<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
+								<CheckBox Content="Enable System Tray Icon" IsChecked="{Binding Model.EnableTrayIcon}"/>
+							</wpf:SpacingStackPanel>
+						</GroupBox>
+
+					</wpf:SpacingStackPanel>
+
 				</TabItem>
 
 				<TabItem>

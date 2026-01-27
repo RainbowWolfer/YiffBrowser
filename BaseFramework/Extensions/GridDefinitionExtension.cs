@@ -44,7 +44,15 @@ public static class GridDefinitionExtension {
 				columnDefinition.Width = new GridLength(0, GridUnitType.Pixel);
 			}
 		} else if (d is RowDefinition rowDefinition) {
-			//todo 
+			if (model.IsExpanded) {
+				rowDefinition.MinHeight = model.Min;
+				rowDefinition.Height = model.LastSize;
+			} else {
+				model.Min = rowDefinition.MinHeight;
+				model.LastSize = rowDefinition.Height;
+				rowDefinition.MinHeight = 0;
+				rowDefinition.Height = new GridLength(0, GridUnitType.Pixel);
+			}
 		}
 	}
 
