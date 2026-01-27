@@ -2,6 +2,7 @@
 using RW.Common;
 using RW.Common.Helpers;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -14,6 +15,7 @@ public static class BitmapCacheService {
         if (url.IsBlank()) {
             return BitmapCacheItem.Null;
         }
+		Debug.WriteLine(url);
         if (Pool.TryGetValue(url, out BitmapCacheItem? found)) {
             return found;
         } else {
@@ -27,6 +29,7 @@ public static class BitmapCacheService {
 public class BitmapCacheItem(string? url) {
     public event TypedEventHandler<BitmapCacheItem, BitmapLoadingModel>? Updated;
 
+	public bool IsNull => UrlString is null;
     public string? UrlString { get; } = url;
     public Guid ID { get; } = Guid.NewGuid();
     public Uri? Uri { get; } = url.IsBlank() ? null : new Uri(url);
@@ -55,7 +58,7 @@ public class BitmapCacheItem(string? url) {
             Image.DownloadCompleted += DownloadCompleted;
             Image.DownloadFailed += DownloadFailed;
             Image.DownloadProgress += DownloadProgress;
-        } else {
+		} else {
             GifImage = new GifImage(Uri);
             GifImage.Initialize();
             GifImage.DownloadCompleted += DownloadCompleted;

@@ -12,21 +12,12 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:wpf="RW.Common.WPF"
 	d:DesignHeight="450"
-	d:DesignWidth="300"
+	d:DesignWidth="500"
 	mc:Ignorable="d">
 
 	<Control.Resources>
 
 		<!--<wpf:CommandProxy x:Key="CloseTabCommand" Command="{Binding CloseTabCommand}"/>-->
-
-		<Style x:Key="SelectableTextBlock" TargetType="TextBox" BasedOn="{StaticResource TextBoxExtend}">
-			<Setter Property="BorderThickness" Value="0"/>
-			<Setter Property="Padding" Value="0"/>
-			<Setter Property="IsReadOnly" Value="True"/>
-			<Setter Property="VerticalContentAlignment" Value="Top"/>
-			<Setter Property="HorizontalScrollBarVisibility" Value="Disabled"/>
-			<Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
-		</Style>
 
 	</Control.Resources>
 

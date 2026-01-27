@@ -57,7 +57,7 @@ internal class SearchHistoryPanelViewModel(
 		if (CanRefresh()) {
 			LoadingStatus.InitialLoading();
 			try {
-				searchRecordHistoryService.
+				//searchRecordHistoryService.
 
 				await Task.Delay(3000);
 				LoadingStatus.DoneLoading();

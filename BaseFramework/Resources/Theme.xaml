@@ -624,4 +624,14 @@
 
 	<Style TargetType="GroupBox" BasedOn="{StaticResource GroupBox.Custom}"/>
 
+	<Style x:Key="SelectableTextBlock" TargetType="TextBox" BasedOn="{StaticResource TextBoxExtend}">
+		<Setter Property="Background" Value="Transparent"/>
+		<Setter Property="BorderThickness" Value="0"/>
+		<Setter Property="Padding" Value="0"/>
+		<Setter Property="IsReadOnly" Value="True"/>
+		<Setter Property="VerticalContentAlignment" Value="Top"/>
+		<Setter Property="HorizontalScrollBarVisibility" Value="Disabled"/>
+		<Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+	</Style>
+
 </ResourceDictionary>

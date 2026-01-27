@@ -110,10 +110,14 @@ public partial class VideoDisplayer : UserControl {
 
 		// Keep track of error messages
 		Player.OpenCompleted += (o, e) => {
-			Debug.WriteLine(e.Error);
+			if (e.Error.IsNotBlank()) {
+				Debug.WriteLine("Player.OpenCompleted" + e.Error);
+			}
 		};
 		Player.BufferingCompleted += (o, e) => {
-			Debug.WriteLine(e.Error);
+			if (e.Error.IsNotBlank()) {
+				Debug.WriteLine("Player.BufferingCompleted" + e.Error);
+			}
 		};
 
 		FlyleafHost.Player = Player;

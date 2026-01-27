@@ -831,19 +831,70 @@
 					<wpf:ClippingBorder Background="{DynamicResource SecondaryRegionBrush}" CornerRadius="{DynamicResource DefaultCornerRadius}">
 						<Grid DataContext="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}}">
 							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="150"/>
+								<ColumnDefinition Width="180"/>
 								<ColumnDefinition Width="*"/>
 							</Grid.ColumnDefinitions>
 
-							<Border Grid.Column="0" Padding="8" Background="{DynamicResource BorderBrush}">
+							<Border Grid.Column="0" Padding="8,2,8,8" Background="{DynamicResource BorderBrush}">
 								<StackPanel>
-									<TextBlock Text="{Binding Comment.CreatorName}"/>
-									<Image MaxHeight="100" Source="https://static1.e621.net/data/0a/78/0a78dc26a8a41b9308759875e1b30f64.png" Stretch="UniformToFill"/>
+									<TextBlock FontSize="18" Text="{Binding Comment.Comment.CreatorName}"/>
+									<TextBlock FontSize="14" Text="{Binding Comment.User.LevelString}"/>
+									<Grid Margin="0,4,0,0">
+										<wpf:ClippingBorder Height="100" CornerRadius="4">
+											<wpf:ClippingBorder.Background>
+												<ImageBrush
+													AlignmentX="Center"
+													AlignmentY="Center"
+													ImageSource="{Binding Comment.Avatar.Sample.URL}"
+													Stretch="UniformToFill"/>
+											</wpf:ClippingBorder.Background>
+
+											<!-- I dont know why ImageExtend is not showing anything -->
+
+											<!--<bf:ImageExtend
+												VerticalAlignment="Center"
+												bf:ImageExtension.GifAutoPlayType="WhenMouseOver"
+												BitmapImage="{Binding Comment.BitmapImage}"
+												GifImage="{Binding Comment.GifImage}"
+												Stretch="UniformToFill"
+												Visibility="Visible"/>-->
+										</wpf:ClippingBorder>
+
+										<ProgressBar
+											Height="6"
+											VerticalAlignment="Top"
+											IsIndeterminate="True"
+											Visibility="{Binding Comment.LoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+
+									</Grid>
+
 								</StackPanel>
 							</Border>
 
-							<Border Grid.Column="1">
-								<TextBlock Text="{Binding Comment.Body}"/>
+							<Border Grid.Column="1" Padding="8,6">
+								<Grid>
+									<Grid.RowDefinitions>
+										<RowDefinition Height="*"/>
+										<RowDefinition Height="auto"/>
+									</Grid.RowDefinitions>
+
+									<Border>
+										<bf:TextBoxExtend
+											Style="{StaticResource SelectableTextBlock}"
+											FontSize="14"
+											Text="{Binding Comment.Comment.Body}"
+											TextWrapping="Wrap"/>
+									</Border>
+
+									<DockPanel Grid.Row="1">
+										<StackPanel Orientation="Horizontal">
+											<wpf:FontIcon Text="&#xEB11;"/>
+											<TextBlock Margin="2,0" VerticalAlignment="Center" Text="{Binding Comment.Comment.Score}"/>
+										</StackPanel>
+										<TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Text="{Binding Comment.Comment.CreatedAt}"/>
+									</DockPanel>
+
+								</Grid>
 							</Border>
 
 						</Grid>

@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using YB.E621.Models.E621;
 using YB.E621.Services;
+using YB.E621.ViewModels;
 
 namespace YB.E621.Views;
 
@@ -71,7 +72,7 @@ public partial class PostDetailDockView : UserControl, INotifyPropertyChanged {
 		}
 	}
 
-	public ObservableCollection<E621Comment> Comments { get; } = [];
+	public ObservableCollection<E621CommentViewModel> Comments { get; } = [];
 
 	public LoadingStatusViewModel LoadingStatus { get; } = new();
 
@@ -92,14 +93,21 @@ public partial class PostDetailDockView : UserControl, INotifyPropertyChanged {
 			LoadingStatus.InitialLoading();
 
 			token.ThrowIfCancellationRequested();
+			foreach (E621CommentViewModel item in Comments) {
+				item.Dispose();
+			}
 			Comments.Clear();
 
 			E621Comment[] comments = await E621API.GetAPI(ModuleType.Value).GetCommentsAsync(Post.ID, token);
-			
+
 			token.ThrowIfCancellationRequested();
 
 			foreach (E621Comment item in comments) {
-				Comments.Add(item);
+				Comments.Add(new E621CommentViewModel(item, ModuleType.Value));
+			}
+
+			foreach (E621CommentViewModel item in Comments) {
+				item.StartLoading();
 			}
 
 			if (!token.IsCancellationRequested) {
@@ -114,7 +122,7 @@ public partial class PostDetailDockView : UserControl, INotifyPropertyChanged {
 				Debug.WriteLine(ex);
 			}
 		} finally {
-			
+
 		}
 	}
 
