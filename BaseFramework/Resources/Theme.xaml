@@ -63,6 +63,14 @@
 	<Style TargetType="Menu" BasedOn="{StaticResource Menu.Small}"/>
 	<Style TargetType="ContextMenu" BasedOn="{StaticResource ContextMenu.Custom}"/>
 
+	<Style x:Key="TitleContent.Custom" TargetType="wpf:TitleContent" BasedOn="{StaticResource TitleContentBaseStyle}">
+		<Setter Property="LeftTitlePadding" Value="0,7,6,0"/>
+		<Setter Property="TopTitlePadding" Value="8,0,0,5"/>
+		<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+	</Style>
+
+	<Style TargetType="wpf:TitleContent" BasedOn="{StaticResource TitleContent.Custom}"/>
+
 	<Style TargetType="c:BoolContent">
 		<Setter Property="Template">
 			<Setter.Value>
@@ -633,5 +641,54 @@
 		<Setter Property="HorizontalScrollBarVisibility" Value="Disabled"/>
 		<Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
 	</Style>
+
+	<Style x:Key="FolderSelectionControl" TargetType="c:FolderSelectionControl">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="c:FolderSelectionControl">
+					<Border>
+						<hc:ElementGroup>
+							<hc:ElementGroup.ItemsPanel>
+								<ItemsPanelTemplate>
+									<Grid>
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="*"/>
+											<ColumnDefinition Width="Auto"/>
+											<ColumnDefinition Width="Auto"/>
+										</Grid.ColumnDefinitions>
+									</Grid>
+								</ItemsPanelTemplate>
+							</hc:ElementGroup.ItemsPanel>
+
+							<hc:TextBox
+								HorizontalAlignment="Stretch"
+								DockPanel.Dock="Left"
+								IsReadOnly="True"
+								Text="{TemplateBinding Path}"/>
+
+							<Button x:Name="PART_ButtonEdit"
+								Style="{StaticResource ButtonDefault}"
+								Grid.Column="1"
+								ToolTip="Edit"
+								Visibility="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=IsReadonly, Converter={StaticResource Boolean2VisibilityReConverter}}">
+								<wpf:FontIcon Text="&#xE70F;"/>
+							</Button>
+
+							<Button x:Name="PART_ButtonShow"
+								Style="{StaticResource ButtonDefault}"
+								Grid.Column="2"
+								ToolTip="Show">
+								<wpf:FontIcon Text="&#xE838;"/>
+							</Button>
+
+						</hc:ElementGroup>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style TargetType="c:FolderSelectionControl" BasedOn="{StaticResource FolderSelectionControl}"/>
+
 
 </ResourceDictionary>

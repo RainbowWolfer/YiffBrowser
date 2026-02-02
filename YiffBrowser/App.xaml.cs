@@ -16,6 +16,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Markup;
 using YB.E621.Parameters;
 using YB.E621.Views;
 using YiffBrowser.Services;

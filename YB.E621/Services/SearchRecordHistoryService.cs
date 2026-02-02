@@ -12,7 +12,9 @@ public interface ISearchRecordHistoryService {
 	int GetPageCount(int pageSize, ModuleType moduleType, string? searchCondition = null);
 
 	void AddRecord(SearchTagsRecord record, ModuleType moduleType);
+	int RemoveRecords(IEnumerable<long> idList, ModuleType moduleType);
 
+	IEnumerable<SearchTagsRecord> GetPagedRecords(int page, int pageSize, ModuleType moduleType, string? searchCondition = null);
 }
 
 
@@ -51,7 +53,7 @@ internal class SearchRecordHistoryService(IDatabaseService databaseService) : IS
 		return pageCount;
 	}
 
-	public IEnumerable<SearchTagsRecord> GetPagedRecords(int page, int pageSize, ModuleType moduleType) {
+	public IEnumerable<SearchTagsRecord> GetPagedRecords(int page, int pageSize, ModuleType moduleType, string? searchCondition = null) {
 		ILiteCollection<SearchTagsRecord> collection = GetCollection(moduleType);
 
 		int currentPage = Math.Max(1, page);
@@ -68,4 +70,15 @@ internal class SearchRecordHistoryService(IDatabaseService databaseService) : IS
 		_ = collection.Insert(record);
 	}
 
+	public int RemoveRecords(IEnumerable<long> idList, ModuleType moduleType) {
+		if (idList == null || !idList.Any()) {
+			return 0;
+		}
+
+		ILiteCollection<SearchTagsRecord> collection = GetCollection(moduleType);
+
+		int deletedCount = collection.DeleteMany(x => idList.Contains(x.ID));
+
+		return deletedCount;
+	}
 }

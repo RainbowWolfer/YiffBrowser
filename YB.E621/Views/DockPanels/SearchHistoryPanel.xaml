@@ -17,6 +17,12 @@
 	DataContext="{b:DISource Type=local:SearchHistoryPanelViewModel}"
 	mc:Ignorable="d">
 
+	<UserControl.Resources>
+		<wpf:CommandProxy x:Key="CopyRecordCommand" Command="{Binding CopyRecordCommand}"/>
+		<wpf:CommandProxy x:Key="SearchRecordCommand" Command="{Binding SearchRecordCommand}"/>
+		<wpf:CommandProxy x:Key="DeleteSelectedCommand" Command="{Binding DeleteSelectedCommand}"/>
+	</UserControl.Resources>
+
 	<Grid Margin="4">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto"/>
@@ -37,15 +43,18 @@
 					<hc:SearchBar
 						Style="{StaticResource SearchBarPlus}"
 						Width="250"
-						hc:InfoElement.Placeholder="Search Sontent"
-						hc:InfoElement.ShowClearButton="True"/>
+						hc:InfoElement.Placeholder="Search Content"
+						hc:InfoElement.ShowClearButton="True"
+						Text="{Binding SearchCondition, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
 
 				</wpf:SpacingStackPanel>
 
 				<hc:Pagination
+					d:MaxPageCount="100"
 					Margin="4"
 					HorizontalAlignment="Right"
-					MaxPageCount="100"
+					IsEnabled="{Binding LoadingStatus.ShowLoading, Converter={StaticResource Boolean2BooleanReConverter}}"
+					MaxPageCount="{Binding MaxPageCount}"
 					MaxPageInterval="4"
 					PageIndex="{Binding PageIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 			</DockPanel>
@@ -57,57 +66,96 @@
 				<DataGrid
 					Style="{StaticResource DataGrid.Custom}"
 					Margin="4"
+					bf:SelectorExtension.SelectedItems="{Binding SelectedRecordList}"
 					wpf:DataGridExtension.CanUnselectAllWidthEscape="True"
 					wpf:DataGridExtension.CanUnselectAllWithBlankArea="True"
 					AutoGenerateColumns="False"
 					IsReadOnly="True"
 					SelectionMode="Extended"
 					SelectionUnit="FullRow"
-					ItemsSource="{Binding DataList}">
+					ItemsSource="{Binding RecordList}">
+
 					<DataGrid.Columns>
-						<DataGridTextColumn Width="140" Header="Date Time"/>
-						<DataGridTextColumn Width="*" Header="Content"/>
+						<DataGridTextColumn Width="180" Binding="{Binding DateTime}" Header="Date Time"/>
+						<DataGridTextColumn Width="*" Binding="{Binding Tags, Converter={StaticResource TagsDisplayConverter}}" Header="Content"/>
 						<DataGridTemplateColumn Width="200" Header="Action">
 							<DataGridTemplateColumn.CellTemplate>
 								<DataTemplate>
 									<Grid>
-										<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}">
+										<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel3}">
 
-											<Button Padding="2,0" BorderThickness="0" Background="Transparent">
-												<bf:HorizontalIconText Glyph="&#xE8C8;" Text="Copy"/>
-											</Button>
-
-											<Button Padding="2,0" BorderThickness="0" Background="Transparent">
+											<Button
+												Padding="2,0"
+												BorderThickness="0"
+												bf:ButtonExtension.SetPreviewClick="True"
+												Background="Transparent"
+												Command="{StaticResource SearchRecordCommand}"
+												CommandParameter="{Binding}">
 												<bf:HorizontalIconText Glyph="&#xE721;" Text="Search"/>
 											</Button>
 
-											<Button Name="DeleteButton"
+											<Button
 												Padding="2,0"
 												BorderThickness="0"
+												bf:ButtonExtension.SetPreviewClick="True"
+												Background="Transparent"
+												Command="{StaticResource CopyRecordCommand}"
+												CommandParameter="{Binding}">
+												<bf:HorizontalIconText Glyph="&#xE8C8;" Text="Copy"/>
+											</Button>
+
+											<!--<Button Name="DeleteButton"
+												Padding="2,0"
+												BorderThickness="0"
+												bf:ButtonExtension.SetPreviewClick="True"
 												Background="Transparent">
 												<bf:HorizontalIconText
 													Foreground="{DynamicResource DangerBrush}"
 													Glyph="&#xE894;"
 													IconForeground="{DynamicResource DangerBrush}"
 													Text="Delete"/>
-											</Button>
+											</Button>-->
 
 										</wpf:SpacingStackPanel>
 
-										<wpf:ButtonPopup SourceButton="{Binding ElementName=DeleteButton}">
+										<!--<wpf:ButtonPopup SourceButton="{Binding ElementName=DeleteButton}">
 											<Border Style="{DynamicResource ButtonPopupBorder}">
 												<StackPanel>
 													<TextBlock Text="Sure to delete this record?"/>
 													<Button Margin="0,4,0,0" HorizontalAlignment="Stretch" Content="Confirm"/>
 												</StackPanel>
 											</Border>
-										</wpf:ButtonPopup>
+										</wpf:ButtonPopup>-->
 
 									</Grid>
 								</DataTemplate>
 							</DataGridTemplateColumn.CellTemplate>
 						</DataGridTemplateColumn>
 					</DataGrid.Columns>
+
+					<DataGrid.RowStyle>
+						<Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRow.Custom}">
+							<Setter Property="ContextMenu">
+								<Setter.Value>
+									<ContextMenu>
+										<MenuItem
+											bf:IconExtension.Glyph="&#xE8C8;"
+											Command="{StaticResource CopyRecordCommand}"
+											CommandParameter="{Binding}"
+											Header="Copy"/>
+										<MenuItem
+											bf:IconExtension.Glyph="&#xE721;"
+											Command="{StaticResource SearchRecordCommand}"
+											CommandParameter="{Binding}"
+											Header="Search"/>
+										<Separator/>
+										<MenuItem bf:IconExtension.Glyph="&#xE894;" Command="{StaticResource DeleteSelectedCommand}" Header="Delete Selected"/>
+									</ContextMenu>
+								</Setter.Value>
+							</Setter>
+						</Style>
+					</DataGrid.RowStyle>
+
 				</DataGrid>
 
 				<Border HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding LoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}">

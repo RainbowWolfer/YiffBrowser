@@ -23,7 +23,7 @@ internal class PostTabItem : BindableBase {
 		Api = E621API.GetAPI(ViewParameter.ModuleType);
 
 		ParentViewModel = parentViewModel;
-		Tags = tags;
+		Tags = tags ?? [];
 
 		View = new PostsView(this);
 	}

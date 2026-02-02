@@ -254,6 +254,9 @@
 						<c:HorizontalIconText Style="{StaticResource TabItemHeader}" Glyph="&#xE896;" Text="Download"/>
 					</TabItem.Header>
 
+
+
+
 				</TabItem>
 
 				<TabItem>
@@ -261,9 +264,16 @@
 						<c:HorizontalIconText Style="{StaticResource TabItemHeader}" Glyph="&#xE838;" Text="Data Folders"/>
 					</TabItem.Header>
 
-					<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}" Margin="20">
-						<hc:TextBox hc:TitleElement.Title="Exe Folder" IsReadOnly="True" Text="{Binding AppFolderConfig.AppFolder, Mode=OneWay}"/>
-						<hc:TextBox hc:TitleElement.Title="App Data Folder" IsReadOnly="True" Text="{Binding AppFolderConfig.TargetFolder, Mode=OneWay}"/>
+					<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}" Margin="10">
+
+						<wpf:TitleContent Title="Exe Folder">
+							<c:FolderSelectionControl Path="{Binding AppFolderConfig.AppFolder, Mode=OneWay}" IsReadonly="True"/>
+						</wpf:TitleContent>
+
+						<wpf:TitleContent Title="App Data Folder">
+							<c:FolderSelectionControl Path="{Binding AppFolderConfig.TargetFolder, Mode=OneWay}" IsReadonly="True"/>
+						</wpf:TitleContent>
+
 					</wpf:SpacingStackPanel>
 
 				</TabItem>
@@ -290,7 +300,7 @@
 						<c:HorizontalIconText Style="{StaticResource TabItemHeader}" Glyph="&#xE8F1;" Text="Dependencies"/>
 					</TabItem.Header>
 
-					<ScrollViewer Margin="4" Padding="16" hc:ScrollViewerAttach.AutoHide="False">
+					<ScrollViewer Margin="4" Padding="12,6" hc:ScrollViewerAttach.AutoHide="False">
 						<ItemsControl ItemsSource="{Binding Source={x:Static services:ProjectDependencies.AllDependencies}}">
 							<ItemsControl.ItemTemplate>
 								<DataTemplate DataType="models:DependencyDescriptor">
