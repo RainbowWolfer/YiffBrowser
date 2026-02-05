@@ -227,13 +227,13 @@ public class PostCardControl : ContentControl, IVariableSizedGridItem
 	protected override void OnMouseEnter(MouseEventArgs e)
 	{
 		base.OnMouseEnter(e);
-		ScaleOn!.Begin(RootBorder);
+		ScaleOn?.Begin(RootBorder);
 	}
 
 	protected override void OnMouseLeave(MouseEventArgs e)
 	{
 		base.OnMouseLeave(e);
-		ScaleOff!.Begin(RootBorder);
+		ScaleOff?.Begin(RootBorder);
 	}
 
 }

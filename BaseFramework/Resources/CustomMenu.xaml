@@ -290,7 +290,7 @@
 					<Setter.Value>
 						<ControlTemplate TargetType="MenuItem">
 							<Border x:Name="Bd"
-								MinWidth="240"
+								MinWidth="140"
 								BorderThickness="{TemplateBinding BorderThickness}"
 								BorderBrush="{TemplateBinding BorderBrush}"
 								Background="{TemplateBinding Background}"
