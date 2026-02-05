@@ -71,7 +71,7 @@ public static class SelectorExtension {
         IList list = GetSelectedItems((DependencyObject)sender);
         if (sender is MultiSelector multiSelector) {
             list.Clear();
-            foreach (object? item in multiSelector.Items) {
+            foreach (object? item in multiSelector.SelectedItems) {
                 list.Add(item);
             }
         } else if (sender is Selector selector) {

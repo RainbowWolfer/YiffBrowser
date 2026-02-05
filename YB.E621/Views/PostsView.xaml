@@ -185,8 +185,9 @@
 								<ItemsControl.ItemContainerStyle>
 									<Style TargetType="ListBoxItem">
 										<EventSetter Event="RequestBringIntoView" Handler="ListBoxItem_RequestBringIntoView"/>
-										<Setter Property="bf:ControlExtension.PreviewMouseLeftButtonDownCommand" Value="{StaticResource ViewPostDetailCommand}"/>
-										<Setter Property="bf:ControlExtension.MouseDownCommandParameter" Value="{Binding Post}"/>
+										<Setter Property="wpf:ControlExtension.MouseLeftButtonUpCommand" Value="{StaticResource ViewPostDetailCommand}"/>
+										<Setter Property="wpf:ControlExtension.MouseLeftButtonUpCommandParameter" Value="{Binding Post}"/>
+										<Setter Property="wpf:ControlExtension.MouseLeftButtonUpCommandDirectParameter" Value="True"/>
 										<Setter Property="Margin" Value="0"/>
 										<Setter Property="Padding" Value="0"/>
 										<Setter Property="BorderThickness" Value="3"/>

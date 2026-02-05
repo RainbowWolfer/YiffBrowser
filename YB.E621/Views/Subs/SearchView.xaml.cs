@@ -3,8 +3,8 @@ using BaseFramework.Events;
 using DevExpress.Mvvm;
 using RW.Base.WPF.Events;
 using RW.Base.WPF.ViewModelServices;
-using RW.Common;
 using RW.Common.Helpers;
+using RW.Common.WPF.Models;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -71,25 +71,27 @@ internal class SearchViewModel(IEventAggregator eventAggregator) : E621ViewModel
 		TagsSearchService.OnSearchTextSelectionChanged();
 	});
 
-	public ICommand OnSearchTextBoxPreviewKeyDownCommand => new DelegateCommand<KeyEventArgs>(OnSearchTextBoxPreviewKeyDown);
-	private void OnSearchTextBoxPreviewKeyDown(KeyEventArgs args) {
-		ListBox mainListBox = MainListBoxService.Object;
-		if (args.Key == Key.Up && mainListBox.Items.IsNotEmpty()) {
-			mainListBox.SelectedIndex = NumberHelper.Clamp(mainListBox.SelectedIndex - 1, 0, mainListBox.Items.Count - 1);
-			args.Handled = true;
-		} else if (args.Key == Key.Down && mainListBox.Items.IsNotEmpty()) {
-			mainListBox.SelectedIndex = NumberHelper.Clamp(mainListBox.SelectedIndex + 1, 0, mainListBox.Items.Count - 1);
-			args.Handled = true;
-		} else if (args.Key == Key.Enter) {
-			if (TagsSearchService.SelectedItem != null) {
-				HandleItem(TagsSearchService.SelectedItem);
-			} else {
-				Submit();
+	public ICommand OnSearchTextBoxPreviewKeyDownCommand => new DelegateCommand<CommandEventArgs>(OnSearchTextBoxPreviewKeyDown);
+	private void OnSearchTextBoxPreviewKeyDown(CommandEventArgs args) {
+		if (args.TryGetArgs(out KeyEventArgs? e)) {
+			ListBox mainListBox = MainListBoxService.Object;
+			if (e.Key == Key.Up && mainListBox.Items.IsNotEmpty()) {
+				mainListBox.SelectedIndex = NumberHelper.Clamp(mainListBox.SelectedIndex - 1, 0, mainListBox.Items.Count - 1);
+				e.Handled = true;
+			} else if (e.Key == Key.Down && mainListBox.Items.IsNotEmpty()) {
+				mainListBox.SelectedIndex = NumberHelper.Clamp(mainListBox.SelectedIndex + 1, 0, mainListBox.Items.Count - 1);
+				e.Handled = true;
+			} else if (e.Key == Key.Enter) {
+				if (TagsSearchService.SelectedItem != null) {
+					HandleItem(TagsSearchService.SelectedItem);
+				} else {
+					Submit();
+				}
+				e.Handled = true;
+			} else if (e.Key == Key.Escape) {
+				mainListBox.UnselectAll();
+				e.Handled = true;
 			}
-			args.Handled = true;
-		} else if (args.Key == Key.Escape) {
-			mainListBox.UnselectAll();
-			args.Handled = true;
 		}
 	}
 

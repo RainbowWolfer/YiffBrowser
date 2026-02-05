@@ -4,7 +4,14 @@ using System.IO;
 
 namespace BaseFramework;
 
-public class AppFolderConfig(IAppManager appManager) : FolderConfig(appManager) {
+public class AppFolderConfig : FolderConfig {
+
+	private static AppFolderConfig? instance;
+	public static AppFolderConfig Instance => instance!;
+
+	public AppFolderConfig(IAppManager appManager) : base(appManager) {
+		instance = this;
+	}
 
 	public string AppSettingsFilePath => Path.Combine(DataFolder, "AppSettings.json");
 	public string AppProfileFilePath => Path.Combine(DataFolder, "AppProfile.json");

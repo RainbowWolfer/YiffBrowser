@@ -351,7 +351,7 @@
 
 									<TabControl.ItemContainerStyle>
 										<Style TargetType="TabItem" BasedOn="{StaticResource TabItem.Custom.DockPanel}">
-											<Setter Property="bf:ControlExtension.DoubleClickCommand" Value="{StaticResource DockPanelTabItemHeaderDoubleClickCommand}"/>
+											<Setter Property="wpf:ControlExtension.MouseDoubleClickCommand" Value="{StaticResource DockPanelTabItemHeaderDoubleClickCommand}"/>
 											<Setter Property="ContextMenu">
 												<Setter.Value>
 													<ContextMenu>
@@ -439,7 +439,7 @@
 							Margin="0,0,40,0"
 							HorizontalAlignment="Stretch"
 							VerticalAlignment="Top"
-							bf:ControlExtension.DoubleClickCommand="{Binding DockPanelGridSplitterDoubleClickCommand}"
+							wpf:ControlExtension.MouseDoubleClickCommand="{Binding DockPanelGridSplitterDoubleClickCommand}"
 							Background="Transparent">
 
 							<GridSplitter.Visibility>

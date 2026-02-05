@@ -26,11 +26,11 @@ public class AppSettingsDialogViewModel(
 	IApplication application,
 	IAppSettingsService appSettingsService,
 	IMapper mapper,
-	IAppManager appManager,
+	AppManagerEx appManager,
 	AppFolderConfig appFolderConfig
 ) : DialogViewModelOkCancel<object> {
 
-	public IAppManager AppManager { get; } = appManager;
+	public AppManagerEx AppManager { get; } = appManager;
 	public AppFolderConfig AppFolderConfig { get; } = appFolderConfig;
 
 	public ISaveFileDialogService SaveFileDialogService => GetService<ISaveFileDialogService>();

@@ -17,8 +17,7 @@
 
 		<Version>1.1.0</Version>
 
-
-		<RW_Common_Version>1.0.39</RW_Common_Version>
+		<RW_Common_Version>1.0.44</RW_Common_Version>
 
 	</PropertyGroup>
 

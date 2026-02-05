@@ -21,6 +21,7 @@
 		<wpf:CommandProxy x:Key="CopyRecordCommand" Command="{Binding CopyRecordCommand}"/>
 		<wpf:CommandProxy x:Key="SearchRecordCommand" Command="{Binding SearchRecordCommand}"/>
 		<wpf:CommandProxy x:Key="DeleteSelectedCommand" Command="{Binding DeleteSelectedCommand}"/>
+		<wpf:CommandProxy x:Key="ConfirmDeleteCommand" Command="{Binding ConfirmDeleteCommand}"/>
 	</UserControl.Resources>
 
 	<Grid Margin="4">
@@ -171,6 +172,22 @@
 						TextAlignment="Center"
 						TextWrapping="Wrap"/>
 				</Border>
+
+				<wpf:CustomPopup Placement="Center">
+
+					<dxmvvm:Interaction.Behaviors>
+						<b:TypedUIObjectService Name="DeleteConfirmPopupService"/>
+					</dxmvvm:Interaction.Behaviors>
+
+					<Border Style="{DynamicResource ButtonPopupBorder}">
+						<StackPanel Margin="4">
+							<TextBlock Text="{Binding RecordListToBeDeleted.Count, StringFormat='{}Delete {0} selected records?'}"/>
+							<Button Margin="0,8,0,0" HorizontalAlignment="Stretch" Command="{StaticResource ConfirmDeleteCommand}">
+								<TextBlock Foreground="{DynamicResource DangerBrush}" Text="Confirm"/>
+							</Button>
+						</StackPanel>
+					</Border>
+				</wpf:CustomPopup>
 
 			</Grid>
 		</Border>

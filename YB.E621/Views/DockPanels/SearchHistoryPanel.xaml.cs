@@ -3,7 +3,9 @@ using BaseFramework.Enums;
 using BaseFramework.ViewModels;
 using DevExpress.Mvvm;
 using HandyControl.Tools.Extension;
+using RW.Base.WPF.ViewModelServices;
 using RW.Common.Helpers;
+using RW.Common.WPF.Controls;
 using RW.Common.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -32,8 +34,12 @@ internal class SearchHistoryPanelItem : DockPanelItemBase<SearchHistoryPanel> {
 internal class SearchHistoryPanelViewModel(
 	ISearchRecordHistoryService searchRecordHistoryService
 ) : DockPanelViewModelBase<SearchHistoryPanelItem> {
+
+	private IUIObjectService<CustomPopup> DeleteConfirmPopupService => GetService<ITypedUIObjectService>(nameof(DeleteConfirmPopupService)).As<CustomPopup>();
+
 	public ObservableCollection<SearchTagsRecord> RecordList { get; } = [];
 	public ObservableCollection<SearchTagsRecord> SelectedRecordList { get; } = [];
+	public ObservableCollection<SearchTagsRecord> RecordListToBeDeleted { get; } = [];
 
 	public int MaxPageCount {
 		get => GetProperty(() => MaxPageCount);
@@ -65,6 +71,7 @@ internal class SearchHistoryPanelViewModel(
 		base.OnInitialized();
 
 		SelectedRecordList.CollectionChanged += SelectedRecordList_CollectionChanged;
+		RecordListToBeDeleted.CollectionChanged += RecordListToBeDeleted_CollectionChanged;
 
 		PageIndex = 1;
 
@@ -73,6 +80,11 @@ internal class SearchHistoryPanelViewModel(
 	private void SelectedRecordList_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
 		DeleteSelectedCommand.RaiseCanExecuteChanged();
 	}
+
+	private void RecordListToBeDeleted_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
+		ConfirmDeleteCommand.RaiseCanExecuteChanged();
+	}
+
 
 	private AsyncCommand? refreshCommand;
 	public IDelegateCommand RefreshCommand => refreshCommand ??= new(Refresh, CanRefresh);
@@ -142,14 +154,31 @@ internal class SearchHistoryPanelViewModel(
 	public IDelegateCommand DeleteSelectedCommand => deleteSelectedCommand ??= new(DeleteSelected, CanDeleteSelected);
 	private void DeleteSelected() {
 		if (CanDeleteSelected()) {
-			//todo : messagebox ask
-			SearchTagsRecord[] temp = [.. SelectedRecordList];
-			IEnumerable<long> idList = temp.Select(x => x.ID);
+			DeleteConfirmPopupService.Object.Show();
 
-			int deleteCount = searchRecordHistoryService.RemoveRecords(idList, ViewParameter.ModuleType);
-			Debug.WriteLine($"Deleted {deleteCount} record(s)");
+			RecordListToBeDeleted.Clear();
+			RecordListToBeDeleted.AddRange(SelectedRecordList);
 		}
 	}
 	private bool CanDeleteSelected() => SelectedRecordList.IsNotEmpty();
+
+
+
+	private AsyncCommand? confirmDeleteCommand;
+	public IDelegateCommand ConfirmDeleteCommand => confirmDeleteCommand ??= new(ConfirmDelete, CanConfirmDelete);
+	private async Task ConfirmDelete() {
+		if (CanConfirmDelete()) {
+			IEnumerable<long> idList = RecordListToBeDeleted.Select(x => x.ID);
+
+			int deleteCount = searchRecordHistoryService.RemoveRecords(idList, ViewParameter.ModuleType);
+			Debug.WriteLine($"Deleted {deleteCount} record(s)");
+
+			DeleteConfirmPopupService.Object.Hide();
+
+			await Refresh();
+		}
+	}
+	private bool CanConfirmDelete() => RecordListToBeDeleted.IsNotEmpty();
+
 
 }

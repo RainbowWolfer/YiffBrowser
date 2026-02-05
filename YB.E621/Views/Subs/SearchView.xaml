@@ -38,9 +38,9 @@
 
 				<bf:TextBoxExtend x:Name="SearchBox"
 					Style="{StaticResource TextBoxExtend}"
-					bf:ControlExtension.LoadedCommand="{Binding OnSearchTextBoxLoadedCommand}"
-					bf:ControlExtension.PreviewKeyDownCommand="{Binding OnSearchTextBoxPreviewKeyDownCommand}"
 					bf:TextBoxExtension.SelectionChangedCommand="{Binding OnSearchTextSelectionChangedCommand}"
+					wpf:ControlExtension.LoadedCommand="{Binding OnSearchTextBoxLoadedCommand}"
+					wpf:ControlExtension.PreviewKeyDownCommand="{Binding OnSearchTextBoxPreviewKeyDownCommand}"
 					AcceptsReturn="False"
 					AcceptsTab="False"
 					BindableSelectionStart="{Binding TagsSearchService.SearchTextSelectionStart, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -124,8 +124,9 @@
 						<ListBox.ItemContainerStyle>
 							<Style TargetType="ListBoxItem" BasedOn="{StaticResource ListBoxItem.SearchTags}">
 								<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-								<Setter Property="bf:ControlExtension.DoubleClickCommand" Value="{StaticResource HandleItemCommand}"/>
-								<Setter Property="bf:ControlExtension.DoubleClickCommandParameter" Value="{Binding}"/>
+								<Setter Property="wpf:ControlExtension.MouseDoubleClickCommand" Value="{StaticResource HandleItemCommand}"/>
+								<Setter Property="wpf:ControlExtension.MouseDoubleClickCommandParameter" Value="{Binding}"/>
+								<Setter Property="wpf:ControlExtension.MouseDoubleClickCommandDirectParameter" Value="True"/>
 							</Style>
 						</ListBox.ItemContainerStyle>
 

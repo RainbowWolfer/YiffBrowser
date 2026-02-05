@@ -10,13 +10,13 @@ using RW.Base.WPF.Configs;
 using RW.Base.WPF.Extensions;
 using RW.Base.WPF.Interfaces;
 using RW.Base.WPF.ViewModels;
+using RW.Common.WPF;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Windows;
-using System.Windows.Markup;
 using YB.E621.Parameters;
 using YB.E621.Views;
 using YiffBrowser.Services;
@@ -35,6 +35,8 @@ public partial class App : ApplicationBase {
 		DebugConfig.Print = o => Debug.WriteLine(o);
 		DebugConfig.DebuggerBreak = Debugger.Break;
 		startupStopWatch.Start();
+
+		ControlConfig.DefaultDirectParameter = false;
 	}
 
 	protected override bool EnablePipeServerStream => false;
@@ -69,6 +71,11 @@ public partial class App : ApplicationBase {
 		AppProfileService.LoadSettings();
 
 		SystemTrayIconService = new SystemTrayIconService();
+	}
+
+	protected override IStatusReport InitializeStatusReport() {
+		StatusReport statusReport = new();
+		return statusReport;
 	}
 
 	protected override void BeforeTotalShutdown() {
@@ -133,7 +140,7 @@ public partial class App : ApplicationBase {
 		startupStopWatch.Stop();
 		Debug.WriteLine($"app started in {startupStopWatch.ElapsedMilliseconds} ms");
 
-		((_AppManager)AppManager).AppStartupTimeSpan = TimeSpan.FromMilliseconds(startupStopWatch.ElapsedMilliseconds);
+		((AppManagerEx)AppManager).AppStartupTimeSpan = TimeSpan.FromMilliseconds(startupStopWatch.ElapsedMilliseconds);
 		//MessageBox.Show($"app started in {startupStopWatch.ElapsedMilliseconds} ms");
 	}
 
@@ -240,33 +247,64 @@ public partial class App : ApplicationBase {
 
 	protected override Window? GetMainWindow() => null;
 
-	protected override AppManager GetAppManager() => new _AppManager();
+	protected override AppManager GetAppManager() => new AppManagerEx();
 	protected override DllLoader GetDllLoader() => new _DllLoader();
 	protected override IoCInitializer GetIoCInitializer(IApplication application) => new _IoCInitializer(application);
 	protected override FolderConfig GetFolderConfig(IAppManager appManager) => new AppFolderConfig(appManager);
 
-	private class _AppManager : AppManager {
-		public override string AppName => AppConfig.AppName;
-		public override string BuildMode => AppConfig.IsRelease ? "Release" : "Debug";
-		public override bool IsRelease => AppConfig.IsRelease;
-
-		public TimeSpan AppStartupTimeSpan {
-			get => GetProperty(() => AppStartupTimeSpan);
-			set => SetProperty(() => AppStartupTimeSpan, value);
-		}
-	}
-
 	private class _DllLoader() : DllLoader() {
-		protected override IEnumerable<string> AdditionalSkipSet() {
-			yield return "XamlAnimatedGif";
-			yield return "GongSolutions";
-			yield return "ControlzEx";
-			yield return "Flyleaf";
-			yield return "Dragablz";
-			yield return "MaterialDesign";
-			yield return "SharpGen";
-			yield return "Vortice";
-			yield return "WpfColorFontDialog";
+		private readonly string[] skipSet = [
+			"XamlAnimatedGif",
+			"GongSolutions",
+			"ControlzEx",
+			"Flyleaf",
+			"Dragablz",
+			"MaterialDesign",
+			"SharpGen",
+			"Vortice",
+			"WpfColorFontDialog",
+			"LiteDB",
+		];
+
+		protected override IEnumerable<string> AdditionalSkipSet() => skipSet;
+
+		private readonly string[] skipNames = [
+			"BaseFramework.Extensions",
+			"BaseFramework.Enums",
+			"BaseFramework.Converters",
+			"BaseFramework.Controls",
+			"BaseFramework.Utilities",
+			"BaseFramework.Helpers",
+			"BaseFramework.Models",
+			"BaseFramework.Animation",
+			"BaseFramework.Animation",
+			"BaseFramework.Views",
+			"BaseFramework.ViewModels",
+			"BaseFramework.ViewModelServices",
+			"BaseFramework.Resources",
+			"BaseFramework.Interfaces",
+			"BaseFramework.Events",
+			"BaseFramework.Database",
+			"YB.E621.Models",
+			"YB.E621.Helpers",
+			"YB.E621.Converters",
+			"YB.E621.Controls",
+			"YB.E621.Views",
+			"YB.E621.ViewModels",
+			"YB.E621.Parameters",
+			"YB.E621.Extensions",
+		];
+
+		protected override bool MatchType(Type type) {
+			string @namespace = type.Namespace ?? string.Empty;
+
+			foreach (string item in skipNames) {
+				if (@namespace.StartsWith(item)) {
+					return false;
+				}
+			}
+
+			return base.MatchType(type);
 		}
 
 		public override void Initialize() {
