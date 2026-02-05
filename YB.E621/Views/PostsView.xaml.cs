@@ -151,6 +151,7 @@ internal class PostsViewModel() : ViewModelBase {
 
 	public ICommand RefreshCommand => new DelegateCommand(Refresh);
 	private async void Refresh() {
+		return;
 		if (IsLoading) {
 			return;
 		}

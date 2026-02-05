@@ -148,10 +148,13 @@ internal class E621MainViewModel(
 	private DelegateCommand? loadedCommand;
 	public IDelegateCommand LoadedCommand => loadedCommand ??= new(Loaded);
 	private void Loaded() {
-		DispatcherService.Dispatcher.Invoke(() => {
+		DispatcherService.Dispatcher.BeginInvoke(async () => {
 			Initialize();
 
-			//Tabs.Add(CreateTabItem(["order:rank"]));
+			for (int i = 0; i < 20; i++) {
+				Tabs.Add(CreateTabItem(["ssssssss"]));
+				await Task.Delay(10);
+			}
 
 			//Tabs.Add(new PostTabItem(ModuleType, ["type:gif", "order:filesize"]));
 			//Tabs.Add(new PostTabItem(ModuleType, ["type:gif", "order:filesize"]));

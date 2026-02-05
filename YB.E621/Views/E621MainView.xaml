@@ -4,6 +4,7 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:b="RW.Base.WPF"
 	xmlns:bf="BaseFramework"
+	xmlns:c="clr-namespace:YB.E621.Controls"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:dd="urn:gong-wpf-dragdrop"
 	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
@@ -215,7 +216,7 @@
 						</Grid.RowDefinitions>
 
 						<Border Visibility="{Binding Tabs.Count, Converter={StaticResource IListToVisibilityConverter}}">
-							<TabControl
+							<c:TabControlEx
 								Style="{StaticResource TabControl.Custom.Main}"
 								Margin="0"
 								Padding="0"
@@ -227,6 +228,12 @@
 								TabStripPlacement="Top"
 								ItemsSource="{Binding Tabs}"
 								d:ItemsSource="{d:SampleData ItemCount=15}">
+
+								<c:TabControlEx.TabListItemTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding Tags, Converter={StaticResource TagsDisplayConverter}}"/>
+									</DataTemplate>
+								</c:TabControlEx.TabListItemTemplate>
 
 								<TabControl.ItemContainerStyle>
 									<Style TargetType="TabItem" BasedOn="{StaticResource TabItem.Custom.Main}">
@@ -316,7 +323,7 @@
 									</DataTemplate>
 								</TabControl.ContentTemplate>
 
-							</TabControl>
+							</c:TabControlEx>
 						</Border>
 
 						<Border

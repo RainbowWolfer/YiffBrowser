@@ -122,6 +122,7 @@ public partial class VideoDisplayer : UserControl {
 
 		FlyleafHost.Player = Player;
 
+		FlyleafHost.Surface.Title = $"{Guid.NewGuid()}";
 		FlyleafHost.Surface.MouseDown += Surface_MouseDown;
 		FlyleafHost.Surface.MouseDoubleClick += Surface_MouseDoubleClick;
 		FlyleafHost.Surface.ContextMenu = CreateContextMenu();
