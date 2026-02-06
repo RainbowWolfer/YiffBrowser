@@ -4,6 +4,7 @@ using BaseFramework.Enums;
 using BaseFramework.Interfaces;
 using DevExpress.Mvvm;
 using RW.Common.Helpers;
+using System.Windows;
 using System.Windows.Media.Imaging;
 using YB.E621.Parameters;
 
@@ -29,6 +30,7 @@ public partial class E621MainWindow : WindowBase, IMainWindow {
 		}
 
 	}
+
 }
 
 public class E621MainWindowViewModel() : ViewModelBase {

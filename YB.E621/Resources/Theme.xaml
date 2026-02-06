@@ -394,8 +394,8 @@
 		<Setter Property="VerticalContentAlignment" Value="Stretch"/>
 		<Setter Property="Template">
 			<Setter.Value>
-				<ControlTemplate TargetType="{x:Type TabItem}">
-					<hc:SimplePanel Name="templateRoot" SnapsToDevicePixels="true">
+				<ControlTemplate TargetType="{x:Type c:TabItemEx}">
+					<Border Name="templateRoot" Background="Transparent" SnapsToDevicePixels="true">
 						<Border Name="mainBorder"
 							Margin="0"
 							VerticalAlignment="Bottom"
@@ -412,7 +412,7 @@
 								RecognizesAccessKey="True"
 								SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
 						</Border>
-					</hc:SimplePanel>
+					</Border>
 
 					<ControlTemplate.Triggers>
 
@@ -420,8 +420,12 @@
 							<Setter TargetName="mainBorder" Property="Background" Value="Transparent"/>
 						</Trigger>
 
+						<Trigger Property="IsSelected2" Value="True">
+							<Setter TargetName="mainBorder" Property="Background" Value="{DynamicResource BorderBrush}"/>
+						</Trigger>
+
 						<Trigger Property="IsMouseOver" Value="True">
-							<Setter TargetName="mainBorder" Property="Background" Value="{DynamicResource ThirdlyRegionBrush}"/>
+							<Setter TargetName="mainBorder" Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
 						</Trigger>
 
 						<Trigger Property="IsEnabled" Value="False">
@@ -436,20 +440,27 @@
 						<DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="Top">
 							<Setter TargetName="mainBorder" Property="CornerRadius" Value="4,4,0,0"/>
 							<Setter TargetName="mainBorder" Property="Height" Value="21"/>
+							<Setter TargetName="templateRoot" Property="Padding" Value="0,0,0,0"/>
 						</DataTrigger>
 
 						<DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="Left">
 							<Setter TargetName="mainBorder" Property="CornerRadius" Value="4,0,0,4"/>
 							<Setter TargetName="mainBorder" Property="Height" Value="22"/>
 							<Setter TargetName="mainBorder" Property="Margin" Value="4,0,0,0"/>
+							<Setter TargetName="templateRoot" Property="Padding" Value="0,1,0,1"/>
 						</DataTrigger>
 
 						<DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="Bottom">
-
+							<Setter TargetName="mainBorder" Property="CornerRadius" Value="0,0,4,4"/>
+							<Setter TargetName="mainBorder" Property="Height" Value="21"/>
+							<Setter TargetName="templateRoot" Property="Padding" Value="0,0,0,0"/>
 						</DataTrigger>
 
 						<DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="Right">
-
+							<Setter TargetName="mainBorder" Property="CornerRadius" Value="0,4,4,0"/>
+							<Setter TargetName="mainBorder" Property="Height" Value="22"/>
+							<Setter TargetName="mainBorder" Property="Margin" Value="0,0,4,0"/>
+							<Setter TargetName="templateRoot" Property="Padding" Value="0,1,0,1"/>
 						</DataTrigger>
 
 						<MultiDataTrigger>
@@ -473,6 +484,7 @@
 								<Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="true"/>
 								<Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="Bottom"/>
 							</MultiDataTrigger.Conditions>
+							<Setter TargetName="mainBorder" Property="Height" Value="23"/>
 						</MultiDataTrigger>
 
 						<MultiDataTrigger>
@@ -480,6 +492,7 @@
 								<Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="true"/>
 								<Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="Right"/>
 							</MultiDataTrigger.Conditions>
+							<Setter TargetName="mainBorder" Property="Margin" Value="0,0,0,0"/>
 						</MultiDataTrigger>
 
 					</ControlTemplate.Triggers>
@@ -524,7 +537,7 @@
 
 			<ScrollContentPresenter x:Name="PART_ScrollContentPresenter"
 				Grid.Row="1"
-				Grid.RowSpan="2"
+				Grid.RowSpan="3"
 				Grid.Column="0"
 				Grid.ColumnSpan="3"
 				Margin="{TemplateBinding Padding}"
@@ -563,7 +576,9 @@
 				Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"/>
 
 		</Grid>
+
 		<ControlTemplate.Triggers>
+
 			<Trigger Property="IsMouseOver" Value="True">
 				<Trigger.EnterActions>
 					<BeginStoryboard Storyboard="{StaticResource StoryboardMouseOver}"/>
@@ -572,7 +587,26 @@
 					<BeginStoryboard Storyboard="{StaticResource StoryboardCommon}"/>
 				</Trigger.ExitActions>
 			</Trigger>
+
+			<DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="Top">
+				<Setter TargetName="PART_HorizontalScrollBar" Property="Grid.Row" Value="0"/>
+			</DataTrigger>
+
+			<DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="Left">
+				<Setter TargetName="PART_VerticalScrollBar" Property="Grid.Column" Value="0"/>
+			</DataTrigger>
+
+			<DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="Bottom">
+				<Setter TargetName="PART_HorizontalScrollBar" Property="Grid.Row" Value="2"/>
+				<Setter TargetName="PART_ScrollContentPresenter" Property="Grid.RowSpan" Value="1"/>
+			</DataTrigger>
+
+			<DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="Right">
+				<Setter TargetName="PART_VerticalScrollBar" Property="Grid.Column" Value="2"/>
+			</DataTrigger>
+
 		</ControlTemplate.Triggers>
+
 	</ControlTemplate>
 
 
@@ -601,7 +635,11 @@
 								<RowDefinition Name="RowDefinition1" Height="*"/>
 							</Grid.RowDefinitions>
 
-							<Border Name="headerPanelBorder" Grid.Row="0" Margin="0">
+							<Border Name="headerPanelBorder"
+								Grid.Row="0"
+								Margin="0"
+								Background="Transparent"
+								ContextMenu="{TemplateBinding HeaderContextMenu}">
 								<Grid>
 									<Grid.ColumnDefinitions>
 										<ColumnDefinition Width="*"/>
@@ -635,7 +673,10 @@
 												IsItemsHost="true"/>
 										</c:ScrollViewerEx>
 
-										<Border HorizontalAlignment="Right" VerticalAlignment="Bottom">
+										<Border Name="rightActionPanel"
+											HorizontalAlignment="Right"
+											VerticalAlignment="Bottom"
+											Visibility="Collapsed">
 											<StackPanel Orientation="Horizontal">
 
 												<Button Name="TabItemsDropDownButton"
@@ -644,17 +685,18 @@
 													Padding="0"
 													BorderThickness="0"
 													Background="Transparent">
-													<wpf:FontIcon FontSize="12" Text="&#xEDDC;"/>
+													<wpf:FontIcon x:Name="TabItemsDropDownButtonIcon" FontSize="12" Text="&#xEDDC;"/>
 												</Button>
 
-												<Button
+												<Button x:Name="TabsManageButton1"
 													Height="23"
 													MinWidth="38"
 													Margin="0"
 													Padding="4,0"
 													HorizontalContentAlignment="Stretch"
-													BorderThickness="1,0,0,0"
-													hc:BorderElement.CornerRadius="0">
+													BorderThickness="0,0,0,0"
+													hc:BorderElement.CornerRadius="4,0,0,0"
+													Command="{TemplateBinding TabsManageCommand}">
 													<DockPanel>
 														<wpf:FontIcon DockPanel.Dock="Right" Text="&#xE97C;"/>
 														<Border Width="4" DockPanel.Dock="Right"/>
@@ -672,21 +714,22 @@
 											BorderBrush="{DynamicResource BorderBrush}"
 											Background="Transparent"
 											Visibility="Collapsed">
-											<Button
+											<Button x:Name="TabsManageButton2"
 												Height="24"
 												Padding="4,0,8,0"
 												HorizontalAlignment="Stretch"
 												HorizontalContentAlignment="Stretch"
 												BorderThickness="0"
-												hc:BorderElement.CornerRadius="0">
+												hc:BorderElement.CornerRadius="0"
+												Command="{TemplateBinding TabsManageCommand}">
 												<DockPanel Background="Transparent">
 													<wpf:FontIcon Text="&#xE97C;"/>
-													<TextBlock Text="12 Tabs" TextAlignment="Right"/>
+													<TextBlock Text="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Items.Count, StringFormat='{}{0} Tabs'}" TextAlignment="Right"/>
 												</DockPanel>
 											</Button>
 										</Border>
 
-										<wpf:ButtonPopup Placement="Bottom" SourceButton="{Binding ElementName=TabItemsDropDownButton}">
+										<wpf:ButtonPopup x:Name="TabItemsDropDownButtonPopup" SourceButton="{Binding ElementName=TabItemsDropDownButton}">
 											<Border Style="{DynamicResource ButtonPopupBorder}">
 												<ListBox Name="tabItemsList"
 													Style="{DynamicResource ListBox.Custom.ScrollBar.Small}"
@@ -789,7 +832,8 @@
 							<Grid Name="contentPanel"
 								Grid.Row="1"
 								HorizontalAlignment="Stretch"
-								VerticalAlignment="Stretch">
+								VerticalAlignment="Stretch"
+								Background="Transparent">
 
 								<Border x:Name="highlightSeparator" Panel.ZIndex="99" Background="{DynamicResource PrimaryBrush}"/>
 
@@ -806,10 +850,15 @@
 					<ControlTemplate.Triggers>
 						<Trigger Property="TabControl.TabStripPlacement" Value="Top">
 							<Setter TargetName="tabHeaderScrollViewer" Property="wpf:ScrollViewerExtension.DefaultWheelScrollHorizontally" Value="True"/>
-							<Setter TargetName="tabHeaderScrollViewer" Property="Padding" Value="6,0,58,0"/>
+							<Setter TargetName="tabHeaderScrollViewer" Property="Padding" Value="6,0,68,0"/>
 							<Setter TargetName="tabHeaderScrollViewer" Property="Margin" Value="0,0,0,0"/>
 							<Setter TargetName="PART_SelectedContentHost" Property="Margin" Value="0,1,0,0"/>
-							<Setter TargetName="TabItemsDropDownButton" Property="Visibility" Value="Visible"/>
+
+							<Setter TargetName="rightActionPanel" Property="Visibility" Value="Visible"/>
+							<Setter TargetName="rightActionPanel" Property="VerticalAlignment" Value="Bottom"/>
+							<Setter TargetName="TabsManageButton1" Property="hc:BorderElement.CornerRadius" Value="4,0,0,0"/>
+							<Setter TargetName="TabItemsDropDownButtonIcon" Property="Text" Value="&#xEDDC;"/>
+							<Setter TargetName="TabItemsDropDownButtonPopup" Property="Placement" Value="Bottom"/>
 
 							<Setter TargetName="highlightSeparator" Property="Height" Value="1"/>
 							<Setter TargetName="highlightSeparator" Property="VerticalAlignment" Value="Top"/>
@@ -830,7 +879,7 @@
 							<Setter TargetName="tabHeaderScrollViewer" Property="Padding" Value="8,4,0,4"/>
 							<Setter TargetName="tabHeaderScrollViewer" Property="Margin" Value="0,0,0,25"/>
 							<Setter TargetName="PART_SelectedContentHost" Property="Margin" Value="1,0,0,0"/>
-							<Setter TargetName="TabItemsDropDownButton" Property="Visibility" Value="Collapsed"/>
+							<Setter TargetName="rightActionPanel" Property="Visibility" Value="Collapsed"/>
 							<Setter TargetName="ManagePanel_Side" Property="Visibility" Value="Visible"/>
 
 							<Setter TargetName="highlightSeparator" Property="Width" Value="1"/>
@@ -843,6 +892,21 @@
 							<Setter TargetName="RowDefinition1" Property="Height" Value="Auto"/>
 							<Setter TargetName="headerPanelBorder" Property="Grid.Row" Value="1"/>
 							<Setter TargetName="contentPanel" Property="Grid.Row" Value="0"/>
+
+							<Setter TargetName="tabHeaderScrollViewer" Property="wpf:ScrollViewerExtension.DefaultWheelScrollHorizontally" Value="True"/>
+							<Setter TargetName="tabHeaderScrollViewer" Property="Padding" Value="6,0,68,0"/>
+							<Setter TargetName="tabHeaderScrollViewer" Property="Margin" Value="0,0,0,0"/>
+							<Setter TargetName="PART_SelectedContentHost" Property="Margin" Value="0,0,0,1"/>
+
+							<Setter TargetName="rightActionPanel" Property="Visibility" Value="Visible"/>
+							<Setter TargetName="rightActionPanel" Property="VerticalAlignment" Value="Top"/>
+							<Setter TargetName="TabsManageButton1" Property="hc:BorderElement.CornerRadius" Value="0,0,0,4"/>
+							<Setter TargetName="TabItemsDropDownButtonIcon" Property="Text" Value="&#xEDDB;"/>
+							<Setter TargetName="TabItemsDropDownButtonPopup" Property="Placement" Value="Top"/>
+
+							<Setter TargetName="highlightSeparator" Property="Height" Value="1"/>
+							<Setter TargetName="highlightSeparator" Property="VerticalAlignment" Value="Bottom"/>
+							<Setter TargetName="highlightSeparator" Property="HorizontalAlignment" Value="Stretch"/>
 						</Trigger>
 
 						<Trigger Property="TabControl.TabStripPlacement" Value="Right">
@@ -854,6 +918,18 @@
 							<Setter TargetName="headerPanelBorder" Property="Grid.Row" Value="0"/>
 							<Setter TargetName="contentPanel" Property="Grid.Column" Value="0"/>
 							<Setter TargetName="contentPanel" Property="Grid.Row" Value="0"/>
+
+
+							<Setter TargetName="tabHeaderScrollViewer" Property="wpf:ScrollViewerExtension.DefaultWheelScrollHorizontally" Value="False"/>
+							<Setter TargetName="tabHeaderScrollViewer" Property="Padding" Value="0,4,8,4"/>
+							<Setter TargetName="tabHeaderScrollViewer" Property="Margin" Value="0,0,0,25"/>
+							<Setter TargetName="PART_SelectedContentHost" Property="Margin" Value="0,0,1,0"/>
+							<Setter TargetName="rightActionPanel" Property="Visibility" Value="Collapsed"/>
+							<Setter TargetName="ManagePanel_Side" Property="Visibility" Value="Visible"/>
+
+							<Setter TargetName="highlightSeparator" Property="Width" Value="1"/>
+							<Setter TargetName="highlightSeparator" Property="VerticalAlignment" Value="Stretch"/>
+							<Setter TargetName="highlightSeparator" Property="HorizontalAlignment" Value="Right"/>
 						</Trigger>
 
 					</ControlTemplate.Triggers>

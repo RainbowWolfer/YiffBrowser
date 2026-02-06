@@ -17,6 +17,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Input;
 using YB.E621.Parameters;
 using YB.E621.Views;
 using YiffBrowser.Services;
@@ -71,6 +72,22 @@ public partial class App : ApplicationBase {
 		AppProfileService.LoadSettings();
 
 		SystemTrayIconService = new SystemTrayIconService();
+
+		FocusDebugLoop();
+	}
+
+	private void FocusDebugLoop() {
+		Dispatcher.Invoke(async () => {
+			while (true) {
+				Debug.WriteLine($"KeyboardFocus: {Keyboard.FocusedElement}");
+				Window? mainWindow = GetMainWindows().FirstOrDefault(x => x.IsActive);
+				if (mainWindow != null) {
+					Debug.WriteLine($"FocusManager: {FocusManager.GetFocusedElement(mainWindow)}");
+				}
+
+				await Task.Delay(1000);
+			}
+		});
 	}
 
 	protected override IStatusReport InitializeStatusReport() {

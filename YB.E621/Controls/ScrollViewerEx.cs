@@ -1,4 +1,5 @@
 ﻿using BaseFramework.Extensions;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -40,54 +41,87 @@ internal class ScrollViewerEx : HandyControl.Controls.ScrollViewer {
 		//}
 	}
 
-	public void ScrollToElement(FrameworkElement element, double margin = 10) {
+	private static readonly Type parentType = typeof(HandyControl.Controls.ScrollViewer);
+
+	private static readonly FieldInfo? vDpField = parentType.GetField("CurrentVerticalOffsetProperty", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+
+	private static readonly FieldInfo? hDpField = parentType.GetField("CurrentHorizontalOffsetProperty", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+
+	private static readonly FieldInfo? runningField = parentType.GetField("_isRunning", BindingFlags.Instance | BindingFlags.NonPublic);
+
+	public void StopScrollAnimations() {
+		if (vDpField?.GetValue(null) is DependencyProperty vDp) {
+			double currentV = (double)GetValue(vDp);
+			BeginAnimation(vDp, null);
+			SetCurrentValue(vDp, currentV);
+		}
+
+		if (hDpField?.GetValue(null) is DependencyProperty hDp) {
+			double currentH = (double)GetValue(hDp);
+			BeginAnimation(hDp, null);
+			SetCurrentValue(hDp, currentH);
+		}
+
+		runningField?.SetValue(this, false);
+	}
+
+	public void ScrollToElement(FrameworkElement element, double margin, Dock dock) {
 		if (element == null) {
 			return;
 		}
+
+		StopScrollAnimations();
 
 		// 获取元素相对于 ScrollViewer (this) 的位置
 		GeneralTransform transform = element.TransformToVisual(this);
 		Rect elementRect = new(transform.Transform(new Point(0, 0)), new Size(element.ActualWidth, element.ActualHeight));
 
-		double targetOffset = HorizontalOffset;
+		if (dock is Dock.Top or Dock.Bottom) {
+			double targetOffset = HorizontalOffset;
+			if (elementRect.Right + margin > ViewportWidth) {
+				targetOffset += elementRect.Right + margin - ViewportWidth;
+			} else if (elementRect.Left - margin < 0) {
+				targetOffset += elementRect.Left - margin;
+			} else {
+				return;
+			}
 
-		// 考虑 margin 后的判定区域
-		if (elementRect.Right + margin > ViewportWidth) {
-			// 元素的右边界 + margin 如果超过了视口宽度 -> 说明右侧被遮挡或太靠边了
-			targetOffset += elementRect.Right + margin - ViewportWidth;
-		} else if (elementRect.Left - margin < 0) {
-			// 元素的左边界 - margin 如果小于 0 -> 说明左侧被遮挡或太靠边了
-			targetOffset += elementRect.Left - margin;
+			AnimateScrollHorizontal(targetOffset);
 		} else {
-			// 如果已经在视口内（且满足边距条件），直接返回
-			return;
-		}
+			double targetOffset = VerticalOffset;
+			if (elementRect.Bottom + margin > ViewportHeight) {
+				targetOffset += elementRect.Bottom + margin - ViewportHeight;
+			} else if (elementRect.Top - margin < 0) {
+				targetOffset += elementRect.Top - margin;
+			} else {
+				return;
+			}
 
-		// 执行丝滑滚动
-		AnimateScroll(targetOffset);
+			AnimateScrollVertical(targetOffset);
+		}
 	}
 
-	public void ScrollToElementCenter(FrameworkElement element) {
-		if (element == null) {
-			return;
-		}
+	//public void ScrollToElementCenter(FrameworkElement element) {
+	//	if (element == null) {
+	//		return;
+	//	}
 
-		// 计算目标元素相对于 ScrollContentPresenter 的位置
-		GeneralTransform transform = element.TransformToVisual(this);
-		Point relativePoint = transform.Transform(new Point(0, 0));
+	//	// 计算目标元素相对于 ScrollContentPresenter 的位置
+	//	GeneralTransform transform = element.TransformToVisual(this);
+	//	Point relativePoint = transform.Transform(new Point(0, 0));
 
-		// 计算目标偏移量：当前偏移量 + 元素相对位置 - (视口宽度 / 2 - 元素宽度 / 2)
-		// 这样可以让选中的标签尽量居中显示
-		double targetOffset = HorizontalOffset + relativePoint.X - (ViewportWidth / 2) + (element.ActualWidth / 2);
+	//	// 计算目标偏移量：当前偏移量 + 元素相对位置 - (视口宽度 / 2 - 元素宽度 / 2)
+	//	// 这样可以让选中的标签尽量居中显示
+	//	double targetOffset = HorizontalOffset + relativePoint.X - (ViewportWidth / 2) + (element.ActualWidth / 2);
 
-		// 限制范围
-		targetOffset = Math.Max(0, Math.Min(ScrollableWidth, targetOffset));
+	//	// 限制范围
+	//	targetOffset = Math.Max(0, Math.Min(ScrollableWidth, targetOffset));
 
-		// 执行平滑动画
-		AnimateScroll(targetOffset);
-	}
+	//	// 执行平滑动画
+	//	AnimateScrollHorizontal(targetOffset);
+	//}
 
-	private void AnimateScroll(double targetOffset) {
+	private void AnimateScrollHorizontal(double targetOffset) {
 		DoubleAnimation animation = new() {
 			To = targetOffset,
 			Duration = TimeSpan.FromMilliseconds(200),
@@ -99,6 +133,20 @@ internal class ScrollViewerEx : HandyControl.Controls.ScrollViewer {
 
 		// 使用我们自定义的附加属性或直接操作
 		BeginAnimation(ScrollViewerBehavior.HorizontalOffsetProperty, animation);
+	}
+
+	private void AnimateScrollVertical(double targetOffset) {
+		DoubleAnimation animation = new() {
+			To = targetOffset,
+			Duration = TimeSpan.FromMilliseconds(200),
+			EasingFunction = new ExponentialEase {
+				EasingMode = EasingMode.EaseOut,
+				Exponent = 10,
+			}
+		};
+
+		// 使用我们自定义的附加属性或直接操作
+		BeginAnimation(ScrollViewerBehavior.VerticalOffsetProperty, animation);
 	}
 
 }

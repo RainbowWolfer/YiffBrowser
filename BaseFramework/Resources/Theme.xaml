@@ -279,6 +279,9 @@
 
 	<Style x:Key="WindowContentStyle" TargetType="c:WindowContent">
 
+		<Setter Property="Focusable" Value="False"/>
+		<Setter Property="IsTabStop" Value="False"/>
+
 		<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
 		<Setter Property="VerticalContentAlignment" Value="Stretch"/>
 		<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
@@ -349,6 +352,7 @@
 	<Style TargetType="c:DialogWindowWrapper">
 		<Setter Property="Padding" Value="0"/>
 		<Setter Property="IsTabStop" Value="False"/>
+		<Setter Property="Focusable" Value="False"/>
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="c:DialogWindowWrapper">

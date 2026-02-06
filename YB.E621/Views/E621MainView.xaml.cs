@@ -4,8 +4,10 @@ using DevExpress.Mvvm;
 using RW.Base.WPF.Extensions;
 using RW.Base.WPF.Interfaces;
 using RW.Base.WPF.ViewModelServices;
+using RW.Common.Helpers;
 using RW.Common.WPF.Controls;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -105,6 +107,12 @@ internal class E621MainViewModel(
 		private set => SetProperty(() => UserService, value);
 	}
 
+
+	public bool ShowTabsManage {
+		get => GetProperty(() => ShowTabsManage);
+		set => SetProperty(() => ShowTabsManage, value);
+	}
+
 	public int TabSelectedIndex {
 		get => GetProperty(() => TabSelectedIndex);
 		set => SetProperty(() => TabSelectedIndex, value);
@@ -133,10 +141,16 @@ internal class E621MainViewModel(
 	public void Initialize(ViewParameter parameter) {
 		ViewParameter = parameter;
 
+		Tabs.CollectionChanged += Tabs_CollectionChanged;
+
 		UserService = E621UserService.GetUserService(parameter.ModuleType);
 		UserService.LoginChanged += UserService_LoginChanged;
 
 		DockPanelManager.Initialize(application, this);
+	}
+
+	private void Tabs_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
+		BackToTabsCommand.RaiseCanExecuteChanged();
 	}
 
 	private PostTabItem CreateTabItem(string[] tags) {
@@ -320,6 +334,24 @@ internal class E621MainViewModel(
 	private void DockPanelTabItemHeaderDoubleClick() {
 		IsDockPanelCollapsed = !IsDockPanelCollapsed;
 	}
+
+
+
+	private DelegateCommand? tabsManageCommand;
+	public IDelegateCommand TabsManageCommand => tabsManageCommand ??= new(TabsManage);
+	private void TabsManage() {
+		ShowTabsManage = true;
+	}
+
+
+	private DelegateCommand? backToTabsCommand;
+	public IDelegateCommand BackToTabsCommand => backToTabsCommand ??= new(BackToTabs, CanBackToTabs);
+	private void BackToTabs() {
+		if (CanBackToTabs()) {
+			ShowTabsManage = false;
+		}
+	}
+	private bool CanBackToTabs() => Tabs.IsNotEmpty();
 
 
 }
