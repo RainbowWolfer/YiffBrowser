@@ -151,21 +151,21 @@ internal class E621MainViewModel(
 		DispatcherService.Dispatcher.BeginInvoke(async () => {
 			Initialize();
 
-			//for (int i = 0; i < 20; i++) {
-			//	Tabs.Add(CreateTabItem(["ssssssss"]));
-			//	await Task.Delay(10);
-			//}
+			for (int i = 0; i < 20; i++) {
+				Tabs.Add(CreateTabItem(["ssssssss"]));
+				//await Task.Delay(10);
+			}
 
 			//Tabs.Add(CreateTabItem(["type:gif", "order:filesize"]));
 			//Tabs.Add(CreateTabItem(["type:gif", "order:filesize"]));
 			//Tabs.Add(CreateTabItem(["type:gif"]));
-			Tabs.Add(CreateTabItem(["feet"]));
+			//Tabs.Add(CreateTabItem(["feet"]));
 			//Tabs.Add(CreateTabItem(["type:gif"]));
 			//Tabs.Add(CreateTabItem(["type:webm"]));
 			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
 			TabSelectedIndex = 0;
 
-		}, DispatcherPriority.Loaded);
+		}, DispatcherPriority.Background);
 
 	}
 

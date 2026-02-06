@@ -24,7 +24,7 @@ internal class TabControlEx : TabControl {
 
 	public override void OnApplyTemplate() {
 		base.OnApplyTemplate();
-
+		
 		scrollViewer = GetTemplateChild("tabHeaderScrollViewer") as ScrollViewerEx;
 
 		if (GetTemplateChild("tabItemsList") is ListBox listBox) {

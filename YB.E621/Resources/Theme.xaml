@@ -380,6 +380,9 @@
 
 
 	<Style x:Key="TabItem.Custom.Main" TargetType="{x:Type TabItem}">
+		<Setter Property="MinHeight" Value="0"/>
+		<Setter Property="hc:InfoElement.ContentHeight" Value="0"/>
+		<Setter Property="hc:InfoElement.MinContentHeight" Value="0"/>
 		<Setter Property="FrameworkElement.FocusVisualStyle" Value="{x:Null}"/>
 		<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
 		<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
@@ -399,7 +402,7 @@
 							BorderThickness="0"
 							BorderBrush="Transparent"
 							Background="Transparent"
-							CornerRadius="4,4,0,0">
+							CornerRadius="0">
 							<ContentPresenter Name="contentPresenter"
 								Margin="{TemplateBinding Padding}"
 								HorizontalAlignment="Stretch"
@@ -414,9 +417,7 @@
 					<ControlTemplate.Triggers>
 
 						<Trigger Property="TabItem.IsSelected" Value="False">
-							<Setter TargetName="mainBorder" Property="BorderThickness" Value="0,0,0,0"/>
 							<Setter TargetName="mainBorder" Property="Background" Value="Transparent"/>
-							<Setter TargetName="mainBorder" Property="Height" Value="21"/>
 						</Trigger>
 
 						<Trigger Property="IsMouseOver" Value="True">
@@ -432,6 +433,25 @@
 							<Setter TargetName="mainBorder" Property="Background" Value="{DynamicResource PrimaryBrush}"/>
 						</Trigger>
 
+						<DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="Top">
+							<Setter TargetName="mainBorder" Property="CornerRadius" Value="4,4,0,0"/>
+							<Setter TargetName="mainBorder" Property="Height" Value="21"/>
+						</DataTrigger>
+
+						<DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="Left">
+							<Setter TargetName="mainBorder" Property="CornerRadius" Value="4,0,0,4"/>
+							<Setter TargetName="mainBorder" Property="Height" Value="22"/>
+							<Setter TargetName="mainBorder" Property="Margin" Value="4,0,0,0"/>
+						</DataTrigger>
+
+						<DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="Bottom">
+
+						</DataTrigger>
+
+						<DataTrigger Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="Right">
+
+						</DataTrigger>
+
 						<MultiDataTrigger>
 							<MultiDataTrigger.Conditions>
 								<Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="true"/>
@@ -445,6 +465,7 @@
 								<Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="true"/>
 								<Condition Binding="{Binding TabStripPlacement, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="Left"/>
 							</MultiDataTrigger.Conditions>
+							<Setter TargetName="mainBorder" Property="Margin" Value="0,0,0,0"/>
 						</MultiDataTrigger>
 
 						<MultiDataTrigger>
@@ -505,7 +526,7 @@
 				Grid.Row="1"
 				Grid.RowSpan="2"
 				Grid.Column="0"
-				Grid.ColumnSpan="2"
+				Grid.ColumnSpan="3"
 				Margin="{TemplateBinding Padding}"
 				CanContentScroll="{TemplateBinding CanContentScroll}"
 				CanHorizontallyScroll="False"
@@ -516,8 +537,8 @@
 
 			<ScrollBar x:Name="PART_VerticalScrollBar"
 				Style="{StaticResource ScrollBarBaseStyle}"
-				Grid.Row="0"
-				Grid.Column="1"
+				Grid.Row="1"
+				Grid.Column="0"
 				Minimum="0"
 				Maximum="{TemplateBinding ScrollableHeight}"
 				AutomationProperties.AutomationId="VerticalScrollBar"
@@ -564,191 +585,237 @@
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type c:TabControlEx}">
-					<Grid Name="templateRoot"
-						Background="Transparent"
-						ClipToBounds="False"
-						SnapsToDevicePixels="true">
+					<Border BorderThickness="1,0,0,0" BorderBrush="{DynamicResource BorderBrush}">
+						<Grid Name="templateRoot"
+							Background="Transparent"
+							ClipToBounds="False"
+							SnapsToDevicePixels="true">
 
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Name="ColumnDefinition0"/>
-							<ColumnDefinition Name="ColumnDefinition1" Width="0"/>
-						</Grid.ColumnDefinitions>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Name="ColumnDefinition0"/>
+								<ColumnDefinition Name="ColumnDefinition1" Width="0"/>
+							</Grid.ColumnDefinitions>
 
-						<Grid.RowDefinitions>
-							<RowDefinition Name="RowDefinition0" Height="Auto"/>
-							<RowDefinition Name="RowDefinition1" Height="*"/>
-						</Grid.RowDefinitions>
+							<Grid.RowDefinitions>
+								<RowDefinition Name="RowDefinition0" Height="Auto"/>
+								<RowDefinition Name="RowDefinition1" Height="*"/>
+							</Grid.RowDefinitions>
 
-						<Border Name="headerPanelBorder" Grid.Row="0" Margin="0">
-							<Grid>
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="*"/>
-									<ColumnDefinition Width="auto"/>
-								</Grid.ColumnDefinitions>
+							<Border Name="headerPanelBorder" Grid.Row="0" Margin="0">
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*"/>
+										<ColumnDefinition Width="auto"/>
+									</Grid.ColumnDefinitions>
 
-								<Grid.RowDefinitions>
-									<RowDefinition Height="auto"/>
-									<RowDefinition Height="*"/>
-								</Grid.RowDefinitions>
+									<Grid.RowDefinitions>
+										<RowDefinition Height="auto"/>
+										<RowDefinition Height="*"/>
+									</Grid.RowDefinitions>
 
-								<Grid
-									Grid.Row="1"
-									Grid.Column="0"
-									Margin="0"
-									Background="Transparent"
-									ClipToBounds="False">
-
-									<c:ScrollViewerEx x:Name="tabHeaderScrollViewer"
-										Padding="6,0,26,0"
-										wpf:ScrollViewerExtension.DefaultWheelScrollHorizontally="True"
+									<Grid
+										Grid.Row="1"
+										Grid.Column="0"
+										Margin="0"
 										Background="Transparent"
-										ClipToBounds="False"
-										HorizontalScrollBarVisibility="Auto"
-										IsInertiaEnabled="True"
-										Template="{StaticResource ScrollViewer.TabControl}"
-										VerticalScrollBarVisibility="Auto">
-										<TabPanel Name="headerPanel"
+										ClipToBounds="False">
+
+										<c:ScrollViewerEx x:Name="tabHeaderScrollViewer"
+											Margin="0"
+											Padding="0"
 											Background="Transparent"
 											ClipToBounds="False"
-											IsItemsHost="true"/>
-									</c:ScrollViewerEx>
-
-									<Border HorizontalAlignment="Right" VerticalAlignment="Bottom">
-										<Button Name="TabItemsDropDownButton"
-											Width="23"
-											Height="23"
-											Padding="0"
-											BorderThickness="0"
-											Background="Transparent">
-											<wpf:FontIcon FontSize="12" Text="&#xEDDC;"/>
-										</Button>
-									</Border>
-
-									<wpf:ButtonPopup Placement="Bottom" SourceButton="{Binding ElementName=TabItemsDropDownButton}">
-										<Border Style="{DynamicResource ButtonPopupBorder}">
-											<ListBox Name="tabItemsList"
-												MinWidth="200"
-												MaxHeight="500"
-												Padding="0,0,10,0"
-												BorderThickness="0"
-												dd:DragDrop.IsDragSource="True"
-												dd:DragDrop.IsDropTarget="True"
-												dd:DragDrop.SelectDroppedItems="True"
-												hc:ScrollViewerAttach.AutoHide="False"
+											HorizontalScrollBarVisibility="Auto"
+											IsInertiaEnabled="True"
+											Template="{StaticResource ScrollViewer.TabControl}"
+											VerticalScrollBarVisibility="Auto">
+											<TabPanel Name="headerPanel"
 												Background="Transparent"
-												ItemTemplate="{TemplateBinding TabListItemTemplate}"
-												ScrollViewer.VerticalScrollBarVisibility="Auto"
-												SelectedItem="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=SelectedItem, Mode=TwoWay}"
-												ItemsSource="{TemplateBinding ItemsSource}">
-												<ListBox.ItemContainerStyle>
-													<Style TargetType="ListBoxItem">
-														<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisualRadius0Margin0}"/>
-														<Setter Property="SnapsToDevicePixels" Value="True"/>
-														<Setter Property="Padding" Value="6,0"/>
-														<Setter Property="MinHeight" Value="24"/>
-														<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-														<Setter Property="VerticalContentAlignment" Value="Center"/>
-														<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
-														<Setter Property="BorderBrush" Value="Transparent"/>
-														<Setter Property="BorderThickness" Value="1"/>
-														<Setter Property="Margin" Value="0,0,0,2"/>
-														<Setter Property="Template">
-															<Setter.Value>
-																<ControlTemplate TargetType="ListBoxItem">
-																	<Border x:Name="Bd"
-																		Padding="{TemplateBinding Padding}"
-																		BorderThickness="{TemplateBinding BorderThickness}"
-																		BorderBrush="{TemplateBinding BorderBrush}"
-																		Background="{TemplateBinding Background}"
-																		CornerRadius="4"
-																		SnapsToDevicePixels="true">
-																		<Grid>
-																			<Grid.ColumnDefinitions>
-																				<ColumnDefinition Width="*"/>
-																				<ColumnDefinition Width="auto"/>
-																			</Grid.ColumnDefinitions>
-																			<ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+												ClipToBounds="False"
+												IsItemsHost="true"/>
+										</c:ScrollViewerEx>
 
-																			<Border Name="ActionBorder"
-																				Grid.Column="1"
-																				Margin="0,0,-6,0"
-																				Visibility="Collapsed">
-																				<Button
-																					Width="24"
-																					Height="20"
-																					Padding="0"
-																					BorderThickness="0"
-																					Background="Transparent">
-																					<wpf:FontIcon Foreground="{DynamicResource DangerBrush}" Text="&#xE894;"/>
-																				</Button>
-																			</Border>
+										<Border HorizontalAlignment="Right" VerticalAlignment="Bottom">
+											<StackPanel Orientation="Horizontal">
 
-																		</Grid>
-																	</Border>
+												<Button Name="TabItemsDropDownButton"
+													Width="23"
+													Height="23"
+													Padding="0"
+													BorderThickness="0"
+													Background="Transparent">
+													<wpf:FontIcon FontSize="12" Text="&#xEDDC;"/>
+												</Button>
 
-																	<ControlTemplate.Triggers>
-																		<Trigger Property="IsMouseOver" Value="True">
-																			<Setter TargetName="ActionBorder" Property="Visibility" Value="Visible"/>
-																		</Trigger>
-																	</ControlTemplate.Triggers>
+												<Button
+													Height="23"
+													MinWidth="38"
+													Margin="0"
+													Padding="4,0"
+													HorizontalContentAlignment="Stretch"
+													BorderThickness="1,0,0,0"
+													hc:BorderElement.CornerRadius="0">
+													<DockPanel>
+														<wpf:FontIcon DockPanel.Dock="Right" Text="&#xE97C;"/>
+														<Border Width="4" DockPanel.Dock="Right"/>
+														<TextBlock Text="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Items.Count}" TextAlignment="Left"/>
+													</DockPanel>
+												</Button>
 
-																</ControlTemplate>
-															</Setter.Value>
-														</Setter>
-														<Style.Triggers>
-															<Trigger Property="IsMouseOver" Value="true">
-																<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
-															</Trigger>
-															<Trigger Property="IsSelected" Value="true">
-																<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
-																<Setter Property="Foreground" Value="{DynamicResource TextIconBrush}"/>
-															</Trigger>
-															<Trigger Property="IsEnabled" Value="false">
-																<Setter Property="Opacity" Value=".4"/>
-															</Trigger>
-														</Style.Triggers>
-													</Style>
-												</ListBox.ItemContainerStyle>
-											</ListBox>
+											</StackPanel>
 										</Border>
-									</wpf:ButtonPopup>
-								</Grid>
 
-								<!--<Border Grid.Row="1" Grid.Column="1">
+										<Border x:Name="ManagePanel_Side"
+											Height="25"
+											VerticalAlignment="Bottom"
+											BorderThickness="0,1,0,0"
+											BorderBrush="{DynamicResource BorderBrush}"
+											Background="Transparent"
+											Visibility="Collapsed">
+											<Button
+												Height="24"
+												Padding="4,0,8,0"
+												HorizontalAlignment="Stretch"
+												HorizontalContentAlignment="Stretch"
+												BorderThickness="0"
+												hc:BorderElement.CornerRadius="0">
+												<DockPanel Background="Transparent">
+													<wpf:FontIcon Text="&#xE97C;"/>
+													<TextBlock Text="12 Tabs" TextAlignment="Right"/>
+												</DockPanel>
+											</Button>
+										</Border>
+
+										<wpf:ButtonPopup Placement="Bottom" SourceButton="{Binding ElementName=TabItemsDropDownButton}">
+											<Border Style="{DynamicResource ButtonPopupBorder}">
+												<ListBox Name="tabItemsList"
+													Style="{DynamicResource ListBox.Custom.ScrollBar.Small}"
+													MinWidth="200"
+													MaxHeight="500"
+													Padding="0,0,0,0"
+													BorderThickness="0"
+													dd:DragDrop.IsDragSource="True"
+													dd:DragDrop.IsDropTarget="True"
+													dd:DragDrop.SelectDroppedItems="True"
+													hc:ScrollViewerAttach.AutoHide="False"
+													Background="Transparent"
+													ItemTemplate="{TemplateBinding TabListItemTemplate}"
+													ScrollViewer.VerticalScrollBarVisibility="Auto"
+													SelectedItem="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=SelectedItem, Mode=TwoWay}"
+													ItemsSource="{TemplateBinding ItemsSource}">
+													<ListBox.ItemContainerStyle>
+														<Style TargetType="ListBoxItem">
+															<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisualRadius0Margin0}"/>
+															<Setter Property="SnapsToDevicePixels" Value="True"/>
+															<Setter Property="Padding" Value="6,0"/>
+															<Setter Property="MinHeight" Value="24"/>
+															<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+															<Setter Property="VerticalContentAlignment" Value="Center"/>
+															<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
+															<Setter Property="BorderBrush" Value="Transparent"/>
+															<Setter Property="BorderThickness" Value="1"/>
+															<Setter Property="Margin" Value="0,0,0,2"/>
+															<Setter Property="Template">
+																<Setter.Value>
+																	<ControlTemplate TargetType="ListBoxItem">
+																		<Border x:Name="Bd"
+																			Padding="{TemplateBinding Padding}"
+																			BorderThickness="{TemplateBinding BorderThickness}"
+																			BorderBrush="{TemplateBinding BorderBrush}"
+																			Background="{TemplateBinding Background}"
+																			CornerRadius="4"
+																			SnapsToDevicePixels="true">
+																			<Grid>
+																				<Grid.ColumnDefinitions>
+																					<ColumnDefinition Width="*"/>
+																					<ColumnDefinition Width="auto"/>
+																				</Grid.ColumnDefinitions>
+																				<ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+
+																				<Border Name="ActionBorder"
+																					Grid.Column="1"
+																					Margin="0,0,-6,0"
+																					Visibility="Collapsed">
+																					<Button
+																						Style="{DynamicResource CustomButtonStyle.Danger}"
+																						Width="24"
+																						Height="20"
+																						Padding="0"
+																						BorderThickness="0"
+																						Cursor="Hand">
+																						<wpf:FontIcon Text="&#xE894;"/>
+																					</Button>
+																				</Border>
+
+																			</Grid>
+																		</Border>
+
+																		<ControlTemplate.Triggers>
+																			<Trigger Property="IsMouseOver" Value="True">
+																				<Setter TargetName="ActionBorder" Property="Visibility" Value="Visible"/>
+																			</Trigger>
+																		</ControlTemplate.Triggers>
+
+																	</ControlTemplate>
+																</Setter.Value>
+															</Setter>
+															<Style.Triggers>
+																<Trigger Property="IsMouseOver" Value="true">
+																	<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+																</Trigger>
+																<Trigger Property="IsSelected" Value="true">
+																	<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+																	<Setter Property="Foreground" Value="{DynamicResource TextIconBrush}"/>
+																</Trigger>
+																<Trigger Property="IsEnabled" Value="false">
+																	<Setter Property="Opacity" Value=".4"/>
+																</Trigger>
+															</Style.Triggers>
+														</Style>
+													</ListBox.ItemContainerStyle>
+												</ListBox>
+											</Border>
+										</wpf:ButtonPopup>
+									</Grid>
+
+									<!--<Border Grid.Row="1" Grid.Column="1">
 										<Button Style="{StaticResource Button.Custom.Icon}" Width="30" Height="30">
 											<wpf:FontIcon Text="&#xE8C4;"/>
 										</Button>
 									</Border>-->
+								</Grid>
+							</Border>
+
+							<Grid Name="contentPanel"
+								Grid.Row="1"
+								HorizontalAlignment="Stretch"
+								VerticalAlignment="Stretch">
+
+								<Border x:Name="highlightSeparator" Panel.ZIndex="99" Background="{DynamicResource PrimaryBrush}"/>
+
+								<wpf:ClippingBorder BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{DynamicResource BorderBrush}" Background="Transparent">
+									<ContentPresenter Name="PART_SelectedContentHost"
+										Margin="0"
+										ContentSource="SelectedContent"
+										SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+								</wpf:ClippingBorder>
 							</Grid>
-						</Border>
-
-						<Grid Name="contentPanel"
-							Grid.Row="1"
-							HorizontalAlignment="Stretch"
-							VerticalAlignment="Stretch">
-
-							<Border
-								Height="1"
-								VerticalAlignment="Top"
-								Panel.ZIndex="99"
-								Background="{DynamicResource PrimaryBrush}"/>
-
-							<wpf:ClippingBorder BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{DynamicResource BorderBrush}" Background="Transparent">
-								<ContentPresenter Name="PART_SelectedContentHost"
-									Margin="0,1,0,0"
-									ContentSource="SelectedContent"
-									SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-							</wpf:ClippingBorder>
 						</Grid>
-					</Grid>
+					</Border>
 
 					<ControlTemplate.Triggers>
-						<Trigger Property="TabControl.TabStripPlacement" Value="Bottom">
-							<Setter TargetName="RowDefinition0" Property="Height" Value="*"/>
-							<Setter TargetName="RowDefinition1" Property="Height" Value="Auto"/>
-							<Setter TargetName="headerPanelBorder" Property="Grid.Row" Value="1"/>
-							<Setter TargetName="contentPanel" Property="Grid.Row" Value="0"/>
+						<Trigger Property="TabControl.TabStripPlacement" Value="Top">
+							<Setter TargetName="tabHeaderScrollViewer" Property="wpf:ScrollViewerExtension.DefaultWheelScrollHorizontally" Value="True"/>
+							<Setter TargetName="tabHeaderScrollViewer" Property="Padding" Value="6,0,58,0"/>
+							<Setter TargetName="tabHeaderScrollViewer" Property="Margin" Value="0,0,0,0"/>
+							<Setter TargetName="PART_SelectedContentHost" Property="Margin" Value="0,1,0,0"/>
+							<Setter TargetName="TabItemsDropDownButton" Property="Visibility" Value="Visible"/>
+
+							<Setter TargetName="highlightSeparator" Property="Height" Value="1"/>
+							<Setter TargetName="highlightSeparator" Property="VerticalAlignment" Value="Top"/>
+							<Setter TargetName="highlightSeparator" Property="HorizontalAlignment" Value="Stretch"/>
 						</Trigger>
+
 						<Trigger Property="TabControl.TabStripPlacement" Value="Left">
 							<Setter TargetName="RowDefinition0" Property="Height" Value="*"/>
 							<Setter TargetName="RowDefinition1" Property="Height" Value="0"/>
@@ -758,7 +825,26 @@
 							<Setter TargetName="headerPanelBorder" Property="Grid.Row" Value="0"/>
 							<Setter TargetName="contentPanel" Property="Grid.Column" Value="1"/>
 							<Setter TargetName="contentPanel" Property="Grid.Row" Value="0"/>
+
+							<Setter TargetName="tabHeaderScrollViewer" Property="wpf:ScrollViewerExtension.DefaultWheelScrollHorizontally" Value="False"/>
+							<Setter TargetName="tabHeaderScrollViewer" Property="Padding" Value="8,4,0,4"/>
+							<Setter TargetName="tabHeaderScrollViewer" Property="Margin" Value="0,0,0,25"/>
+							<Setter TargetName="PART_SelectedContentHost" Property="Margin" Value="1,0,0,0"/>
+							<Setter TargetName="TabItemsDropDownButton" Property="Visibility" Value="Collapsed"/>
+							<Setter TargetName="ManagePanel_Side" Property="Visibility" Value="Visible"/>
+
+							<Setter TargetName="highlightSeparator" Property="Width" Value="1"/>
+							<Setter TargetName="highlightSeparator" Property="VerticalAlignment" Value="Stretch"/>
+							<Setter TargetName="highlightSeparator" Property="HorizontalAlignment" Value="Left"/>
 						</Trigger>
+
+						<Trigger Property="TabControl.TabStripPlacement" Value="Bottom">
+							<Setter TargetName="RowDefinition0" Property="Height" Value="*"/>
+							<Setter TargetName="RowDefinition1" Property="Height" Value="Auto"/>
+							<Setter TargetName="headerPanelBorder" Property="Grid.Row" Value="1"/>
+							<Setter TargetName="contentPanel" Property="Grid.Row" Value="0"/>
+						</Trigger>
+
 						<Trigger Property="TabControl.TabStripPlacement" Value="Right">
 							<Setter TargetName="RowDefinition0" Property="Height" Value="*"/>
 							<Setter TargetName="RowDefinition1" Property="Height" Value="0"/>
@@ -769,6 +855,7 @@
 							<Setter TargetName="contentPanel" Property="Grid.Column" Value="0"/>
 							<Setter TargetName="contentPanel" Property="Grid.Row" Value="0"/>
 						</Trigger>
+
 					</ControlTemplate.Triggers>
 
 				</ControlTemplate>

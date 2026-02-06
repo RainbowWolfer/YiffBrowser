@@ -3,7 +3,6 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:hc="https://handyorg.github.io/handycontrol">
 
-
 	<Style x:Key="MenuItem.Custom" TargetType="MenuItem">
 		<Setter Property="Padding" Value="{Binding Path=(hc:MenuAttach.ItemPadding), RelativeSource={RelativeSource AncestorType=MenuBase}}"/>
 		<Setter Property="OverridesDefaultStyle" Value="True"/>
@@ -402,7 +401,7 @@
 	<Style TargetType="MenuItem" BasedOn="{StaticResource MenuItem.Custom}"/>
 
 	<Style x:Key="ContextMenu.Custom" TargetType="ContextMenu" BasedOn="{StaticResource ContextMenuBaseStyle}">
-		<Setter Property="hc:MenuAttach.ItemPadding" Value="6,0"/>
+		<Setter Property="hc:MenuAttach.ItemPadding" Value="6,2"/>
 		<Setter Property="hc:MenuAttach.PopupVerticalOffset" Value="-3"/>
 		<Setter Property="hc:MenuAttach.PopupHorizontalOffset" Value="6"/>
 		<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
@@ -429,4 +428,12 @@
 		</Setter>
 	</Style>
 
+	<Style x:Key="Separator.Custom" TargetType="{x:Type Separator}">
+		<Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
+		<Setter Property="Opacity" Value="0.8"/>
+	</Style>
+
+	<Style x:Key="{x:Type Separator}" TargetType="{x:Type Separator}" BasedOn="{StaticResource Separator.Custom}"/>
+	<Style x:Key="{x:Static StatusBar.SeparatorStyleKey}" TargetType="{x:Type Separator}" BasedOn="{StaticResource Separator.Custom}"/>
+	<Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="{x:Type Separator}" BasedOn="{StaticResource Separator.Custom}"/>
 </ResourceDictionary>

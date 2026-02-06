@@ -5,6 +5,7 @@ using DevExpress.Mvvm;
 using FlyleafLib;
 using FlyleafLib.MediaPlayer;
 using RW.Common.Helpers;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
@@ -18,7 +19,9 @@ using YB.E621.Models.E621;
 
 namespace YB.E621.Views.Subs;
 
-public partial class VideoDisplayer : UserControl {
+public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
+	public event PropertyChangedEventHandler? PropertyChanged;
+	private void Raise(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
 
 	public E621Post? Post {
@@ -84,11 +87,23 @@ public partial class VideoDisplayer : UserControl {
 
 	private long fileSize = 0;
 
-	public Player Player { get; }
-	public Config Config { get; }
+	public Player? Player { get; private set; }
+	public Config? Config { get; private set; }
 
 	public VideoDisplayer() {
 		InitializeComponent();
+
+		dispatcherTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(10), DispatcherPriority.Normal, Tick, Dispatcher) {
+			IsEnabled = false,
+		};
+
+		Loaded += VideoDisplayer_Loaded;
+		Unloaded += VideoDisplayer_Unloaded;
+
+	}
+
+	private void VideoDisplayer_Loaded(object sender, RoutedEventArgs e) {
+		dispatcherTimer.Start();
 
 		//if (ViewHelper.IsInDesignerMode) {
 		//	return;
@@ -98,10 +113,6 @@ public partial class VideoDisplayer : UserControl {
 
 		Player = new Player(Config) {
 			LoopPlayback = true,
-		};
-
-		dispatcherTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(10), DispatcherPriority.Normal, Tick, Dispatcher) {
-			IsEnabled = false,
 		};
 
 		Config.Player.AutoPlay = true;
@@ -131,13 +142,21 @@ public partial class VideoDisplayer : UserControl {
 			Source = this,
 		});
 
-		Loaded += VideoDisplayer_Loaded;
-		Unloaded += VideoDisplayer_Unloaded;
-
 		Player.Stop();
+
+		Raise(nameof(Config));
+		Raise(nameof(Player));
+	}
+
+	private void VideoDisplayer_Unloaded(object sender, RoutedEventArgs e) {
+		dispatcherTimer.Stop();
 	}
 
 	private void Surface_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
+		if (Player is null) {
+			return;
+		}
+
 		Player.TogglePlayPauseEx();
 
 		Dispatcher.BeginInvoke(() => {
@@ -155,14 +174,6 @@ public partial class VideoDisplayer : UserControl {
 		}
 	}
 
-	private void VideoDisplayer_Unloaded(object sender, RoutedEventArgs e) {
-		dispatcherTimer.Stop();
-	}
-
-	private void VideoDisplayer_Loaded(object sender, RoutedEventArgs e) {
-		dispatcherTimer.Start();
-	}
-
 	private void Tick(object? sender, EventArgs e) {
 
 	}
@@ -172,6 +183,10 @@ public partial class VideoDisplayer : UserControl {
 	}
 
 	private async void Update(E621Post? post) {
+		if (Player is null) {
+			return;
+		}
+
 		if (post is null || post.GetFileType() is not FileType.WEBM) {
 			return;
 		}
