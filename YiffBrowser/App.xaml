@@ -29,7 +29,7 @@
 
 
 
-				<ResourceDictionary Source="pack://application:,,,/BaseFramework;component/Resources/Theme.xaml"/>
+				<ResourceDictionary Source="pack://application:,,,/BaseFramework;component/Resources/FrameworkTheme.xaml"/>
 				<ResourceDictionary Source="pack://application:,,,/YB.E621;component/Resources/Theme.xaml"/>
 
 			</ResourceDictionary.MergedDictionaries>

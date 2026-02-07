@@ -349,6 +349,10 @@ public partial class App : ApplicationBase {
 	private class _IoCInitializer(IApplication application) : IoCInitializer(application) {
 		private readonly App application = (App)application;
 
+		public override Autofac.IContainer CreateContainer() {
+			return base.CreateContainer();
+		}
+
 		protected override void InitializeDependencies() {
 			base.InitializeDependencies();
 

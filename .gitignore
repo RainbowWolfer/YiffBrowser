@@ -365,3 +365,5 @@ FodyWeavers.xsd
 .idea/
 
 !Nugets/*.nupkg
+
+Installer/Output/
