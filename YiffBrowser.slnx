@@ -1,16 +1,21 @@
 <Solution>
-  <Folder Name="/Modules/">
-    <Project Path="YB.E621/YB.E621.csproj" />
-  </Folder>
-  <Folder Name="/_SolutionItems/">
-    <File Path=".editorconfig" />
-    <File Path=".gitattributes" />
-    <File Path=".gitignore" />
-    <File Path="Directory.Build.props" />
-    <File Path="nuget.config" />
-    <File Path="README.md" />
-    <File Path="ResXManager.config.xml" />
-  </Folder>
-  <Project Path="BaseFramework/BaseFramework.csproj" />
-  <Project Path="YiffBrowser/YiffBrowser.csproj" />
+	<Folder Name="/Source/Modules/">
+		<Project Path="Source/Modules/YiffBrowser.E621/YiffBrowser.E621.csproj" />
+	</Folder>
+	<Folder Name="/_SolutionItems/">
+		<File Path=".editorconfig" />
+		<File Path=".gitattributes" />
+		<File Path=".gitignore" />
+		<File Path="Directory.Build.props" />
+		<File Path="nuget.config" />
+		<File Path="README.md" />
+		<File Path="ResXManager.config.xml" />
+	</Folder>
+	<Folder Name="/Source/">
+		<Project Path="Source/YiffBrowser.BaseFramework/YiffBrowser.BaseFramework.csproj" />
+		<Project Path="Source/YiffBrowser.Redist/YiffBrowser.Redist.csproj" Id="1505f856-e6ce-4ac4-812b-ddb95ce5932f" />
+		<Project Path="Source/YiffBrowser.Resources/YiffBrowser.Resources.csproj" Id="da400c7f-1930-471c-930b-29af57f6e113" />
+		<Project Path="Source/YiffBrowser.Strings/YiffBrowser.Strings.csproj" Id="9e022e7c-6598-42ef-993c-6a00a77aa101" />
+		<Project Path="Source/YiffBrowser/YiffBrowser.csproj" />
+	</Folder>
 </Solution>

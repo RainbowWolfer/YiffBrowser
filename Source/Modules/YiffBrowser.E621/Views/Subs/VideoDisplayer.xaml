@@ -1,0 +1,55 @@
+﻿<UserControl
+	x:Class="YiffBrowser.E621.Views.Subs.VideoDisplayer"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:bf="YiffBrowser.BaseFramework"
+	xmlns:c="clr-namespace:YiffBrowser.E621.Controls"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:fl="clr-namespace:FlyleafLib.Controls.WPF;assembly=FlyleafLib"
+	xmlns:local="clr-namespace:YiffBrowser.E621.Views.Subs"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:wpf="RW.Common.WPF"
+	d:DesignHeight="450"
+	d:DesignWidth="800"
+	mc:Ignorable="d">
+
+	<Grid>
+		<fl:FlyleafHost x:Name="FlyleafHost"
+			DataContext="{Binding RelativeSource={RelativeSource AncestorType=local:VideoDisplayer}}"
+			AttachedDragMove="None"
+			DetachedDragMove="None"
+			KeyBindings="None"
+			ToggleFullScreenOnDoubleClick="None">
+
+			<Border DataContext="{Binding HostDataContext}" Background="Transparent">
+				<StackPanel>
+					<Border Visibility="{Binding ShowControls, Converter={StaticResource Boolean2VisibilityConverter}}">
+						<bf:PlaybackControl
+							Height="30"
+							VerticalAlignment="Top"
+							BorderThickness="0,0,0,1"
+							BorderBrush="{DynamicResource BorderBrush}"
+							Background="{DynamicResource RegionBrush}"
+							Player="{Binding Player}"
+							Visibility="{Binding IsFileReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+					</Border>
+					<c:LoadingProgresControl
+						Margin="4"
+						VerticalAlignment="Top"
+						wpf:ToolTipExtension.FastToolTip="True"
+						DownloadInfo="{Binding LoadingStatus.DownloadInfo}"
+						ErrorMessage="{Binding LoadingStatus.ErrorMessage}"
+						Progress="{Binding LoadingStatus.Progress}"
+						ReloadCommand="{Binding ReloadCommand}"
+						ToolTip="{Binding LoadingStatus.ToolTip}"
+						Visibility="{Binding LoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+
+				</StackPanel>
+			</Border>
+
+		</fl:FlyleafHost>
+
+		<!--<MediaElement Name="MediaElement"/>-->
+	</Grid>
+
+</UserControl>

@@ -1,0 +1,71 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Resource Include="Fonts\Segoe Fluent Icons.ttf" />
+		<Resource Include="Icons\DeviantArt.png" />
+		<Resource Include="Icons\E621_Bigger.png" />
+		<Resource Include="Icons\E621.png" />
+		<Resource Include="Icons\E621Icon.ico" />
+		<Resource Include="Icons\E621Icon.png" />
+		<Resource Include="Icons\E621Icon.psd" />
+		<Resource Include="Icons\E621Icon2.ico" />
+		<Resource Include="Icons\E621_Light.png" />
+		<Resource Include="Icons\E6AI.ico" />
+		<Resource Include="Icons\E6AI.png" />
+		<Resource Include="Icons\E6AI.psd" />
+		<Resource Include="Icons\E6AI2.ico" />
+		<Resource Include="Icons\E6AI2.png" />
+		<Resource Include="Icons\Furaffinity.png" />
+		<Resource Include="Icons\FurryNetwork.png" />
+		<Resource Include="Icons\InkBunny.png" />
+		<Resource Include="Icons\Instagram.png" />
+		<Resource Include="Icons\Mega.png" />
+		<Resource Include="Icons\NewGrounds.png" />
+		<Resource Include="Icons\Patreon.png" />
+		<Resource Include="Icons\Pixiv.png" />
+		<Resource Include="Icons\SubscribeStar.png" />
+		<Resource Include="Icons\Telegram.png" />
+		<Resource Include="Icons\tumblr.png" />
+		<Resource Include="Icons\Twitter.png" />
+		<Resource Include="Icons\weasyl.png" />
+		<Resource Include="Icons\YiffBrowserIcon.ico" />
+		<Resource Include="Icons\YiffBrowserIcon.png" />
+		<Resource Include="Icons\YiffBrowserPSD.psd" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Icons\IconResources.tt">
+	    <Generator>TextTemplatingFileGenerator</Generator>
+	    <LastGenOutput>IconResources.cs</LastGenOutput>
+	  </None>
+	  <None Update="Icons\Icons.tt">
+	    <Generator>TextTemplatingFileGenerator</Generator>
+	    <LastGenOutput>Icons.xaml</LastGenOutput>
+	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Icons\IconResources.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>IconResources.tt</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="Icons\Icons.xaml">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Icons.tt</DependentUpon>
+	  </Page>
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,11 @@
+﻿<ResourceDictionary
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<ResourceDictionary.MergedDictionaries>
+		<ResourceDictionary Source="/YiffBrowser.Resources;component/Icons/Icons.xaml"/>
+	</ResourceDictionary.MergedDictionaries>
+
+	<FontFamily x:Key="IconPack">./Fonts/Segoe Fluent Icons.ttf#Segoe Fluent Icons</FontFamily>
+
+</ResourceDictionary>

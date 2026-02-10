@@ -1,0 +1,324 @@
+﻿<UserControl
+	x:Class="YiffBrowser.E621.Views.DockPanels.SearchPanel"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:b="RW.Base.WPF"
+	xmlns:bf="YiffBrowser.BaseFramework"
+	xmlns:c="clr-namespace:YiffBrowser.E621.Controls"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:dd="urn:gong-wpf-dragdrop"
+	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+	xmlns:hc="https://handyorg.github.io/handycontrol"
+	xmlns:local="clr-namespace:YiffBrowser.E621.Views.DockPanels"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:wpf="RW.Common.WPF"
+	d:DataContext="{d:DesignInstance Type=local:SearchPanelViewModel}"
+	d:DesignHeight="300"
+	d:DesignWidth="800"
+	DataContext="{b:DISource Type=local:SearchPanelViewModel}"
+	mc:Ignorable="d">
+
+	<UserControl.Resources>
+		<wpf:CommandProxy x:Key="HandleItemCommand" Command="{Binding HandleItemCommand}"/>
+	</UserControl.Resources>
+
+	<dxmvvm:Interaction.Behaviors>
+		<b:DispatcherServiceEx/>
+		<b:LoadedService Command="{Binding LoadedCommand}"/>
+	</dxmvvm:Interaction.Behaviors>
+
+	<Grid Margin="4">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="180"/>
+			<ColumnDefinition Width="3*"/>
+			<ColumnDefinition Width="2*"/>
+			<ColumnDefinition Width="120"/>
+		</Grid.ColumnDefinitions>
+
+		<Border Grid.Column="0" Margin="4">
+			<Grid>
+				<hc:ScrollViewer>
+					<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}">
+
+						<hc:ComboBox>
+							<ComboBoxItem Content="Sort by: Default"/>
+							<ComboBoxItem Content="Sort by: New"/>
+							<ComboBoxItem Content="Sort by: Score"/>
+							<ComboBoxItem Content="Sort by: Favorites"/>
+							<ComboBoxItem Content="Sort by: Rank"/>
+							<ComboBoxItem Content="Sort by: Random"/>
+						</hc:ComboBox>
+
+						<hc:ComboBox>
+							<ComboBoxItem Content="Rating: All"/>
+							<ComboBoxItem Content="Rating: Safe"/>
+							<ComboBoxItem Content="Rating: Questionable"/>
+							<ComboBoxItem Content="Rating: Explicit"/>
+						</hc:ComboBox>
+
+						<hc:ComboBox>
+							<ComboBoxItem Content="Type: ALL"/>
+							<ComboBoxItem Content="Type: PNG"/>
+							<ComboBoxItem Content="Type: JPG"/>
+							<ComboBoxItem Content="Type: GIF"/>
+							<ComboBoxItem Content="Type: WEBM"/>
+							<ComboBoxItem Content="Type: ANIM"/>
+						</hc:ComboBox>
+
+						<Button Name="ButtonScore" Content="Score"/>
+						<Button Name="ButtonFavoriteCount" Content="Favorite Count"/>
+
+						<Button Name="ButtonRandomTags" Content="Get Random Tags"/>
+
+						<ToggleButton Style="{StaticResource ToggleButtonSwitch}" HorizontalContentAlignment="Left" Content="Is In Pool"/>
+						<ToggleButton Style="{StaticResource ToggleButtonSwitch}" HorizontalContentAlignment="Left" Content="Is Child Post"/>
+						<ToggleButton Style="{StaticResource ToggleButtonSwitch}" HorizontalContentAlignment="Left" Content="Is Parent Post"/>
+
+					</wpf:SpacingStackPanel>
+				</hc:ScrollViewer>
+
+				<wpf:ButtonPopup HorizontalOffset="4" Placement="Right" SourceButton="{Binding ElementName=ButtonScore}">
+					<Border Style="{DynamicResource ButtonPopupBorder}" Width="200">
+						<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
+							<hc:ButtonGroup Style="{StaticResource ButtonGroupSolid}">
+								<RadioButton Content="="/>
+								<RadioButton Content="≥"/>
+								<RadioButton Content="≤"/>
+								<RadioButton Content="[ ... ]"/>
+							</hc:ButtonGroup>
+
+							<Border
+								Height="28"
+								Padding="4"
+								BorderThickness="1"
+								BorderBrush="{DynamicResource BorderBrush}"
+								CornerRadius="{DynamicResource DefaultCornerRadius}">
+								<Slider VerticalAlignment="Center"/>
+							</Border>
+
+							<Border
+								Height="28"
+								Padding="4"
+								BorderThickness="1"
+								BorderBrush="{DynamicResource BorderBrush}"
+								CornerRadius="{DynamicResource DefaultCornerRadius}">
+								<TextBlock Padding="6,0" VerticalAlignment="Center" Text="20~100"/>
+							</Border>
+						</wpf:SpacingStackPanel>
+					</Border>
+				</wpf:ButtonPopup>
+
+				<wpf:ButtonPopup HorizontalOffset="4" Placement="Right" SourceButton="{Binding ElementName=ButtonFavoriteCount}">
+					<Border Style="{DynamicResource ButtonPopupBorder}" Width="200">
+						<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
+							<hc:ButtonGroup Style="{StaticResource ButtonGroupSolid}">
+								<RadioButton Content="="/>
+								<RadioButton Content="≥"/>
+								<RadioButton Content="≤"/>
+								<RadioButton Content="[ ... ]"/>
+							</hc:ButtonGroup>
+
+							<Border
+								Height="28"
+								Padding="4"
+								BorderThickness="1"
+								BorderBrush="{DynamicResource BorderBrush}"
+								CornerRadius="{DynamicResource DefaultCornerRadius}">
+								<Slider VerticalAlignment="Center"/>
+							</Border>
+
+							<Border
+								Height="28"
+								Padding="4"
+								BorderThickness="1"
+								BorderBrush="{DynamicResource BorderBrush}"
+								CornerRadius="{DynamicResource DefaultCornerRadius}">
+								<TextBlock Padding="6,0" VerticalAlignment="Center" Text="20~100"/>
+							</Border>
+						</wpf:SpacingStackPanel>
+					</Border>
+				</wpf:ButtonPopup>
+
+				<wpf:ButtonPopup HorizontalOffset="4" Placement="Right" SourceButton="{Binding ElementName=ButtonRandomTags}">
+					<Border Style="{DynamicResource ButtonPopupBorder}" Width="200">
+						<StackPanel>
+
+							<DockPanel>
+								<Button Command="{Binding CopyRandomTagsCommand}" ToolTip="Copy">
+									<wpf:FontIcon Text="&#xE8C8;"/>
+								</Button>
+								<Border Width="4"/>
+								<Button HorizontalAlignment="Stretch" Command="{Binding GetRandomTagsCommand}" Content="Get Random Tags"/>
+							</DockPanel>
+
+							<ProgressBar
+								Height="6"
+								Margin="0,4,0,0"
+								IsIndeterminate="True"
+								Visibility="{Binding RandomTagsLoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+
+							<hc:TextBox
+								MinHeight="160"
+								Margin="0,4,0,0"
+								Padding="8,6"
+								VerticalContentAlignment="Top"
+								IsReadOnly="True"
+								Text="{Binding RandomTagText, Mode=OneWay}"
+								TextWrapping="Wrap">
+								<dxmvvm:Interaction.Behaviors>
+									<b:TypedUIObjectService Name="RandomTagsTextBoxService"/>
+								</dxmvvm:Interaction.Behaviors>
+							</hc:TextBox>
+
+						</StackPanel>
+					</Border>
+				</wpf:ButtonPopup>
+
+			</Grid>
+		</Border>
+
+		<Border Grid.Column="1" Margin="4">
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="*"/>
+					<RowDefinition Height="auto"/>
+				</Grid.RowDefinitions>
+
+				<Border Grid.Row="0">
+					<Grid>
+						<!-- Padding="8,6,8,32" -->
+						<bf:TextBoxExtend x:Name="SearchBox"
+							Style="{StaticResource TextBoxExtend}"
+							Padding="8,6,8,6"
+							VerticalContentAlignment="Top"
+							bf:TextBoxExtension.ReplaceNewlineOnPaste="True"
+							bf:TextBoxExtension.SelectionChangedCommand="{Binding OnSearchTextSelectionChangedCommand}"
+							hc:InfoElement.Placeholder="Search tags here"
+							hc:ScrollViewerAttach.AutoHide="False"
+							wpf:ControlExtension.LoadedCommand="{Binding OnSearchTextBoxLoadedCommand}"
+							wpf:ControlExtension.PreviewKeyDownCommand="{Binding OnSearchTextBoxPreviewKeyDownCommand}"
+							AcceptsReturn="True"
+							AcceptsTab="False"
+							BindableSelectionStart="{Binding TagsSearchService.SearchTextSelectionStart, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+							ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+							ScrollViewer.VerticalScrollBarVisibility="Auto"
+							Text="{Binding TagsSearchService.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+							TextWrapping="Wrap">
+							<dxmvvm:Interaction.Behaviors>
+								<b:TypedUIObjectService Name="SearchBoxService"/>
+							</dxmvvm:Interaction.Behaviors>
+						</bf:TextBoxExtend>
+						<!--<Border
+							Margin="1,0"
+							Padding="2"
+							VerticalAlignment="Bottom"
+							BorderThickness="0,1,0,0"
+							BorderBrush="{DynamicResource BorderBrush}">
+							<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Right">
+								<Button
+									Width="20"
+									Height="20"
+									Padding="0"
+									BorderThickness="0">
+									<wpf:FontIcon Text="&#xE894;"/>
+								</Button>
+							</wpf:SpacingStackPanel>
+						</Border>-->
+					</Grid>
+				</Border>
+
+				<Border Grid.Row="1" Margin="0,8,0,0" Visibility="Collapsed">
+					<!--<Border BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="{DynamicResource DefaultCornerRadius}">
+					</Border>-->
+					<Button/>
+				</Border>
+
+			</Grid>
+		</Border>
+
+		<Border Grid.Column="2" Margin="4">
+			<!--<Border BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="{DynamicResource DefaultCornerRadius}">
+				<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}" Margin="8">
+					<hc:ComboBox hc:TitleElement.Title=""/>
+				</wpf:SpacingStackPanel>
+			</Border>-->
+			<Grid>
+				<ListBox x:Name="MainListBox"
+					Padding="2"
+					bf:ListBoxExtension.AutoScrollToSelected="True"
+					bf:ListBoxExtension.ClickBlankToDeselect="True"
+					bf:ListBoxExtension.EscapeToDeselect="True"
+					ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+					SelectedItem="{Binding TagsSearchService.SelectedItem, Mode=TwoWay}"
+					ItemsSource="{Binding TagsSearchService.AutoCompletes}"
+					d:ItemsSource="{d:SampleData ItemCount=3}">
+
+					<dxmvvm:Interaction.Behaviors>
+						<b:TypedUIObjectService Name="MainListBoxService"/>
+					</dxmvvm:Interaction.Behaviors>
+
+					<ListBox.ItemsPanel>
+						<ItemsPanelTemplate>
+							<StackPanel/>
+						</ItemsPanelTemplate>
+					</ListBox.ItemsPanel>
+
+					<ListBox.ItemContainerStyle>
+						<Style TargetType="ListBoxItem" BasedOn="{StaticResource ListBoxItem.SearchTags}">
+							<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+							<Setter Property="wpf:ControlExtension.MouseDoubleClickCommand" Value="{StaticResource HandleItemCommand}"/>
+							<Setter Property="wpf:ControlExtension.MouseDoubleClickCommandParameter" Value="{Binding}"/>
+							<Setter Property="wpf:ControlExtension.MouseDoubleClickCommandDirectParameter" Value="True"/>
+						</Style>
+					</ListBox.ItemContainerStyle>
+
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<c:SearchTagItemControl AutoComplete="{Binding AutoComplete}" IsSelected="{Binding IsSelected, Mode=TwoWay}"/>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+
+				</ListBox>
+
+				<StackPanel Margin="8">
+
+					<ProgressBar
+						Height="8"
+						VerticalAlignment="Top"
+						IsIndeterminate="True"
+						Visibility="{Binding TagsSearchService.IsLoading, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+
+					<TextBlock
+						Margin="0,4,0,0"
+						VerticalAlignment="Top"
+						FontSize="14"
+						Text="{Binding TagsSearchService.AlternativeHintText}"
+						TextAlignment="Center"
+						Visibility="{Binding TagsSearchService.AlternativeHintText, Converter={StaticResource String2VisibilityConverter}}"/>
+
+				</StackPanel>
+			</Grid>
+		</Border>
+
+		<Border Grid.Column="3" Margin="4">
+			<DockPanel>
+
+				<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}" DockPanel.Dock="Top">
+					<!--<Button Content="Hot"/>
+					<Button Content="Popular"/>
+					<Button Content="Random"/>-->
+					<Button Command="{Binding OpenSearchHistoryPanelCommand}" Content="Search History"/>
+				</wpf:SpacingStackPanel>
+
+				<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}" VerticalAlignment="Bottom">
+					<Button Style="{StaticResource ButtonPrimary}" Command="{Binding SubmitCommand}">
+						<bf:HorizontalIconText Glyph="&#xE721;" Text="Search"/>
+					</Button>
+				</wpf:SpacingStackPanel>
+
+			</DockPanel>
+		</Border>
+
+	</Grid>
+
+</UserControl>

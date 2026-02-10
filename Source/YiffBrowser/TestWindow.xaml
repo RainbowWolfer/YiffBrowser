@@ -1,0 +1,41 @@
+﻿<bf:WindowBase
+	x:Class="YiffBrowser.TestWindow"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:bf="YiffBrowser.BaseFramework"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:hc="https://handyorg.github.io/handycontrol"
+	xmlns:local="clr-namespace:YiffBrowser"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:wpf="RW.Common.WPF"
+	Title="TestWindow"
+	Style="{StaticResource WindowBaseStyle}"
+	Width="800"
+	Height="450"
+	mc:Ignorable="d">
+
+	<Grid>
+		<bf:WindowContent>
+			<StackPanel>
+				<bf:SliderEx
+					Style="{StaticResource Slider.Playback}"
+					Height="40"
+					IsMoveToPointEnabled="True"
+					ValueChanged="SliderEx_ValueChanged"/>
+				<ToggleButton
+					Style="{StaticResource ToggleButton.Custom}"
+					Width="30"
+					Height="30"
+					Padding="0"
+					BorderThickness="0"
+					hc:BorderElement.CornerRadius="0"
+					Command="{Binding Player.Commands.ToggleLoopPlayback}"
+					IsChecked="True"
+					ToolTip="Previous Frame">
+					<wpf:FontIcon Text="&#xEF3B;"/>
+				</ToggleButton>
+			</StackPanel>
+		</bf:WindowContent>
+	</Grid>
+
+</bf:WindowBase>

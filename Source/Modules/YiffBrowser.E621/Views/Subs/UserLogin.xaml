@@ -1,0 +1,59 @@
+﻿<UserControl
+	x:Class="YiffBrowser.E621.Views.Subs.UserLogin"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:b="RW.Base.WPF"
+	xmlns:bf="YiffBrowser.BaseFramework"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+	xmlns:local="clr-namespace:YiffBrowser.E621.Views.Subs"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:service="clr-namespace:YiffBrowser.E621.Services"
+	xmlns:wpf="RW.Common.WPF"
+	d:Background="White"
+	d:DataContext="{d:DesignInstance Type=local:UserLoginViewModel}"
+	DataContext="{b:DISource Type=local:UserLoginViewModel}"
+	Width="240"
+	Height="auto"
+	mc:Ignorable="d">
+
+	<Control.Resources>
+
+	</Control.Resources>
+
+	<dxmvvm:Interaction.Behaviors>
+		<b:DispatcherServiceEx/>
+	</dxmvvm:Interaction.Behaviors>
+
+
+	<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel}" Margin="2">
+		<bf:HorizontalIconText Margin="4,2" Glyph="&#xE8D4;" Text="Username"/>
+
+		<TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"/>
+
+		<bf:HorizontalIconText Margin="4,2" Glyph="&#xF439;" Text="API Key"/>
+
+		<TextBox Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}"/>
+
+		<Grid Margin="0,4,0,0">
+
+			<Button
+				Style="{StaticResource ButtonPrimary}"
+				Height="20"
+				Margin="0,4,0,0"
+				Padding="0"
+				HorizontalAlignment="Stretch"
+				Command="{Binding LoginCommand}"
+				Visibility="{Binding UserService.IsUserLoading, Converter={StaticResource Boolean2VisibilityReConverter}}">
+				<TextBlock Text="Login"/>
+			</Button>
+
+			<Border Visibility="{Binding UserService.IsUserLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
+				<ProgressBar Style="{StaticResource ProgressBarBaseStyle}" Height="20" IsIndeterminate="True"/>
+			</Border>
+
+		</Grid>
+
+	</wpf:SpacingStackPanel>
+
+</UserControl>
