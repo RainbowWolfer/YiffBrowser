@@ -1,10 +1,10 @@
-﻿using YiffBrowser.BaseFramework.Enums;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using RW.Common.Data;
 using RW.Common.Helpers;
 using System.Runtime.Serialization;
 using YiffBrowser.E621.Helpers;
 using YiffBrowser.E621.Services;
+using YiffBrowser.E621.Enums;
 
 namespace YiffBrowser.E621.Models.E621;
 
@@ -90,8 +90,8 @@ public class E621Post {
         if (Preview == null || Sample == null || File == null) {
             return true;
         }
-        FileType type = this.GetFileType();
-        if (type is FileType.GIF) {
+        E621FileType type = this.GetFileType();
+        if (type.IsGif()) {
             return Preview.URL.IsBlank() || File.URL.IsBlank();
         } else {
             return Preview.URL.IsBlank() || Sample.URL.IsBlank() || File.URL.IsBlank();

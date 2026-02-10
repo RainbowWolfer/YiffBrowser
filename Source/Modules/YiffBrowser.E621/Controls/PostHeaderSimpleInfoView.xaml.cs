@@ -1,5 +1,4 @@
 ﻿using YiffBrowser.BaseFramework.Converters;
-using YiffBrowser.BaseFramework.Enums;
 using YiffBrowser.BaseFramework.Helpers;
 using RW.Common.Helpers;
 using RW.Common.WPF.Helpers;
@@ -7,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using YiffBrowser.E621.Helpers;
 using YiffBrowser.E621.Models.E621;
+using YiffBrowser.E621.Enums;
 
 namespace YiffBrowser.E621.Controls;
 
@@ -52,13 +52,8 @@ public partial class PostHeaderSimpleInfoView : UserControl {
         if (Post is null) {
 
         } else {
-            FileType type = Post.GetFileType();
-            TypeIcon.Text = type switch {
-                FileType.PNG or FileType.JPG => "\uEB9F",
-                FileType.GIF => "\uF4A9",
-                FileType.WEBM => "\uE714",
-                _ => "\uE9CE",
-            };
+            E621FileType type = Post.GetFileType();
+			TypeIcon.Text = type.GetIconText();
             TypeBorder.ToolTip = $"Type: {type}";
 
             DurationText.Text = TimeDurationConverter.Convert(Post.Duration);

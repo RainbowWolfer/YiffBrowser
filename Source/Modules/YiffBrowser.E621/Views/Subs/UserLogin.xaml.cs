@@ -14,7 +14,7 @@ public partial class UserLogin : UserControl {
 	}
 }
 
-internal class UserLoginViewModel(IAppProfileService appProfileService) : E621ViewModelBase {
+internal class UserLoginViewModel(IE621ProfileService e621ProfileService) : E621ViewModelBase {
 	public string Username {
 		get => GetProperty(() => Username);
 		set {
@@ -39,7 +39,7 @@ internal class UserLoginViewModel(IAppProfileService appProfileService) : E621Vi
 	protected override void OnInitialize() {
 		UserService = E621UserService.GetUserService(ViewParameter.ModuleType);
 
-		(string? username, string? apiKey) = appProfileService.GetUser(ViewParameter.ModuleType);
+		(string? username, string? apiKey) = e621ProfileService.GetUser(ViewParameter.ModuleType);
 
 		Username = username ?? string.Empty;
 		ApiKey = apiKey ?? string.Empty;

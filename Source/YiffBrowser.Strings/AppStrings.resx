@@ -100,4 +100,22 @@
   <data name="OK" xml:space="preserve">
     <value>OK</value>
   </data>
+  <data name="SortBy_Default" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="SortBy_New" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="SortBy_Score" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="SortBy_Favorites" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="SortBy_Rank" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="SortBy_Random" xml:space="preserve">
+    <value></value>
+  </data>
 </root>

@@ -1,11 +1,11 @@
-﻿using YiffBrowser.BaseFramework.Enums;
-using YiffBrowser.BaseFramework.ViewModels;
+﻿using YiffBrowser.BaseFramework.ViewModels;
 using DevExpress.Mvvm;
 using RW.Common.Helpers;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using YiffBrowser.E621.Models.E621;
 using YiffBrowser.E621.Services;
+using YiffBrowser.E621.Enums;
 
 namespace YiffBrowser.E621.ViewModels;
 

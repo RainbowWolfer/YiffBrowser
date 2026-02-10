@@ -8,6 +8,7 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:dd="urn:gong-wpf-dragdrop"
 	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+	xmlns:enums="clr-namespace:YiffBrowser.E621.Enums"
 	xmlns:ex="clr-namespace:YiffBrowser.E621.Extensions"
 	xmlns:hc="https://handyorg.github.io/handycontrol"
 	xmlns:hc_c="clr-namespace:HandyControl.Controls;assembly=HandyControl"
@@ -631,11 +632,11 @@
 						Padding="4"
 						HorizontalContentAlignment="Left"
 						Command="{Binding ShowE621Command}"
-						IsEnabled="{Binding ViewParameter.ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static bf:ModuleType.E621}}">
+						IsEnabled="{Binding ViewParameter.ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static enums:ModuleType.E621}}">
 						<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel3}">
 							<Border Width="32" Height="32" CornerRadius="4">
 								<Border.Background>
-									<ImageBrush ImageSource="{Binding Source={x:Static bf:ModuleType.E621}, Converter={StaticResource ModuleTypeIconConverter}}"/>
+									<ImageBrush ImageSource="{Binding Source={x:Static enums:ModuleType.E621}, Converter={StaticResource ModuleTypeIconConverter}}"/>
 								</Border.Background>
 							</Border>
 							<TextBlock
@@ -653,11 +654,11 @@
 						Padding="4"
 						HorizontalContentAlignment="Left"
 						Command="{Binding ShowE926Command}"
-						IsEnabled="{Binding ViewParameter.ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static bf:ModuleType.E926}}">
+						IsEnabled="{Binding ViewParameter.ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static enums:ModuleType.E926}}">
 						<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel3}">
 							<Border Width="32" Height="32" CornerRadius="4">
 								<Border.Background>
-									<ImageBrush ImageSource="{Binding Source={x:Static bf:ModuleType.E926}, Converter={StaticResource ModuleTypeIconConverter}}"/>
+									<ImageBrush ImageSource="{Binding Source={x:Static enums:ModuleType.E926}, Converter={StaticResource ModuleTypeIconConverter}}"/>
 								</Border.Background>
 							</Border>
 							<TextBlock FontSize="16" FontWeight="Bold" Text="E926"/>
@@ -671,11 +672,11 @@
 						Padding="4"
 						HorizontalContentAlignment="Left"
 						Command="{Binding ShowE6AICommand}"
-						IsEnabled="{Binding ViewParameter.ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static bf:ModuleType.E6AI}}">
+						IsEnabled="{Binding ViewParameter.ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static enums:ModuleType.E6AI}}">
 						<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel3}">
 							<Border Width="32" Height="32" CornerRadius="4">
 								<Border.Background>
-									<ImageBrush ImageSource="{Binding Source={x:Static bf:ModuleType.E6AI}, Converter={StaticResource ModuleTypeIconConverter}}"/>
+									<ImageBrush ImageSource="{Binding Source={x:Static enums:ModuleType.E6AI}, Converter={StaticResource ModuleTypeIconConverter}}"/>
 								</Border.Background>
 							</Border>
 							<TextBlock

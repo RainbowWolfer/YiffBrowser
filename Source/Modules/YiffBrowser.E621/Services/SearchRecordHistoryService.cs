@@ -1,8 +1,8 @@
-﻿using YiffBrowser.BaseFramework.Enums;
-using YiffBrowser.BaseFramework.Services;
+﻿using YiffBrowser.BaseFramework.Services;
 using LiteDB;
 using RW.Base.WPF.DependencyInjections;
 using YiffBrowser.E621.Models.Database;
+using YiffBrowser.E621.Enums;
 
 namespace YiffBrowser.E621.Services;
 

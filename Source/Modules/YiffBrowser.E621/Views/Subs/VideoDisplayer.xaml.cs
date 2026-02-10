@@ -1,5 +1,4 @@
-﻿using YiffBrowser.BaseFramework.Enums;
-using YiffBrowser.BaseFramework.Helpers;
+﻿using YiffBrowser.BaseFramework.Helpers;
 using YiffBrowser.BaseFramework.ViewModels;
 using DevExpress.Mvvm;
 using FlyleafLib;
@@ -16,6 +15,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using YiffBrowser.E621.Helpers;
 using YiffBrowser.E621.Models.E621;
+using YiffBrowser.E621.Enums;
 
 namespace YiffBrowser.E621.Views.Subs;
 
@@ -187,7 +187,7 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
 			return;
 		}
 
-		if (post is null || post.GetFileType() is not FileType.WEBM) {
+		if (post is null || !post.GetFileType().IsVideo()) {
 			return;
 		}
 

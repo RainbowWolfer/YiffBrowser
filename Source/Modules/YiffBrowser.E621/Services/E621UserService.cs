@@ -1,10 +1,10 @@
-﻿using YiffBrowser.BaseFramework.Enums;
-using YiffBrowser.BaseFramework.Services;
+﻿using YiffBrowser.BaseFramework.Services;
 using DevExpress.Mvvm;
 using RW.Base.WPF.Extensions;
 using RW.Common;
 using RW.Common.Helpers;
 using YiffBrowser.E621.Models.E621;
+using YiffBrowser.E621.Enums;
 
 namespace YiffBrowser.E621.Services;
 
@@ -23,7 +23,7 @@ public class E621UserService(ModuleType moduleType) : BindableBase {
 		};
 	}
 
-	private readonly IAppProfileService appProfileService = IoC.GetService<IAppProfileService>();
+	private readonly IE621ProfileService profileService = IoC.GetService<IE621ProfileService>();
 
 	public event TypedEventHandler<E621User?, E621Post?>? LoginChanged;
 
@@ -46,7 +46,7 @@ public class E621UserService(ModuleType moduleType) : BindableBase {
 	}
 
 	public async Task Initialize() {
-		(string? username, string? apiKey) = appProfileService.GetUser(ModuleType);
+		(string? username, string? apiKey) = profileService.GetUser(ModuleType);
 		if (username.IsNotBlank() && apiKey.IsNotBlank()) {
 			await TryLogin(username, apiKey);
 		}
@@ -81,11 +81,11 @@ public class E621UserService(ModuleType moduleType) : BindableBase {
 			return null;
 		} finally {
 			if (userModel.User is null) {
-				appProfileService.SetUser(ModuleType, string.Empty, string.Empty);
+				profileService.SetUser(ModuleType, string.Empty, string.Empty);
 			} else {
-				appProfileService.SetUser(ModuleType, username, apiKey);
+				profileService.SetUser(ModuleType, username, apiKey);
 			}
-			appProfileService.SaveSettings();
+			profileService.SaveSettings();
 			CurrentUser = userModel;
 
 			IsUserLoading = false;
@@ -93,8 +93,8 @@ public class E621UserService(ModuleType moduleType) : BindableBase {
 	}
 
 	public void Logout() {
-		appProfileService.SetUser(ModuleType, string.Empty, string.Empty);
-		appProfileService.SaveSettings();
+		profileService.SetUser(ModuleType, string.Empty, string.Empty);
+		profileService.SaveSettings();
 
 		CurrentUser = default;
 

@@ -1,5 +1,4 @@
-﻿using YiffBrowser.BaseFramework.Enums;
-using YiffBrowser.BaseFramework.ViewModels;
+﻿using YiffBrowser.BaseFramework.ViewModels;
 using RW.Common.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -9,6 +8,7 @@ using System.Windows.Controls;
 using YiffBrowser.E621.Models.E621;
 using YiffBrowser.E621.Services;
 using YiffBrowser.E621.ViewModels;
+using YiffBrowser.E621.Enums;
 
 namespace YiffBrowser.E621.Views;
 

@@ -3,8 +3,8 @@ using RW.Common.Helpers;
 using System.Windows.Media.Imaging;
 using YiffBrowser.BaseFramework;
 using YiffBrowser.BaseFramework.Controls;
-using YiffBrowser.BaseFramework.Enums;
 using YiffBrowser.BaseFramework.Interfaces;
+using YiffBrowser.E621.Enums;
 using YiffBrowser.E621.Parameters;
 using YiffBrowser.Resources.Icons;
 

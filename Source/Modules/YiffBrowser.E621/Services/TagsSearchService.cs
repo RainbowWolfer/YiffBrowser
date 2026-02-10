@@ -1,9 +1,9 @@
-﻿using YiffBrowser.BaseFramework.Helpers;
-using DevExpress.Mvvm;
+﻿using DevExpress.Mvvm;
 using RW.Common.Helpers;
-using RW.Common.WPF.Utilities;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using YiffBrowser.BaseFramework.Helpers;
+using YiffBrowser.E621.Enums;
 using YiffBrowser.E621.Models.E621;
 using YiffBrowser.E621.Views.Subs;
 
@@ -55,6 +55,29 @@ internal class TagsSearchService : BindableBase {
 		set => SetProperty(() => IsLoading, value);
 	}
 
+	public SortBy SortBy {
+		get => GetProperty(() => SortBy);
+		set {
+			SetProperty(() => SortBy, value);
+			ReplaceMeta("order:", value.GetMeta());
+		}
+	}
+
+	public E621FileType? FileType {
+		get => GetProperty(() => FileType);
+		set {
+			SetProperty(() => FileType, value);
+			ReplaceMeta("type:", value.GetMeta());
+		}
+	}
+
+	private bool updatingMeta = false;
+
+	public TagsSearchService() {
+		SortBy = SortBy.Default;
+		FileType = null;
+
+	}
 
 	private void OnSearchTextChanged() {
 		if (InternalChange) {
@@ -284,6 +307,9 @@ internal class TagsSearchService : BindableBase {
 	}
 
 	private void ReplaceMeta(string root, string target) {
+		if (updatingMeta) {
+			return;
+		}
 		InternalChange = true;
 		string? found = FindMeta(root);
 		if (found.IsNotBlank()) {
@@ -298,47 +324,38 @@ internal class TagsSearchService : BindableBase {
 	}
 
 	private void UpdateMetaProperties() {
-		if (CurrentTags == null) {
-			return;
+		updatingMeta = true;
+		try {
+			SortBy = CurrentTags.GetSortBy();
+
+			FileType = CurrentTags.GetFileType();
+
+			//if (CurrentTags.Contains("type:jpg")) {
+			//	TypeDropDownText = "JPG";
+			//} else if (CurrentTags.Contains("type:png")) {
+			//	TypeDropDownText = "PNG";
+			//} else if (CurrentTags.Contains("type:gif")) {
+			//	TypeDropDownText = "GIF";
+			//} else if (CurrentTags.Contains("type:webm")) {
+			//	TypeDropDownText = "WEBM";
+			//} else if (CurrentTags.Contains("type:anim")) {
+			//	TypeDropDownText = "ANIM";
+			//} else {
+			//	TypeDropDownText = "Type";
+			//}
+
+			//if (CurrentTags.Contains("rating:safe")) {
+			//	RatingDropDownText = "Safe";
+			//} else if (CurrentTags.Contains("rating:questionable")) {
+			//	RatingDropDownText = "Questionable";
+			//} else if (CurrentTags.Contains("rating:explicit")) {
+			//	RatingDropDownText = "Explicit";
+			//} else {
+			//	RatingDropDownText = "Rating";
+			//}
+		} finally {
+			updatingMeta = false;
 		}
-		
-		//if (CurrentTags.Contains("order:new")) {
-		//	OrderDropDownText = "New";
-		//} else if (CurrentTags.Contains("order:rank")) {
-		//	OrderDropDownText = "Rank";
-		//} else if (CurrentTags.Contains("order:random")) {
-		//	OrderDropDownText = "Random";
-		//} else if (CurrentTags.Contains("order:favorite")) {
-		//	OrderDropDownText = "Favorite";
-		//} else if (CurrentTags.Contains("order:score")) {
-		//	OrderDropDownText = "Score";
-		//} else {
-		//	OrderDropDownText = "Order";
-		//}
-
-		//if (CurrentTags.Contains("type:jpg")) {
-		//	TypeDropDownText = "JPG";
-		//} else if (CurrentTags.Contains("type:png")) {
-		//	TypeDropDownText = "PNG";
-		//} else if (CurrentTags.Contains("type:gif")) {
-		//	TypeDropDownText = "GIF";
-		//} else if (CurrentTags.Contains("type:webm")) {
-		//	TypeDropDownText = "WEBM";
-		//} else if (CurrentTags.Contains("type:anim")) {
-		//	TypeDropDownText = "ANIM";
-		//} else {
-		//	TypeDropDownText = "Type";
-		//}
-
-		//if (CurrentTags.Contains("rating:safe")) {
-		//	RatingDropDownText = "Safe";
-		//} else if (CurrentTags.Contains("rating:questionable")) {
-		//	RatingDropDownText = "Questionable";
-		//} else if (CurrentTags.Contains("rating:explicit")) {
-		//	RatingDropDownText = "Explicit";
-		//} else {
-		//	RatingDropDownText = "Rating";
-		//}
 	}
 
 }

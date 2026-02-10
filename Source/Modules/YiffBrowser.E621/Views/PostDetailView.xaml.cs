@@ -1,5 +1,4 @@
-﻿using YiffBrowser.BaseFramework.Enums;
-using YiffBrowser.BaseFramework.ViewModels;
+﻿using YiffBrowser.BaseFramework.ViewModels;
 using DevExpress.Mvvm;
 using RW.Base.WPF.ViewModelServices;
 using System.Windows;
@@ -8,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using YiffBrowser.E621.Helpers;
 using YiffBrowser.E621.Models.E621;
+using YiffBrowser.E621.Enums;
 
 namespace YiffBrowser.E621.Views;
 
@@ -37,19 +37,9 @@ internal class PostDetailViewModel() : ViewModelBase {
 		}
 	}
 
-	public FileType FileType => Post?.GetFileType() ?? FileType.Unknown;
+	public E621FileType FileType => Post?.GetFileType() ?? E621FileType.Unknown;
 
-	public PostDisplayType DisplayType {
-		get {
-			return FileType switch {
-				FileType.Unknown => PostDisplayType.Unknown,
-				FileType.ANIM => PostDisplayType.NotSupported,
-				FileType.PNG or FileType.JPG or FileType.GIF => PostDisplayType.Image,
-				FileType.WEBM => PostDisplayType.Video,
-				_ => PostDisplayType.Unknown,
-			};
-		}
-	}
+	public PostDisplayType DisplayType => FileType.GetPostDisplayType();
 
 	public GridDefinitionModel LeftSideGrid { get; } = new(true, 150, new GridLength(220, GridUnitType.Pixel));
 	public GridDefinitionModel RightSideGrid { get; } = new(false, 150, new GridLength(300, GridUnitType.Pixel));

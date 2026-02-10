@@ -1,5 +1,4 @@
 ﻿using YiffBrowser.BaseFramework.Attributes;
-using YiffBrowser.BaseFramework.Enums;
 using YiffBrowser.BaseFramework.ViewModels;
 using DevExpress.Mvvm;
 using HandyControl.Tools.Extension;
@@ -15,6 +14,7 @@ using YiffBrowser.E621.Interfaces;
 using YiffBrowser.E621.Models.Database;
 using YiffBrowser.E621.Services;
 using YiffBrowser.E621.ViewModels;
+using YiffBrowser.E621.Enums;
 
 namespace YiffBrowser.E621.Views.DockPanels;
 

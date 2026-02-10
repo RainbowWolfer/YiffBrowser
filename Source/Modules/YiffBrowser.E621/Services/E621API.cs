@@ -1,5 +1,4 @@
-﻿using YiffBrowser.BaseFramework.Enums;
-using YiffBrowser.BaseFramework.Services;
+﻿using YiffBrowser.BaseFramework.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using RW.Base.WPF.Extensions;
@@ -7,6 +6,7 @@ using RW.Common.Helpers;
 using System.Diagnostics;
 using System.Text;
 using YiffBrowser.E621.Models.E621;
+using YiffBrowser.E621.Enums;
 
 namespace YiffBrowser.E621.Services;
 
@@ -34,7 +34,7 @@ public class E621API(ModuleType moduleType) {
 		};
 	}
 
-	private readonly IAppProfileService appProfileService = IoC.GetService<IAppProfileService>();
+	private readonly IE621ProfileService profileService = IoC.GetService<IE621ProfileService>();
 
 	public ModuleType ModuleType { get; } = moduleType;
 
@@ -51,22 +51,22 @@ public class E621API(ModuleType moduleType) {
 	}
 
 	public async Task<HttpResult<string>> ReadURLAsync(string url, CancellationToken? token = null) {
-		(string? username, string? apiKey) = appProfileService.GetUser(ModuleType);
+		(string? username, string? apiKey) = profileService.GetUser(ModuleType);
 		return await NetCode.ReadURLAsync(url, username, apiKey, token);
 	}
 
 	public async Task<HttpResult<string>> PutRequestAsync(string url, KeyValuePair<string, string> pair, CancellationToken? token = null) {
-		(string? username, string? apiKey) = appProfileService.GetUser(ModuleType);
+		(string? username, string? apiKey) = profileService.GetUser(ModuleType);
 		return await NetCode.PutRequestAsync(url, pair, username, apiKey, token);
 	}
 
 	public async Task<HttpResult<string>> PostRequestAsync(string url, List<KeyValuePair<string, string>> pairs, CancellationToken? token = null) {
-		(string? username, string? apiKey) = appProfileService.GetUser(ModuleType);
+		(string? username, string? apiKey) = profileService.GetUser(ModuleType);
 		return await NetCode.PostRequestAsync(url, pairs, username, apiKey, token);
 	}
 
 	public async Task<HttpResult<string>> DeleteRequestAsync(string url, CancellationToken? token = null) {
-		(string? username, string? apiKey) = appProfileService.GetUser(ModuleType);
+		(string? username, string? apiKey) = profileService.GetUser(ModuleType);
 		return await NetCode.DeleteRequestAsync(url, username, apiKey, token);
 	}
 

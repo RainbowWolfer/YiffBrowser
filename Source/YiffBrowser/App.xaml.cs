@@ -5,6 +5,7 @@ using RW.Base.WPF.Extensions;
 using RW.Base.WPF.Interfaces;
 using RW.Base.WPF.ViewModels;
 using RW.Common.WPF;
+using RW.Common.WPF.MarkupExtensions;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -13,11 +14,11 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using YiffBrowser.BaseFramework;
-using YiffBrowser.BaseFramework.Enums;
 using YiffBrowser.BaseFramework.Helpers;
 using YiffBrowser.BaseFramework.Interfaces;
 using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.BaseFramework.ViewModelServices;
+using YiffBrowser.E621.Enums;
 using YiffBrowser.E621.Parameters;
 using YiffBrowser.E621.Views;
 using YiffBrowser.Services;
@@ -60,9 +61,6 @@ public partial class App : ApplicationBase {
 
 		ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
-		//Resources
-
-
 		AppFolderConfig folderConfig = (AppFolderConfig)FolderConfig;
 
 		AppSettingsService = new AppSettingsService(folderConfig);
@@ -73,9 +71,7 @@ public partial class App : ApplicationBase {
 
 		SystemTrayIconService = new SystemTrayIconService();
 
-		FocusDebugLoop();
-
-		//MessageBox.Show("!");
+		//FocusDebugLoop();
 	}
 
 	private void FocusDebugLoop() {

@@ -8,6 +8,7 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:dd="urn:gong-wpf-dragdrop"
 	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+	xmlns:enums="clr-namespace:YiffBrowser.E621.Enums"
 	xmlns:hc="https://handyorg.github.io/handycontrol"
 	xmlns:local="clr-namespace:YiffBrowser.E621.Views.DockPanels"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -40,14 +41,7 @@
 				<hc:ScrollViewer>
 					<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}">
 
-						<hc:ComboBox>
-							<ComboBoxItem Content="Sort by: Default"/>
-							<ComboBoxItem Content="Sort by: New"/>
-							<ComboBoxItem Content="Sort by: Score"/>
-							<ComboBoxItem Content="Sort by: Favorites"/>
-							<ComboBoxItem Content="Sort by: Rank"/>
-							<ComboBoxItem Content="Sort by: Random"/>
-						</hc:ComboBox>
+						<hc:ComboBox wpf:EnumBindingExtension.SelectedEnum="{Binding TagsSearchService.SortBy}" ItemsSource="{wpf:EnumBindingMarkup EnumType=enums:SortBy, Converter={StaticResource EnumDisplayConverter}}"/>
 
 						<hc:ComboBox>
 							<ComboBoxItem Content="Rating: All"/>
@@ -56,14 +50,7 @@
 							<ComboBoxItem Content="Rating: Explicit"/>
 						</hc:ComboBox>
 
-						<hc:ComboBox>
-							<ComboBoxItem Content="Type: ALL"/>
-							<ComboBoxItem Content="Type: PNG"/>
-							<ComboBoxItem Content="Type: JPG"/>
-							<ComboBoxItem Content="Type: GIF"/>
-							<ComboBoxItem Content="Type: WEBM"/>
-							<ComboBoxItem Content="Type: ANIM"/>
-						</hc:ComboBox>
+						<hc:ComboBox wpf:EnumBindingExtension.SelectedEnum="{Binding TagsSearchService.FileType}" ItemsSource="{wpf:EnumBindingMarkup EnumType=enums:E621FileType, Converter={StaticResource EnumDisplayConverter}, AllowNull=True, NullDisplay='dwqqwdqwd'}"/>
 
 						<Button Name="ButtonScore" Content="Score"/>
 						<Button Name="ButtonFavoriteCount" Content="Favorite Count"/>

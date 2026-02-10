@@ -1,14 +1,13 @@
-﻿using YiffBrowser.BaseFramework.Enums;
-using YiffBrowser.BaseFramework.Models;
-using YiffBrowser.BaseFramework.Services;
-using YiffBrowser.BaseFramework.ViewModels;
-using DevExpress.Mvvm;
+﻿using DevExpress.Mvvm;
 using RW.Common.Helpers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
-using YiffBrowser.E621.Helpers;
+using YiffBrowser.BaseFramework.Models;
+using YiffBrowser.BaseFramework.Services;
+using YiffBrowser.BaseFramework.ViewModels;
+using YiffBrowser.E621.Enums;
 using YiffBrowser.E621.Models.E621;
 
 namespace YiffBrowser.E621.Views.Subs;
@@ -84,9 +83,7 @@ public partial class ImageDisplayer : UserControl {
 	private BitmapCacheItem? file;
 
 	public void Update(E621Post? post) {
-		if (post is null ||
-			(post.GetFileType() is not FileType.PNG and not FileType.JPG and not FileType.GIF)
-		) {
+		if (post is null || !post.GetFileType().IsImage()) {
 			Dispatcher.Invoke(ImageViewer.Clear, DispatcherPriority.Loaded);
 			return;
 		}

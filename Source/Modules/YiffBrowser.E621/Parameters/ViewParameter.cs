@@ -1,6 +1,6 @@
-﻿using YiffBrowser.BaseFramework.Enums;
-using System.Windows;
+﻿using System.Windows;
 using YiffBrowser.E621.Views;
+using YiffBrowser.E621.Enums;
 
 namespace YiffBrowser.E621.Parameters;
 

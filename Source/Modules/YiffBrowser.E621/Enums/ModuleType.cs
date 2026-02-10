@@ -1,4 +1,4 @@
-﻿namespace YiffBrowser.BaseFramework.Enums;
+﻿namespace YiffBrowser.E621.Enums;
 
 public enum ModuleType {
     E621 = 0,

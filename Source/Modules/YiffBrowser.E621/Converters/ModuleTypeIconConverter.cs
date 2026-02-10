@@ -1,7 +1,7 @@
-﻿using YiffBrowser.BaseFramework.Enums;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows.Data;
 using YiffBrowser.Resources.Icons;
+using YiffBrowser.E621.Enums;
 
 namespace YiffBrowser.E621.Converters;
 

@@ -165,10 +165,10 @@ internal class E621MainViewModel(
 		DispatcherService.Dispatcher.BeginInvoke(async () => {
 			Initialize();
 
-			for (int i = 0; i < 20; i++) {
-				Tabs.Add(CreateTabItem(["ssssssss"]));
-				//await Task.Delay(10);
-			}
+			//for (int i = 0; i < 20; i++) {
+			//	Tabs.Add(CreateTabItem(["ssssssss"]));
+			//	//await Task.Delay(10);
+			//}
 
 			//Tabs.Add(CreateTabItem(["type:gif", "order:filesize"]));
 			//Tabs.Add(CreateTabItem(["type:gif", "order:filesize"]));
