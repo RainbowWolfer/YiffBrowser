@@ -173,7 +173,7 @@ internal class E621MainViewModel(
 			//Tabs.Add(CreateTabItem(["type:gif", "order:filesize"]));
 			//Tabs.Add(CreateTabItem(["type:gif", "order:filesize"]));
 			//Tabs.Add(CreateTabItem(["type:gif"]));
-			//Tabs.Add(CreateTabItem(["feet"]));
+			Tabs.Add(CreateTabItem(["feet"]));
 			//Tabs.Add(CreateTabItem(["type:gif"]));
 			//Tabs.Add(CreateTabItem(["type:webm"]));
 			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));

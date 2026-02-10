@@ -1,17 +1,20 @@
 ﻿using DevExpress.Mvvm;
+using DevExpress.Mvvm.Native;
 using RW.Base.WPF.Extensions;
+using RW.Base.WPF.ViewModelServices;
 using RW.Common;
 using RW.Common.Helpers;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using YiffBrowser.E621.Controls;
+using YiffBrowser.E621.Enums;
 using YiffBrowser.E621.Models.E621;
 using YiffBrowser.E621.Services;
 using YiffBrowser.E621.ViewModels;
-using YiffBrowser.E621.Enums;
 
 namespace YiffBrowser.E621.Views;
 
@@ -34,6 +37,8 @@ internal partial class PostsView : UserControl {
 }
 
 internal class PostsViewModel() : ViewModelBase {
+	public IUIObjectService<PostCardListBox> PostsListBoxService => GetService<ITypedUIObjectService>(nameof(PostsListBoxService)).As<PostCardListBox>();
+
 	public const double ItemWidth = 396;
 	public const double ItemHeight = 50;
 
@@ -41,6 +46,8 @@ internal class PostsViewModel() : ViewModelBase {
 
 	public ObservableCollection<PostCardControl> Items { get; } = [];
 	public ObservableCollection<PostCardControl> SelectedItems { get; } = [];
+
+	public ObservableCollection<E621Post> Posts { get; } = [];
 
 	public PostTabItem TabItem {
 		get => GetProperty(() => TabItem);
@@ -144,7 +151,6 @@ internal class PostsViewModel() : ViewModelBase {
 	}
 
 	public ICommand DownloadCommand => new DelegateCommand(Download);
-
 	private void Download() {
 
 	}
@@ -160,16 +166,19 @@ internal class PostsViewModel() : ViewModelBase {
 		IsMultiSelecting = false;
 
 		Items.Clear();
+		Posts.Clear();
+
 		E621Post[] posts = await TabItem.Api.GetPostsByTagsAsync(new E621PostParameters() {
 			Tags = TabItem.Tags,
 			Page = CurrentPage,
 		});
 
-		foreach (E621Post item in posts) {
-			if (item.HasNoValidURLs()) {
+		foreach (E621Post post in posts) {
+			if (post.HasNoValidURLs()) {
 				continue;
 			}
-			Items.Add(new PostCardControl(item));
+			Items.Add(new PostCardControl(post));
+			Posts.Add(post);
 		}
 
 		IsLoading = false;
@@ -191,7 +200,57 @@ internal class PostsViewModel() : ViewModelBase {
 
 	public ICommand QuitPostDetailViewCommand => new DelegateCommand(QuitPostDetailView);
 	public void QuitPostDetailView() {
+		if (CurrentPost != null) {
+			int index = Posts.IndexOf(x => x.ID == CurrentPost.ID);
+			PostCardControl? item = Items.ElementAtOrDefault(index);
+			if (item != null) {
+				PostsListBoxService.Object.ScrollIntoView(item);
+			}
+		}
 		CurrentPost = null;
 	}
+
+
+	private DelegateCommand? nextPostCommand;
+	public IDelegateCommand NextPostCommand => nextPostCommand ??= new(NextPost, CanNextPost);
+	public void NextPost() {
+		if (CanNextPost()) {
+			int index = Posts.IndexOf(x => x.ID == CurrentPost.ID);
+			int targetIndex = index + 1;
+
+			if (targetIndex >= Posts.Count) {
+				targetIndex = 0;
+			}
+
+			E621Post post = Posts[targetIndex];
+			ViewPostDetailDirect(post);
+		}
+	}
+	[MemberNotNullWhen(true, nameof(CurrentPost))]
+	private bool CanNextPost() {
+		return CurrentPost != null;
+	}
+
+
+	private DelegateCommand? previousPostCommand;
+	public IDelegateCommand PreviousPostCommand => previousPostCommand ??= new(PreviousPost, CanPreviousPost);
+	public void PreviousPost() {
+		if (CanPreviousPost()) {
+			int index = Posts.IndexOf(x => x.ID == CurrentPost.ID);
+			int targetIndex = index - 1;
+
+			if (targetIndex < 0) {
+				targetIndex = Posts.Count - 1;
+			}
+
+			E621Post post = Posts[targetIndex];
+			ViewPostDetailDirect(post);
+		}
+	}
+	[MemberNotNullWhen(true, nameof(CurrentPost))]
+	private bool CanPreviousPost() {
+		return CurrentPost != null;
+	}
+
 
 }

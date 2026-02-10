@@ -135,6 +135,10 @@
 								ItemsSource="{Binding Items}"
 								d:ItemsSource="{d:SampleData ItemCount=15}">
 
+								<dxmvvm:Interaction.Behaviors>
+									<b:TypedUIObjectService Name="PostsListBoxService"/>
+								</dxmvvm:Interaction.Behaviors>
+
 								<ItemsControl.Style>
 									<Style TargetType="{x:Type bf:VariableSizedWrapGridView}">
 										<Setter Property="Template">

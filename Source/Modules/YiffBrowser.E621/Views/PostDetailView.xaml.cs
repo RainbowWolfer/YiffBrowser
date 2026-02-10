@@ -1,13 +1,12 @@
-﻿using YiffBrowser.BaseFramework.ViewModels;
-using DevExpress.Mvvm;
+﻿using DevExpress.Mvvm;
 using RW.Base.WPF.ViewModelServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
-using YiffBrowser.E621.Helpers;
-using YiffBrowser.E621.Models.E621;
+using YiffBrowser.BaseFramework.ViewModels;
 using YiffBrowser.E621.Enums;
+using YiffBrowser.E621.Models.E621;
 
 namespace YiffBrowser.E621.Views;
 
@@ -44,7 +43,12 @@ internal class PostDetailViewModel() : ViewModelBase {
 	public GridDefinitionModel LeftSideGrid { get; } = new(true, 150, new GridLength(220, GridUnitType.Pixel));
 	public GridDefinitionModel RightSideGrid { get; } = new(false, 150, new GridLength(300, GridUnitType.Pixel));
 
-	public PostsViewModel ParentViewModel {
+	public bool ShowSlidePanel {
+		get => GetProperty(() => ShowSlidePanel);
+		set => SetProperty(() => ShowSlidePanel, value);
+	}
+
+	public PostsViewModel? ParentViewModel {
 		get => GetProperty(() => ParentViewModel);
 		private set => SetProperty(() => ParentViewModel, value);
 	}
@@ -74,26 +78,23 @@ internal class PostDetailViewModel() : ViewModelBase {
 	private DelegateCommand<KeyEventArgs>? keyDownCommand;
 	public IDelegateCommand KeyDownCommand => keyDownCommand ??= new(KeyDown);
 	private void KeyDown(KeyEventArgs args) {
-		if (args.Key == Key.Escape) {
-			Back();
-			args.Handled = true;
+		switch (args.Key) {
+			case Key.Escape: {
+				ParentViewModel?.QuitPostDetailView();
+				args.Handled = true;
+				break;
+			}
+			case Key.Left or Key.A: {
+				ParentViewModel?.PreviousPost();
+				args.Handled = true;
+				break;
+			}
+			case Key.Right or Key.D: {
+				ParentViewModel?.NextPost();
+				args.Handled = true;
+				break;
+			}
 		}
-	}
-
-	public ICommand BackCommand => new DelegateCommand(Back);
-	public void Back() {
-		ParentViewModel.QuitPostDetailView();
-	}
-
-	public ICommand NextCommand => new DelegateCommand(Next);
-	public ICommand PreviousCommand => new DelegateCommand(Previous);
-
-	private void Next() {
-		//ParentViewModel
-	}
-
-	private void Previous() {
-
 	}
 
 }

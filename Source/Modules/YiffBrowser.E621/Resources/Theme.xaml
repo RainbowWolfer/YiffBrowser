@@ -1266,4 +1266,259 @@
 
 	<Style TargetType="c:CommentControl" BasedOn="{StaticResource CommentControl}"/>
 
+
+	<Style x:Key="ListBoxItem.SlidePanel" TargetType="{x:Type ListBoxItem}">
+		<Setter Property="SnapsToDevicePixels" Value="True"/>
+		<Setter Property="Padding" Value="0"/>
+		<Setter Property="Margin" Value="2"/>
+		<Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+		<Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+		<Setter Property="Background" Value="Transparent"/>
+		<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+		<Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type ListBoxItem}">
+					<wpf:ClippingBorder Background="Transparent" CornerRadius="6">
+						<Grid Margin="{TemplateBinding Padding}">
+							<Border x:Name="Bd"
+								BorderBrush="Transparent"
+								Background="{TemplateBinding Background}"
+								ClipToBounds="False"
+								CornerRadius="6"
+								SnapsToDevicePixels="True">
+								<ContentPresenter x:Name="content"
+									HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+									VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+									ClipToBounds="False"
+									SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
+									<ContentPresenter.RenderTransformOrigin>
+										<Point X="0.5" Y="0.5"/>
+									</ContentPresenter.RenderTransformOrigin>
+									<ContentPresenter.RenderTransform>
+										<ScaleTransform x:Name="ContentScale" ScaleX="1" ScaleY="1"/>
+									</ContentPresenter.RenderTransform>
+								</ContentPresenter>
+							</Border>
+
+							<Border x:Name="Bd2"
+								BorderThickness="3"
+								CornerRadius="4"
+								SnapsToDevicePixels="True"/>
+						</Grid>
+					</wpf:ClippingBorder>
+
+					<ControlTemplate.Triggers>
+						<Trigger Property="IsMouseOver" Value="True">
+							<Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
+
+							<Trigger.EnterActions>
+								<BeginStoryboard>
+									<Storyboard>
+										<DoubleAnimation
+											Storyboard.TargetName="ContentScale"
+											Storyboard.TargetProperty="ScaleX"
+											To="1.1"
+											EasingFunction="{StaticResource DefaultEasingFunction}"
+											Duration="0:0:0.2"/>
+										<DoubleAnimation
+											Storyboard.TargetName="ContentScale"
+											Storyboard.TargetProperty="ScaleY"
+											To="1.1"
+											EasingFunction="{StaticResource DefaultEasingFunction}"
+											Duration="0:0:0.2"/>
+									</Storyboard>
+								</BeginStoryboard>
+							</Trigger.EnterActions>
+
+							<Trigger.ExitActions>
+								<BeginStoryboard>
+									<Storyboard>
+										<DoubleAnimation
+											Storyboard.TargetName="ContentScale"
+											Storyboard.TargetProperty="ScaleX"
+											To="1"
+											EasingFunction="{StaticResource DefaultEasingFunction}"
+											Duration="0:0:0.2"/>
+										<DoubleAnimation
+											Storyboard.TargetName="ContentScale"
+											Storyboard.TargetProperty="ScaleY"
+											To="1"
+											EasingFunction="{StaticResource DefaultEasingFunction}"
+											Duration="0:0:0.2"/>
+									</Storyboard>
+								</BeginStoryboard>
+							</Trigger.ExitActions>
+						</Trigger>
+
+						<Trigger Property="IsSelected" Value="False">
+							<Setter TargetName="Bd2" Property="BorderBrush" Value="Transparent"/>
+							<Setter TargetName="Bd" Property="Opacity" Value="0.6"/>
+						</Trigger>
+
+						<Trigger Property="IsSelected" Value="True">
+							<Setter TargetName="Bd2" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+							<Setter TargetName="Bd" Property="Opacity" Value="1"/>
+						</Trigger>
+
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style x:Key="ListBox.SlidePanel" TargetType="ListBox">
+		<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
+		<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+		<Setter Property="BorderThickness" Value="1"/>
+		<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+		<Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+		<Setter Property="VerticalContentAlignment" Value="Center"/>
+		<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+		<Setter Property="ItemContainerStyle" Value="{StaticResource ListBoxItem.SlidePanel}"/>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type ListBox}">
+					<Border x:Name="Bd"
+						Padding="0"
+						BorderThickness="{TemplateBinding BorderThickness}"
+						BorderBrush="{TemplateBinding BorderBrush}"
+						Background="{TemplateBinding Background}"
+						CornerRadius="0"
+						SnapsToDevicePixels="True">
+						<hc:ScrollViewer
+							Padding="{TemplateBinding Padding}"
+							hc:ScrollViewer.IsInertiaEnabled="True"
+							hc:ScrollViewerAttach.AutoHide="True"
+							hc:ScrollViewerAttach.Orientation="Horizontal"
+							CanContentScroll="False"
+							Focusable="False"
+							HorizontalScrollBarVisibility="Auto"
+							PanningMode="HorizontalOnly"
+							VerticalScrollBarVisibility="Disabled">
+							<ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+						</hc:ScrollViewer>
+					</Border>
+					<ControlTemplate.Triggers>
+						<Trigger Property="IsEnabled" Value="False">
+							<Setter Property="Opacity" Value="0.6"/>
+						</Trigger>
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+
+	<Style x:Key="SlidePanelImageControl" TargetType="c:SlidePanelImageControl">
+		<Setter Property="Focusable" Value="False"/>
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="c:SlidePanelImageControl">
+					<Grid x:Name="root" Background="Transparent">
+						<Border x:Name="background" Background="{DynamicResource ThirdlyRegionBrush}"/>
+
+						<Image x:Name="image"
+							d:Source="{x:Null}"
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center"
+							Stretch="UniformToFill"
+							Visibility="Visible">
+							<Image.Source>
+								<BitmapImage UriSource="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Url}"/>
+							</Image.Source>
+						</Image>
+
+						<hc:CircleProgressBar x:Name="loading"
+							Width="30"
+							Height="30"
+							IsIndeterminate="True"
+							Visibility="{Binding Source={x:Reference image}, Path=Source.IsDownloading, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+
+						<Border x:Name="FailedIcon"
+							Width="30"
+							Height="30"
+							Visibility="Collapsed">
+							<wpf:FontIcon FontSize="24" Foreground="{DynamicResource DangerBrush}" Text="&#xE7BA;"/>
+						</Border>
+
+						<Grid.Triggers>
+							<!-- 加载失败 -->
+							<EventTrigger RoutedEvent="Image.ImageFailed" SourceName="image">
+								<BeginStoryboard>
+									<Storyboard>
+										<!-- 显示失败图标 -->
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="FailedIcon" Storyboard.TargetProperty="Visibility">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}"/>
+										</ObjectAnimationUsingKeyFrames>
+										<!-- 隐藏原图 -->
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="image" Storyboard.TargetProperty="Visibility">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Collapsed}"/>
+										</ObjectAnimationUsingKeyFrames>
+										<!-- 隐藏加载圈 -->
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="loading" Storyboard.TargetProperty="Visibility">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Collapsed}"/>
+										</ObjectAnimationUsingKeyFrames>
+										<!-- 设置 Tooltip -->
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="image" Storyboard.TargetProperty="ToolTip">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="Loading Error"/>
+										</ObjectAnimationUsingKeyFrames>
+									</Storyboard>
+								</BeginStoryboard>
+							</EventTrigger>
+
+							<!-- 加载成功 -->
+							<EventTrigger RoutedEvent="Image.Loaded" SourceName="image">
+								<BeginStoryboard>
+									<Storyboard>
+										<!-- 隐藏失败图标 -->
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="FailedIcon" Storyboard.TargetProperty="Visibility">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Collapsed}"/>
+										</ObjectAnimationUsingKeyFrames>
+										<!-- 显示原图 -->
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="image" Storyboard.TargetProperty="Visibility">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}"/>
+										</ObjectAnimationUsingKeyFrames>
+										<!-- 清空 Tooltip -->
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="root" Storyboard.TargetProperty="ToolTip">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="{x:Null}"/>
+										</ObjectAnimationUsingKeyFrames>
+									</Storyboard>
+								</BeginStoryboard>
+							</EventTrigger>
+
+						</Grid.Triggers>
+
+					</Grid>
+				</ControlTemplate>
+				<!--<ControlTemplate TargetType="c:SlidePanelImageControl">
+					<Grid Background="Transparent">
+						<Border Background="{DynamicResource ThirdlyRegionBrush}"/>
+
+						<Image x:Name="PART_Image" Stretch="UniformToFill" Visibility="Collapsed"/>
+
+						<hc:CircleProgressBar x:Name="PART_Progress"
+							Width="30"
+							Height="30"
+							Minimum="0"
+							Maximum="100"
+							IsIndeterminate="False"
+							ShowText="False"
+							Visibility="Collapsed"/>
+
+						<Border x:Name="PART_Failed"
+							Width="30"
+							Height="30"
+							Visibility="Collapsed">
+							<wpf:FontIcon FontSize="24" Foreground="{DynamicResource DangerBrush}" Text="&#xE7BA;"/>
+						</Border>
+
+					</Grid>
+				</ControlTemplate>-->
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style TargetType="c:SlidePanelImageControl" BasedOn="{StaticResource SlidePanelImageControl}"/>
+
 </ResourceDictionary>

@@ -8,6 +8,7 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
 	xmlns:ex="clr-namespace:YiffBrowser.E621.Extensions"
+	xmlns:hc="https://handyorg.github.io/handycontrol"
 	xmlns:local="clr-namespace:YiffBrowser.E621.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:subs="clr-namespace:YiffBrowser.E621.Views.Subs"
@@ -26,7 +27,9 @@
 	<dxmvvm:Interaction.Behaviors>
 		<b:DispatcherServiceEx/>
 		<b:TypedUIObjectService Name="UserControlService"/>
+
 		<dxmvvm:EventToCommand Command="{Binding KeyDownCommand}" EventName="KeyDown" PassEventArgsToCommand="True"/>
+
 	</dxmvvm:Interaction.Behaviors>
 
 	<Grid>
@@ -37,14 +40,28 @@
 					<Border DockPanel.Dock="Right">
 						<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}">
 
+							<ToggleButton x:Name="SlidePanelToggleButton"
+								Width="30"
+								Height="30"
+								Padding="0"
+								IsChecked="{Binding ShowSlidePanel}"
+								ToolTip="Toggle Slide Panel">
+								<bf:BoolContent Bool="{Binding ElementName=SlidePanelToggleButton, Path=IsChecked}">
+									<bf:BoolContent.TrueContent>
+										<wpf:FontIcon Text="&#xF58C;"/>
+									</bf:BoolContent.TrueContent>
+									<bf:BoolContent.FalseContent>
+										<wpf:FontIcon Text="&#xF58A;"/>
+									</bf:BoolContent.FalseContent>
+								</bf:BoolContent>
+							</ToggleButton>
+
 							<ToggleButton
 								Width="30"
 								Height="30"
 								Padding="0"
-								IsChecked="{Binding RightSideGrid.IsExpanded, Mode=TwoWay}">
-								<ToggleButton.ToolTip>
-									<TextBlock Foreground="Black" Text="Toggle tags side panel"/>
-								</ToggleButton.ToolTip>
+								IsChecked="{Binding RightSideGrid.IsExpanded, Mode=TwoWay}"
+								ToolTip="Toggle tags side panel">
 								<bf:BoolContent Bool="{Binding RightSideGrid.IsExpanded}">
 									<bf:BoolContent.TrueContent>
 										<wpf:FontIcon Text="&#xE89F;"/>
@@ -64,10 +81,8 @@
 							Width="30"
 							Height="30"
 							Padding="0"
-							IsChecked="{Binding LeftSideGrid.IsExpanded, Mode=TwoWay}">
-							<ToggleButton.ToolTip>
-								<TextBlock Foreground="Black" Text="Toggle tags side panel"/>
-							</ToggleButton.ToolTip>
+							IsChecked="{Binding LeftSideGrid.IsExpanded, Mode=TwoWay}"
+							ToolTip="Toggle tags side panel">
 							<bf:BoolContent Bool="{Binding LeftSideGrid.IsExpanded}">
 								<bf:BoolContent.TrueContent>
 									<wpf:FontIcon Text="&#xE8A0;"/>
@@ -80,7 +95,7 @@
 
 						<Border Style="{StaticResource HorizontalSeparator}"/>
 
-						<Button Width="70" Height="30" Command="{Binding BackCommand}">
+						<Button Width="70" Height="30" Command="{Binding ParentViewModel.QuitPostDetailViewCommand}">
 							<bf:HorizontalIconText Glyph="&#xE76B;" Text="Back"/>
 						</Button>
 
@@ -88,18 +103,20 @@
 							Style="{StaticResource Button.Custom.Icon}"
 							Width="30"
 							Height="30"
-							Command="{Binding PreviousCommand}"
-							ToolTip="Previous">
-							<bf:HorizontalIconText Glyph="&#xE72B;"/>
+							Command="{Binding ParentViewModel.PreviousPostCommand}"
+							ToolTip="Previous Post">
+							<!--<bf:HorizontalIconText Glyph="&#xE72B;"/>-->
+							<wpf:FontIcon Text="&#xE72B;"/>
 						</Button>
 
 						<Button
 							Style="{StaticResource Button.Custom.Icon}"
 							Width="30"
 							Height="30"
-							Command="{Binding NextCommand}"
-							ToolTip="Next">
-							<bf:HorizontalIconText Glyph="&#xE72A;"/>
+							Command="{Binding ParentViewModel.NextPostCommand}"
+							ToolTip="Next Post">
+							<!--<bf:HorizontalIconText Glyph="&#xE72A;"/>-->
+							<wpf:FontIcon Text="&#xE72A;"/>
 						</Button>
 
 						<Border Style="{StaticResource HorizontalSeparator}"/>
@@ -111,6 +128,52 @@
 					</wpf:SpacingStackPanel>
 
 				</DockPanel>
+			</Border>
+
+			<Border
+				d:Visibility="Visible"
+				BorderThickness="0,1,0,0"
+				BorderBrush="{DynamicResource BorderBrush}"
+				DockPanel.Dock="Top"
+				Visibility="{Binding ElementName=SlidePanelToggleButton, Path=IsChecked, Converter={StaticResource Boolean2VisibilityConverter}}">
+
+				<ListBox
+					d:SelectedIndex="0"
+					Style="{DynamicResource ListBox.SlidePanel}"
+					Padding="2"
+					VerticalContentAlignment="Center"
+					bf:ListBoxExtension.AutoScrollToSelected="True"
+					bf:ListBoxExtension.SelectOnMouseUp="True"
+					SelectedItem="{Binding ParentViewModel.CurrentPost}"
+					VirtualizingStackPanel.IsVirtualizing="False"
+					VirtualizingStackPanel.VirtualizationMode="Standard"
+					ItemsSource="{Binding ParentViewModel.Posts}"
+					d:ItemsSource="{d:SampleData ItemCount=15}">
+
+					<ListBox.ItemsPanel>
+						<ItemsPanelTemplate>
+							<StackPanel Orientation="Horizontal"/>
+						</ItemsPanelTemplate>
+					</ListBox.ItemsPanel>
+
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<c:SlidePanelImageControl Width="80" Height="80" Url="{Binding Preview.URL}"/>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+
+				</ListBox>
+
+				<!--<hc:ScrollViewer
+					Padding="2"
+					hc:ScrollViewer.IsInertiaEnabled="True"
+					hc:ScrollViewerAttach.AutoHide="True"
+					wpf:ScrollViewerExtension.DefaultWheelScrollHorizontally="True"
+					HorizontalScrollBarVisibility="Auto"
+					VerticalScrollBarVisibility="Disabled">
+
+				</hc:ScrollViewer>-->
+
 			</Border>
 
 			<Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource BorderBrush}">

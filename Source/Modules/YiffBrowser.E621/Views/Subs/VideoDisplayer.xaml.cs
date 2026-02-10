@@ -1,6 +1,4 @@
-﻿using YiffBrowser.BaseFramework.Helpers;
-using YiffBrowser.BaseFramework.ViewModels;
-using DevExpress.Mvvm;
+﻿using DevExpress.Mvvm;
 using FlyleafLib;
 using FlyleafLib.MediaPlayer;
 using RW.Common.Helpers;
@@ -13,9 +11,10 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
-using YiffBrowser.E621.Helpers;
-using YiffBrowser.E621.Models.E621;
+using YiffBrowser.BaseFramework.Helpers;
+using YiffBrowser.BaseFramework.ViewModels;
 using YiffBrowser.E621.Enums;
+using YiffBrowser.E621.Models.E621;
 
 namespace YiffBrowser.E621.Views.Subs;
 
@@ -100,10 +99,19 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
 		Loaded += VideoDisplayer_Loaded;
 		Unloaded += VideoDisplayer_Unloaded;
 
+		Loaded += VideoDisplayer_LoadedOnce;
 	}
 
 	private void VideoDisplayer_Loaded(object sender, RoutedEventArgs e) {
 		dispatcherTimer.Start();
+	}
+
+	private void VideoDisplayer_Unloaded(object sender, RoutedEventArgs e) {
+		dispatcherTimer.Stop();
+	}
+
+	private void VideoDisplayer_LoadedOnce(object sender, RoutedEventArgs e) {
+		Loaded -= VideoDisplayer_LoadedOnce;
 
 		//if (ViewHelper.IsInDesignerMode) {
 		//	return;
@@ -146,10 +154,10 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
 
 		Raise(nameof(Config));
 		Raise(nameof(Player));
-	}
 
-	private void VideoDisplayer_Unloaded(object sender, RoutedEventArgs e) {
-		dispatcherTimer.Stop();
+		if (!LoadingStatus.ShowLoading) {
+			Update(Post);
+		}
 	}
 
 	private void Surface_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
