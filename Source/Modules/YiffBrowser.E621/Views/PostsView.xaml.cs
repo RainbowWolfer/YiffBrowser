@@ -99,6 +99,11 @@ internal class PostsViewModel() : ViewModelBase {
 		}
 	}
 
+	public E621Post? LastViewedPost {
+		get => GetProperty(() => LastViewedPost);
+		set => SetProperty(() => LastViewedPost, value);
+	}
+
 	public bool CurrentHasPost => CurrentPost != null;
 
 	protected override void OnInitializeInRuntime() {
@@ -195,6 +200,7 @@ internal class PostsViewModel() : ViewModelBase {
 	}
 
 	private void ViewPostDetailDirect(E621Post? post) {
+		LastViewedPost = post;
 		CurrentPost = post;
 	}
 
@@ -252,5 +258,31 @@ internal class PostsViewModel() : ViewModelBase {
 		return CurrentPost != null;
 	}
 
+
+
+
+	private DelegateCommand? locateLastViewedCommand;
+	public IDelegateCommand LocateLastViewedCommand => locateLastViewedCommand ??= new(LocateLastViewed, CanLocateLastViewed);
+	private void LocateLastViewed() {
+		if (CanLocateLastViewed()) {
+			if (Items.FirstOrDefault(x => x.Post.ID == LastViewedPost.ID) is { } found) {
+				PostsListBoxService.Object.ScrollIntoView(found);
+			}
+		}
+	}
+	[MemberNotNullWhen(true, nameof(LastViewedPost))]
+	private bool CanLocateLastViewed() => LastViewedPost != null;
+
+
+
+	private DelegateCommand? openLastViewedPostCommand;
+	public IDelegateCommand OpenLastViewedPostCommand => openLastViewedPostCommand ??= new(OpenLastViewedPost, CanOpenLastViewedPost);
+	private void OpenLastViewedPost() {
+		if (CanOpenLastViewedPost()) {
+			ViewPostDetailDirect(LastViewedPost);
+		}
+	}
+	[MemberNotNullWhen(true, nameof(LastViewedPost))]
+	private bool CanOpenLastViewedPost() => LastViewedPost != null;
 
 }

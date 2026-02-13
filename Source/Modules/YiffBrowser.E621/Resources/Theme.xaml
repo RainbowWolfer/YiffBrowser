@@ -30,6 +30,171 @@
 
 	<bf:SubStringConverter x:Key="RatingHeaderConverter" Length="1" StartIndex="0"/>
 
+
+	<Style TargetType="c:TypeHintControl" BasedOn="{StaticResource BaseStyle}">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="c:TypeHintControl">
+					<Border>
+						<Grid DataContext="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}}">
+
+							<wpf:SpacingStackPanel Style="{DynamicResource CustomVerticalPanel2}" ItemHorizontalAlignment="Right">
+
+								<Border x:Name="TypeHintPanel"
+									Padding="6,2"
+									HorizontalAlignment="Right"
+									CornerRadius="4"
+									Visibility="Collapsed">
+									<Border.Background>
+										<SolidColorBrush Opacity="0.8" Color="{DynamicResource RegionColor}"/>
+									</Border.Background>
+									<Border.Effect>
+										<DropShadowEffect
+											BlurRadius="6"
+											Opacity="0.7"
+											ShadowDepth="4"
+											Color="Black"/>
+									</Border.Effect>
+
+									<DockPanel>
+										<wpf:FontIcon Name="VideoIcon"
+											Margin="0,0,4,0"
+											VerticalAlignment="Center"
+											FontSize="14"
+											Foreground="{DynamicResource PrimaryBrush}"
+											Text="&#xE768;"
+											Visibility="Collapsed"/>
+										<TextBlock
+											VerticalAlignment="Center"
+											FontSize="16"
+											Foreground="{DynamicResource PrimaryBrush}"
+											Text="{Binding FileTypeHint}"/>
+									</DockPanel>
+
+								</Border>
+
+								<Border x:Name="Panel_NoSound"
+									Padding="6,2"
+									HorizontalAlignment="Right"
+									CornerRadius="4"
+									Visibility="Visible">
+									<Border.Background>
+										<SolidColorBrush Opacity="0.8" Color="{DynamicResource ThirdlyRegionColor}"/>
+									</Border.Background>
+									<Border.Effect>
+										<DropShadowEffect
+											BlurRadius="6"
+											Opacity="0.7"
+											ShadowDepth="4"
+											Color="Black"/>
+									</Border.Effect>
+
+									<DockPanel Height="26">
+										<wpf:FontIcon Margin="0,0,4,0" VerticalAlignment="Center" Text="&#xEA85;"/>
+										<!--<TextBlock VerticalAlignment="Center" FontSize="16" Text="Sound"/>-->
+									</DockPanel>
+
+								</Border>
+
+								<Border x:Name="Panel_Sound"
+									Padding="6,2"
+									HorizontalAlignment="Right"
+									CornerRadius="4"
+									Visibility="Visible">
+									<Border.Background>
+										<SolidColorBrush Opacity="0.8" Color="{DynamicResource WarningColor}"/>
+									</Border.Background>
+									<Border.Effect>
+										<DropShadowEffect
+											BlurRadius="6"
+											Opacity="0.7"
+											ShadowDepth="4"
+											Color="{DynamicResource WarningColor}"/>
+									</Border.Effect>
+
+									<DockPanel Height="26">
+										<wpf:FontIcon Margin="0,0,4,0" VerticalAlignment="Center" Text="&#xE993;"/>
+										<TextBlock VerticalAlignment="Center" FontSize="16" Text="Sound"/>
+									</DockPanel>
+
+								</Border>
+
+								<Border x:Name="Panel_SoundWarning"
+									Padding="6,2"
+									HorizontalAlignment="Right"
+									CornerRadius="4"
+									Visibility="Visible">
+									<Border.Background>
+										<SolidColorBrush Opacity="0.8" Color="{DynamicResource WarningColor}"/>
+									</Border.Background>
+									<Border.Effect>
+										<DropShadowEffect
+											BlurRadius="6"
+											Opacity="0.7"
+											ShadowDepth="4"
+											Color="{DynamicResource WarningColor}"/>
+									</Border.Effect>
+
+									<DockPanel Height="26">
+										<wpf:FontIcon Margin="0,0,4,0" VerticalAlignment="Center" Text="&#xE995;"/>
+										<TextBlock VerticalAlignment="Center" FontSize="16" Text="Sound Warning"/>
+									</DockPanel>
+
+								</Border>
+
+
+
+							</wpf:SpacingStackPanel>
+
+						</Grid>
+					</Border>
+
+					<ControlTemplate.Triggers>
+
+						<Trigger Property="FileType" Value="WEBM">
+							<Setter TargetName="VideoIcon" Property="Visibility" Value="Visible"/>
+							<Setter TargetName="TypeHintPanel" Property="Visibility" Value="Visible"/>
+						</Trigger>
+
+						<Trigger Property="FileType" Value="GIF">
+							<Setter TargetName="TypeHintPanel" Property="Visibility" Value="Visible"/>
+						</Trigger>
+
+						<Trigger Property="FileType" Value="ANIM">
+							<Setter TargetName="TypeHintPanel" Property="Visibility" Value="Visible"/>
+						</Trigger>
+
+						<Trigger Property="SoundWarningType" Value="None">
+							<Setter TargetName="Panel_NoSound" Property="Visibility" Value="Collapsed"/>
+							<Setter TargetName="Panel_Sound" Property="Visibility" Value="Collapsed"/>
+							<Setter TargetName="Panel_SoundWarning" Property="Visibility" Value="Collapsed"/>
+						</Trigger>
+
+						<Trigger Property="SoundWarningType" Value="NoSound">
+							<Setter TargetName="Panel_NoSound" Property="Visibility" Value="Visible"/>
+							<Setter TargetName="Panel_Sound" Property="Visibility" Value="Collapsed"/>
+							<Setter TargetName="Panel_SoundWarning" Property="Visibility" Value="Collapsed"/>
+						</Trigger>
+
+						<Trigger Property="SoundWarningType" Value="Sound">
+							<Setter TargetName="Panel_NoSound" Property="Visibility" Value="Collapsed"/>
+							<Setter TargetName="Panel_Sound" Property="Visibility" Value="Visible"/>
+							<Setter TargetName="Panel_SoundWarning" Property="Visibility" Value="Collapsed"/>
+						</Trigger>
+
+						<Trigger Property="SoundWarningType" Value="SoundWarning">
+							<Setter TargetName="Panel_NoSound" Property="Visibility" Value="Collapsed"/>
+							<Setter TargetName="Panel_Sound" Property="Visibility" Value="Collapsed"/>
+							<Setter TargetName="Panel_SoundWarning" Property="Visibility" Value="Visible"/>
+						</Trigger>
+
+					</ControlTemplate.Triggers>
+
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
 	<Style TargetType="c:PostCardControl" BasedOn="{StaticResource BaseStyle}">
 		<Setter Property="Template">
 			<Setter.Value>
@@ -144,7 +309,9 @@
 										IsIndeterminate="True"
 										Value="{TemplateBinding LoadingProgress}"/>
 
-									<Grid DataContext="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Post, Converter={StaticResource E621TypeHintConverter}, ConverterParameter=1}" Margin="4" Visibility="{Binding Converter={StaticResource String2VisibilityConverter}}">
+									<c:TypeHintControl Margin="4" Post="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Post}"/>
+
+									<!--<Grid DataContext="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Post, Converter={StaticResource E621TypeHintConverter}, ConverterParameter=1}" Margin="4" Visibility="{Binding Converter={StaticResource String2VisibilityConverter}}">
 										<Border Padding="6,2" HorizontalAlignment="Right" CornerRadius="4">
 											<Border.Background>
 												<SolidColorBrush Opacity="0.7" Color="Gray"/>
@@ -160,7 +327,7 @@
 											<TextBlock FontSize="16" Foreground="{DynamicResource PrimaryBrush}" Text="{Binding}"/>
 
 										</Border>
-									</Grid>
+									</Grid>-->
 
 
 								</StackPanel>

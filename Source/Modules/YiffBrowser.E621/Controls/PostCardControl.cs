@@ -34,7 +34,7 @@ public class PostCardControl : ContentControl, IVariableSizedGridItem
 	public E621Post Post
 	{
 		get => (E621Post)GetValue(PostProperty.DependencyProperty);
-		init => SetValue(PostProperty, value);
+		set => SetValue(PostProperty, value);
 	}
 
 	public static readonly DependencyPropertyKey PostProperty = DependencyProperty.RegisterReadOnly(

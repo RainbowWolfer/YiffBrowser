@@ -25,9 +25,9 @@ internal class E621TypeHintConverter : IValueConverter {
 						string r = post.File.Ext.ToUpper();
 						if (ext is "webm" && NumberHelper.ConvertDouble(post.Duration, out double duration)) {
 							// duration is in seconds
-							return $"{r} ({Math.Round(duration)}s)";
+							return $"{Math.Round(duration)}s";
 						} else {
-							return r;
+							return string.Empty;
 						}
 					}
 					break;

@@ -27,6 +27,8 @@
 
 		<wpf:CommandProxy x:Key="ViewPostDetailCommand" Command="{Binding ViewPostDetailCommand}"/>
 
+		<wpf:CommandProxy x:Key="LocateLastViewedCommand" Command="{Binding LocateLastViewedCommand}"/>
+
 	</Control.Resources>
 
 	<dxmvvm:Interaction.Behaviors>
@@ -45,10 +47,20 @@
 
 								<Grid>
 									<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Left">
-										<Button Width="100">
+										<Button
+											Width="100"
+											Command="{Binding OpenLastViewedPostCommand}"
+											ToolTip="Last Viewed Post"
+											Visibility="{Binding LastViewedPost, Converter={StaticResource Object2VisibilityConverter}}">
 											<Button.Background>
-												<ImageBrush ImageSource="https://static1.e6ai.net/data/4e/41/4e410c6dd24c6470cd932326a821a0c9.png" Stretch="UniformToFill"/>
+												<ImageBrush ImageSource="{Binding LastViewedPost.Preview.URL}" Stretch="UniformToFill"/>
 											</Button.Background>
+
+											<Button.ContextMenu>
+												<ContextMenu>
+													<MenuItem Command="{StaticResource LocateLastViewedCommand}" Header="Locate"/>
+												</ContextMenu>
+											</Button.ContextMenu>
 										</Button>
 									</wpf:SpacingStackPanel>
 
@@ -232,7 +244,7 @@
 
 		<wpf:ButtonPopup SourceButton="{Binding ElementName=CurrentPageButton}">
 			<Border Style="{StaticResource ButtonPopupBorder}">
-
+				<hc:Pagination IsJumpEnabled="True" MaxPageCount="10"/>
 			</Border>
 		</wpf:ButtonPopup>
 

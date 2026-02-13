@@ -43,7 +43,7 @@
 				CornerRadius="4">
 				<StackPanel Orientation="Horizontal">
 					<Border x:Name="TypeBorder" Padding="2,0">
-						<wpf:FontIcon x:Name="TypeIcon" FontSize="24" Text="&#xF4A9;"/>
+						<wpf:FontIcon x:Name="TypeIcon" FontSize="20" Text="&#xF4A9;"/>
 					</Border>
 					<TextBlock x:Name="DurationText"
 						d:Visibility="Visible"
@@ -67,7 +67,19 @@
 					Text="123456 (S)"/>
 			</Button>
 
-			<Border x:Name="SoundBorder"
+			<Border x:Name="Icon_NoSound"
+				Height="30"
+				Margin="6,0,0,0"
+				Padding="4,2"
+				BorderThickness="1"
+				BorderBrush="{DynamicResource BorderBrush}"
+				Background="{DynamicResource SecondaryRegionBrush}"
+				CornerRadius="4"
+				ToolTip="This post has 'no_sound' tag">
+				<wpf:FontIcon VerticalAlignment="Center" FontSize="20" Text="&#xEA85;"/>
+			</Border>
+
+			<Border x:Name="Icon_Sound"
 				Height="30"
 				Margin="6,0,0,0"
 				Padding="4,2"
@@ -80,10 +92,10 @@
 					VerticalAlignment="Center"
 					FontSize="20"
 					Foreground="Orange"
-					Text="&#xE7BA;"/>
+					Text="&#xE993;"/>
 			</Border>
 
-			<Border x:Name="SoundWarningBorder"
+			<Border x:Name="Icon_SoundWarning"
 				Height="30"
 				Margin="6,0,0,0"
 				Padding="4,2"
@@ -96,7 +108,7 @@
 					VerticalAlignment="Center"
 					FontSize="20"
 					Foreground="Red"
-					Text="&#xE7BA;"/>
+					Text="&#xE995;"/>
 			</Border>
 
 		</StackPanel>
