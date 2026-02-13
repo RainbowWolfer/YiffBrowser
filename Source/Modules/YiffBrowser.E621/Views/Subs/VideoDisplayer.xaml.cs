@@ -5,13 +5,14 @@ using RW.Common.Helpers;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 using YiffBrowser.BaseFramework.Helpers;
+using YiffBrowser.BaseFramework.Models;
+using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.BaseFramework.ViewModels;
 using YiffBrowser.E621.Enums;
 using YiffBrowser.E621.Models.E621;
@@ -85,6 +86,8 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
 	private readonly DispatcherTimer dispatcherTimer;
 
 	private long fileSize = 0;
+
+	private VideoCacheItem? videoCacheItem;
 
 	public Player? Player { get; private set; }
 	public Config? Config { get; private set; }
@@ -195,6 +198,12 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
 			return;
 		}
 
+		if (videoCacheItem != null) {
+			videoCacheItem.Updated -= Item_Updated;
+		}
+
+		ClearVideo();
+
 		if (post is null || !post.GetFileType().IsVideo()) {
 			return;
 		}
@@ -203,51 +212,58 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
 		fileSize = post.File?.Size ?? 0;
 
 		string? url = post.File?.URL;
-		if (url != null) {
+		if (url != null && post.File != null) {
 			LoadingStatus.InitialLoading();
 
-			MemoryStream memoryStream = new();
-			await Download(url, memoryStream);
+			videoCacheItem = VideoCacheService.Get(url, post.File.Size);
+			videoCacheItem.Initialize();
 
-			Player.Open(memoryStream);
-			Player.Play();
+			if (videoCacheItem.HasCompleted) {
+				SetVideo(videoCacheItem.MemoryStream);
+				LoadingStatus.DoneLoading();
+				IsFileReady = true;
+			} else {
+				videoCacheItem.Updated += Item_Updated;
+			}
+
 		}
 
 	}
 
-	private async Task Download(string url, MemoryStream memoryStream) {
-		try {
-			using HttpClient client = new();
-			using HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
-			response.EnsureSuccessStatusCode();
-
-			long totalBytes = response.Content.Headers.ContentLength ?? -1L;
-			bool canReportProgress = totalBytes != -1;
-
-			using Stream contentStream = await response.Content.ReadAsStreamAsync();
-
-			byte[] buffer = new byte[8192];
-			long totalRead = 0;
-			int read;
-
-			while ((read = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0) {
-				await memoryStream.WriteAsync(buffer, 0, read);
-				totalRead += read;
-				if (canReportProgress) {
-					double progress = (double)totalRead / totalBytes;
-					long downloaded = (long)(fileSize * progress);
-					string downloadInfo = $"{downloaded.FileSizeToKB()} / {fileSize.FileSizeToKB()}";
-
-					LoadingStatus.SetProgress(progress, downloadInfo);
-				}
-			}
-
-			LoadingStatus.DoneLoading();
-			IsFileReady = true;
-		} catch (Exception ex) {
-			LoadingStatus.LoadingError($"Loading Error : {ex.Message}");
+	private void Item_Updated(VideoCacheItem sender, CacheLoadingModel args) {
+		if (!CheckAccess()) {
+			Dispatcher.Invoke(Item_Updated, DispatcherPriority.Loaded, sender, args);
 			return;
 		}
+
+		if (args.HasCompleted) {
+			LoadingStatus.DoneLoading();
+			if (sender.MemoryStream != null) {
+				SetVideo(sender.MemoryStream);
+				IsFileReady = true;
+			}
+		} else if (args.HasError) {
+			LoadingStatus.LoadingError($"Loading Error : {args.Exception?.Message}");
+		} else {
+			double progress = args.Progress / 100d;
+			long downloaded = (long)(fileSize * (args.Progress / 100d));
+			string downloadInfo = $"{downloaded.FileSizeToKB()} / {fileSize.FileSizeToKB()}";
+
+			LoadingStatus.SetProgress(progress, downloadInfo);
+		}
+	}
+
+	private void SetVideo(MemoryStream? memoryStream) {
+		if (memoryStream is null) {
+			return;
+		}
+		_ = Player?.Open(memoryStream);
+		Player?.Play();
+	}
+
+	private void ClearVideo() {
+		Player?.Stop();
+		//Player?.Open(null);
 	}
 
 

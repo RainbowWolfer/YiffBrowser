@@ -44,24 +44,6 @@ public class PostCardControl : ContentControl, IVariableSizedGridItem
 		new PropertyMetadata(null)
 	);
 
-
-	public string TypeHint
-	{
-		get => (string)GetValue(TypeHintProperty);
-		private set => SetValue(TypeHintPropertyKey, value);
-	}
-
-	public static readonly DependencyPropertyKey TypeHintPropertyKey = DependencyProperty.RegisterReadOnly(
-		nameof(TypeHint),
-		typeof(string),
-		typeof(PostCardControl),
-		new PropertyMetadata(string.Empty)
-	);
-
-	public static readonly DependencyProperty TypeHintProperty = TypeHintPropertyKey.DependencyProperty;
-
-
-
 	public LoadingStatus LoadingStatus
 	{
 		get => (LoadingStatus)GetValue(LoadingStatusProperty);
@@ -142,19 +124,9 @@ public class PostCardControl : ContentControl, IVariableSizedGridItem
 
 	public PostImageLoader ImageLoader { get; }
 
-	private static readonly string[] sourceArray = ["gif", "webm", "swf"];
-
 	public PostCardControl(E621Post post)
 	{
 		Post = post;
-
-		if (post.File != null && post.File.Ext != null)
-		{
-			if (sourceArray.Contains(post.File.Ext.ToLower()))
-			{
-				TypeHint = post.File.Ext.ToUpper();
-			}
-		}
 
 		ImageLoader = new PostImageLoader(post);
 		ImageLoader.Progress += ImageLoader_Progress;
@@ -186,7 +158,7 @@ public class PostCardControl : ContentControl, IVariableSizedGridItem
 
 	}
 
-	private void ImageLoader_Progress(BitmapCacheItem sender, BitmapLoadingModel args)
+	private void ImageLoader_Progress(BitmapCacheItem sender, CacheLoadingModel args)
 	{
 		if (!CheckAccess())
 		{

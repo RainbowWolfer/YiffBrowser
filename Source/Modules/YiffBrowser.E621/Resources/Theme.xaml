@@ -26,6 +26,7 @@
 	<con:E621RatingToIconConverter x:Key="E621RatingToIconConverter"/>
 	<con:UrlIconConverter x:Key="UrlIconConverter"/>
 	<con:ModuleTypeIconConverter x:Key="ModuleTypeIconConverter"/>
+	<con:E621TypeHintConverter x:Key="E621TypeHintConverter"/>
 
 	<bf:SubStringConverter x:Key="RatingHeaderConverter" Length="1" StartIndex="0"/>
 
@@ -138,16 +139,15 @@
 
 								<StackPanel>
 									<ProgressBar Name="LoadingProgressBar"
-										Height="6"
 										BorderThickness="0"
 										bf:BorderExtension.CornerRadius="4,4,0,0"
 										IsIndeterminate="True"
 										Value="{TemplateBinding LoadingProgress}"/>
 
-									<Grid DataContext="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=TypeHint}" Margin="4" Visibility="{Binding Converter={StaticResource String2VisibilityConverter}}">
-										<Border Padding="4,2" HorizontalAlignment="Right" CornerRadius="4">
+									<Grid DataContext="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Post, Converter={StaticResource E621TypeHintConverter}, ConverterParameter=1}" Margin="4" Visibility="{Binding Converter={StaticResource String2VisibilityConverter}}">
+										<Border Padding="6,2" HorizontalAlignment="Right" CornerRadius="4">
 											<Border.Background>
-												<SolidColorBrush Opacity="0.5" Color="Gray"/>
+												<SolidColorBrush Opacity="0.7" Color="Gray"/>
 											</Border.Background>
 											<Border.Effect>
 												<DropShadowEffect

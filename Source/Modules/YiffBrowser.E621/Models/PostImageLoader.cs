@@ -11,7 +11,7 @@ public class PostImageLoader {
     public event TypedEventHandler<PostImageLoader, BitmapImage?>? ImageChanged;
     public event TypedEventHandler<PostImageLoader, GifImage?>? ImageGifChanged;
 
-    public event TypedEventHandler<BitmapCacheItem, BitmapLoadingModel>? Progress;
+    public event TypedEventHandler<BitmapCacheItem, CacheLoadingModel>? Progress;
 
     public BitmapCacheItem Preview { get; }
     public BitmapCacheItem Sample { get; }
@@ -32,7 +32,7 @@ public class PostImageLoader {
         Sample.Updated -= Sample_Updated;
     }
 
-    private void Preview_Updated(BitmapCacheItem sender, BitmapLoadingModel args) {
+    private void Preview_Updated(BitmapCacheItem sender, CacheLoadingModel args) {
         Progress?.Invoke(sender, args);
         if (args.HasCompleted) {
             RaiseImageChanged(sender);
@@ -40,7 +40,7 @@ public class PostImageLoader {
         }
     }
 
-    private void Sample_Updated(BitmapCacheItem sender, BitmapLoadingModel args) {
+    private void Sample_Updated(BitmapCacheItem sender, CacheLoadingModel args) {
         Progress?.Invoke(sender, args);
         if (args.HasCompleted) {
             RaiseImageChanged(sender);
@@ -50,10 +50,10 @@ public class PostImageLoader {
     public void Initialize() {
         Preview.Initialize();
         if (Sample.HasCompleted) {
-            Progress?.Invoke(Sample, new BitmapLoadingModel(true, false, true, 100));
+            Progress?.Invoke(Sample, new CacheLoadingModel(true, false, true, 100));
             RaiseImageChanged(Sample);
         } else if (Preview.HasCompleted) {
-            Progress?.Invoke(Preview, new BitmapLoadingModel(true, false, true, 100));
+            Progress?.Invoke(Preview, new CacheLoadingModel(true, false, true, 100));
             RaiseImageChanged(Preview);
         }
     }

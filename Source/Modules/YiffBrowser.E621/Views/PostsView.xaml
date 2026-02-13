@@ -149,11 +149,11 @@
 														BorderBrush="{TemplateBinding BorderBrush}"
 														Background="{TemplateBinding Background}"
 														SnapsToDevicePixels="True">
-														<hc:ScrollViewer
+														<hc:ScrollViewer Name="PART_ScrollViewer"
 															Padding="{TemplateBinding Padding}"
 															hc:ScrollViewerAttach.AutoHide="False"
 															hc:ScrollViewerAttach.Orientation="Vertical"
-															CanContentScroll="True"
+															CanContentScroll="False"
 															HorizontalScrollBarVisibility="Disabled"
 															IsInertiaEnabled="True"
 															VerticalScrollBarVisibility="Auto">

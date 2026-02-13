@@ -1,113 +1,114 @@
-﻿using YiffBrowser.BaseFramework.Models;
-using RW.Common;
+﻿using RW.Common;
 using RW.Common.Helpers;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using YiffBrowser.BaseFramework.Models;
 
 namespace YiffBrowser.BaseFramework.Services;
 
 public static class BitmapCacheService {
-    private static ConcurrentDictionary<string, BitmapCacheItem> Pool { get; } = [];
+	private static ConcurrentDictionary<string, BitmapCacheItem> Pool { get; } = [];
 
-    public static BitmapCacheItem Get(string? url) {
-        if (url.IsBlank()) {
-            return BitmapCacheItem.Null;
-        }
+	public static BitmapCacheItem Get(string? url) {
+		if (url.IsBlank()) {
+			return BitmapCacheItem.Null;
+		}
 		Debug.WriteLine(url);
-        if (Pool.TryGetValue(url, out BitmapCacheItem? found)) {
-            return found;
-        } else {
-            BitmapCacheItem item = new(url);
-            return Pool[url] = item;
-        }
-    }
+		if (Pool.TryGetValue(url, out BitmapCacheItem? found)) {
+			return found;
+		} else {
+			BitmapCacheItem item = new(url);
+			return Pool[url] = item;
+		}
+	}
 
 }
 
 public class BitmapCacheItem(string? url) {
-    public event TypedEventHandler<BitmapCacheItem, BitmapLoadingModel>? Updated;
+	public event TypedEventHandler<BitmapCacheItem, CacheLoadingModel>? Updated;
 
 	public bool IsNull => UrlString is null;
-    public string? UrlString { get; } = url;
-    public Guid ID { get; } = Guid.NewGuid();
-    public Uri? Uri { get; } = url.IsBlank() ? null : new Uri(url);
+	public string? UrlString { get; } = url;
+	public Guid ID { get; } = Guid.NewGuid();
+	public Uri? Uri { get; } = url.IsBlank() ? null : new Uri(url);
 
-    public bool IsGif { get; } = url != null && url.EndsWith(".gif");
+	public bool IsGif { get; } = url != null && url.EndsWith(".gif");
 
-    public BitmapImage? Image { get; private set; }
-    public GifImage? GifImage { get; private set; }
+	public BitmapImage? Image { get; private set; }
+	public GifImage? GifImage { get; private set; }
 
-    public bool HasError { get; private set; } = false;
-    public bool HasCompleted { get; private set; } = false;
+	public bool HasError { get; private set; } = false;
+	public bool HasCompleted { get; private set; } = false;
 
-    public void Initialize() {
-        if (Image != null || GifImage != null) {
-            return;
-        }
+	public void Initialize() {
+		if (Image != null || GifImage != null) {
+			return;
+		}
 
-        if (Uri is null) {
-            return;
-        }
+		if (Uri is null) {
+			return;
+		}
 
-        Updated?.Invoke(this, new BitmapLoadingModel(false, false, false, 0));
+		Updated?.Invoke(this, new CacheLoadingModel(false, false, false, 0));
 
-        if (!IsGif) {
-            Image = new BitmapImage(Uri);
-            Image.DownloadCompleted += DownloadCompleted;
-            Image.DownloadFailed += DownloadFailed;
-            Image.DownloadProgress += DownloadProgress;
+		if (!IsGif) {
+			Image = new BitmapImage(Uri);
+			Image.DownloadCompleted += DownloadCompleted;
+			Image.DownloadFailed += DownloadFailed;
+			Image.DownloadProgress += DownloadProgress;
 		} else {
-            GifImage = new GifImage(Uri);
-            GifImage.Initialize();
-            GifImage.DownloadCompleted += DownloadCompleted;
-            GifImage.DownloadFailed += GifImage_DownloadFailed;
-            GifImage.DownloadProgress += GifImage_DownloadProgress;
-            //Updated?.Invoke(this, new BitmapLoadingModel(true, false, true, 100));
-        }
-    }
+			GifImage = new GifImage(Uri);
+			GifImage.Initialize();
+			GifImage.DownloadCompleted += DownloadCompleted;
+			GifImage.DownloadFailed += GifImage_DownloadFailed;
+			GifImage.DownloadProgress += GifImage_DownloadProgress;
+			//Updated?.Invoke(this, new BitmapLoadingModel(true, false, true, 100));
+		}
+	}
 
-    private void DownloadProgress(object? sender, DownloadProgressEventArgs e) {
-        Updated?.Invoke(this, new BitmapLoadingModel(true, false, false, e.Progress));
-    }
+	private void DownloadProgress(object? sender, DownloadProgressEventArgs e) {
+		Updated?.Invoke(this, new CacheLoadingModel(true, false, false, e.Progress));
+	}
 
-    private void GifImage_DownloadProgress(GifImage sender, int args) {
-        Updated?.Invoke(this, new BitmapLoadingModel(true, false, false, args));
-    }
+	private void GifImage_DownloadProgress(GifImage sender, int args) {
+		Updated?.Invoke(this, new CacheLoadingModel(true, false, false, args));
+	}
 
-    private void DownloadFailed(object? sender, ExceptionEventArgs e) {
-        HasError = true;
-        Updated?.Invoke(this, new BitmapLoadingModel(true, true, false, 0, e.ErrorException));
-    }
+	private void DownloadFailed(object? sender, ExceptionEventArgs e) {
+		HasError = true;
+		Updated?.Invoke(this, new CacheLoadingModel(true, true, false, 0, e.ErrorException));
+	}
 
-    private void GifImage_DownloadFailed(GifImage sender, Exception args) {
-        HasError = true;
-        Updated?.Invoke(this, new BitmapLoadingModel(true, true, false, 0, args));
-    }
+	private void GifImage_DownloadFailed(GifImage sender, Exception args) {
+		HasError = true;
+		Updated?.Invoke(this, new CacheLoadingModel(true, true, false, 0, args));
+	}
 
-    private void DownloadCompleted(object? sender, EventArgs e) {
-        HasCompleted = true;
-        Updated?.Invoke(this, new BitmapLoadingModel(true, false, true, 100));
+	private void DownloadCompleted(object? sender, EventArgs e) {
+		HasCompleted = true;
+		Updated?.Invoke(this, new CacheLoadingModel(true, false, true, 100));
 
-        Image?.Freeze();
-    }
+		Image?.Freeze();
+	}
 
-    public void Clear() {
-        if (Image != null) {
-            Image.DownloadCompleted -= DownloadCompleted;
-            Image.DownloadFailed -= DownloadFailed;
-            Image.DownloadProgress -= DownloadProgress;
-        }
-        if (GifImage != null) {
-            GifImage.DownloadCompleted -= DownloadCompleted;
-            GifImage.DownloadFailed -= GifImage_DownloadFailed;
-            GifImage.DownloadProgress -= GifImage_DownloadProgress;
-        }
-        Image = null;
-        GifImage = null;
-        //Updated?.Invoke(this, new BitmapLoadingModel(false, false, false, 0));
-    }
+	// Clear 可能会有很多的问题，二次载入相关的问题。
+	public void Clear() {
+		if (Image != null) {
+			Image.DownloadCompleted -= DownloadCompleted;
+			Image.DownloadFailed -= DownloadFailed;
+			Image.DownloadProgress -= DownloadProgress;
+		}
+		if (GifImage != null) {
+			GifImage.DownloadCompleted -= DownloadCompleted;
+			GifImage.DownloadFailed -= GifImage_DownloadFailed;
+			GifImage.DownloadProgress -= GifImage_DownloadProgress;
+		}
+		Image = null;
+		GifImage = null;
+		//Updated?.Invoke(this, new CacheLoadingModel(false, false, false, 0));
+	}
 
-    public static BitmapCacheItem Null => new(null);
+	public static BitmapCacheItem Null => new(null);
 }

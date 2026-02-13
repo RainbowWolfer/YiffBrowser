@@ -1,6 +1,6 @@
 ﻿namespace YiffBrowser.BaseFramework.Models;
 
-public readonly record struct BitmapLoadingModel(
+public readonly record struct CacheLoadingModel(
     bool HasStarted,
     bool HasError,
     bool HasCompleted,

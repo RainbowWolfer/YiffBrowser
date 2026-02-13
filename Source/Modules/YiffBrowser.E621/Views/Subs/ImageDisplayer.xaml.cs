@@ -141,7 +141,7 @@ public partial class ImageDisplayer : UserControl {
 
 	}
 
-	private void Sample_Updated(BitmapCacheItem sender, BitmapLoadingModel args) {
+	private void Sample_Updated(BitmapCacheItem sender, CacheLoadingModel args) {
 		if (!CheckAccess()) {
 			Dispatcher.Invoke(Sample_Updated, DispatcherPriority.Loaded, sender, args);
 			return;
@@ -158,7 +158,7 @@ public partial class ImageDisplayer : UserControl {
 		}
 	}
 
-	private void File_Updated(BitmapCacheItem sender, BitmapLoadingModel args) {
+	private void File_Updated(BitmapCacheItem sender, CacheLoadingModel args) {
 		if (!CheckAccess()) {
 			Dispatcher.Invoke(File_Updated, DispatcherPriority.Loaded, sender, args);
 			return;

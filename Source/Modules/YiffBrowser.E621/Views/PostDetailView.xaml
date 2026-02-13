@@ -161,7 +161,19 @@
 
 					<bf:ListBoxEx.ItemTemplate>
 						<DataTemplate>
-							<c:SlidePanelImageControl Width="80" Height="80" Url="{Binding Preview.URL}"/>
+							<c:SlidePanelImageControl
+								Width="80"
+								Height="80"
+								wpf:ToolTipExtension.FastToolTip="True"
+								wpf:ToolTipExtension.FastToolTipDelay="500"
+								Url="{Binding Preview.URL}">
+								<c:SlidePanelImageControl.ToolTip>
+									<StackPanel>
+										<TextBlock Text="{Binding ID, StringFormat='{}#{0}'}"/>
+										<TextBlock Text="{Binding Converter={StaticResource E621TypeHintConverter}, ConverterParameter=2}"/>
+									</StackPanel>
+								</c:SlidePanelImageControl.ToolTip>
+							</c:SlidePanelImageControl>
 						</DataTemplate>
 					</bf:ListBoxEx.ItemTemplate>
 
