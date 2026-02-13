@@ -137,32 +137,35 @@
 				DockPanel.Dock="Top"
 				Visibility="{Binding ElementName=SlidePanelToggleButton, Path=IsChecked, Converter={StaticResource Boolean2VisibilityConverter}}">
 
-				<ListBox
+				<bf:ListBoxEx
 					d:SelectedIndex="0"
 					Style="{DynamicResource ListBox.SlidePanel}"
 					Padding="2"
 					VerticalContentAlignment="Center"
 					bf:ListBoxExtension.AutoScrollToSelected="True"
-					bf:ListBoxExtension.SelectOnMouseUp="True"
+					EnableKeyDown="False"
+					MouseUpSelect="True"
+					RightButtonScroll="True"
+					RightButtonSelect="False"
 					SelectedItem="{Binding ParentViewModel.CurrentPost}"
 					VirtualizingStackPanel.IsVirtualizing="False"
 					VirtualizingStackPanel.VirtualizationMode="Standard"
 					ItemsSource="{Binding ParentViewModel.Posts}"
 					d:ItemsSource="{d:SampleData ItemCount=15}">
 
-					<ListBox.ItemsPanel>
+					<bf:ListBoxEx.ItemsPanel>
 						<ItemsPanelTemplate>
 							<StackPanel Orientation="Horizontal"/>
 						</ItemsPanelTemplate>
-					</ListBox.ItemsPanel>
+					</bf:ListBoxEx.ItemsPanel>
 
-					<ListBox.ItemTemplate>
+					<bf:ListBoxEx.ItemTemplate>
 						<DataTemplate>
 							<c:SlidePanelImageControl Width="80" Height="80" Url="{Binding Preview.URL}"/>
 						</DataTemplate>
-					</ListBox.ItemTemplate>
+					</bf:ListBoxEx.ItemTemplate>
 
-				</ListBox>
+				</bf:ListBoxEx>
 
 				<!--<hc:ScrollViewer
 					Padding="2"

@@ -356,7 +356,7 @@
 						Background="{TemplateBinding Background}"
 						CornerRadius="0"
 						SnapsToDevicePixels="True">
-						<ScrollViewer Padding="{TemplateBinding Padding}" Focusable="False">
+						<ScrollViewer Name="PART_ScrollViewer" Padding="{TemplateBinding Padding}" Focusable="False">
 							<ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
 						</ScrollViewer>
 					</Border>
@@ -1386,7 +1386,7 @@
 						Background="{TemplateBinding Background}"
 						CornerRadius="0"
 						SnapsToDevicePixels="True">
-						<hc:ScrollViewer
+						<hc:ScrollViewer Name="PART_ScrollViewer"
 							Padding="{TemplateBinding Padding}"
 							hc:ScrollViewer.IsInertiaEnabled="True"
 							hc:ScrollViewerAttach.AutoHide="True"

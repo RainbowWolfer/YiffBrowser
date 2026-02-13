@@ -36,7 +36,7 @@
 			</Style.Triggers>
 		</Style>
 
-		<wpf:CommandProxy x:Key="CloseTabCommand" Command="{Binding}"/>
+		<wpf:CommandProxy x:Key="CloseTabCommand" Command="{Binding CloseTabCommand}"/>
 		<wpf:CommandProxy x:Key="CloseDockPanelCommand" Command="{Binding CloseDockPanelCommand}"/>
 		<wpf:CommandProxy x:Key="CollapseDockPanelCommand" Command="{Binding CollapseDockPanelCommand}"/>
 		<wpf:CommandProxy x:Key="DockPanelTabItemHeaderDoubleClickCommand" Command="{Binding DockPanelTabItemHeaderDoubleClickCommand}"/>
