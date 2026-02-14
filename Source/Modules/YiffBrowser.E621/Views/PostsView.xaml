@@ -32,7 +32,7 @@
 	</Control.Resources>
 
 	<dxmvvm:Interaction.Behaviors>
-
+		<b:DispatcherServiceEx/>
 	</dxmvvm:Interaction.Behaviors>
 
 	<Grid>
@@ -88,8 +88,9 @@
 
 										<Button x:Name="CurrentPageButton"
 											Style="{StaticResource Button.Custom.Icon}"
-											Width="30"
 											Height="30"
+											MinWidth="30"
+											Padding="8,0"
 											ToolTip="Current Page">
 											<TextBlock d:Text="99" FontSize="16" Text="{Binding CurrentPage}"/>
 										</Button>
@@ -242,9 +243,43 @@
 
 		</DockPanel>
 
-		<wpf:ButtonPopup SourceButton="{Binding ElementName=CurrentPageButton}">
+		<wpf:ButtonPopup OnClickOpenCommand="{Binding PaginationButtonPopupLoadedCommand}" SourceButton="{Binding ElementName=CurrentPageButton}" VerticalOffset="8">
+			<dxmvvm:Interaction.Behaviors>
+				<b:TypedUIObjectService Name="PaginationButtonPopupService"/>
+			</dxmvvm:Interaction.Behaviors>
+
 			<Border Style="{StaticResource ButtonPopupBorder}">
-				<hc:Pagination IsJumpEnabled="True" MaxPageCount="10"/>
+
+				<wpf:SpacingStackPanel Style="{DynamicResource CustomVerticalPanel2}">
+
+					<ProgressBar Height="8" IsIndeterminate="True" Visibility="{Binding IsLoadingPagination, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+
+					<wpf:SpacingStackPanel Style="{DynamicResource CustomHorizontalPanel2}">
+
+						<bf:PaginationEx x:Name="Pagination"
+							IsEnabled="{Binding IsLoadingPagination, Converter={StaticResource Boolean2BooleanReConverter}}"
+							IsJumpEnabled="False"
+							MaxPageCount="{Binding MaxPage}"
+							PageIndex="{Binding CurrentPage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+							<dxmvvm:Interaction.Behaviors>
+								<dxmvvm:EventToCommand Command="{Binding PageUpdatedCommand}" EventName="PageUpdated" PassEventArgsToCommand="True"/>
+							</dxmvvm:Interaction.Behaviors>
+						</bf:PaginationEx>
+
+						<!-- {Binding ElementName=Pagination, Path=MaxPageCount} -->
+						<!-- don't bind the MaxPageCount, in case of calculating error -->
+						<hc:NumericUpDown
+							MinWidth="60"
+							Minimum="1"
+							Maximum="750"
+							Value="{Binding PaginationInputPage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+						<Button Command="{Binding JumpCommand}" Content="Jump"/>
+
+					</wpf:SpacingStackPanel>
+
+				</wpf:SpacingStackPanel>
+
 			</Border>
 		</wpf:ButtonPopup>
 

@@ -5,6 +5,7 @@
 	xmlns:b="RW.Base.WPF"
 	xmlns:bf="YiffBrowser.BaseFramework"
 	xmlns:c="clr-namespace:YiffBrowser.E621.Controls"
+	xmlns:converter="clr-namespace:HandyControl.Tools.Converter;assembly=HandyControl"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
 	xmlns:ex="clr-namespace:YiffBrowser.E621.Extensions"
@@ -12,11 +13,12 @@
 	xmlns:local="clr-namespace:YiffBrowser.E621.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:subs="clr-namespace:YiffBrowser.E621.Views.Subs"
+	xmlns:system="clr-namespace:System;assembly=mscorlib"
 	xmlns:wpf="RW.Common.WPF"
 	d:Background="White"
 	d:DataContext="{d:DesignInstance Type=local:PostDetailViewModel}"
 	d:DesignHeight="450"
-	d:DesignWidth="800"
+	d:DesignWidth="1100"
 	DataContext="{b:DISource Type=local:PostDetailViewModel}"
 	mc:Ignorable="d">
 

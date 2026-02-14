@@ -24,6 +24,7 @@
 		<ResourceDictionary Source="/YiffBrowser.BaseFramework;component/Resources/CustomScrollViewer.xaml"/>
 		<ResourceDictionary Source="/YiffBrowser.BaseFramework;component/Resources/CustomMenu.xaml"/>
 		<ResourceDictionary Source="/YiffBrowser.BaseFramework;component/Resources/CustomListBox.xaml"/>
+		<ResourceDictionary Source="/YiffBrowser.BaseFramework;component/Resources/CustomPagination.xaml"/>
 		<ResourceDictionary Source="/YiffBrowser.BaseFramework;component/Resources/CustomDataGrid.xaml"/>
 		<ResourceDictionary Source="/YiffBrowser.BaseFramework;component/Resources/PlaybackControls.xaml"/>
 	</ResourceDictionary.MergedDictionaries>

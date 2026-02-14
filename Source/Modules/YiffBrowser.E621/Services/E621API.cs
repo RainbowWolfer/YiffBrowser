@@ -1,16 +1,18 @@
-﻿using YiffBrowser.BaseFramework.Services;
+﻿using HtmlAgilityPack;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using RW.Base.WPF.Extensions;
 using RW.Common.Helpers;
 using System.Diagnostics;
-using System.Text;
-using YiffBrowser.E621.Models.E621;
+using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.E621.Enums;
+using YiffBrowser.E621.Models.E621;
 
 namespace YiffBrowser.E621.Services;
 
 public class E621API(ModuleType moduleType) {
+
+	public static int DefaultPageLimit { get; } = 75;
 
 	private static E621API API_E621 { get; } = new(ModuleType.E621);
 	private static E621API API_E926 { get; } = new(ModuleType.E926);
@@ -41,8 +43,6 @@ public class E621API(ModuleType moduleType) {
 	public string GetHost() {
 		return GetHost(ModuleType);
 	}
-
-	public int GetPostsPerPageCount() =>/* Local.Settings?.E621PageLimitCount ??*/ 75;
 
 	#region API
 
@@ -79,7 +79,7 @@ public class E621API(ModuleType moduleType) {
 		if (parameters.Page <= 0) {
 			parameters.Page = 1;
 		}
-		string url = $"https://{GetHost()}/posts.json?page={parameters.Page}{(parameters.UsePageLimit ? $"&limit={GetPostsPerPageCount()}" : "")}";
+		string url = $"https://{GetHost()}/posts.json?page={parameters.Page}{($"&limit={parameters.PageLimit}")}";
 
 		IEnumerable<string> tags = parameters.Tags.Where(x => x.IsNotBlank());
 		if (tags.IsNotEmpty()) {
@@ -271,77 +271,51 @@ public class E621API(ModuleType moduleType) {
 	#region Paginator
 
 
-	public async ValueTask<DataResult<E621Paginator>> GetPaginatorAsync(string[] tags, int page = 1, CancellationToken? token = null) {
+	public async ValueTask<E621Paginator?> GetPaginatorAsync(string[] tags, int pageLimit, int page = 1, CancellationToken? token = null) {
 		string tag = string.Join("+", tags).Trim().ToLower();
 
-		string url = $"https://{GetHost()}/posts?tags={tag}&page={page}";
+		string url = $"https://{GetHost()}/posts?tags={tag}&page={page}&limit={pageLimit}";
 		HttpResult<string> result = await ReadURLAsync(url, token: token);
 		if (result.Result != HttpResultType.Success) {
-			return new DataResult<E621Paginator>(result.Result, null);
+			return null;
 		}
 
 		if (result.Content.IsBlank()) {
-			return new DataResult<E621Paginator>(result.Result, null);
+			return new E621Paginator();
 		}
 
 		try {
-			string data = result.Content;
-			int startIndex = data.IndexOf("paginator");
+			string html = result.Content;
 
-			int currentPageIndex = data.IndexOf("current-page", startIndex);
+			HtmlDocument doc = new();
+			doc.LoadHtml(html);
 
-			StringBuilder currentPageString = new();
-			for (int j = currentPageIndex + 1; j < data.IndexOf("</li>", currentPageIndex); j++) {
-				if (char.IsDigit(data[j])) {
-					currentPageString.Append(data[j]);
-					for (int k = 1; k <= 4; k++) {
-						if (char.IsDigit(data[j + k])) {
-							currentPageString.Append(data[j + k]);
-						} else {
-							break;
-						}
-					}
-					break;
-				}
+			HtmlNode? GetNodeByClasses(HtmlDocument doc, string[] targetClasses) {
+				return doc.DocumentNode.Descendants().FirstOrDefault(n => {
+					string[] classes = n.GetAttributeValue("class", "").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+					return targetClasses.All(tc => classes.Contains(tc));
+				});
 			}
 
-			List<string> pagesString = [];
-			int i = data.IndexOf("numbered-page", startIndex);
-			while (i != -1) {
-				StringBuilder pageString = new();
-				for (int j = i + 1; j < data.IndexOf("</li>", i); j++) {
-					if (char.IsDigit(data[j])) {
-						pageString.Append(data[j]);
-						for (int k = 1; k <= 4; k++) {
-							if (char.IsDigit(data[j + k])) {
-								pageString.Append(data[j + k]);
-							} else {
-								break;
-							}
-						}
-						pagesString.Add(pageString.ToString());
-						break;
-					}
-				}
-				i = data.IndexOf("numbered-page", i + 10);
+			HtmlNode? node = GetNodeByClasses(doc, ["page", "last"])
+				?? GetNodeByClasses(doc, ["page", "current"]);
+
+			int maxPage;
+			if (node != null && NumberHelper.ConvertInt(node.InnerText, out int _maxPage)) {
+				maxPage = _maxPage;
+			} else {
+				maxPage = 0;
 			}
 
-			int currentPage = int.Parse(currentPageString.ToString());
-			List<int> pages = [currentPage];
-			foreach (string s in pagesString) {
-				pages.Add(int.Parse(s));
-			}
-			return new DataResult<E621Paginator>(HttpResultType.Success, new E621Paginator() {
-				CurrentPage = currentPage,
-				Pages = [.. pages],
-			});
+			return new E621Paginator() {
+				MaxPage = maxPage,
+			};
 		} catch (Exception ex) {
 			Debug.WriteLine(ex);
 			//return 0 length paginator
-			return new DataResult<E621Paginator>(HttpResultType.Success, new E621Paginator() {
-				CurrentPage = 1,
-				Pages = [0],
-			});
+			return new E621Paginator() {
+				MaxPage = 750,
+			};
 		}
 	}
 
@@ -369,7 +343,7 @@ public class E621PostParameters {
 
 	public int Page { get; set; } = 1;
 	public string[] Tags { get; set; } = [""];
-	public bool UsePageLimit { get; set; } = true;
+	public int PageLimit { get; set; } = E621API.DefaultPageLimit;
 
 
 	//public bool InputPosts { get; set; }

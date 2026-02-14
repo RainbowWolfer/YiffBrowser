@@ -2,9 +2,7 @@
 using RW.Base.WPF.Events;
 using RW.Base.WPF.ViewModelServices;
 using RW.Common.Helpers;
-using RW.Common.WPF.Converters;
 using RW.Common.WPF.Helpers;
-using RW.Common.WPF.MarkupExtensions;
 using RW.Common.WPF.Models;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows;
@@ -16,7 +14,6 @@ using YiffBrowser.BaseFramework.Controls;
 using YiffBrowser.BaseFramework.Events;
 using YiffBrowser.BaseFramework.ViewModels;
 using YiffBrowser.E621.Controls;
-using YiffBrowser.E621.Enums;
 using YiffBrowser.E621.Interfaces;
 using YiffBrowser.E621.Models.E621;
 using YiffBrowser.E621.Services;
@@ -189,8 +186,8 @@ internal class SearchPanelViewModel(IEventAggregator eventAggregator) : DockPane
 
 				E621Post[] posts = await Api.GetPostsByTagsAsync(new E621PostParameters() {
 					Page = 1,
-					Tags = ["limit:1", "order:random"],
-					UsePageLimit = false,
+					PageLimit = 1,
+					Tags = ["order:random"],
 				});
 
 				if (posts.IsNotEmpty()) {

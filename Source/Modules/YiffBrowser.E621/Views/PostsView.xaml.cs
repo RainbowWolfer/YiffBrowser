@@ -1,11 +1,14 @@
 ﻿using DevExpress.Mvvm;
 using DevExpress.Mvvm.Native;
+using HandyControl.Data;
 using RW.Base.WPF.Extensions;
 using RW.Base.WPF.ViewModelServices;
 using RW.Common;
 using RW.Common.Helpers;
+using RW.Common.WPF.Controls;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Controls;
@@ -38,6 +41,10 @@ internal partial class PostsView : UserControl {
 
 internal class PostsViewModel() : ViewModelBase {
 	public IUIObjectService<PostCardListBox> PostsListBoxService => GetService<ITypedUIObjectService>(nameof(PostsListBoxService)).As<PostCardListBox>();
+	public IUIObjectService<ButtonPopup> PaginationButtonPopupService => GetService<ITypedUIObjectService>(nameof(PaginationButtonPopupService)).As<ButtonPopup>();
+
+	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
+
 
 	public const double ItemWidth = 396;
 	public const double ItemHeight = 50;
@@ -59,6 +66,16 @@ internal class PostsViewModel() : ViewModelBase {
 		set => SetProperty(() => IsLoading, value);
 	}
 
+	public bool IsLoadingPagination {
+		get => GetProperty(() => IsLoadingPagination);
+		set => SetProperty(() => IsLoadingPagination, value);
+	}
+
+	public int MaxPage {
+		get => GetProperty(() => MaxPage);
+		set => SetProperty(() => MaxPage, value);
+	}
+
 	public int CurrentPage {
 		get => GetProperty(() => CurrentPage);
 		set {
@@ -68,6 +85,11 @@ internal class PostsViewModel() : ViewModelBase {
 	}
 
 	public bool CanGoLeft => CurrentPage > 1;
+
+	public int PaginationInputPage {
+		get => GetProperty(() => PaginationInputPage);
+		set => SetProperty(() => PaginationInputPage, value);
+	}
 
 	public bool IsMultiSelecting {
 		get => GetProperty(() => IsMultiSelecting);
@@ -106,12 +128,16 @@ internal class PostsViewModel() : ViewModelBase {
 
 	public bool CurrentHasPost => CurrentPost != null;
 
+
+	private CancellationTokenSource? paginationLoadingCts;
+
 	protected override void OnInitializeInRuntime() {
 		base.OnInitializeInRuntime();
 
+		MaxPage = 750;
+
 		SelectedItems.CollectionChanged += SelectedItems_CollectionChanged;
 	}
-
 
 	public void Initialize(PostTabItem postTabItem) {
 		TabItem = postTabItem;
@@ -173,9 +199,34 @@ internal class PostsViewModel() : ViewModelBase {
 		Items.Clear();
 		Posts.Clear();
 
+		paginationLoadingCts?.Cancel();
+		paginationLoadingCts = new CancellationTokenSource();
+
+		int pageLimit = 75;
+
+		_ = Task.Run(async () => {
+			CancellationToken token = paginationLoadingCts.Token;
+			IsLoadingPagination = true;
+			try {
+				E621Paginator? r = await TabItem.Api.GetPaginatorAsync(TabItem.Tags, pageLimit, CurrentPage, token);
+				if (r != null && !token.IsCancellationRequested) {
+					DispatcherService.Invoke(() => {
+						MaxPage = r.MaxPage;
+					});
+				}
+			} catch (Exception ex) {
+				Debug.WriteLine(ex);
+			} finally {
+				if (!token.IsCancellationRequested) {
+					IsLoadingPagination = false;
+				}
+			}
+		});
+
 		E621Post[] posts = await TabItem.Api.GetPostsByTagsAsync(new E621PostParameters() {
 			Tags = TabItem.Tags,
 			Page = CurrentPage,
+			PageLimit = pageLimit,
 		});
 
 		foreach (E621Post post in posts) {
@@ -284,5 +335,39 @@ internal class PostsViewModel() : ViewModelBase {
 	}
 	[MemberNotNullWhen(true, nameof(LastViewedPost))]
 	private bool CanOpenLastViewedPost() => LastViewedPost != null;
+
+
+
+
+	private DelegateCommand<FunctionEventArgs<int>>? pageUpdatedCommand;
+	public IDelegateCommand PageUpdatedCommand => pageUpdatedCommand ??= new(PageUpdated);
+	private void PageUpdated(FunctionEventArgs<int> args) {
+		Refresh();
+		PaginationButtonPopupService.Object.Hide();
+	}
+
+
+	private DelegateCommand? paginationButtonPopupLoadedCommand;
+	public IDelegateCommand PaginationButtonPopupLoadedCommand => paginationButtonPopupLoadedCommand ??= new(PaginationButtonPopupLoaded);
+	private void PaginationButtonPopupLoaded() {
+		ButtonPopup popup = PaginationButtonPopupService.Object;
+
+		if (popup.Child is FrameworkElement child) {
+			popup.HorizontalOffset = (-child.ActualWidth / 2) + 100;
+		}
+
+	}
+
+
+	private DelegateCommand? jumpCommand;
+	public IDelegateCommand JumpCommand => jumpCommand ??= new(Jump, CanJump);
+	private void Jump() {
+		if (CanJump()) {
+			CurrentPage = PaginationInputPage;
+			Refresh();
+			PaginationButtonPopupService.Object.Hide();
+		}
+	}
+	private bool CanJump() => true;
 
 }
