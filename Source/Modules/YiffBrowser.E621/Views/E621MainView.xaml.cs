@@ -1,6 +1,4 @@
-﻿using YiffBrowser.BaseFramework.Services;
-using YiffBrowser.BaseFramework.ViewModelServices;
-using DevExpress.Mvvm;
+﻿using DevExpress.Mvvm;
 using RW.Base.WPF.Extensions;
 using RW.Base.WPF.Interfaces;
 using RW.Base.WPF.ViewModelServices;
@@ -13,6 +11,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using YiffBrowser.BaseFramework.Services;
+using YiffBrowser.BaseFramework.ViewModelServices;
 using YiffBrowser.E621.Interfaces;
 using YiffBrowser.E621.Models.Database;
 using YiffBrowser.E621.Models.E621;
@@ -151,6 +151,7 @@ internal class E621MainViewModel(
 
 	private void Tabs_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
 		BackToTabsCommand.RaiseCanExecuteChanged();
+		RaisePropertyChanged(() => Tabs);
 	}
 
 	private PostTabItem CreateTabItem(string[] tags) {
@@ -165,10 +166,10 @@ internal class E621MainViewModel(
 		DispatcherService.Dispatcher.BeginInvoke(async () => {
 			Initialize();
 
-			//for (int i = 0; i < 20; i++) {
-			//	Tabs.Add(CreateTabItem(["ssssssss"]));
-			//	//await Task.Delay(10);
-			//}
+			for (int i = 0; i < 20; i++) {
+				Tabs.Add(CreateTabItem(["ssssssss"]));
+				//await Task.Delay(10);
+			}
 
 			//Tabs.Add(CreateTabItem(["type:gif", "order:filesize"]));
 			//Tabs.Add(CreateTabItem(["type:gif", "order:filesize"]));

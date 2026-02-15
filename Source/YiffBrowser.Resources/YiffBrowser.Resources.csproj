@@ -5,6 +5,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Temp\Temp1.jpg" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Resource Include="Fonts\Segoe Fluent Icons.ttf" />
 		<Resource Include="Icons\DeviantArt.png" />
 		<Resource Include="Icons\E621_Bigger.png" />
@@ -35,6 +39,7 @@
 		<Resource Include="Icons\YiffBrowserIcon.ico" />
 		<Resource Include="Icons\YiffBrowserIcon.png" />
 		<Resource Include="Icons\YiffBrowserPSD.psd" />
+		<Resource Include="Temp\Temp1.jpg" />
 	</ItemGroup>
 
 	<ItemGroup>

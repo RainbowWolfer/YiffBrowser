@@ -13,6 +13,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using YiffBrowser.BaseFramework.ViewModels;
 using YiffBrowser.E621.Controls;
 using YiffBrowser.E621.Enums;
 using YiffBrowser.E621.Models.E621;
@@ -54,16 +55,9 @@ internal class PostsViewModel() : ViewModelBase {
 	public ObservableCollection<PostCardControl> Items { get; } = [];
 	public ObservableCollection<PostCardControl> SelectedItems { get; } = [];
 
-	public ObservableCollection<E621Post> Posts { get; } = [];
-
 	public PostTabItem TabItem {
 		get => GetProperty(() => TabItem);
 		private set => SetProperty(() => TabItem, value);
-	}
-
-	public bool IsLoading {
-		get => GetProperty(() => IsLoading);
-		set => SetProperty(() => IsLoading, value);
 	}
 
 	public bool IsLoadingPagination {
@@ -189,55 +183,65 @@ internal class PostsViewModel() : ViewModelBase {
 	public ICommand RefreshCommand => new DelegateCommand(Refresh);
 	private async void Refresh() {
 		//return;
-		if (IsLoading) {
+		if (TabItem.LoadingStatus.ShowLoading) {
 			return;
 		}
 
-		IsLoading = true;
+		TabItem.LoadingStatus.InitialLoading();
 		IsMultiSelecting = false;
 
-		Items.Clear();
-		Posts.Clear();
+		try {
+			Items.Clear();
+			TabItem.Posts.Clear();
 
-		paginationLoadingCts?.Cancel();
-		paginationLoadingCts = new CancellationTokenSource();
+			paginationLoadingCts?.Cancel();
+			paginationLoadingCts = new CancellationTokenSource();
 
-		int pageLimit = 75;
+			int pageLimit = 75;
 
-		_ = Task.Run(async () => {
-			CancellationToken token = paginationLoadingCts.Token;
-			IsLoadingPagination = true;
-			try {
-				E621Paginator? r = await TabItem.Api.GetPaginatorAsync(TabItem.Tags, pageLimit, CurrentPage, token);
-				if (r != null && !token.IsCancellationRequested) {
-					DispatcherService.Invoke(() => {
-						MaxPage = r.MaxPage;
-					});
+			_ = Task.Run(async () => {
+				CancellationToken token = paginationLoadingCts.Token;
+				IsLoadingPagination = true;
+				try {
+					E621Paginator? r = await TabItem.Api.GetPaginatorAsync(TabItem.Tags, pageLimit, CurrentPage, token);
+					if (r != null && !token.IsCancellationRequested) {
+						DispatcherService.Invoke(() => {
+							MaxPage = r.MaxPage;
+						});
+					}
+				} catch (OperationCanceledException) {
+
+				} catch (Exception ex) {
+					Debug.WriteLine(ex);
+				} finally {
+					if (!token.IsCancellationRequested) {
+						IsLoadingPagination = false;
+					}
 				}
-			} catch (Exception ex) {
-				Debug.WriteLine(ex);
-			} finally {
-				if (!token.IsCancellationRequested) {
-					IsLoadingPagination = false;
+			});
+
+			E621Post[] posts = await TabItem.Api.GetPostsByTagsAsync(new E621PostParameters() {
+				Tags = TabItem.Tags,
+				Page = CurrentPage,
+				PageLimit = pageLimit,
+			});
+
+			foreach (E621Post post in posts) {
+				if (post.HasNoValidURLs()) {
+					continue;
 				}
+				Items.Add(new PostCardControl(post));
+				TabItem.Posts.Add(post);
 			}
-		});
 
-		E621Post[] posts = await TabItem.Api.GetPostsByTagsAsync(new E621PostParameters() {
-			Tags = TabItem.Tags,
-			Page = CurrentPage,
-			PageLimit = pageLimit,
-		});
+			TabItem.LoadingStatus.DoneLoading();
+		} catch (Exception ex) {
+			TabItem.LoadingStatus.LoadingError(ex.Message);
+		} finally {
 
-		foreach (E621Post post in posts) {
-			if (post.HasNoValidURLs()) {
-				continue;
-			}
-			Items.Add(new PostCardControl(post));
-			Posts.Add(post);
 		}
 
-		IsLoading = false;
+
 	}
 
 	public ICommand ViewPostDetailCommand => new DelegateCommand<E621Post?>(ViewPostDetail);
@@ -258,7 +262,7 @@ internal class PostsViewModel() : ViewModelBase {
 	public ICommand QuitPostDetailViewCommand => new DelegateCommand(QuitPostDetailView);
 	public void QuitPostDetailView() {
 		if (CurrentPost != null) {
-			int index = Posts.IndexOf(x => x.ID == CurrentPost.ID);
+			int index = TabItem.Posts.IndexOf(x => x.ID == CurrentPost.ID);
 			PostCardControl? item = Items.ElementAtOrDefault(index);
 			if (item != null) {
 				PostsListBoxService.Object.ScrollIntoView(item);
@@ -272,14 +276,14 @@ internal class PostsViewModel() : ViewModelBase {
 	public IDelegateCommand NextPostCommand => nextPostCommand ??= new(NextPost, CanNextPost);
 	public void NextPost() {
 		if (CanNextPost()) {
-			int index = Posts.IndexOf(x => x.ID == CurrentPost.ID);
+			int index = TabItem.Posts.IndexOf(x => x.ID == CurrentPost.ID);
 			int targetIndex = index + 1;
 
-			if (targetIndex >= Posts.Count) {
+			if (targetIndex >= TabItem.Posts.Count) {
 				targetIndex = 0;
 			}
 
-			E621Post post = Posts[targetIndex];
+			E621Post post = TabItem.Posts[targetIndex];
 			ViewPostDetailDirect(post);
 		}
 	}
@@ -293,14 +297,14 @@ internal class PostsViewModel() : ViewModelBase {
 	public IDelegateCommand PreviousPostCommand => previousPostCommand ??= new(PreviousPost, CanPreviousPost);
 	public void PreviousPost() {
 		if (CanPreviousPost()) {
-			int index = Posts.IndexOf(x => x.ID == CurrentPost.ID);
+			int index = TabItem.Posts.IndexOf(x => x.ID == CurrentPost.ID);
 			int targetIndex = index - 1;
 
 			if (targetIndex < 0) {
-				targetIndex = Posts.Count - 1;
+				targetIndex = TabItem.Posts.Count - 1;
 			}
 
-			E621Post post = Posts[targetIndex];
+			E621Post post = TabItem.Posts[targetIndex];
 			ViewPostDetailDirect(post);
 		}
 	}
