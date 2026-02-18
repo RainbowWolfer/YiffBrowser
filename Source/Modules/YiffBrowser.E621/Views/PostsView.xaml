@@ -64,7 +64,7 @@
 										</Button>
 									</wpf:SpacingStackPanel>
 
-									<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Center" IsEnabled="{Binding IsLoading, Converter={StaticResource Boolean2BooleanReConverter}}">
+									<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Center" IsEnabled="{Binding TabItem.LoadingStatus.ShowLoading, Converter={StaticResource Boolean2BooleanReConverter}}">
 										<Button
 											Style="{StaticResource Button.Custom.Icon}"
 											Width="30"
@@ -132,7 +132,7 @@
 
 							</Border>
 
-							<Border DockPanel.Dock="Top" Visibility="{Binding IsLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
+							<Border DockPanel.Dock="Top" Visibility="{Binding TabItem.LoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
 								<ProgressBar Style="{StaticResource ProgressBarFlat}" Height="10" IsIndeterminate="True"/>
 							</Border>
 

@@ -1,4 +1,7 @@
 ﻿using DevExpress.Mvvm;
+using System.Collections.ObjectModel;
+using YiffBrowser.BaseFramework.ViewModels;
+using YiffBrowser.E621.Models.E621;
 using YiffBrowser.E621.Parameters;
 using YiffBrowser.E621.Services;
 using YiffBrowser.E621.Views;
@@ -15,6 +18,10 @@ internal class PostTabItem : BindableBase {
 	public string[] Tags { get; }
 
 	public PostsView View { get; }
+
+	public ObservableCollection<E621Post> Posts { get; } = [];
+
+	public LoadingStatusViewModel LoadingStatus { get; } = new();
 
 	public PostTabItem(E621MainViewModel parentViewModel, string[] tags) {
 		ParentViewModel = parentViewModel ?? throw new ArgumentNullException(nameof(parentViewModel));
