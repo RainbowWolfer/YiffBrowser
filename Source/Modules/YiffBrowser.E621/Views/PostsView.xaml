@@ -141,6 +141,27 @@
 
 										</ToggleButton>
 
+
+										<wpf:MenuButton
+											Style="{StaticResource Button.Custom.Icon}"
+											Width="30"
+											Height="30"
+											ToolTip="More Selection Options"
+											Visibility="{Binding IsMultiSelecting, Converter={StaticResource Boolean2VisibilityConverter}}">
+											<wpf:FontIcon Text="&#xE70D;"/>
+
+											<wpf:MenuButton.ContextMenu>
+												<ContextMenu>
+													<MenuItem bf:IconExtension.Glyph="&#xE8B3;" Command="{Binding SelectAllCommand}" Header="Select All"/>
+													<MenuItem bf:IconExtension.Glyph="&#xEF1F;" Command="{Binding ToggleSelectionCommand}" Header="Toggle Selection"/>
+													<Separator/>
+													<MenuItem bf:IconExtension.Glyph="&#xE8E6;" Command="{Binding ClearSelectionCommand}" Header="Clear Selection"/>
+												</ContextMenu>
+											</wpf:MenuButton.ContextMenu>
+
+										</wpf:MenuButton>
+
+
 									</wpf:SpacingStackPanel>
 
 								</Grid>

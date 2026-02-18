@@ -46,8 +46,11 @@ internal class PostsViewModel() : ViewModelBase {
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
 
 
-	public const double ItemWidth = 396;
-	public const double ItemHeight = 50;
+	//public const double ItemWidth = 396;
+	//public const double ItemHeight = 50;
+
+	public const double ItemWidth = 200;
+	public const double ItemHeight = 30;
 
 	public event TypedEventHandler<PostsViewModel, E621Post?>? CurrentPostChanged;
 
@@ -383,5 +386,7 @@ internal class PostsViewModel() : ViewModelBase {
 		}
 	}
 	private bool CanJump() => true;
+
+
 
 }

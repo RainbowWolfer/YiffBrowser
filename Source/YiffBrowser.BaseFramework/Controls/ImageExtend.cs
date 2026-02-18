@@ -127,9 +127,7 @@ public class ImageExtend : Image {
 	private void ImageExtend_Loaded(object sender, RoutedEventArgs e) {
 		if (!HasLoaded) {
 			Window window = Window.GetWindow(this);
-			if (window != null) {
-				window.SizeChanged += ImageExtend_SizeChanged;
-			}
+			window?.SizeChanged += ImageExtend_SizeChanged;
 		}
 		HasLoaded = true;
 	}

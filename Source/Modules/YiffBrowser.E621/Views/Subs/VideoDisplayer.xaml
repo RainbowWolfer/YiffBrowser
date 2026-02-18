@@ -19,7 +19,7 @@
 			<RowDefinition Height="*"/>
 		</Grid.RowDefinitions>
 
-		<Border DataContext="{Binding RelativeSource={RelativeSource AncestorType=local:VideoDisplayer}}" Grid.Row="0">
+		<Border DataContext="{Binding RelativeSource={RelativeSource AncestorType=local:VideoDisplayer}}" Grid.Row="0" Visibility="{Binding VideoControlsParameters.AlwaysShowControls, Converter={StaticResource Boolean2VisibilityConverter}}">
 			<bf:PlaybackControl
 				Height="30"
 				VerticalAlignment="Top"
@@ -27,6 +27,7 @@
 				BorderBrush="{DynamicResource BorderBrush}"
 				Background="{DynamicResource RegionBrush}"
 				Player="{Binding Player}"
+				VideoControlsParameters="{Binding VideoControlsParameters}"
 				Visibility="{Binding IsFileReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
 		</Border>
 
@@ -44,7 +45,15 @@
 					<Image Source="{Binding Post.Sample.URL}" Visibility="{Binding IsFileReady, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
 
 					<StackPanel>
-						<Border Visibility="{Binding ShowControls, Converter={StaticResource Boolean2VisibilityConverter}}">
+						<Border>
+
+							<Border.Visibility>
+								<MultiBinding Converter="{StaticResource BooleanArr2VisibilityConverter}">
+									<Binding Path="ShowControls"/>
+									<Binding Path="VideoControlsParameters.AlwaysShowControls" Converter="{StaticResource Boolean2BooleanReConverter}"/>
+								</MultiBinding>
+							</Border.Visibility>
+
 							<bf:PlaybackControl
 								Height="30"
 								VerticalAlignment="Top"
@@ -52,6 +61,7 @@
 								BorderBrush="{DynamicResource BorderBrush}"
 								Background="{DynamicResource RegionBrush}"
 								Player="{Binding Player}"
+								VideoControlsParameters="{Binding VideoControlsParameters}"
 								Visibility="{Binding IsFileReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
 						</Border>
 						<c:LoadingProgresControl

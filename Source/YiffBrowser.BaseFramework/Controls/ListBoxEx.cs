@@ -75,14 +75,16 @@ public class ListBoxEx : ListBox {
 		new PropertyMetadata(null)
 	);
 
+	public bool IsRightButtonScrolling => _isRightMouseButtonDragging;
 
 	private ScrollViewer? _scrollViewer;
+	private Window? associatedWindow;
 
 	private Point _lastMousePosition;
 	private bool _isRightMouseButtonDragging;
-	public bool IsRightButtonScrolling => _isRightMouseButtonDragging;
 
-	private Window? associatedWindow;
+	private bool _rightButtonDown;
+	private const double DragThreshold = 4.0;
 
 	public ListBoxEx() {
 		Loaded += ListBoxEx_Loaded;
@@ -114,6 +116,8 @@ public class ListBoxEx : ListBox {
 	private void Window_Activated(object? sender, EventArgs e) => CancelRightButtonDrag();
 
 	private void CancelRightButtonDrag() {
+		_rightButtonDown = false;
+
 		if (_isRightMouseButtonDragging) {
 			_isRightMouseButtonDragging = false;
 			ReleaseMouseCapture();
@@ -125,25 +129,22 @@ public class ListBoxEx : ListBox {
 	protected override void OnMouseRightButtonDown(MouseButtonEventArgs e) {
 		if (RightButtonScroll) {
 			Focus();
-			_isRightMouseButtonDragging = CaptureMouse(); // 记录是否成功捕获
+			_rightButtonDown = true;
 			_lastMousePosition = e.GetPosition(this);
-			e.Handled = true;
-
-			Cursor = RightButtonScrollCursor;
-
+			// 不 Handled，让 ContextMenu 有机会
 			return;
 		}
 		base.OnMouseRightButtonDown(e);
 	}
 
 	protected override void OnMouseRightButtonUp(MouseButtonEventArgs e) {
+		_rightButtonDown = false;
+
 		if (_isRightMouseButtonDragging) {
 			_isRightMouseButtonDragging = false;
 			ReleaseMouseCapture();
-			e.Handled = true;
-
 			Cursor = null;
-
+			e.Handled = true; // 吃掉拖拽结束
 			return;
 		}
 		base.OnMouseRightButtonUp(e);
@@ -151,17 +152,24 @@ public class ListBoxEx : ListBox {
 
 	protected override void OnMouseMove(MouseEventArgs e) {
 		if (RightButtonScroll) {
-			if (_isRightMouseButtonDragging && _scrollViewer != null) {
-				// 即使鼠标在窗口外，GetPosition(this) 依然会返回相对于 ListBox 的坐标
+			if (RightButtonScroll && _rightButtonDown && _scrollViewer != null) {
 				Point currentPosition = e.GetPosition(this);
-				Vector delta = _lastMousePosition - currentPosition;
+				Vector delta = currentPosition - _lastMousePosition;
 
-				_scrollViewer.ScrollToHorizontalOffset(_scrollViewer.HorizontalOffset + delta.X);
-				_scrollViewer.ScrollToVerticalOffset(_scrollViewer.VerticalOffset + delta.Y);
-				_lastMousePosition = currentPosition;
+				if (!_isRightMouseButtonDragging) {
+					if (delta.Length >= DragThreshold) {
+						_isRightMouseButtonDragging = CaptureMouse();
+						Cursor = RightButtonScrollCursor;
+					}
+				}
 
-				// 标记为已处理，防止 ListBoxItem 响应鼠标进入/离开的视觉效果
-				e.Handled = true;
+				if (_isRightMouseButtonDragging) {
+					_scrollViewer.ScrollToHorizontalOffset(_scrollViewer.HorizontalOffset - delta.X);
+					_scrollViewer.ScrollToVerticalOffset(_scrollViewer.VerticalOffset - delta.Y);
+					_lastMousePosition = currentPosition;
+					e.Handled = true;
+				}
+				return;
 			}
 		} else {
 			base.OnMouseMove(e);
@@ -203,8 +211,6 @@ public class ListBoxItemEx : ListBoxItem {
 
 	// 记录哪一个按键被按下了，防止左键按下右键抬起的误操作
 	private MouseButton? _pressedButton;
-
-	private Point _startPoint;
 
 	protected override void OnMouseMove(MouseEventArgs e) {
 		ListBoxEx listBox = GetParentListBox();

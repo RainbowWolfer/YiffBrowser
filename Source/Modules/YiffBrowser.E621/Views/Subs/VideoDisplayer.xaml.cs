@@ -14,6 +14,7 @@ using YiffBrowser.BaseFramework.Helpers;
 using YiffBrowser.BaseFramework.Models;
 using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.BaseFramework.ViewModels;
+using YiffBrowser.E621.Controls;
 using YiffBrowser.E621.Enums;
 using YiffBrowser.E621.Models.E621;
 
@@ -39,6 +40,21 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
 	private static void OnPostChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 		((VideoDisplayer)d).Update();
 	}
+
+
+
+	public VideoControlsParameters VideoControlsParameters {
+		get => (VideoControlsParameters)GetValue(VideoControlsParametersProperty);
+		set => SetValue(VideoControlsParametersProperty, value);
+	}
+
+	public static readonly DependencyProperty VideoControlsParametersProperty = DependencyProperty.Register(
+		nameof(VideoControlsParameters),
+		typeof(VideoControlsParameters),
+		typeof(VideoDisplayer),
+		new PropertyMetadata(null)
+	);
+
 
 
 
@@ -186,9 +202,11 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
 	}
 
 	private void Tick(object? sender, EventArgs e) {
-		Raise("Player.CurTime");
-		Raise("CurTime");
-		QuickProgressBar.Value = Player?.CurTime ?? 0;
+		if (IsVisible) {
+			Raise("Player.CurTime");
+			Raise("CurTime");
+			QuickProgressBar.Value = Player?.CurTime ?? 0;
+		}
 	}
 
 	private void Update() {
@@ -200,9 +218,7 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
 			return;
 		}
 
-		if (videoCacheItem != null) {
-			videoCacheItem.Updated -= Item_Updated;
-		}
+		videoCacheItem?.Updated -= Item_Updated;
 
 		ClearVideo();
 
@@ -277,16 +293,9 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
 
 
 	private ContextMenu CreateContextMenu() {
-		ContextMenu contextMenu = new();
-
-		contextMenu.Items.Add(new MenuItem() {
-			Header = "1",
-		});
-
-		contextMenu.Items.Add(new MenuItem() {
-			Header = "2",
-		});
-
+		ContextMenu contextMenu = new VideoDisplayerContextMenu() {
+			VideoDisplayer = this,
+		};
 		return contextMenu;
 	}
 

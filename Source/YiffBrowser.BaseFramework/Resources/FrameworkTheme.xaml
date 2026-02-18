@@ -10,6 +10,7 @@
 	xmlns:hc="https://handyorg.github.io/handycontrol"
 	xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
 	xmlns:sw="clr-namespace:System.Windows;assembly=PresentationFramework"
+	xmlns:sys="clr-namespace:System;assembly=mscorlib"
 	xmlns:views="clr-namespace:YiffBrowser.BaseFramework.Views"
 	xmlns:vm="clr-namespace:YiffBrowser.BaseFramework.ViewModels"
 	xmlns:vms="clr-namespace:YiffBrowser.BaseFramework.ViewModelServices"
@@ -29,6 +30,14 @@
 		<ResourceDictionary Source="/YiffBrowser.BaseFramework;component/Resources/CustomDataGrid.xaml"/>
 		<ResourceDictionary Source="/YiffBrowser.BaseFramework;component/Resources/PlaybackControls.xaml"/>
 	</ResourceDictionary.MergedDictionaries>
+
+
+	<x:Array x:Key="StringArray1" Type="{x:Type sys:String}">
+		<sys:String>In amet at</sys:String>
+		<sys:String>Dolores lorem takimata</sys:String>
+		<sys:String>Ut ipsum erat</sys:String>
+	</x:Array>
+
 
 	<conv:PassThroughConverter x:Key="PassThroughConverter"/>
 	<conv:NumberToKBConverter x:Key="NumberToKBConverter"/>

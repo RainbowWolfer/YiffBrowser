@@ -1,0 +1,51 @@
+﻿<ContextMenu
+	x:Class="YiffBrowser.E621.Controls.VideoDisplayerContextMenu"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:b="RW.Base.WPF"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:f="YiffBrowser.BaseFramework"
+	xmlns:local="clr-namespace:YiffBrowser.E621.Controls"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:wpf="RW.Common.WPF"
+	Style="{DynamicResource ContextMenu.Custom}"
+	DataContext="{Binding RelativeSource={RelativeSource Mode=Self}, Path=VideoDisplayer.VideoControlsParameters}"
+	mc:Ignorable="d">
+
+	<MenuItem Header="Always Show Control" IsCheckable="True" IsChecked="{Binding AlwaysShowControls, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+	<MenuItem f:IconExtension.Glyph="&#xE75A;" Header="Control Location">
+		<MenuItem Header="Top" IsCheckable="True"/>
+		<MenuItem Header="Bottom" IsCheckable="True"/>
+	</MenuItem>
+
+	<Separator/>
+
+	<MenuItem Header="Show Scrubber Bar" IsCheckable="True"/>
+	<MenuItem f:IconExtension.Glyph="&#xE90E;" Header="Scrubber Bar Location">
+		<MenuItem Header="Top" IsCheckable="True"/>
+		<MenuItem Header="Bottom" IsCheckable="True"/>
+	</MenuItem>
+
+	<Separator/>
+
+	<MenuItem f:IconExtension.Glyph="&#xE121;" Header="Time Display" ItemsSource="{wpf:EnumBindingMarkup f:TimeProgressFormat}">
+		<MenuItem.ItemContainerStyle>
+			<Style TargetType="MenuItem" BasedOn="{StaticResource MenuItem.Custom}">
+				<Setter Property="Header" Value="{Binding Value, Converter={StaticResource EnumDisplayConverter}}"/>
+				<Setter Property="IsCheckable" Value="True"/>
+			</Style>
+		</MenuItem.ItemContainerStyle>
+	</MenuItem>
+
+	<Separator/>
+
+	<MenuItem Header="Controls">
+		<MenuItem Header="Time Display" IsCheckable="True"/>
+		<MenuItem Header="Next/Previous Frame Button" IsCheckable="True"/>
+		<MenuItem Header="Loop Button" IsCheckable="True"/>
+		<MenuItem Header="Reverse Playback Button" IsCheckable="True"/>
+		<MenuItem Header="Volume Button" IsCheckable="True"/>
+	</MenuItem>
+
+
+</ContextMenu>

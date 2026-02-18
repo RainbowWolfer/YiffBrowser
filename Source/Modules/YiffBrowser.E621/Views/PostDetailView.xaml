@@ -223,7 +223,7 @@
 										<DataTrigger Binding="{Binding DisplayType}" Value="{x:Static local:PostDisplayType.Video}">
 											<Setter Property="Content">
 												<Setter.Value>
-													<subs:VideoDisplayer Post="{Binding Post}"/>
+													<subs:VideoDisplayer Post="{Binding Post}" VideoControlsParameters="{Binding VideoControlsService.Parameters}"/>
 												</Setter.Value>
 											</Setter>
 										</DataTrigger>

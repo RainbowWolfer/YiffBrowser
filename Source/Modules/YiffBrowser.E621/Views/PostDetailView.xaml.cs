@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
+using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.BaseFramework.ViewModels;
 using YiffBrowser.E621.Enums;
 using YiffBrowser.E621.Models.E621;
@@ -24,7 +25,7 @@ public enum PostDisplayType {
 	Video,
 }
 
-internal class PostDetailViewModel() : ViewModelBase {
+internal class PostDetailViewModel(IVideoControlsService videoControlsService) : ViewModelBase {
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
 	public IUIObjectService<UserControl> UserControlService => GetService<ITypedUIObjectService>(nameof(UserControlService)).As<UserControl>();
 
@@ -36,6 +37,9 @@ internal class PostDetailViewModel() : ViewModelBase {
 			RaisePropertyChanged(() => DisplayType);
 		}
 	}
+
+	public IVideoControlsService VideoControlsService { get; } = videoControlsService;
+
 
 	public E621FileType FileType => Post?.GetFileType() ?? E621FileType.Unknown;
 

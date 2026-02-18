@@ -6,6 +6,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
 using YiffBrowser.BaseFramework.Helpers;
+using YiffBrowser.BaseFramework.Services;
 
 namespace YiffBrowser.BaseFramework.Controls;
 
@@ -25,10 +26,24 @@ public class PlaybackControl : ContentControl, INotifyPropertyChanged {
 		new PropertyMetadata(null)
 	);
 
+
+	public VideoControlsParameters VideoControlsParameters {
+		get => (VideoControlsParameters)GetValue(VideoControlsParametersProperty);
+		set => SetValue(VideoControlsParametersProperty, value);
+	}
+
+	public static readonly DependencyProperty VideoControlsParametersProperty = DependencyProperty.Register(
+		nameof(VideoControlsParameters),
+		typeof(VideoControlsParameters),
+		typeof(PlaybackControl),
+		new PropertyMetadata(null)
+	);
+
+
 	public bool IsPlaying => Player != null && Player.IsPlaying;
 
 	public long CurTime {
-		get => Player?.CurTime ?? 0; 
+		get => Player?.CurTime ?? 0;
 		set => Player?.CurTime = value;
 	}
 
@@ -43,9 +58,11 @@ public class PlaybackControl : ContentControl, INotifyPropertyChanged {
 	}
 
 	private void Tick(object? sender, EventArgs e) {
-		Raise(nameof(IsPlaying));
-		Raise(nameof(CurTime));
-		Raise("Player.CurTime");
+		if (IsVisible) {
+			Raise(nameof(IsPlaying));
+			Raise(nameof(CurTime));
+			Raise("Player.CurTime");
+		}
 	}
 
 	public override void OnApplyTemplate() {

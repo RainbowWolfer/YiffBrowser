@@ -19,6 +19,9 @@
 	mc:Ignorable="d">
 
 	<Control.Resources>
+
+		<!--<wpf:BindingProxy x:Key="ViewModel" Data="{Binding}"/>-->
+
 		<wpf:CommandProxy x:Key="HandleItemCommand" Command="{Binding HandleItemCommand}"/>
 		<wpf:CommandProxy x:Key="QuickTagsCommand" Command="{Binding QuickTagsCommand}"/>
 
@@ -74,14 +77,27 @@
 						<wpf:FontIcon Text="&#xE721;"/>
 					</Button>
 
-					<Button x:Name="QuickSearchButton"
+					<wpf:MenuButton
 						Style="{StaticResource Button.Custom.Icon}"
 						Width="30"
 						Padding="0"
 						DockPanel.Dock="Right"
 						ToolTip="Quick Search">
 						<wpf:FontIcon Text="&#xE70D;"/>
-					</Button>
+
+						<wpf:MenuButton.ContextMenu>
+							<ContextMenu Style="{DynamicResource ContextMenu.Custom}" ItemsSource="{Binding QuickTagsItems}">
+								<ContextMenu.ItemContainerStyle>
+									<Style TargetType="MenuItem" BasedOn="{StaticResource MenuItem.Custom}">
+										<Setter Property="Header" Value="{Binding Tags}"/>
+										<Setter Property="Command" Value="{StaticResource QuickTagsCommand}"/>
+										<Setter Property="CommandParameter" Value="{Binding}"/>
+									</Style>
+								</ContextMenu.ItemContainerStyle>
+							</ContextMenu>
+						</wpf:MenuButton.ContextMenu>
+
+					</wpf:MenuButton>
 
 					<Border Style="{StaticResource HorizontalSeparator}"/>
 
@@ -106,35 +122,6 @@
 					</Button>
 
 				</wpf:SpacingStackPanel>
-
-				<wpf:ButtonPopup SourceButton="{Binding ElementName=QuickSearchButton}">
-
-					<dxmvvm:Interaction.Behaviors>
-						<b:TypedUIObjectService x:Name="QuickSearchPopupService"/>
-					</dxmvvm:Interaction.Behaviors>
-
-					<Border Style="{DynamicResource ButtonPopupBorder}">
-						<ItemsControl ItemsSource="{Binding QuickTagsItems}">
-							<ItemsControl.ItemsPanel>
-								<ItemsPanelTemplate>
-									<wpf:SpacingStackPanel Style="{DynamicResource CustomVerticalPanel2}"/>
-								</ItemsPanelTemplate>
-							</ItemsControl.ItemsPanel>
-							<ItemsControl.ItemTemplate>
-								<DataTemplate DataType="local:QuickTagsItem">
-									<Border>
-										<Button
-											HorizontalAlignment="Stretch"
-											HorizontalContentAlignment="Stretch"
-											Command="{StaticResource QuickTagsCommand}"
-											CommandParameter="{Binding}"
-											Content="{Binding Tags}"/>
-									</Border>
-								</DataTemplate>
-							</ItemsControl.ItemTemplate>
-						</ItemsControl>
-					</Border>
-				</wpf:ButtonPopup>
 
 			</Grid>
 

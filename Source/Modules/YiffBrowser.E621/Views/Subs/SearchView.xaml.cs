@@ -29,7 +29,6 @@ internal class SearchViewModel(IEventAggregator eventAggregator) : E621ViewModel
 
 	public IUIObjectService<ListBox> MainListBoxService => GetService<ITypedUIObjectService>(nameof(MainListBoxService)).As<ListBox>();
 	public IUIObjectService<TextBoxExtend> SearchBoxService => GetService<ITypedUIObjectService>(nameof(SearchBoxService)).As<TextBoxExtend>();
-	public IUIObjectService<ButtonPopup> QuickSearchPopupService => GetService<ITypedUIObjectService>(nameof(QuickSearchPopupService)).As<ButtonPopup>();
 
 	public TagsSearchService TagsSearchService { get; } = new();
 
@@ -164,7 +163,6 @@ internal class SearchViewModel(IEventAggregator eventAggregator) : E621ViewModel
 	private DelegateCommand<QuickTagsItem>? quickTagsCommand;
 	public IDelegateCommand QuickTagsCommand => quickTagsCommand ??= new(item => {
 		TagsSearchService.SearchText = item.Tags;
-		QuickSearchPopupService.Object.Hide();
 		SearchBoxService.Object.SelectionStart = SearchBoxService.Object.Text.Length;
 		SearchBoxService.Focus();
 	});

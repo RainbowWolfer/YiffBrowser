@@ -179,7 +179,7 @@ internal class E621MainViewModel(
 			//Tabs.Add(CreateTabItem(["type:gif"]));
 			//Tabs.Add(CreateTabItem(["type:webm"]));
 			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
-			Tabs.Add(CreateTabItem(["order:rank"]));
+			//Tabs.Add(CreateTabItem(["order:rank"]));
 			TabSelectedIndex = 0;
 
 		}, DispatcherPriority.Background);

@@ -93,13 +93,9 @@ public partial class ImageDisplayer : UserControl {
 		IsFileReady = false;
 		fileSize = post.File?.Size ?? 0;
 
-		if (sample != null) {
-			sample.Updated -= Sample_Updated;
-		}
+		sample?.Updated -= Sample_Updated;
 
-		if (file != null) {
-			file.Updated -= File_Updated;
-		}
+		file?.Updated -= File_Updated;
 
 		if (post.Sample != null && post.Sample.URL != null) {
 			sample = BitmapCacheService.Get(post.Sample.URL);
@@ -109,13 +105,9 @@ public partial class ImageDisplayer : UserControl {
 			file = BitmapCacheService.Get(post.File.URL);
 		}
 
-		if (sample != null) {
-			sample.Updated += Sample_Updated;
-		}
+		sample?.Updated += Sample_Updated;
 
-		if (file != null) {
-			file.Updated += File_Updated;
-		}
+		file?.Updated += File_Updated;
 
 		if (sample != null) {
 			if (sample.HasCompleted) {
