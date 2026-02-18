@@ -602,6 +602,8 @@
 
 		<!-- Placement="Right" HorizontalOffset="6" -->
 		<wpf:ButtonPopup x:Name="SearchPopup"
+			HorizontalOffset="0"
+			Placement="Bottom"
 			SourceButton="{Binding ElementName=SearchButton}"
 			StaysOpen="False"
 			VerticalOffset="4">
@@ -609,9 +611,10 @@
 				<b:TypedUIObjectService Name="SearchPopupService"/>
 			</dxmvvm:Interaction.Behaviors>
 
-			<Border Style="{DynamicResource ButtonPopupBorder}" MinWidth="350">
+			<Border Style="{DynamicResource ButtonPopupBorder}" MinWidth="380">
 				<subs:SearchView dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data}" ex:ViewInitializeExtension.ViewParameter="{Binding Source={StaticResource ViewModel}, Path=Data.ViewParameter}"/>
 			</Border>
+
 		</wpf:ButtonPopup>
 
 		<wpf:ButtonPopup x:Name="SitePopup"

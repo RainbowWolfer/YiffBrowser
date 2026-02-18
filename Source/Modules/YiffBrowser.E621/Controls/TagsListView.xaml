@@ -20,8 +20,25 @@
 	</Control.Resources>
 
 	<Grid>
-		<ListBox x:Name="TagsistBox"
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<Border>
+			<hc:SearchBar x:Name="TagsSearchBar"
+				Style="{DynamicResource SearchBarPlus}"
+				BorderThickness="0,0,0,1"
+				bf:TextBoxExtension.EscapeToClearFocus="True"
+				bf:TextBoxExtension.FocusUponClearFocus="{Binding ElementName=TagsListBox}"
+				hc:BorderElement.CornerRadius="0"
+				hc:InfoElement.Placeholder="Search Tags"
+				hc:InfoElement.ShowClearButton="True"/>
+		</Border>
+
+		<ListBox x:Name="TagsListBox"
 			Style="{StaticResource ListBox.Custom}"
+			Grid.Row="1"
 			BorderThickness="0"
 			bf:BorderExtension.CornerRadius="0"
 			bf:ListBoxExtension.ClickBlankToDeselect="True"
@@ -66,7 +83,7 @@
 			</ListBox.GroupStyle>
 
 			<ListBox.ItemTemplate>
-				<DataTemplate>
+				<DataTemplate DataType="local:TagListItem">
 					<Border>
 						<Grid>
 							<Grid.ColumnDefinitions>

@@ -1,14 +1,16 @@
-﻿using YiffBrowser.BaseFramework.Controls;
-using YiffBrowser.BaseFramework.Events;
-using DevExpress.Mvvm;
+﻿using DevExpress.Mvvm;
 using RW.Base.WPF.Events;
 using RW.Base.WPF.ViewModelServices;
 using RW.Common.Helpers;
+using RW.Common.WPF.Controls;
 using RW.Common.WPF.Models;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using YiffBrowser.BaseFramework.Controls;
+using YiffBrowser.BaseFramework.Events;
 using YiffBrowser.E621.Controls;
 using YiffBrowser.E621.Models.E621;
 using YiffBrowser.E621.Services;
@@ -27,8 +29,11 @@ internal class SearchViewModel(IEventAggregator eventAggregator) : E621ViewModel
 
 	public IUIObjectService<ListBox> MainListBoxService => GetService<ITypedUIObjectService>(nameof(MainListBoxService)).As<ListBox>();
 	public IUIObjectService<TextBoxExtend> SearchBoxService => GetService<ITypedUIObjectService>(nameof(SearchBoxService)).As<TextBoxExtend>();
+	public IUIObjectService<ButtonPopup> QuickSearchPopupService => GetService<ITypedUIObjectService>(nameof(QuickSearchPopupService)).As<ButtonPopup>();
 
 	public TagsSearchService TagsSearchService { get; } = new();
+
+	public ObservableCollection<QuickTagsItem> QuickTagsItems { get; } = [];
 
 	public E621API? Api { get; private set; }
 
@@ -38,6 +43,10 @@ internal class SearchViewModel(IEventAggregator eventAggregator) : E621ViewModel
 		Api = E621API.GetAPI(ViewParameter.ModuleType);
 		TagsSearchService.Api = Api;
 		eventAggregator.GetEvent<ThemeChangedEvent>().Subscribe(OnThemeChanged);
+
+		QuickTagsItems.Add(new QuickTagsItem() { Tags = "order:rank", });
+		QuickTagsItems.Add(new QuickTagsItem() { Tags = "order:random", });
+		QuickTagsItems.Add(new QuickTagsItem() { Tags = "type:webm", });
 	}
 
 	private void OnThemeChanged(ThemeChangedEventArgs args) {
@@ -150,6 +159,17 @@ internal class SearchViewModel(IEventAggregator eventAggregator) : E621ViewModel
 	}
 
 
+
+
+	private DelegateCommand<QuickTagsItem>? quickTagsCommand;
+	public IDelegateCommand QuickTagsCommand => quickTagsCommand ??= new(item => {
+		TagsSearchService.SearchText = item.Tags;
+		QuickSearchPopupService.Object.Hide();
+		SearchBoxService.Object.SelectionStart = SearchBoxService.Object.Text.Length;
+		SearchBoxService.Focus();
+	});
+
+
 }
 
 public class SearchTagItem : BindableBase {
@@ -167,5 +187,14 @@ public class SearchTagItem : BindableBase {
 }
 
 public enum PostSearch {
-	None, URL, PostID
+	None,
+	URL,
+	PostID,
+}
+
+public class QuickTagsItem : BindableBase {
+	public string Tags {
+		get => GetProperty(() => Tags);
+		set => SetProperty(() => Tags, value);
+	}
 }

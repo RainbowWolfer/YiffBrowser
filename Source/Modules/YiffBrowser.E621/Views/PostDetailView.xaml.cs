@@ -2,6 +2,7 @@
 using RW.Base.WPF.ViewModelServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
 using YiffBrowser.BaseFramework.ViewModels;
@@ -78,6 +79,9 @@ internal class PostDetailViewModel() : ViewModelBase {
 	private DelegateCommand<KeyEventArgs>? keyDownCommand;
 	public IDelegateCommand KeyDownCommand => keyDownCommand ??= new(KeyDown);
 	private void KeyDown(KeyEventArgs args) {
+		if (Keyboard.FocusedElement is TextBoxBase) {
+			return;
+		}
 		switch (args.Key) {
 			case Key.Escape: {
 				ParentViewModel?.QuitPostDetailView();

@@ -243,7 +243,11 @@
 
 		</DockPanel>
 
-		<wpf:ButtonPopup OnClickOpenCommand="{Binding PaginationButtonPopupLoadedCommand}" SourceButton="{Binding ElementName=CurrentPageButton}" VerticalOffset="8">
+		<wpf:ButtonPopup
+			OnClickOpenCommand="{Binding PaginationButtonPopupLoadedCommand}"
+			Placement="Bottom"
+			SourceButton="{Binding ElementName=CurrentPageButton}"
+			VerticalOffset="8">
 			<dxmvvm:Interaction.Behaviors>
 				<b:TypedUIObjectService Name="PaginationButtonPopupService"/>
 			</dxmvvm:Interaction.Behaviors>

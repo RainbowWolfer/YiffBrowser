@@ -79,7 +79,7 @@
 									CornerRadius="4"
 									Visibility="Visible">
 									<Border.Background>
-										<SolidColorBrush Opacity="0.8" Color="{DynamicResource ThirdlyRegionColor}"/>
+										<SolidColorBrush Opacity="0.8" Color="{DynamicResource SecondaryRegionColor}"/>
 									</Border.Background>
 									<Border.Effect>
 										<DropShadowEffect
@@ -472,7 +472,7 @@
 							<MultiTrigger.Conditions>
 								<Condition Property="IsMouseOver" Value="True"/>
 							</MultiTrigger.Conditions>
-							<Setter TargetName="Bd" Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+							<Setter TargetName="Bd" Property="Background" Value="{DynamicResource ListBoxItem.IsMouseOver.Background}"/>
 							<!--<Setter TargetName="Bd" Property="Background" Value="{StaticResource Item.MouseOver.Background}"/>
 							<Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Item.MouseOver.Border}"/>-->
 						</MultiTrigger>
@@ -1583,7 +1583,7 @@
 			<Setter.Value>
 				<ControlTemplate TargetType="c:SlidePanelImageControl">
 					<Grid x:Name="root" Background="Transparent">
-						<Border x:Name="background" Background="{DynamicResource ThirdlyRegionBrush}"/>
+						<Border x:Name="background" Background="{DynamicResource SlidePanelImageControl.Background}"/>
 
 						<Image x:Name="image"
 							d:Source="{x:Null}"
@@ -1658,30 +1658,7 @@
 
 					</Grid>
 				</ControlTemplate>
-				<!--<ControlTemplate TargetType="c:SlidePanelImageControl">
-					<Grid Background="Transparent">
-						<Border Background="{DynamicResource ThirdlyRegionBrush}"/>
 
-						<Image x:Name="PART_Image" Stretch="UniformToFill" Visibility="Collapsed"/>
-
-						<hc:CircleProgressBar x:Name="PART_Progress"
-							Width="30"
-							Height="30"
-							Minimum="0"
-							Maximum="100"
-							IsIndeterminate="False"
-							ShowText="False"
-							Visibility="Collapsed"/>
-
-						<Border x:Name="PART_Failed"
-							Width="30"
-							Height="30"
-							Visibility="Collapsed">
-							<wpf:FontIcon FontSize="24" Foreground="{DynamicResource DangerBrush}" Text="&#xE7BA;"/>
-						</Border>
-
-					</Grid>
-				</ControlTemplate>-->
 			</Setter.Value>
 		</Setter>
 	</Style>

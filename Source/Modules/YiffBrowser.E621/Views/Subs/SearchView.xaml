@@ -7,6 +7,7 @@
 	xmlns:c="clr-namespace:YiffBrowser.E621.Controls"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+	xmlns:hc="https://handyorg.github.io/handycontrol"
 	xmlns:local="clr-namespace:YiffBrowser.E621.Views.Subs"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:wpf="RW.Common.WPF"
@@ -19,7 +20,7 @@
 
 	<Control.Resources>
 		<wpf:CommandProxy x:Key="HandleItemCommand" Command="{Binding HandleItemCommand}"/>
-
+		<wpf:CommandProxy x:Key="QuickTagsCommand" Command="{Binding QuickTagsCommand}"/>
 
 	</Control.Resources>
 
@@ -37,8 +38,9 @@
 				</Grid.ColumnDefinitions>
 
 				<bf:TextBoxExtend x:Name="SearchBox"
-					Style="{StaticResource TextBoxExtend}"
+					Style="{StaticResource TextBoxPlusBaseStyle}"
 					bf:TextBoxExtension.SelectionChangedCommand="{Binding OnSearchTextSelectionChangedCommand}"
+					hc:InfoElement.ShowClearButton="True"
 					wpf:ControlExtension.LoadedCommand="{Binding OnSearchTextBoxLoadedCommand}"
 					wpf:ControlExtension.PreviewKeyDownCommand="{Binding OnSearchTextBoxPreviewKeyDownCommand}"
 					AcceptsReturn="False"
@@ -52,8 +54,7 @@
 
 				<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" Grid.Column="1" Margin="4,0,0,0">
 
-
-					<Button
+					<!--<Button
 						Style="{StaticResource Button.Custom.Icon}"
 						Width="30"
 						Padding="0"
@@ -61,7 +62,7 @@
 						DockPanel.Dock="Right"
 						ToolTip="Clear">
 						<wpf:FontIcon Text="&#xE711;"/>
-					</Button>
+					</Button>-->
 
 					<Button
 						Style="{StaticResource Button.Custom.Icon}"
@@ -71,6 +72,15 @@
 						DockPanel.Dock="Right"
 						ToolTip="Search">
 						<wpf:FontIcon Text="&#xE721;"/>
+					</Button>
+
+					<Button x:Name="QuickSearchButton"
+						Style="{StaticResource Button.Custom.Icon}"
+						Width="30"
+						Padding="0"
+						DockPanel.Dock="Right"
+						ToolTip="Quick Search">
+						<wpf:FontIcon Text="&#xE70D;"/>
 					</Button>
 
 					<Border Style="{StaticResource HorizontalSeparator}"/>
@@ -96,6 +106,36 @@
 					</Button>
 
 				</wpf:SpacingStackPanel>
+
+				<wpf:ButtonPopup SourceButton="{Binding ElementName=QuickSearchButton}">
+
+					<dxmvvm:Interaction.Behaviors>
+						<b:TypedUIObjectService x:Name="QuickSearchPopupService"/>
+					</dxmvvm:Interaction.Behaviors>
+
+					<Border Style="{DynamicResource ButtonPopupBorder}">
+						<ItemsControl ItemsSource="{Binding QuickTagsItems}">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<wpf:SpacingStackPanel Style="{DynamicResource CustomVerticalPanel2}"/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+							<ItemsControl.ItemTemplate>
+								<DataTemplate DataType="local:QuickTagsItem">
+									<Border>
+										<Button
+											HorizontalAlignment="Stretch"
+											HorizontalContentAlignment="Stretch"
+											Command="{StaticResource QuickTagsCommand}"
+											CommandParameter="{Binding}"
+											Content="{Binding Tags}"/>
+									</Border>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</Border>
+				</wpf:ButtonPopup>
+
 			</Grid>
 
 			<Border>

@@ -149,8 +149,8 @@ public partial class App : ApplicationBase {
 
 
 		//new TestWindow().Show();
-		ShowE6AI();
-		//ShowE621();
+		//ShowE6AI();
+		ShowE621();
 
 		startupStopWatch.Stop();
 		Debug.WriteLine($"app started in {startupStopWatch.ElapsedMilliseconds} ms");
@@ -279,6 +279,7 @@ public partial class App : ApplicationBase {
 			"Vortice",
 			"WpfColorFontDialog",
 			"LiteDB",
+			"HtmlAgilityPack",
 		];
 
 		protected override IEnumerable<string> AdditionalSkipSet() => skipSet;

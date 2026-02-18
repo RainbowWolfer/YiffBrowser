@@ -1,13 +1,15 @@
-﻿using YiffBrowser.BaseFramework.Controls;
-using YiffBrowser.BaseFramework.Events;
-using HandyControl.Themes;
+﻿using HandyControl.Themes;
 using RW.Base.WPF.DependencyInjections;
 using RW.Base.WPF.Events;
+using RW.Base.WPF.Interfaces;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Windows;
 using System.Windows.Threading;
+using YiffBrowser.BaseFramework.Controls;
+using YiffBrowser.BaseFramework.Events;
 
 namespace YiffBrowser.BaseFramework.Services;
 
@@ -18,13 +20,54 @@ public interface IThemeManager : ISingletonDependency {
 	void ToggleTheme();
 }
 
-internal class ThemeManager(IEventAggregator eventAggregator) : IThemeManager {
+internal class ThemeManager(IEventAggregator eventAggregator) : IThemeManager, IAppInitialize {
 	public event TypedEventHandler<IThemeManager, ThemeChangedEventArgs>? ThemeChanged;
 
 	private class _ControlzEx {
 		public static readonly Assembly AssemblyControlzEx = Assembly.Load("ControlzEx");
 		public static readonly Type DwmHelper = AssemblyControlzEx.GetType("ControlzEx.Internal.DwmHelper", throwOnError: true)!;
 		public static readonly MethodInfo SetImmersiveDarkMode = DwmHelper.GetMethod("SetImmersiveDarkMode", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)!;
+	}
+
+	string IAppInitialize.Description => "";
+	int IPriority.Priority => IntPriority.Higher;
+
+	void IAppInitialize.AppInitialize(IStatusReport statusReport) {
+		SetCustomResources(IsDarkTheme());
+	}
+
+	public void SetCustomResources(bool isDark) {
+		const string ThemePrefix = "/YiffBrowser.Resources;component/";
+		// 1. 确定目标文件的完整 URI 路径
+		string themeName = isDark ? "Dark.xaml" : "Light.xaml";
+		Uri newThemeUri = new($"{ThemePrefix}{themeName}", UriKind.RelativeOrAbsolute);
+
+		// 2. 创建新的资源字典
+		ResourceDictionary newDict = new() { Source = newThemeUri };
+
+		// 3. 获取当前全局资源集合
+		Collection<ResourceDictionary> mergedDicts = Application.Current.Resources.MergedDictionaries;
+
+		// 4. 核心逻辑：替换旧的主题资源
+		// 遍历已有的字典，寻找并替换包含主题文件名的资源
+		bool themeReplaced = false;
+
+		for (int i = 0; i < mergedDicts.Count; i++) {
+			ResourceDictionary dict = mergedDicts[i];
+			if (dict.Source != null && dict.Source.OriginalString.Contains(ThemePrefix) && (
+				dict.Source.OriginalString.Contains("Light.xaml")
+				|| dict.Source.OriginalString.Contains("Dark.xaml")
+			)) {
+				mergedDicts[i] = newDict; // 直接替换索引位置，效率最高且防止闪烁
+				themeReplaced = true;
+				break;
+			}
+		}
+
+		// 5. 如果初始化时没找到旧主题（保险措施），则直接添加
+		if (!themeReplaced) {
+			mergedDicts.Add(newDict);
+		}
 	}
 
 	public bool IsDarkTheme() {
@@ -99,7 +142,9 @@ internal class ThemeManager(IEventAggregator eventAggregator) : IThemeManager {
 			}
 		}
 
-		ThemeChangedEventArgs args = new(IsDarkTheme());
+		SetCustomResources(isDark);
+
+		ThemeChangedEventArgs args = new(isDark);
 		eventAggregator.GetEvent<ThemeChangedEvent>().Publish(args);
 		ThemeChanged?.Invoke(this, args);
 
@@ -130,4 +175,5 @@ internal class ThemeManager(IEventAggregator eventAggregator) : IThemeManager {
 
 	private const int DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
 	private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+
 }

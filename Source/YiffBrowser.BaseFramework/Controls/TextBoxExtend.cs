@@ -1,9 +1,8 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
 
 namespace YiffBrowser.BaseFramework.Controls;
 
-public class TextBoxExtend : TextBox {
+public class TextBoxExtend : HandyControl.Controls.TextBox {
     public static readonly DependencyProperty BindableSelectionStartProperty = DependencyProperty.Register(
         nameof(BindableSelectionStart),
         typeof(int),

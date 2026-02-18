@@ -1,11 +1,11 @@
-﻿using YiffBrowser.BaseFramework.Helpers;
-using FlyleafLib.MediaPlayer;
+﻿using FlyleafLib.MediaPlayer;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
+using YiffBrowser.BaseFramework.Helpers;
 
 namespace YiffBrowser.BaseFramework.Controls;
 
@@ -38,7 +38,8 @@ public class PlaybackControl : ContentControl, INotifyPropertyChanged {
 		}
 	}
 
-	private bool wasPlayingBeforeDrag;
+	private bool wasPlayingBeforeDrag = false;
+	private bool isHandingDragStarted = false;
 
 	public PlaybackControl() {
 		dispatcherTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(10), DispatcherPriority.Normal, Tick, Dispatcher);
@@ -87,13 +88,15 @@ public class PlaybackControl : ContentControl, INotifyPropertyChanged {
 	}
 
 	private void Slider_DragStarted(object sender, MouseButtonEventArgs e) {
-		if (Player is null) {
+		if (Player is null || isHandingDragStarted) {
 			return;
 		}
+		isHandingDragStarted = true;
 		wasPlayingBeforeDrag = Player.IsPlaying;
 		Dispatcher.BeginInvoke(() => {
 			Player.Pause();
-		}, DispatcherPriority.Background);
+			isHandingDragStarted = false;
+		}, DispatcherPriority.Normal);
 	}
 
 	private void Slider_DragCompleted(object sender, MouseButtonEventArgs e) {

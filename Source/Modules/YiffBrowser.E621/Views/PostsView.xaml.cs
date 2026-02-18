@@ -353,7 +353,7 @@ internal class PostsViewModel() : ViewModelBase {
 		ButtonPopup popup = PaginationButtonPopupService.Object;
 
 		if (popup.Child is FrameworkElement child) {
-			popup.HorizontalOffset = (-child.ActualWidth / 2) + 100;
+			popup.HorizontalOffset = (-child.ActualWidth / 2)/* + 100*/;
 		}
 
 	}

@@ -96,13 +96,23 @@ public static class ListBoxExtension {
 			bool newValue = (bool)e.NewValue;
 
 			listBox.SelectionChanged -= ListBox_SelectionChanged;
+			listBox.Loaded -= ListBox_Loaded;
 
 			if (newValue) {
 				listBox.SelectionChanged += ListBox_SelectionChanged;
+				listBox.Loaded += ListBox_Loaded;
 
 				if (listBox.SelectedItem != null) {
 					listBox.ScrollIntoView(listBox.SelectedItem);
 				}
+			}
+		}
+	}
+
+	private static void ListBox_Loaded(object sender, RoutedEventArgs e) {
+		if (sender is ListBox listBox) {
+			if (listBox.SelectedItem != null) {
+				listBox.ScrollIntoView(listBox.SelectedItem);
 			}
 		}
 	}

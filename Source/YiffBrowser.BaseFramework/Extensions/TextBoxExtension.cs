@@ -66,4 +66,52 @@ public static class TextBoxExtension {
 			e.DataObject = newObject;
 		}
 	}
+
+
+
+	public static bool GetEscapeToClearFocus(DependencyObject obj) => (bool)obj.GetValue(EscapeToClearFocusProperty);
+	public static void SetEscapeToClearFocus(DependencyObject obj, bool value) => obj.SetValue(EscapeToClearFocusProperty, value);
+	public static readonly DependencyProperty EscapeToClearFocusProperty = DependencyProperty.RegisterAttached(
+		"EscapeToClearFocus",
+		typeof(bool),
+		typeof(TextBoxExtension),
+		new PropertyMetadata(false, OnEscapeToClearFocusChanged)
+	);
+
+	private static void OnEscapeToClearFocusChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		if (d is UIElement ui) {
+			ui.KeyDown -= EscapeToClearFocus_KeyDown;
+			if (e.NewValue is true) {
+				ui.KeyDown += EscapeToClearFocus_KeyDown;
+			}
+		}
+	}
+
+	private static void EscapeToClearFocus_KeyDown(object sender, KeyEventArgs e) {
+		if (e.Key is Key.Escape) {
+			Keyboard.ClearFocus();
+
+			if (GetFocusUponClearFocus((DependencyObject)sender) is UIElement target) {
+				target.Focus();
+			}
+
+			e.Handled = true;
+		}
+	}
+
+
+
+	public static UIElement GetFocusUponClearFocus(DependencyObject obj) => (UIElement)obj.GetValue(FocusUponClearFocusProperty);
+
+	public static void SetFocusUponClearFocus(DependencyObject obj, UIElement value) => obj.SetValue(FocusUponClearFocusProperty, value);
+
+	public static readonly DependencyProperty FocusUponClearFocusProperty = DependencyProperty.RegisterAttached(
+		"FocusUponClearFocus",
+		typeof(UIElement),
+		typeof(TextBoxExtension),
+		new PropertyMetadata(null)
+	);
+
+
+
 }

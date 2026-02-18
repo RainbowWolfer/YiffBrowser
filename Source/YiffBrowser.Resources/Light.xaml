@@ -1,0 +1,13 @@
+﻿<ResourceDictionary
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<Color x:Key="ListBoxItem.IsMouseOver.Background.Color">#E5E5E5</Color>
+
+	<SolidColorBrush x:Key="ListBoxItem.IsMouseOver.Background" Color="{DynamicResource ListBoxItem.IsMouseOver.Background.Color}"/>
+
+
+	<Color x:Key="SlidePanelImageControl.Background.Color">#E5E5E5</Color>
+
+	<SolidColorBrush x:Key="SlidePanelImageControl.Background" Color="{DynamicResource ListBoxItem.IsMouseOver.Background.Color}"/>
+</ResourceDictionary>

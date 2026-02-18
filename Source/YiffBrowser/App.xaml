@@ -30,6 +30,8 @@
 				<ResourceDictionary Source="pack://application:,,,/YiffBrowser.BaseFramework;component/Resources/FrameworkTheme.xaml"/>
 				<ResourceDictionary Source="pack://application:,,,/YiffBrowser.E621;component/Resources/Theme.xaml"/>
 
+				<ResourceDictionary Source="pack://application:,,,/YiffBrowser.Resources;component/Dark.xaml"/>
+
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
 	</Application.Resources>

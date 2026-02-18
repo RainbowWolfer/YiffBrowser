@@ -22,29 +22,49 @@
 			ToggleFullScreenOnDoubleClick="None">
 
 			<Border DataContext="{Binding HostDataContext}" Background="Transparent">
-				<StackPanel>
-					<Border Visibility="{Binding ShowControls, Converter={StaticResource Boolean2VisibilityConverter}}">
-						<bf:PlaybackControl
-							Height="30"
-							VerticalAlignment="Top"
-							BorderThickness="0,0,0,1"
-							BorderBrush="{DynamicResource BorderBrush}"
-							Background="{DynamicResource RegionBrush}"
-							Player="{Binding Player}"
-							Visibility="{Binding IsFileReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
-					</Border>
-					<c:LoadingProgresControl
-						Margin="4"
-						VerticalAlignment="Top"
-						wpf:ToolTipExtension.FastToolTip="True"
-						DownloadInfo="{Binding LoadingStatus.DownloadInfo}"
-						ErrorMessage="{Binding LoadingStatus.ErrorMessage}"
-						Progress="{Binding LoadingStatus.Progress}"
-						ReloadCommand="{Binding ReloadCommand}"
-						ToolTip="{Binding LoadingStatus.ToolTip}"
-						Visibility="{Binding LoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+				<Grid>
 
-				</StackPanel>
+					<Image Source="{Binding Post.Sample.URL}" Visibility="{Binding IsFileReady, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
+
+					<StackPanel>
+						<Border Visibility="{Binding ShowControls, Converter={StaticResource Boolean2VisibilityConverter}}">
+							<bf:PlaybackControl
+								Height="30"
+								VerticalAlignment="Top"
+								BorderThickness="0,0,0,1"
+								BorderBrush="{DynamicResource BorderBrush}"
+								Background="{DynamicResource RegionBrush}"
+								Player="{Binding Player}"
+								Visibility="{Binding IsFileReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+						</Border>
+						<c:LoadingProgresControl
+							Margin="4"
+							VerticalAlignment="Top"
+							wpf:ToolTipExtension.FastToolTip="True"
+							DownloadInfo="{Binding LoadingStatus.DownloadInfo}"
+							ErrorMessage="{Binding LoadingStatus.ErrorMessage}"
+							Progress="{Binding LoadingStatus.Progress}"
+							ReloadCommand="{Binding ReloadCommand}"
+							ToolTip="{Binding LoadingStatus.ToolTip}"
+							Visibility="{Binding LoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+
+					</StackPanel>
+
+					<ProgressBar
+						Style="{DynamicResource ProgressBarFlat}"
+						Height="1"
+						VerticalAlignment="Top"
+						Maximum="{Binding Player.Duration}"
+						Value="{Binding Player.CurTime, Mode=OneWay}">
+						<ProgressBar.Visibility>
+							<MultiBinding Converter="{StaticResource BooleanArr2VisibilityConverter}">
+								<Binding Path="ShowControls" Converter="{StaticResource Boolean2BooleanReConverter}"/>
+								<Binding Path="IsFileReady"/>
+							</MultiBinding>
+						</ProgressBar.Visibility>
+					</ProgressBar>
+
+				</Grid>
 			</Border>
 
 		</fl:FlyleafHost>
