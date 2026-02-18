@@ -63,6 +63,18 @@ public class ListBoxEx : ListBox {
 		new PropertyMetadata(false)
 	);
 
+	public Cursor RightButtonScrollCursor {
+		get => (Cursor)GetValue(RightButtonScrollCursorProperty);
+		set => SetValue(RightButtonScrollCursorProperty, value);
+	}
+
+	public static readonly DependencyProperty RightButtonScrollCursorProperty = DependencyProperty.Register(
+		nameof(RightButtonScrollCursor),
+		typeof(Cursor),
+		typeof(ListBoxEx),
+		new PropertyMetadata(null)
+	);
+
 
 	private ScrollViewer? _scrollViewer;
 
@@ -117,7 +129,7 @@ public class ListBoxEx : ListBox {
 			_lastMousePosition = e.GetPosition(this);
 			e.Handled = true;
 
-			Cursor = Cursors.ScrollWE;
+			Cursor = RightButtonScrollCursor;
 
 			return;
 		}

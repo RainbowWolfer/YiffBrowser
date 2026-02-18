@@ -4,11 +4,57 @@ using RW.Common.Helpers;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace YiffBrowser.BaseFramework.Services;
 
+// todo: 改成不同的网站有自己的netcode实例
 public static class NetCode {
+	private static HttpClientWrapper currentClientWrapper;
+	private static readonly Lock @lock = new();
+
+	static NetCode() {
+		currentClientWrapper = new HttpClientWrapper(CreateClient());
+	}
+
+	public static void CreateNewClient() {
+		lock (@lock) {
+			currentClientWrapper.MarkAsDeprecated();
+			currentClientWrapper = new HttpClientWrapper(CreateClient());
+		}
+	}
+
+	public static HttpClientWrapper GetClient() {
+		lock (@lock) {
+			return currentClientWrapper;
+		}
+	}
+
+	private static HttpClient CreateClient() {
+		AppSettingsModel model = AppSettingsService.Instance.Model;
+
+		SocketsHttpHandler handler = new() {
+			PooledConnectionLifetime = TimeSpan.FromMinutes(2),
+			PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1),
+			MaxConnectionsPerServer = 4,
+			AutomaticDecompression = DecompressionMethods.All,
+			ConnectTimeout = TimeSpan.FromSeconds(15),
+			EnableMultipleHttp2Connections = true,
+			UseProxy = true,
+			Proxy = HttpClient.DefaultProxy,
+			UseCookies = false,
+			KeepAlivePingDelay = TimeSpan.FromSeconds(30),
+			KeepAlivePingTimeout = TimeSpan.FromSeconds(5),
+			KeepAlivePingPolicy = HttpKeepAlivePingPolicy.Always,
+			PreAuthenticate = true,
+		};
+
+		return new HttpClient(handler) {
+			Timeout = TimeSpan.FromSeconds(60),
+		};
+	}
+
 	public static string UserAgent {
 		get {
 			IAppManager appManager = IoC.GetService<IAppManager>();
@@ -16,220 +62,139 @@ public static class NetCode {
 		}
 	}
 
-	public static async Task<HttpResult<string>> ReadURLAsync(string url, string? username, string? api, CancellationToken? token = null) {
-		Debug.WriteLine("Reading: " + url);
+	public static Task<HttpResult<string>> ReadURLAsync(string url, string? username, string? api, CancellationToken? token = null)
+		=> SendRequestAsync(HttpMethod.Get, url, null, username, api, token);
 
-		DateTime startDateTime = DateTime.Now;
-		Stopwatch stopwatch = Stopwatch.StartNew();
+	public static Task<HttpResult<string>> PutRequestAsync(string url, KeyValuePair<string, string> pair, string? username, string? api, CancellationToken? token = null)
+		=> SendRequestAsync(HttpMethod.Put, url, new FormUrlEncodedContent([pair]), username, api, token);
 
-		using HttpClient client = new();
-		AddDefaultRequestHeaders(client, username, api);
+	public static Task<HttpResult<string>> PostRequestAsync(string url, List<KeyValuePair<string, string>> pairs, string? username, string? api, CancellationToken? token = null)
+		=> SendRequestAsync(HttpMethod.Post, url, new FormUrlEncodedContent(pairs), username, api, token);
 
-		HttpResponseMessage? message = null;
-		HttpResultType result;
-		HttpStatusCode code;
+	public static Task<HttpResult<string>> DeleteRequestAsync(string url, string? username, string? api, CancellationToken? token = null)
+		=> SendRequestAsync(HttpMethod.Delete, url, null, username, api, token);
 
-		string? content = null;
+	private static async Task<HttpResult<string>> SendRequestAsync(
+		HttpMethod method,
+		string url,
+		HttpContent? content,
+		string? username,
+		string? api,
+		CancellationToken? token = null
+	) {
+
+		Debug.WriteLine($"{method}: {url}");
+
+		DateTime startTime = DateTime.Now;
+		Stopwatch sw = Stopwatch.StartNew();
+
+		using HttpRequestMessage request = new(method, url) { Content = content };
+
+		ApplyRequestHeaders(request, username, api);
+
+		HttpResponseMessage? response = null;
+		HttpResultType resultType;
+		string? responseContent = null;
 		string helper = "";
 
 		try {
-			if (token != null) {
-				message = await client.GetAsync(url, token.Value);
-			} else {
-				message = await client.GetAsync(url);
+			HttpClientWrapper client = GetClient();
+			using (client.Use(method, url)) {
+				response = await client.HttpClient.SendAsync(request, token ?? CancellationToken.None);
+
+				responseContent = await response.Content.ReadAsStringAsync();
+
+				if (response.IsSuccessStatusCode) {
+					resultType = HttpResultType.Success;
+				} else {
+					resultType = HttpResultType.Error;
+					helper = $"Status Code: {response.StatusCode}";
+				}
 			}
-			message.EnsureSuccessStatusCode();
-			code = message.StatusCode;
-			content = await message.Content.ReadAsStringAsync();
-
-			result = HttpResultType.Success;
 		} catch (OperationCanceledException) {
-			code = message?.StatusCode ?? HttpStatusCode.NotFound;
-			content = null;
-
-			result = HttpResultType.Canceled;
+			resultType = HttpResultType.Canceled;
 		} catch (HttpRequestException e) {
-			code = message?.StatusCode ?? HttpStatusCode.NotFound;
-			content = e.Message;
-			helper = e.Message;
-
-			result = HttpResultType.Error;
-		} finally {
-			message?.Dispose();
-		}
-
-		stopwatch.Stop();
-
-		HttpResult<string> hr = new(result, code, content, stopwatch.ElapsedMilliseconds, startDateTime, helper);
-		//HttpRequestHistories.AddNewItem(startDateTime, url, hr, "Get");
-
-		return hr;
-	}
-
-	public static async Task<HttpResult<string>> PutRequestAsync(string url, KeyValuePair<string, string> pair, string? username, string? api, CancellationToken? token = null) {
-		DateTime startDateTime = DateTime.Now;
-		Stopwatch stopwatch = Stopwatch.StartNew();
-
-		using HttpClient client = new();
-		AddDefaultRequestHeaders(client, username, api);
-
-		HttpResponseMessage? message = null;
-		HttpResultType result;
-		HttpStatusCode code;
-
-		string? content = null;
-		string helper = "";
-
-		try {
-			List<KeyValuePair<string, string>> pairs = [pair];
-			FormUrlEncodedContent data = new(pairs);
-			if (token != null) {
-				message = await client.PutAsync(url, data, token.Value);
-			} else {
-				message = await client.PutAsync(url, data);
-			}
-			message.EnsureSuccessStatusCode();
-			code = message.StatusCode;
-			content = await message.Content.ReadAsStringAsync();
-			result = HttpResultType.Success;
-		} catch (OperationCanceledException) {
-			code = message?.StatusCode ?? HttpStatusCode.NotFound;
-			content = null;
-			result = HttpResultType.Canceled;
-		} catch (HttpRequestException e) {
-			code = message?.StatusCode ?? HttpStatusCode.NotFound;
-			content = e.Message;
-			helper = e.Message;
-			result = HttpResultType.Error;
-		} finally {
-			message?.Dispose();
-		}
-		stopwatch.Stop();
-		HttpResult<string> hr = new(result, code, content, stopwatch.ElapsedMilliseconds, startDateTime, helper);
-		//HttpRequestHistories.AddNewItem(startDateTime, url, hr, "Put");
-		return hr;
-	}
-
-	public static async Task<HttpResult<string>> PostRequestAsync(string url, List<KeyValuePair<string, string>> pairs, string? username, string? api, CancellationToken? token = null) {
-		DateTime startDateTime = DateTime.Now;
-		Stopwatch stopwatch = Stopwatch.StartNew();
-
-		using HttpClient client = new();
-		AddDefaultRequestHeaders(client, username, api);
-
-		HttpResponseMessage? message = null;
-		HttpResultType result;
-		HttpStatusCode code;
-
-		string helper = "";
-		string content = "";
-		try {
-			FormUrlEncodedContent data = new(pairs);
-			if (token != null) {
-				message = await client.PostAsync(url, data, token.Value);
-			} else {
-				message = await client.PostAsync(url, data);
-			}
-			message.EnsureSuccessStatusCode();
-			content = await message.Content.ReadAsStringAsync();
-			result = HttpResultType.Success;
-			code = message.StatusCode;
-		} catch (OperationCanceledException) {
-			result = HttpResultType.Canceled;
-			code = message?.StatusCode ?? HttpStatusCode.BadRequest;
-		} catch (HttpRequestException e) {
-			result = HttpResultType.Error;
-			code = message?.StatusCode ?? HttpStatusCode.BadRequest;
+			resultType = HttpResultType.Error;
+			responseContent = e.Message;
 			helper = e.Message;
 		} finally {
-			client.Dispose();
-			message?.Dispose();
+			sw.Stop();
+			response?.Dispose();
 		}
-		stopwatch.Stop();
 
-		HttpResult<string> hr = new(result, code, content, stopwatch.ElapsedMilliseconds, startDateTime, helper);
-		//HttpRequestHistories.AddNewItem(startDateTime, url, hr, "Post");
-		return hr;
+		HttpStatusCode code = response?.StatusCode
+			?? (resultType == HttpResultType.Success ? HttpStatusCode.OK : HttpStatusCode.BadRequest);
+
+		return new HttpResult<string>(
+			Result: resultType,
+			StatusCode: code,
+			Content: responseContent,
+			Time: sw.ElapsedMilliseconds,
+			StartTime: startTime,
+			Helper: helper
+		);
 	}
 
-	public static async Task<HttpResult<string>> DeleteRequestAsync(string url, string? username, string? api, CancellationToken? token = null) {
-		DateTime startDateTime = DateTime.Now;
-		Stopwatch stopwatch = Stopwatch.StartNew();
+	private static void ApplyRequestHeaders(HttpRequestMessage request, string? username, string? api) {
+		request.Headers.UserAgent.ParseAdd(UserAgent);
 
-		using HttpClient client = new();
-		AddDefaultRequestHeaders(client, username, api);
-
-		HttpResponseMessage? message = null;
-		HttpResultType result;
-		HttpStatusCode code;
-
-		string? content = null;
-		string helper = "";
-
-		try {
-			if (token != null) {
-				message = await client.DeleteAsync(url, token.Value);
-			} else {
-				message = await client.DeleteAsync(url);
-			}
-			message.EnsureSuccessStatusCode();
-			code = message.StatusCode;
-			content = await message.Content.ReadAsStringAsync();
-			result = HttpResultType.Success;
-		} catch (OperationCanceledException) {
-			code = message?.StatusCode ?? HttpStatusCode.NotFound;
-			content = null;
-			result = HttpResultType.Canceled;
-		} catch (HttpRequestException e) {
-			code = message?.StatusCode ?? HttpStatusCode.NotFound;
-			content = e.Message;
-			helper = e.Message;
-			result = HttpResultType.Error;
-		} finally {
-			message?.Dispose();
-		}
-		stopwatch.Stop();
-
-		HttpResult<string> hr = new(result, code, content, stopwatch.ElapsedMilliseconds, startDateTime, helper);
-		//HttpRequestHistories.AddNewItem(startDateTime, url, hr, "Delete");
-		return hr;
-	}
-
-	public static void AddDefaultRequestHeaders(HttpClient client, string? username, string? api) {
-		//client.DefaultRequestHeaders.Add("User-Agent", USERAGENT);
-		//client.DefaultRequestHeaders.UserAgent.ParseAdd("MyApp/1.0 (by username@example.com)");
-		client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
-		AddAuthorizationHeader(client, username, api);
-		//AddAuthorizationHeader(client, "RainbowWolfer", "WUwPNbGDrfXnQoHfvU1nR3TD");
-		//AddAuthorizationHeader(client, "RainbowWolfer", "MUc9Um83YooHeFiyk6bM9vjt");
-	}
-
-	private static void AddAuthorizationHeader(HttpClient client, string? username, string? api) {
 		if (username.IsNotBlank() && api.IsNotBlank()) {
-			string encoded = Convert.ToBase64String(Encoding.GetEncoding("ISO-8859-1").GetBytes(username + ":" + api));
-			client.DefaultRequestHeaders.Add("Authorization", "Basic " + encoded);
+			string authRaw = $"{username}:{api}";
+			string encoded = Convert.ToBase64String(Encoding.GetEncoding("ISO-8859-1").GetBytes(authRaw));
+			request.Headers.Authorization = new AuthenticationHeaderValue("Basic", encoded);
+		}
+	}
+
+}
+
+
+public class HttpClientWrapper(HttpClient httpClient) {
+	public HttpClient HttpClient { get; } = httpClient;
+	private int referenceCount = 0;
+	private bool isDeprecated = false;
+
+	public void MarkAsDeprecated() {
+		isDeprecated = true;
+		CheckAndDispose();
+	}
+
+	public IDisposable Use(HttpMethod method, string url) {
+		Interlocked.Increment(ref referenceCount);
+		return new ReleaseHelper(this);
+	}
+
+	private void CheckAndDispose() {
+		if (isDeprecated && Volatile.Read(ref referenceCount) <= 0) {
+			HttpClient.Dispose();
+			Debug.WriteLine("HttpClient disposed after all tasks finished.");
+		}
+	}
+
+	private class ReleaseHelper(HttpClientWrapper wrapper) : IDisposable {
+		public void Dispose() {
+			Interlocked.Decrement(ref wrapper.referenceCount);
+			wrapper.CheckAndDispose();
 		}
 	}
 }
 
-public class HttpResult<T>(HttpResultType result, HttpStatusCode statusCode, T? content, long time, DateTime startTime, string? helper = null) {
-	public HttpResultType Result { get; set; } = result;
-	public HttpStatusCode StatusCode { get; private set; } = statusCode;
-	public T? Content { get; private set; } = content;
-	public string? Helper { get; private set; } = helper;
-	public long Time { get; private set; } = time;
-	public DateTime StartTime { get; private set; } = startTime;
-}
+public record class HttpResult<T>(
+	HttpResultType Result,
+	HttpStatusCode StatusCode,
+	T? Content,
+	long Time,
+	DateTime StartTime,
+	string? Helper = null
+);
 
-public class DataResult<T>(HttpResultType resultType, T? data) {
-	public HttpResultType ResultType { get; set; } = resultType;
-	public T? Data { get; set; } = data;
-}
+public record class DataResult<T>(HttpResultType ResultType, T? Data);
 
 public class HttpResultTypeNotFoundException : Exception {
 	public HttpResultTypeNotFoundException() : base("") { }
 }
 
 public enum HttpResultType {
-	Success, Error, Canceled
+	Success,
+	Error,
+	Canceled,
 }

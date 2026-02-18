@@ -1,12 +1,11 @@
-﻿using YiffBrowser.BaseFramework.Interfaces;
-using RW.Common.Helpers;
+﻿using RW.Common.Helpers;
 using System.Diagnostics;
 using System.Windows;
-using System.Windows.Controls;
+using YiffBrowser.BaseFramework.Interfaces;
 
 namespace YiffBrowser.BaseFramework.Controls;
 
-public class VariableSizedWrapGridView : ListBox {
+public class VariableSizedWrapGridView : ListBoxEx {
     protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
         if (item is IVariableSizedGridItem model) {
             try {

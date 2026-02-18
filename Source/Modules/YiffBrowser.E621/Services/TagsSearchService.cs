@@ -173,6 +173,9 @@ internal class TagsSearchService : BindableBase {
 
 		AutoCompletes.Clear();
 
+		//todo: add static type auto completes
+		// type: ...
+		// ...
 		E621AutoComplete[] completes = await Api.GetE621AutoCompleteAsync(tag, _cts.Token);
 
 		if (_cts.IsCancellationRequested) {

@@ -115,15 +115,30 @@
 											<wpf:FontIcon Text="&#xE896;"/>
 										</Button>
 
-										<ToggleButton Height="30" MinWidth="30" IsChecked="{Binding IsMultiSelecting, Mode=TwoWay}">
-											<ToggleButton.ToolTip>
-												<TextBlock Foreground="Black" Text="Toggle Selection"/>
-											</ToggleButton.ToolTip>
-											<bf:HorizontalIconText
-												d:Text="(1/75)"
+										<ToggleButton
+											Style="{DynamicResource ToggleButton.Custom.Soild}"
+											Height="30"
+											MinWidth="30"
+											Padding="8,0"
+											IsChecked="{Binding IsMultiSelecting, Mode=TwoWay}"
+											ToolTip="Toggle Selection">
+
+											<DockPanel>
+												<wpf:FontIcon Text="&#xE152;"/>
+												<TextBlock
+													d:Text="1/75"
+													Margin="6,0,0,0"
+													Text="{Binding MultiSelectingText}"
+													Visibility="{Binding MultiSelectingText, Converter={StaticResource String2VisibilityConverter}}"/>
+											</DockPanel>
+
+											<!--<bf:HorizontalIconText
+												d:Text="1/75"
 												Glyph="&#xE152;"
 												IconForeground="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Foreground}"
-												Text="{Binding MultiSelectingText}"/>
+												Spacing="6"
+												Text="{Binding MultiSelectingText}"/>-->
+
 										</ToggleButton>
 
 									</wpf:SpacingStackPanel>
@@ -143,6 +158,10 @@
 								bf:SelectorExtension.SelectedItems="{Binding SelectedItems}"
 								AllowSelection="{Binding IsMultiSelecting}"
 								Background="{DynamicResource RegionBrush}"
+								EnableKeyDown="False"
+								RightButtonScroll="True"
+								RightButtonScrollCursor="ScrollNS"
+								RightButtonSelect="False"
 								VirtualizingPanel.IsVirtualizing="False"
 								VirtualizingPanel.ScrollUnit="Pixel"
 								ItemsSource="{Binding Items}"
@@ -202,6 +221,7 @@
 								<ItemsControl.ItemContainerStyle>
 									<Style TargetType="ListBoxItem">
 										<EventSetter Event="RequestBringIntoView" Handler="ListBoxItem_RequestBringIntoView"/>
+										<Setter Property="bf:ListBoxItemClickExtension.AllowSelection" Value="{Binding Source={StaticResource ViewModel}, Path=Data.IsMultiSelecting}"/>
 										<Setter Property="bf:ListBoxItemClickExtension.ClickCommand" Value="{StaticResource ViewPostDetailCommand}"/>
 										<Setter Property="bf:ListBoxItemClickExtension.ClickCommandParameter" Value="{Binding Post}"/>
 										<Setter Property="Margin" Value="0"/>
@@ -221,7 +241,7 @@
 										<Setter Property="ContextMenu">
 											<Setter.Value>
 												<ContextMenu>
-													<MenuItem Header="Open"/>
+													<MenuItem bf:IconExtension.Glyph="&#xE89F;" Header="Open"/>
 												</ContextMenu>
 											</Setter.Value>
 										</Setter>

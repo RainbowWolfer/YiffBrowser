@@ -60,7 +60,7 @@ public class PostCardListBox : VariableSizedWrapGridView {
 
 }
 
-public class PostCardListBoxItem(PostCardListBox parentListBox) : ListBoxItem {
+public class PostCardListBoxItem(PostCardListBox parentListBox) : ListBoxItemEx {
 	public PostCardListBox ParentListBox { get; } = parentListBox;
 
 	protected override void OnSelected(RoutedEventArgs e) {

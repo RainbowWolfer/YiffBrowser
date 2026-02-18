@@ -11,13 +11,9 @@
 	xmlns:enums="clr-namespace:YiffBrowser.E621.Enums"
 	xmlns:ex="clr-namespace:YiffBrowser.E621.Extensions"
 	xmlns:hc="https://handyorg.github.io/handycontrol"
-	xmlns:hc_c="clr-namespace:HandyControl.Controls;assembly=HandyControl"
 	xmlns:i="clr-namespace:YiffBrowser.E621.Interfaces"
 	xmlns:local="clr-namespace:YiffBrowser.E621.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:p="clr-namespace:YiffBrowser.E621.Parameters"
-	xmlns:service="clr-namespace:YiffBrowser.E621.Services"
-	xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
 	xmlns:subs="clr-namespace:YiffBrowser.E621.Views.Subs"
 	xmlns:wpf="RW.Common.WPF"
 	d:DataContext="{d:DesignInstance Type=local:E621MainViewModel}"
@@ -40,6 +36,14 @@
 		<wpf:CommandProxy x:Key="CloseDockPanelCommand" Command="{Binding CloseDockPanelCommand}"/>
 		<wpf:CommandProxy x:Key="CollapseDockPanelCommand" Command="{Binding CollapseDockPanelCommand}"/>
 		<wpf:CommandProxy x:Key="DockPanelTabItemHeaderDoubleClickCommand" Command="{Binding DockPanelTabItemHeaderDoubleClickCommand}"/>
+
+		<wpf:CommandProxy x:Key="CloneTabCommand" Command="{Binding CloneTabCommand}"/>
+		<wpf:CommandProxy x:Key="RefresgTabCommand" Command="{Binding RefresgTabCommand}"/>
+		<wpf:CommandProxy x:Key="AppenSearchCommand" Command="{Binding AppenSearchCommand}"/>
+		<wpf:CommandProxy x:Key="CloseAllTabsCommand" Command="{Binding CloseAllTabsCommand}"/>
+		<wpf:CommandProxy x:Key="CloseAllBeforeTabsCommand" Command="{Binding CloseAllBeforeTabsCommand}"/>
+		<wpf:CommandProxy x:Key="CloseAllAfterTabsCommand" Command="{Binding CloseAllAfterTabsCommand}"/>
+		<wpf:CommandProxy x:Key="CloseAllOtherTabsCommand" Command="{Binding CloseAllOtherTabsCommand}"/>
 
 		<wpf:BindingProxy x:Key="ViewModel" Data="{Binding}"/>
 
@@ -218,7 +222,7 @@
 
 						<Grid Grid.Row="0">
 
-							<bf:BoolContent d:Bool="True">
+							<bf:BoolContent d:Bool="False">
 								<bf:BoolContent.Bool>
 									<MultiBinding Converter="{StaticResource BooleanArr2BooleanOrConverter}">
 										<Binding Path="Tabs.Count" Converter="{StaticResource IListToBoolReConverter}"/>
@@ -320,7 +324,7 @@
 																		<Border Grid.Row="1" CornerRadius="0,0,4,4">
 																			<Border.Background>
 																				<ImageBrush
-																					d:ImageSource="/YiffBrowser.Resources;component/Temp/Temp1.jpg"
+																					d:ImageSource="{StaticResource Temp1_JPG}"
 																					AlignmentX="Center"
 																					AlignmentY="Center"
 																					ImageSource="{Binding Posts[0].Preview.URL}"
@@ -353,7 +357,7 @@
 											dd:DragDrop.IsDropTarget="True"
 											Background="{DynamicResource RegionBrush}"
 											SelectedIndex="{Binding TabSelectedIndex, Mode=TwoWay}"
-											TabStripPlacement="Top"
+											TabStripPlacement="{Binding ViewService.TabDock}"
 											TabsManageCommand="{Binding TabsManageCommand}"
 											ItemsSource="{Binding Tabs}"
 											d:ItemsSource="{d:SampleData ItemCount=15}">
@@ -375,8 +379,18 @@
 
 											<c:TabControlEx.HeaderContextMenu>
 												<ContextMenu>
-													<MenuItem Header="1"/>
-													<MenuItem Header="2"/>
+
+
+													<MenuItem bf:IconExtension.Glyph="&#xE75A;" Header="Tab Docks">
+														<MenuItem Header="Top" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Top}"/>
+
+														<MenuItem Header="Left" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Left}"/>
+
+														<MenuItem Header="Bottom" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Bottom}"/>
+
+														<MenuItem Header="Right" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Right}"/>
+													</MenuItem>
+
 												</ContextMenu>
 											</c:TabControlEx.HeaderContextMenu>
 
@@ -386,16 +400,66 @@
 													<Setter Property="ContextMenu">
 														<Setter.Value>
 															<ContextMenu>
-																<MenuItem bf:IconExtension.Glyph="&#xECC8;" Header="New Tab"/>
-																<MenuItem bf:IconExtension.Glyph="&#xE70A;" Header="Clone Tab"/>
+																<!--<MenuItem bf:IconExtension.Glyph="&#xECC8;" Header="New Tab"/>-->
+																<MenuItem
+																	bf:IconExtension.Glyph="&#xE70A;"
+																	Command="{StaticResource CloneTabCommand}"
+																	CommandParameter="{Binding}"
+																	Header="Clone Tab"/>
+
 																<Separator/>
-																<MenuItem bf:IconExtension.Glyph="&#xE72C;" Header="Refresh"/>
+
+																<MenuItem
+																	bf:IconExtension.Glyph="&#xE72C;"
+																	Command="{StaticResource RefresgTabCommand}"
+																	CommandParameter="{Binding}"
+																	Header="Refresh"/>
+																<MenuItem
+																	bf:IconExtension.Glyph="&#xE721;"
+																	Command="{StaticResource AppenSearchCommand}"
+																	CommandParameter="{Binding}"
+																	Header="Append Search"/>
+
 																<Separator/>
-																<MenuItem bf:IconExtension.Glyph="&#xE711;" Header="Close"/>
-																<MenuItem Header="Close All"/>
-																<MenuItem Header="Close All Before"/>
-																<MenuItem Header="Close All After"/>
-																<MenuItem Header="Close Others"/>
+
+																<MenuItem
+																	bf:IconExtension.Glyph="&#xE711;"
+																	Command="{StaticResource CloseTabCommand}"
+																	CommandParameter="{Binding}"
+																	Header="Close"/>
+																<MenuItem
+																	bf:IconExtension.Glyph=""
+																	Command="{StaticResource CloseAllTabsCommand}"
+																	CommandParameter="{Binding}"
+																	Header="Close All"/>
+																<MenuItem
+																	bf:IconExtension.Glyph=""
+																	Command="{StaticResource CloseAllBeforeTabsCommand}"
+																	CommandParameter="{Binding}"
+																	Header="Close All Before"/>
+																<MenuItem
+																	bf:IconExtension.Glyph=""
+																	Command="{StaticResource CloseAllAfterTabsCommand}"
+																	CommandParameter="{Binding}"
+																	Header="Close All After"/>
+																<MenuItem
+																	bf:IconExtension.Glyph=""
+																	Command="{StaticResource CloseAllOtherTabsCommand}"
+																	CommandParameter="{Binding}"
+																	Header="Close Others"/>
+
+																<Separator/>
+
+																<MenuItem bf:IconExtension.Glyph="&#xE75A;" Header="Tab Docks">
+																	<MenuItem Header="Top" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static Dock.Top}}"/>
+
+																	<MenuItem Header="Left" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static Dock.Left}}"/>
+
+																	<MenuItem Header="Bottom" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static Dock.Bottom}}"/>
+
+																	<MenuItem Header="Right" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static Dock.Right}}"/>
+																</MenuItem>
+
 															</ContextMenu>
 														</Setter.Value>
 													</Setter>

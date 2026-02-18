@@ -59,7 +59,7 @@ internal class TypeHintControl : Control, INotifyPropertyChanged {
 
 	public string FileTypeHint {
 		get {
-			if (FileType is E621FileType.WEBM && Post != null && NumberHelper.ConvertDouble(Post.Duration, out double duration)) {
+			if (FileType.IsVideo() && Post != null && NumberHelper.ConvertDouble(Post.Duration, out double duration)) {
 				return $"{Math.Round(duration)}s";
 			} else {
 				return $"{FileType}";

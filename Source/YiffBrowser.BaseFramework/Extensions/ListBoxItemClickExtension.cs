@@ -9,6 +9,19 @@ public static class ListBoxItemClickExtension {
 
 
 
+	public static bool GetAllowSelection(DependencyObject obj) => (bool)obj.GetValue(AllowSelectionProperty);
+
+	public static void SetAllowSelection(DependencyObject obj, bool value) => obj.SetValue(AllowSelectionProperty, value);
+
+	public static readonly DependencyProperty AllowSelectionProperty = DependencyProperty.RegisterAttached(
+		"AllowSelection",
+		typeof(bool),
+		typeof(ListBoxItemClickExtension),
+		new PropertyMetadata(false)
+	);
+
+
+
 	public static bool GetIsPressed(DependencyObject obj) => (bool)obj.GetValue(IsPressedProperty);
 
 	public static void SetIsPressed(DependencyObject obj, bool value) => obj.SetValue(IsPressedProperty, value);
@@ -96,6 +109,10 @@ public static class ListBoxItemClickExtension {
 					if (command.CanExecute(parameter)) {
 						command.Execute(parameter);
 					}
+				}
+
+				if (GetAllowSelection(listBoxItem)) {
+					listBoxItem.IsSelected = !listBoxItem.IsSelected;
 				}
 			}
 		}

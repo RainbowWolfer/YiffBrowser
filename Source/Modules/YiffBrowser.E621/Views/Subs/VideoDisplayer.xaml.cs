@@ -186,7 +186,9 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
 	}
 
 	private void Tick(object? sender, EventArgs e) {
-
+		Raise("Player.CurTime");
+		Raise("CurTime");
+		QuickProgressBar.Value = Player?.CurTime ?? 0;
 	}
 
 	private void Update() {

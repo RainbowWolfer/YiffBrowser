@@ -25,21 +25,17 @@ public class PlaybackControl : ContentControl, INotifyPropertyChanged {
 		new PropertyMetadata(null)
 	);
 
-	private readonly DispatcherTimer dispatcherTimer;
-
 	public bool IsPlaying => Player != null && Player.IsPlaying;
 
 	public long CurTime {
-		get => Player?.CurTime ?? 0;
-		set {
-			if (Player != null) {
-				Player.CurTime = value;
-			}
-		}
+		get => Player?.CurTime ?? 0; 
+		set => Player?.CurTime = value;
 	}
 
 	private bool wasPlayingBeforeDrag = false;
 	private bool isHandingDragStarted = false;
+
+	private readonly DispatcherTimer dispatcherTimer;
 
 	public PlaybackControl() {
 		dispatcherTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(10), DispatcherPriority.Normal, Tick, Dispatcher);

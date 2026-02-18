@@ -9,9 +9,17 @@ public interface IAppSettingsService : ISettingsServiceBase<AppSettingsModel> {
 
 }
 
-public class AppSettingsService(
-	AppFolderConfig appFolderConfig
-) : JsonSettingsServiceBase<AppSettingsModel>, ISingletonDependency, IAppSettingsService {
+public class AppSettingsService : JsonSettingsServiceBase<AppSettingsModel>, ISingletonDependency, IAppSettingsService {
+	private static AppSettingsService? instance;
+	public static AppSettingsService Instance => instance!;
+
+	private readonly AppFolderConfig appFolderConfig;
+
+	public AppSettingsService(AppFolderConfig appFolderConfig) {
+		instance = this;
+		this.appFolderConfig = appFolderConfig;
+	}
+
 	public override string FilePath => appFolderConfig.AppSettingsFilePath;
 	public override AppSettingsModel GetDefaultModel() => new();
 }

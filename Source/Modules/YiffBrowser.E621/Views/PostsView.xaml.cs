@@ -13,7 +13,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using YiffBrowser.BaseFramework.ViewModels;
 using YiffBrowser.E621.Controls;
 using YiffBrowser.E621.Enums;
 using YiffBrowser.E621.Models.E621;
@@ -357,7 +356,18 @@ internal class PostsViewModel() : ViewModelBase {
 		ButtonPopup popup = PaginationButtonPopupService.Object;
 
 		if (popup.Child is FrameworkElement child) {
-			popup.HorizontalOffset = (-child.ActualWidth / 2)/* + 100*/;
+			// 如果 MenuDropAlignment 为 true，意味着菜单是“右对齐”的（即向左弹出）
+			bool isRightAligned = SystemParameters.MenuDropAlignment;
+
+			popup.HorizontalOffset = 0;
+
+			if (isRightAligned) {
+				// 右手习惯：菜单出现在鼠标/手指的左侧
+				popup.HorizontalOffset = child.ActualWidth * 0.5;
+			} else {
+				// 左手习惯：菜单出现在鼠标/手指的右侧
+				popup.HorizontalOffset = -child.ActualWidth * 0.5;
+			}
 		}
 
 	}

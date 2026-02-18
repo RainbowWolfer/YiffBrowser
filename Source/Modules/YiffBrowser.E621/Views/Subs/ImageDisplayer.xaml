@@ -26,7 +26,7 @@
 						IsEnabled="{Binding IsFileReady}"
 						MouseDoubleClick="ImageViewer_MouseDoubleClick"
 						MouseUp="ImageViewer_MouseUp"/>
-					<d:Image Source="/BaseFramework;component/Resources/Temp/Temp1.jpg" Stretch="UniformToFill"/>
+					<d:Image Source="{StaticResource Temp1_JPG}" Stretch="UniformToFill"/>
 				</Grid>
 			</Border>
 

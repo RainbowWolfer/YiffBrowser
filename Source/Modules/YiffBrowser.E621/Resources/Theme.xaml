@@ -7,6 +7,7 @@
 	xmlns:con="clr-namespace:YiffBrowser.E621.Converters"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:dd="urn:gong-wpf-dragdrop"
+	xmlns:enums="clr-namespace:YiffBrowser.E621.Enums"
 	xmlns:hc="https://handyorg.github.io/handycontrol"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:models_e621="clr-namespace:YiffBrowser.E621.Models.E621"
@@ -74,7 +75,8 @@
 								</Border>
 
 								<Border x:Name="Panel_NoSound"
-									Padding="6,2"
+									Height="26"
+									Padding="6,0"
 									HorizontalAlignment="Right"
 									CornerRadius="4"
 									Visibility="Visible">
@@ -97,7 +99,8 @@
 								</Border>
 
 								<Border x:Name="Panel_Sound"
-									Padding="6,2"
+									Height="26"
+									Padding="6,0"
 									HorizontalAlignment="Right"
 									CornerRadius="4"
 									Visibility="Visible">
@@ -120,7 +123,8 @@
 								</Border>
 
 								<Border x:Name="Panel_SoundWarning"
-									Padding="6,2"
+									Height="26"
+									Padding="6,0"
 									HorizontalAlignment="Right"
 									CornerRadius="4"
 									Visibility="Visible">
@@ -151,16 +155,21 @@
 
 					<ControlTemplate.Triggers>
 
-						<Trigger Property="FileType" Value="WEBM">
+						<Trigger Property="FileType" Value="{x:Static enums:E621FileType.WEBM}">
 							<Setter TargetName="VideoIcon" Property="Visibility" Value="Visible"/>
 							<Setter TargetName="TypeHintPanel" Property="Visibility" Value="Visible"/>
 						</Trigger>
 
-						<Trigger Property="FileType" Value="GIF">
+						<Trigger Property="FileType" Value="{x:Static enums:E621FileType.MP4}">
+							<Setter TargetName="VideoIcon" Property="Visibility" Value="Visible"/>
 							<Setter TargetName="TypeHintPanel" Property="Visibility" Value="Visible"/>
 						</Trigger>
 
-						<Trigger Property="FileType" Value="ANIM">
+						<Trigger Property="FileType" Value="{x:Static enums:E621FileType.GIF}">
+							<Setter TargetName="TypeHintPanel" Property="Visibility" Value="Visible"/>
+						</Trigger>
+
+						<Trigger Property="FileType" Value="{x:Static enums:E621FileType.SWF}">
 							<Setter TargetName="TypeHintPanel" Property="Visibility" Value="Visible"/>
 						</Trigger>
 
@@ -361,11 +370,6 @@
 							<Setter TargetName="BottomBorder" Property="Background" Value="Orange"/>
 						</MultiDataTrigger>-->
 
-						<Trigger Property="IsSelected" Value="True">
-							<Setter TargetName="RootBorder" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
-							<Setter TargetName="BottomBorder" Property="Background" Value="{DynamicResource PrimaryBrush}"/>
-						</Trigger>
-
 						<DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=c:PostCardListBox}, Path=AllowSelection}" Value="False">
 							<Setter TargetName="RootBorder" Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
 							<Setter TargetName="BottomBorder" Property="Background" Value="{DynamicResource BorderBrush}"/>
@@ -374,6 +378,11 @@
 						<Trigger Property="IsMouseOver" Value="True">
 							<Setter TargetName="RootBorder" Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
 							<Setter TargetName="BottomBorder" Property="Background" Value="{DynamicResource BorderBrush}"/>
+						</Trigger>
+
+						<Trigger Property="IsSelected" Value="True">
+							<Setter TargetName="RootBorder" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+							<Setter TargetName="BottomBorder" Property="Background" Value="{DynamicResource PrimaryBrush}"/>
 						</Trigger>
 
 						<MultiTrigger>

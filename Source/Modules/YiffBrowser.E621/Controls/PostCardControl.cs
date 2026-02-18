@@ -1,25 +1,23 @@
-﻿using YiffBrowser.BaseFramework.Enums;
-using YiffBrowser.BaseFramework.Interfaces;
-using YiffBrowser.BaseFramework.Models;
-using YiffBrowser.BaseFramework.Services;
-using RW.Common.Data;
+﻿using RW.Common.Data;
 using RW.Common.Helpers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using YiffBrowser.BaseFramework.Enums;
+using YiffBrowser.BaseFramework.Interfaces;
+using YiffBrowser.BaseFramework.Models;
+using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.E621.Models;
 using YiffBrowser.E621.Models.E621;
 using YiffBrowser.E621.Views;
 
 namespace YiffBrowser.E621.Controls;
 
-public class PostCardControl : ContentControl, IVariableSizedGridItem
-{
+public class PostCardControl : ContentControl, IVariableSizedGridItem {
 
-	public bool IsSelected
-	{
+	public bool IsSelected {
 		get => (bool)GetValue(IsSelectedProperty);
 		set => SetValue(IsSelectedProperty, value);
 	}
@@ -28,11 +26,16 @@ public class PostCardControl : ContentControl, IVariableSizedGridItem
 		nameof(IsSelected),
 		typeof(bool),
 		typeof(PostCardControl),
-		new PropertyMetadata(false)
+		new PropertyMetadata(false, OnIsSelectedChanged)
 	);
 
-	public E621Post Post
-	{
+	private static void OnIsSelectedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		if (e.NewValue is true) {
+
+		}
+	}
+
+	public E621Post Post {
 		get => (E621Post)GetValue(PostProperty.DependencyProperty);
 		set => SetValue(PostProperty, value);
 	}
@@ -44,8 +47,7 @@ public class PostCardControl : ContentControl, IVariableSizedGridItem
 		new PropertyMetadata(null)
 	);
 
-	public LoadingStatus LoadingStatus
-	{
+	public LoadingStatus LoadingStatus {
 		get => (LoadingStatus)GetValue(LoadingStatusProperty);
 		private set => SetValue(LoadingStatusPropertyKey, value);
 	}
@@ -60,8 +62,7 @@ public class PostCardControl : ContentControl, IVariableSizedGridItem
 	public static readonly DependencyProperty LoadingStatusProperty = LoadingStatusPropertyKey.DependencyProperty;
 
 
-	public double LoadingProgress
-	{
+	public double LoadingProgress {
 		get => (double)GetValue(LoadingProgressProperty);
 		private set => SetValue(LoadingProgressPropertyKey, value);
 	}
@@ -77,8 +78,7 @@ public class PostCardControl : ContentControl, IVariableSizedGridItem
 
 
 
-	public GifImage? GifImage
-	{
+	public GifImage? GifImage {
 		get => (GifImage)GetValue(GifImageProperty);
 		set => SetValue(GifImageProperty, value);
 	}
@@ -90,8 +90,7 @@ public class PostCardControl : ContentControl, IVariableSizedGridItem
 		new PropertyMetadata(null)
 	);
 
-	public BitmapImage? BitmapImage
-	{
+	public BitmapImage? BitmapImage {
 		get => (BitmapImage)GetValue(BitmapImageProperty);
 		set => SetValue(BitmapImageProperty, value);
 	}
@@ -104,8 +103,7 @@ public class PostCardControl : ContentControl, IVariableSizedGridItem
 	);
 
 
-	public GifAutoPlayType GifAutoPlayType
-	{
+	public GifAutoPlayType GifAutoPlayType {
 		get => (GifAutoPlayType)GetValue(GifAutoPlayTypeProperty);
 		set => SetValue(GifAutoPlayTypeProperty, value);
 	}
@@ -124,8 +122,7 @@ public class PostCardControl : ContentControl, IVariableSizedGridItem
 
 	public PostImageLoader ImageLoader { get; }
 
-	public PostCardControl(E621Post post)
-	{
+	public PostCardControl(E621Post post) {
 		Post = post;
 
 		ImageLoader = new PostImageLoader(post);
@@ -146,8 +143,7 @@ public class PostCardControl : ContentControl, IVariableSizedGridItem
 	private Storyboard? ScaleOn;
 	private Storyboard? ScaleOff;
 
-	public override void OnApplyTemplate()
-	{
+	public override void OnApplyTemplate() {
 		base.OnApplyTemplate();
 
 		RootBorder = (Border)GetTemplateChild(nameof(RootBorder));
@@ -158,60 +154,46 @@ public class PostCardControl : ContentControl, IVariableSizedGridItem
 
 	}
 
-	private void ImageLoader_Progress(BitmapCacheItem sender, CacheLoadingModel args)
-	{
-		if (!CheckAccess())
-		{
+	private void ImageLoader_Progress(BitmapCacheItem sender, CacheLoadingModel args) {
+		if (!CheckAccess()) {
 			Dispatcher.Invoke(ImageLoader_Progress, sender, args);
 			return;
 		}
-		if (args.HasError)
-		{
+		if (args.HasError) {
 			LoadingStatus = LoadingStatus.HasError;
-		}
-		else if (args.HasCompleted)
-		{
+		} else if (args.HasCompleted) {
 			LoadingStatus = LoadingStatus.HasCompleted;
-		}
-		else if (!args.HasStarted)
-		{
+		} else if (!args.HasStarted) {
 			LoadingStatus = LoadingStatus.NotStarted;
-		}
-		else
-		{
+		} else {
 			LoadingStatus = LoadingStatus.Loading;
 			LoadingProgress = NumberHelper.Remap(args.Progress, 0, 100, 5, 95);
 		}
 	}
 
-	private void ImageLoader_ImageChanged(PostImageLoader sender, BitmapImage? args)
-	{
+	private void ImageLoader_ImageChanged(PostImageLoader sender, BitmapImage? args) {
 		GifImage = null;
 		BitmapImage = args;
 	}
 
-	private void ImageLoader_ImageGifChanged(PostImageLoader sender, GifImage? args)
-	{
+	private void ImageLoader_ImageGifChanged(PostImageLoader sender, GifImage? args) {
 		BitmapImage = null;
 		GifImage = args;
 	}
 
-	protected override void OnMouseEnter(MouseEventArgs e)
-	{
+	protected override void OnMouseEnter(MouseEventArgs e) {
 		base.OnMouseEnter(e);
 		ScaleOn?.Begin(RootBorder);
 	}
 
-	protected override void OnMouseLeave(MouseEventArgs e)
-	{
+	protected override void OnMouseLeave(MouseEventArgs e) {
 		base.OnMouseLeave(e);
 		ScaleOff?.Begin(RootBorder);
 	}
 
 }
 
-public enum LoadingStatus
-{
+public enum LoadingStatus {
 	NotStarted,
 	HasError,
 	HasCompleted,

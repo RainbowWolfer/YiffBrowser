@@ -148,11 +148,12 @@
 					EnableKeyDown="False"
 					MouseUpSelect="True"
 					RightButtonScroll="True"
+					RightButtonScrollCursor="ScrollWE"
 					RightButtonSelect="False"
 					SelectedItem="{Binding ParentViewModel.CurrentPost}"
 					VirtualizingStackPanel.IsVirtualizing="False"
 					VirtualizingStackPanel.VirtualizationMode="Standard"
-					ItemsSource="{Binding ParentViewModel.Posts}"
+					ItemsSource="{Binding ParentViewModel.TabItem.Posts}"
 					d:ItemsSource="{d:SampleData ItemCount=15}">
 
 					<bf:ListBoxEx.ItemsPanel>

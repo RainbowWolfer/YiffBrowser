@@ -407,7 +407,7 @@
 		<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
 		<Setter Property="SnapsToDevicePixels" Value="True"/>
 		<Setter Property="hc:BorderElement.CornerRadius" Value="{StaticResource DefaultCornerRadius}"/>
-		<Setter Property="Padding" Value="2,2,2,2"/>
+		<Setter Property="Padding" Value="2,2,2,0"/>
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="ContextMenu">

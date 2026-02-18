@@ -85,7 +85,8 @@ internal class E621MainViewModel(
 	IApplication application,
 	IAppManager appManager,
 	IThemeManager themeManager,
-	ISearchRecordHistoryService searchRecordHistoryService
+	ISearchRecordHistoryService searchRecordHistoryService,
+	IViewService viewService
 ) : ViewModelBase {
 
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
@@ -97,7 +98,7 @@ internal class E621MainViewModel(
 	public IDialogServiceEx AppSettingsDialog => GetService<IDialogServiceEx>(nameof(AppSettingsDialog));
 
 	public IAppManager AppManager { get; } = appManager;
-
+	public IViewService ViewService { get; } = viewService;
 	public ViewParameter? ViewParameter { get; private set; }
 
 	public ObservableCollection<PostTabItem> Tabs { get; } = [];
@@ -166,10 +167,10 @@ internal class E621MainViewModel(
 		DispatcherService.Dispatcher.BeginInvoke(async () => {
 			Initialize();
 
-			for (int i = 0; i < 20; i++) {
-				Tabs.Add(CreateTabItem(["ssssssss"]));
-				//await Task.Delay(10);
-			}
+			//for (int i = 0; i < 20; i++) {
+			//	Tabs.Add(CreateTabItem(["ssssssss"]));
+			//	//await Task.Delay(10);
+			//}
 
 			//Tabs.Add(CreateTabItem(["type:gif", "order:filesize"]));
 			//Tabs.Add(CreateTabItem(["type:gif", "order:filesize"]));

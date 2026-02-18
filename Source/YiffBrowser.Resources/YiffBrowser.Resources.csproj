@@ -1,12 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-
+		
 	</PropertyGroup>
-
-	<ItemGroup>
-	  <None Remove="Temp\Temp1.jpg" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<Resource Include="Fonts\Segoe Fluent Icons.ttf" />
@@ -39,38 +35,57 @@
 		<Resource Include="Icons\YiffBrowserIcon.ico" />
 		<Resource Include="Icons\YiffBrowserIcon.png" />
 		<Resource Include="Icons\YiffBrowserPSD.psd" />
-		<Resource Include="Temp\Temp1.jpg" />
+		<Resource Include="Images\Temp1.jpg" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="Icons\IconResources.tt">
-	    <Generator>TextTemplatingFileGenerator</Generator>
-	    <LastGenOutput>IconResources.cs</LastGenOutput>
-	  </None>
-	  <None Update="Icons\Icons.tt">
-	    <Generator>TextTemplatingFileGenerator</Generator>
-	    <LastGenOutput>Icons.xaml</LastGenOutput>
-	  </None>
+		<None Update="Icons\IconResources.tt">
+			<Generator>TextTemplatingFileGenerator</Generator>
+			<LastGenOutput>IconResources.cs</LastGenOutput>
+		</None>
+		<None Update="Icons\Icons.tt">
+			<Generator>TextTemplatingFileGenerator</Generator>
+			<LastGenOutput>Icons.xaml</LastGenOutput>
+		</None>
+		<None Update="Images\ImagesResources.tt">
+			<LastGenOutput>ImagesResources.cs</LastGenOutput>
+			<Generator>TextTemplatingFileGenerator</Generator>
+		</None>
+		<None Update="Images\Images.tt">
+			<LastGenOutput>Images.xaml</LastGenOutput>
+			<Generator>TextTemplatingFileGenerator</Generator>
+		</None>
+	</ItemGroup>
+
+	<!-- Text Template Transformation Toolkit -->
+	<ItemGroup>
+		<Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+		<Compile Update="Icons\IconResources.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>IconResources.tt</DependentUpon>
+		</Compile>
+		<Compile Update="Images\ImagesResources.cs">
+			<DependentUpon>ImagesResources.tt</DependentUpon>
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+		</Compile>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="Icons\IconResources.cs">
-	    <DesignTime>True</DesignTime>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>IconResources.tt</DependentUpon>
-	  </Compile>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Page Update="Icons\Icons.xaml">
-	    <DesignTime>True</DesignTime>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>Icons.tt</DependentUpon>
-	  </Page>
+		<Page Update="Icons\Icons.xaml">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Icons.tt</DependentUpon>
+		</Page>
+		<Page Update="Images\Images.xaml">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Images.tt</DependentUpon>
+		</Page>
 	</ItemGroup>
 
 </Project>
