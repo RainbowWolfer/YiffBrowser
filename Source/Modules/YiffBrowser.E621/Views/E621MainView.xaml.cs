@@ -86,7 +86,7 @@ internal class E621MainViewModel(
 	IAppManager appManager,
 	IThemeManager themeManager,
 	ISearchRecordHistoryService searchRecordHistoryService,
-	IViewService viewService
+	IViewConfigService viewConfigService
 ) : ViewModelBase {
 
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
@@ -98,7 +98,7 @@ internal class E621MainViewModel(
 	public IDialogServiceEx AppSettingsDialog => GetService<IDialogServiceEx>(nameof(AppSettingsDialog));
 
 	public IAppManager AppManager { get; } = appManager;
-	public IViewService ViewService { get; } = viewService;
+	public IViewConfigService ViewConfigService { get; } = viewConfigService;
 	public ViewParameter? ViewParameter { get; private set; }
 
 	public ObservableCollection<PostTabItem> Tabs { get; } = [];

@@ -39,18 +39,15 @@ internal partial class PostsView : UserControl {
 	}
 }
 
-internal class PostsViewModel() : ViewModelBase {
+internal class PostsViewModel(IViewConfigService viewConfigService) : ViewModelBase {
 	public IUIObjectService<PostCardListBox> PostsListBoxService => GetService<ITypedUIObjectService>(nameof(PostsListBoxService)).As<PostCardListBox>();
 	public IUIObjectService<ButtonPopup> PaginationButtonPopupService => GetService<ITypedUIObjectService>(nameof(PaginationButtonPopupService)).As<ButtonPopup>();
 
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
 
 
-	//public const double ItemWidth = 396;
-	//public const double ItemHeight = 50;
+	public IViewConfigService ViewConfigService { get; } = viewConfigService;
 
-	public const double ItemWidth = 200;
-	public const double ItemHeight = 30;
 
 	public event TypedEventHandler<PostsViewModel, E621Post?>? CurrentPostChanged;
 
@@ -193,6 +190,9 @@ internal class PostsViewModel() : ViewModelBase {
 		IsMultiSelecting = false;
 
 		try {
+			foreach (PostCardControl item in Items) {
+				item.Dispose();
+			}
 			Items.Clear();
 			TabItem.Posts.Clear();
 
@@ -232,7 +232,7 @@ internal class PostsViewModel() : ViewModelBase {
 				if (post.HasNoValidURLs()) {
 					continue;
 				}
-				Items.Add(new PostCardControl(post));
+				Items.Add(new PostCardControl(ViewConfigService, post));
 				TabItem.Posts.Add(post);
 			}
 

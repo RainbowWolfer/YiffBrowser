@@ -11,11 +11,11 @@ using YiffBrowser.BaseFramework.Models;
 using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.E621.Models;
 using YiffBrowser.E621.Models.E621;
-using YiffBrowser.E621.Views;
+using YiffBrowser.E621.Services;
 
 namespace YiffBrowser.E621.Controls;
 
-public class PostCardControl : ContentControl, IVariableSizedGridItem {
+internal class PostCardControl : ContentControl, IVariableSizedGridItem, IDisposable {
 
 	public bool IsSelected {
 		get => (bool)GetValue(IsSelectedProperty);
@@ -116,13 +116,17 @@ public class PostCardControl : ContentControl, IVariableSizedGridItem {
 	);
 
 
-
+	//todo: make dp key
 	public int ColSpan { get; }
 	public int RowSpan { get; }
 
 	public PostImageLoader ImageLoader { get; }
 
-	public PostCardControl(E621Post post) {
+
+	private readonly IViewConfigService viewConfigService;
+
+	public PostCardControl(IViewConfigService viewConfigService, E621Post post) {
+		this.viewConfigService = viewConfigService;
 		Post = post;
 
 		ImageLoader = new PostImageLoader(post);
@@ -130,9 +134,23 @@ public class PostCardControl : ContentControl, IVariableSizedGridItem {
 		ImageLoader.ImageChanged += ImageLoader_ImageChanged;
 		ImageLoader.ImageGifChanged += ImageLoader_ImageGifChanged;
 
-		Vector2 size = post.GetSize();
+		viewConfigService.PostItemSizeChanged += ViewConfigService_PostItemSizeChanged;
+
+		CalculateSpans();
+	}
+
+	public void Dispose() {
+		viewConfigService.PostItemSizeChanged -= ViewConfigService_PostItemSizeChanged;
+	}
+
+	private void ViewConfigService_PostItemSizeChanged(IViewConfigService sender, EventArgs args) {
+		CalculateSpans();
+	}
+
+	private void CalculateSpans() {
+		Vector2 size = Post.GetSize();
 		double ratio = size.X / size.Y;
-		double h = PostsViewModel.ItemWidth / ratio / PostsViewModel.ItemHeight;
+		double h = viewConfigService.PostItemWidth / ratio / viewConfigService.PostItemHeight;
 		int h2 = (int)Math.Ceiling(h);
 
 		ColSpan = 1;

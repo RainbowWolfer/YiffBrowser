@@ -65,6 +65,15 @@
 									</wpf:SpacingStackPanel>
 
 									<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Center" IsEnabled="{Binding TabItem.LoadingStatus.ShowLoading, Converter={StaticResource Boolean2BooleanReConverter}}">
+
+										<Button Name="ViewConfigButton"
+											Style="{StaticResource Button.Custom.Icon}"
+											Width="30"
+											Height="30"
+											ToolTip="View Config">
+											<wpf:FontIcon Text="&#xE9E9;"/>
+										</Button>
+
 										<Button
 											Style="{StaticResource Button.Custom.Icon}"
 											Width="30"
@@ -164,6 +173,25 @@
 
 									</wpf:SpacingStackPanel>
 
+									<wpf:ButtonPopup SourceButton="{Binding ElementName=ViewConfigButton}" VerticalOffset="8">
+										<Border Style="{DynamicResource ButtonPopupBorder}">
+											<wpf:SpacingStackPanel Style="{DynamicResource CustomVerticalPanel2}">
+
+												<wpf:TitleContent Title="Post Item Width">
+													<c1:PostItemWidthOptionSelector PostItemWidthOptions="{Binding ViewConfigService.PostItemWidthOptions}" SelectedPostItemWidthOption="{Binding ViewConfigService.SelectedPostItemWidthOption}"/>
+													<!--<hc:ButtonGroup Style="{DynamicResource ButtonGroupSolid}" Orientation="Vertical">
+														<RadioButton Content="Extra Small"/>
+														<RadioButton Content="Small"/>
+														<RadioButton Content="Default"/>
+														<RadioButton Content="Large"/>
+														<RadioButton Content="Extra Large"/>
+													</hc:ButtonGroup>-->
+												</wpf:TitleContent>
+
+											</wpf:SpacingStackPanel>
+										</Border>
+									</wpf:ButtonPopup>
+
 								</Grid>
 
 							</Border>
@@ -231,8 +259,8 @@
 									<ItemsPanelTemplate>
 										<bf:VariableSizedWrapGrid
 											HorizontalChildrenAlignment="Stretch"
-											ItemHeight="{x:Static local:PostsViewModel.ItemHeight}"
-											ItemWidth="{x:Static local:PostsViewModel.ItemWidth}"
+											ItemHeight="{Binding ViewConfigService.PostItemHeight}"
+											ItemWidth="{Binding ViewConfigService.PostItemWidth}"
 											Orientation="Horizontal"
 											VerticalChildrenAlignment="Stretch"
 											VerticalScrollAmount="200"/>

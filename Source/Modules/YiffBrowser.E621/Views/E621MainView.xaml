@@ -357,7 +357,7 @@
 											dd:DragDrop.IsDropTarget="True"
 											Background="{DynamicResource RegionBrush}"
 											SelectedIndex="{Binding TabSelectedIndex, Mode=TwoWay}"
-											TabStripPlacement="{Binding ViewService.TabDock}"
+											TabStripPlacement="{Binding ViewConfigService.TabDock}"
 											TabsManageCommand="{Binding TabsManageCommand}"
 											ItemsSource="{Binding Tabs}"
 											d:ItemsSource="{d:SampleData ItemCount=15}">
@@ -382,13 +382,13 @@
 
 
 													<MenuItem bf:IconExtension.Glyph="&#xE75A;" Header="Tab Docks">
-														<MenuItem Header="Top" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Top}"/>
+														<MenuItem Header="Top" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewConfigService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Top}"/>
 
-														<MenuItem Header="Left" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Left}"/>
+														<MenuItem Header="Left" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewConfigService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Left}"/>
 
-														<MenuItem Header="Bottom" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Bottom}"/>
+														<MenuItem Header="Bottom" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewConfigService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Bottom}"/>
 
-														<MenuItem Header="Right" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Right}"/>
+														<MenuItem Header="Right" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewConfigService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Right}"/>
 													</MenuItem>
 
 												</ContextMenu>
@@ -451,13 +451,13 @@
 																<Separator/>
 
 																<MenuItem bf:IconExtension.Glyph="&#xE75A;" Header="Tab Docks">
-																	<MenuItem Header="Top" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static Dock.Top}}"/>
+																	<MenuItem Header="Top" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewConfigService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static Dock.Top}}"/>
 
-																	<MenuItem Header="Left" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static Dock.Left}}"/>
+																	<MenuItem Header="Left" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewConfigService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static Dock.Left}}"/>
 
-																	<MenuItem Header="Bottom" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static Dock.Bottom}}"/>
+																	<MenuItem Header="Bottom" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewConfigService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static Dock.Bottom}}"/>
 
-																	<MenuItem Header="Right" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static Dock.Right}}"/>
+																	<MenuItem Header="Right" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewConfigService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static Dock.Right}}"/>
 																</MenuItem>
 
 															</ContextMenu>

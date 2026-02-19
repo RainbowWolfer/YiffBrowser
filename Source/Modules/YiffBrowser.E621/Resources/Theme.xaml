@@ -1674,4 +1674,21 @@
 
 	<Style TargetType="c:SlidePanelImageControl" BasedOn="{StaticResource SlidePanelImageControl}"/>
 
+
+	<Style x:Key="PostItemWidthOptionSelector" TargetType="c:PostItemWidthOptionSelector">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="c:PostItemWidthOptionSelector">
+					<Border>
+						<hc:ButtonGroup x:Name="PART_ButtonGroup" Style="{DynamicResource ButtonGroupSolid}" Orientation="Vertical"/>
+					</Border>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style TargetType="c:PostItemWidthOptionSelector" BasedOn="{StaticResource PostItemWidthOptionSelector}"/>
+
+
+
 </ResourceDictionary>
