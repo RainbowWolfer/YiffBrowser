@@ -1,6 +1,8 @@
-﻿namespace YiffBrowser.BaseFramework.Interfaces;
+﻿using System.ComponentModel;
 
-public interface IVariableSizedGridItem {
-    int ColSpan { get; }
-    int RowSpan { get; }
+namespace YiffBrowser.BaseFramework.Interfaces;
+
+public interface IVariableSizedGridItem : INotifyPropertyChanged {
+	int ColSpan { get; }
+	int RowSpan { get; }
 }

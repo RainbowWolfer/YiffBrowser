@@ -236,6 +236,8 @@ internal class PostsViewModel(IViewConfigService viewConfigService) : ViewModelB
 				TabItem.Posts.Add(post);
 			}
 
+			PostsListBoxService.Object.Items.Refresh();
+
 			TabItem.LoadingStatus.DoneLoading();
 		} catch (Exception ex) {
 			TabItem.LoadingStatus.LoadingError(ex.Message);

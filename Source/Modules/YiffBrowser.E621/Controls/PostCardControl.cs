@@ -1,5 +1,6 @@
 ﻿using RW.Common.Data;
 using RW.Common.Helpers;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,6 +17,8 @@ using YiffBrowser.E621.Services;
 namespace YiffBrowser.E621.Controls;
 
 internal class PostCardControl : ContentControl, IVariableSizedGridItem, IDisposable {
+	public event PropertyChangedEventHandler? PropertyChanged;
+	private void Raise(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
 	public bool IsSelected {
 		get => (bool)GetValue(IsSelectedProperty);
@@ -116,9 +119,41 @@ internal class PostCardControl : ContentControl, IVariableSizedGridItem, IDispos
 	);
 
 
-	//todo: make dp key
-	public int ColSpan { get; }
-	public int RowSpan { get; }
+	public int ColSpan {
+		get => (int)GetValue(ColSpanProperty);
+		set => SetValue(ColSpanProperty, value);
+	}
+
+	public static readonly DependencyProperty ColSpanProperty = DependencyProperty.Register(
+		nameof(ColSpan),
+		typeof(int),
+		typeof(PostCardControl),
+		new PropertyMetadata(0, OnColSpanChanged)
+	);
+
+	private static void OnColSpanChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		if (d is PostCardControl self) {
+			self.Raise(nameof(ColSpan));
+		}
+	}
+
+	public int RowSpan {
+		get => (int)GetValue(RowSpanProperty);
+		set => SetValue(RowSpanProperty, value);
+	}
+
+	public static readonly DependencyProperty RowSpanProperty = DependencyProperty.Register(
+		nameof(RowSpan),
+		typeof(int),
+		typeof(PostCardControl),
+		new PropertyMetadata(0, OnRowSpanChanged)
+	);
+
+	private static void OnRowSpanChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		if (d is PostCardControl self) {
+			self.Raise(nameof(RowSpan));
+		}
+	}
 
 	public PostImageLoader ImageLoader { get; }
 

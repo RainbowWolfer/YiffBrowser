@@ -1,27 +1,36 @@
-﻿using RW.Common.Helpers;
-using System.Diagnostics;
+﻿using System.ComponentModel;
 using System.Windows;
 using YiffBrowser.BaseFramework.Interfaces;
 
 namespace YiffBrowser.BaseFramework.Controls;
 
 public class VariableSizedWrapGridView : ListBoxEx {
-    protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
-        if (item is IVariableSizedGridItem model) {
-            try {
-                element.SetValue(VariableSizedWrapGrid.ColumnSpanProperty, NumberHelper.Clamp(model.ColSpan, 1, int.MaxValue));
-                element.SetValue(VariableSizedWrapGrid.RowSpanProperty, NumberHelper.Clamp(model.RowSpan, 1, int.MaxValue));
-            } catch (Exception ex) {
-                Debug.WriteLine(ex);
-                element.SetValue(VariableSizedWrapGrid.ColumnSpanProperty, 1);
-                element.SetValue(VariableSizedWrapGrid.RowSpanProperty, 1);
-            } finally {
-                //element.SetValue(VerticalAlignmentProperty, VerticalAlignment.Stretch);
-                //element.SetValue(HorizontalAlignmentProperty, HorizontalAlignment.Stretch);
-                element.SetValue(VerticalContentAlignmentProperty, VerticalAlignment.Stretch);
-                element.SetValue(HorizontalContentAlignmentProperty, HorizontalAlignment.Stretch);
-                base.PrepareContainerForItemOverride(element, item);
-            }
-        }
-    }
+	protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
+		base.PrepareContainerForItemOverride(element, item);
+
+		if (item is IVariableSizedGridItem model) {
+			UpdateSpans(element, model);
+
+			model.PropertyChanged -= OnItemPropertyChanged;  
+			model.PropertyChanged += OnItemPropertyChanged;
+
+			element.SetValue(TagProperty, model);
+		}
+	}
+
+	private void OnItemPropertyChanged(object? sender, PropertyChangedEventArgs e) {
+		if (sender is not IVariableSizedGridItem model) {
+			return;
+		}
+		if (e.PropertyName is (nameof(IVariableSizedGridItem.ColSpan)) or (nameof(IVariableSizedGridItem.RowSpan))) {
+			if (ItemContainerGenerator.ContainerFromItem(model) is UIElement container) {
+				UpdateSpans(container, model);
+			}
+		}
+	}
+
+	private void UpdateSpans(DependencyObject container, IVariableSizedGridItem model) {
+		container.SetValue(VariableSizedWrapGrid.ColumnSpanProperty, Math.Max(1, model.ColSpan));
+		container.SetValue(VariableSizedWrapGrid.RowSpanProperty, Math.Max(1, model.RowSpan));
+	}
 }

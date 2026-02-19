@@ -68,7 +68,7 @@ internal class ViewConfigService(IE621ProfileService profileService) : BindableB
 		PostItemWidthOptions.Add(new PostItemWidthOption("Large", 396));
 		PostItemWidthOptions.Add(new PostItemWidthOption("Extra Large", 460));
 
-		SelectedPostItemWidthOption = PostItemWidthOptions[2];
+		SelectedPostItemWidthOption = PostItemWidthOptions[3];
 	}
 
 
