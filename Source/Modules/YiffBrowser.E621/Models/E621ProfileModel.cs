@@ -18,5 +18,7 @@ public class E621ProfileModel {
 	public string? E926_Username { get; set; }
 	public string? E926_ApiKey { get; set; }
 
+	public string? LastCustomDownloadPath { get; set; }
+
 
 }

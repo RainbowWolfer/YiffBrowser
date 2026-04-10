@@ -39,14 +39,14 @@ public class E621CommentViewModel(E621Comment comment, ModuleType moduleType) : 
 		set => SetProperty(() => BitmapImage, value);
 	}
 
-	public LoadingStatusViewModel LoadingStatus { get; } = new();
+	public LoadingStatus LoadingStatus { get; } = new();
 	//private BitmapCacheItem? bitmapCacheItem;
 
 	private readonly CancellationTokenSource cts = new();
 
 	public async void StartLoading() {
 		try {
-			LoadingStatus.InitialLoading();
+			LoadingStatus.Initialize();
 			User = await api.GetUserAsync(Comment.CreatorId, cts.Token);
 			Avatar = await api.GetPostAsync(User?.AvatarId, cts.Token);
 
@@ -57,7 +57,7 @@ public class E621CommentViewModel(E621Comment comment, ModuleType moduleType) : 
 				BitmapImage.DownloadFailed += BitmapImage_DownloadFailed;
 				BitmapImage.DownloadProgress += BitmapImage_DownloadProgress;
 			} else {
-				LoadingStatus.DoneLoading();
+				LoadingStatus.Done();
 			}
 
 			//bitmapCacheItem = BitmapCacheService.Get(Avatar?.Sample?.URL);
@@ -71,16 +71,16 @@ public class E621CommentViewModel(E621Comment comment, ModuleType moduleType) : 
 			//}
 
 		} catch (Exception ex) {
-			LoadingStatus.LoadingError(ex.Message);
+			LoadingStatus.Error(ex.Message);
 		}
 	}
 
 	private void BitmapImage_DownloadFailed(object? sender, ExceptionEventArgs e) {
-		LoadingStatus.LoadingError(e.ErrorException?.Message ?? "Loading Error");
+		LoadingStatus.Error(e.ErrorException?.Message ?? "Loading Error");
 	}
 
 	private void BitmapImage_DownloadCompleted(object? sender, EventArgs e) {
-		LoadingStatus.DoneLoading();
+		LoadingStatus.Done();
 	}
 
 	private void BitmapImage_DownloadProgress(object? sender, DownloadProgressEventArgs e) {

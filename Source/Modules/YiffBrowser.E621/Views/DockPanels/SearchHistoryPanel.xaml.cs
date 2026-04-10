@@ -64,7 +64,7 @@ internal class SearchHistoryPanelViewModel(
 		set => SetProperty(() => SearchCondition, value);
 	}
 
-	public LoadingStatusViewModel LoadingStatus { get; } = new();
+	public LoadingStatus LoadingStatus { get; } = new();
 
 	private const int PageSize = 100;
 
@@ -93,7 +93,7 @@ internal class SearchHistoryPanelViewModel(
 		if (CanRefresh()) {
 			RecordList.Clear();
 
-			LoadingStatus.InitialLoading();
+			LoadingStatus.Initialize();
 			try {
 				ModuleType moduleType = ViewParameter.ModuleType;
 
@@ -108,9 +108,9 @@ internal class SearchHistoryPanelViewModel(
 
 				RecordList.AddRange(records);
 
-				LoadingStatus.DoneLoading();
+				LoadingStatus.Done();
 			} catch (Exception ex) {
-				LoadingStatus.LoadingError(ex.Message);
+				LoadingStatus.Error(ex.Message);
 			} finally {
 
 			}

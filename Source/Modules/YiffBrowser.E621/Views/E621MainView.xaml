@@ -38,12 +38,13 @@
 		<wpf:CommandProxy x:Key="DockPanelTabItemHeaderDoubleClickCommand" Command="{Binding DockPanelTabItemHeaderDoubleClickCommand}"/>
 
 		<wpf:CommandProxy x:Key="CloneTabCommand" Command="{Binding CloneTabCommand}"/>
-		<wpf:CommandProxy x:Key="RefresgTabCommand" Command="{Binding RefresgTabCommand}"/>
-		<wpf:CommandProxy x:Key="AppenSearchCommand" Command="{Binding AppenSearchCommand}"/>
+		<wpf:CommandProxy x:Key="RefresgTabCommand" Command="{Binding RefreshTabCommand}"/>
+		<wpf:CommandProxy x:Key="AppenSearchCommand" Command="{Binding AppendSearchCommand}"/>
 		<wpf:CommandProxy x:Key="CloseAllTabsCommand" Command="{Binding CloseAllTabsCommand}"/>
 		<wpf:CommandProxy x:Key="CloseAllBeforeTabsCommand" Command="{Binding CloseAllBeforeTabsCommand}"/>
 		<wpf:CommandProxy x:Key="CloseAllAfterTabsCommand" Command="{Binding CloseAllAfterTabsCommand}"/>
 		<wpf:CommandProxy x:Key="CloseAllOtherTabsCommand" Command="{Binding CloseAllOtherTabsCommand}"/>
+		<wpf:CommandProxy x:Key="RestoreClosedTabsCommand" Command="{Binding RestoreClosedTabsCommand}"/>
 
 		<wpf:BindingProxy x:Key="ViewModel" Data="{Binding}"/>
 
@@ -54,11 +55,8 @@
 		<b:DispatcherServiceEx/>
 		<b:LoadedService Command="{Binding LoadedCommand}" OnlyOnce="True"/>
 
-		<bf:DialogService x:Name="AppSettingsDialog"
-			ContentType="{x:Type bf:AppSettingsDialog}"
-			ShowDialogWindow="False"
-			SingleInstance="True"/>
-
+		<bf:AppSettingsDialogService/>
+		<bf:DownloadDialogService/>
 	</dxmvvm:Interaction.Behaviors>
 
 	<Grid>
@@ -109,6 +107,7 @@
 							Style="{DynamicResource Button.Custom.Icon}"
 							Width="32"
 							Height="32"
+							Command="{Binding OpenDownloadCommand}"
 							ToolTip="Open Download Panel">
 							<wpf:FontIcon Text="&#xE896;"/>
 						</Button>
@@ -379,7 +378,14 @@
 
 											<c:TabControlEx.HeaderContextMenu>
 												<ContextMenu>
+													<MenuItem bf:IconExtension.Glyph="" Command="{StaticResource CloseAllTabsCommand}" Header="Close All"/>
 
+													<MenuItem Header="Recent Closed Tabs">
+														<MenuItem Header="1"/>
+														<MenuItem Header="2"/>
+													</MenuItem>
+
+													<Separator/>
 
 													<MenuItem bf:IconExtension.Glyph="&#xE75A;" Header="Tab Docks">
 														<MenuItem Header="Top" IsCheckable="True" IsChecked="{Binding Source={StaticResource ViewModel}, Path=Data.ViewConfigService.TabDock, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Top}"/>
@@ -447,6 +453,13 @@
 																	Command="{StaticResource CloseAllOtherTabsCommand}"
 																	CommandParameter="{Binding}"
 																	Header="Close Others"/>
+
+																<Separator/>
+
+																<MenuItem Header="Recent Closed Tabs">
+																	<MenuItem Header="1"/>
+																	<MenuItem Header="2"/>
+																</MenuItem>
 
 																<Separator/>
 
@@ -805,7 +818,7 @@
 						Padding="4"
 						HorizontalContentAlignment="Left"
 						Command="{Binding ShowE621Command}"
-						IsEnabled="{Binding ViewParameter.ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static enums:ModuleType.E621}}">
+						IsEnabled="{Binding ViewParameter.ModuleType, Converter={StaticResource EqualToBoolReConverter}, ConverterParameter={x:Static enums:ModuleType.E621}}">
 						<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel3}">
 							<Border Width="32" Height="32" CornerRadius="4">
 								<Border.Background>
@@ -827,7 +840,7 @@
 						Padding="4"
 						HorizontalContentAlignment="Left"
 						Command="{Binding ShowE926Command}"
-						IsEnabled="{Binding ViewParameter.ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static enums:ModuleType.E926}}">
+						IsEnabled="{Binding ViewParameter.ModuleType, Converter={StaticResource EqualToBoolReConverter}, ConverterParameter={x:Static enums:ModuleType.E926}}">
 						<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel3}">
 							<Border Width="32" Height="32" CornerRadius="4">
 								<Border.Background>
@@ -845,7 +858,7 @@
 						Padding="4"
 						HorizontalContentAlignment="Left"
 						Command="{Binding ShowE6AICommand}"
-						IsEnabled="{Binding ViewParameter.ModuleType, Converter={StaticResource EnumToBoolReConverter}, ConverterParameter={x:Static enums:ModuleType.E6AI}}">
+						IsEnabled="{Binding ViewParameter.ModuleType, Converter={StaticResource EqualToBoolReConverter}, ConverterParameter={x:Static enums:ModuleType.E6AI}}">
 						<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel3}">
 							<Border Width="32" Height="32" CornerRadius="4">
 								<Border.Background>

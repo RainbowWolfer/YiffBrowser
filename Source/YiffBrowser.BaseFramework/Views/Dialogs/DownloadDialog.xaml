@@ -1,0 +1,32 @@
+﻿<UserControl
+	x:Class="YiffBrowser.BaseFramework.Views.Dialogs.DownloadDialog"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:base="RW.Base.WPF"
+	xmlns:bf="clr-namespace:YiffBrowser.BaseFramework"
+	xmlns:c="clr-namespace:YiffBrowser.BaseFramework.Controls"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+	xmlns:enums="clr-namespace:YiffBrowser.BaseFramework.Enums"
+	xmlns:ex="clr-namespace:YiffBrowser.BaseFramework.Extensions"
+	xmlns:hc="https://handyorg.github.io/handycontrol"
+	xmlns:local="clr-namespace:YiffBrowser.BaseFramework.Views.Dialogs"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:models="clr-namespace:YiffBrowser.BaseFramework.Models"
+	xmlns:services="clr-namespace:YiffBrowser.BaseFramework.Services"
+	xmlns:sri="clr-namespace:System.Runtime.InteropServices;assembly=netstandard"
+	xmlns:tools="clr-namespace:HandyControl.Tools;assembly=HandyControl"
+	xmlns:views="clr-namespace:YiffBrowser.BaseFramework.Views"
+	xmlns:wpf="RW.Common.WPF"
+	d:DataContext="{d:DesignInstance Type=local:DownloadDialogViewModel}"
+	Style="{StaticResource DialogStyle}"
+	DataContext="{base:DISource Type=local:DownloadDialogViewModel}"
+	SnapsToDevicePixels="True"
+	UseLayoutRounding="True"
+	mc:Ignorable="d">
+
+	<Grid Width="400" Height="400">
+
+	</Grid>
+
+</UserControl>

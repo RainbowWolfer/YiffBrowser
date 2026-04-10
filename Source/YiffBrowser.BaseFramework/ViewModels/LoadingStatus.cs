@@ -2,7 +2,7 @@
 
 namespace YiffBrowser.BaseFramework.ViewModels;
 
-public class LoadingStatusViewModel : BindableBase {
+public class LoadingStatus : BindableBase {
 
 	public bool ShowLoading {
 		get => GetProperty(() => ShowLoading);
@@ -39,12 +39,12 @@ public class LoadingStatusViewModel : BindableBase {
 		set => SetProperty(() => EndDateTime, value);
 	}
 
-	public TimeSpan EllapsedTimeSpan {
-		get => GetProperty(() => EllapsedTimeSpan);
-		set => SetProperty(() => EllapsedTimeSpan, value);
+	public TimeSpan ElapsedTimeSpan {
+		get => GetProperty(() => ElapsedTimeSpan);
+		set => SetProperty(() => ElapsedTimeSpan, value);
 	}
 
-	public void InitialLoading() {
+	public void Initialize() {
 		ShowLoading = true;
 		Progress = null;
 		ErrorMessage = string.Empty;
@@ -55,7 +55,7 @@ public class LoadingStatusViewModel : BindableBase {
 			$"Start DateTime: {StartDateTime}";
 	}
 
-	public void DoneLoading() {
+	public void Done() {
 		ShowLoading = false;
 		DownloadInfo = "Done";
 		EndDateTime = DateTime.Now;
@@ -65,7 +65,7 @@ public class LoadingStatusViewModel : BindableBase {
 			$"End DateTime: {EndDateTime}";
 	}
 
-	public void LoadingError(string errorMessage) {
+	public void Error(string errorMessage) {
 		ShowLoading = true;
 		ErrorMessage = errorMessage;
 		EndDateTime = DateTime.Now;
@@ -75,14 +75,19 @@ public class LoadingStatusViewModel : BindableBase {
 			$"End DateTime: {EndDateTime}";
 	}
 
+	public void ErrorClose(string errorMessage) {
+		Error(errorMessage);
+		ShowLoading = false;
+	}
+
 	public void SetProgress(double? progress, string downloadInfo) {
 		ShowLoading = true;
 		Progress = progress;
 		DownloadInfo = downloadInfo;
-		EllapsedTimeSpan = DateTime.Now - StartDateTime;
+		ElapsedTimeSpan = DateTime.Now - StartDateTime;
 		ToolTip =
 			"Downloading\n" +
 			$"Start DateTime: {StartDateTime}\n" +
-			$"Ellapsed TimeSpan: {EllapsedTimeSpan}";
+			$"Elapsed TimeSpan: {ElapsedTimeSpan}";
 	}
 }

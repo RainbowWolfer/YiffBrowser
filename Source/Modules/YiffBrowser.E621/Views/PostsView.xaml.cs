@@ -1,6 +1,7 @@
 ﻿using DevExpress.Mvvm;
 using DevExpress.Mvvm.Native;
 using HandyControl.Data;
+using RW.Base.WPF.Events;
 using RW.Base.WPF.Extensions;
 using RW.Base.WPF.ViewModelServices;
 using RW.Common;
@@ -13,6 +14,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using YiffBrowser.BaseFramework.Events;
+using YiffBrowser.BaseFramework.Services;
+using YiffBrowser.BaseFramework.ViewModels;
+using YiffBrowser.BaseFramework.ViewModelServices;
+using YiffBrowser.BaseFramework.Views.Dialogs;
 using YiffBrowser.E621.Controls;
 using YiffBrowser.E621.Enums;
 using YiffBrowser.E621.Models.E621;
@@ -21,13 +27,19 @@ using YiffBrowser.E621.ViewModels;
 
 namespace YiffBrowser.E621.Views;
 
-internal partial class PostsView : UserControl {
+internal partial class PostsView : UserControl, IDisposable {
+	private readonly PostsViewModel viewModel;
+
 	public PostsView(PostTabItem postTabItem) {
 		InitializeComponent();
 
-		PostsViewModel viewModel = IoC.Resolve<PostsViewModel>()!;
+		viewModel = IoC.Resolve<PostsViewModel>()!;
 		viewModel.Initialize(postTabItem);
 		DataContext = viewModel;
+	}
+
+	public void Dispose() {
+		viewModel.Dispose();
 	}
 
 	private void ListBoxItem_RequestBringIntoView(object sender, RequestBringIntoViewEventArgs e) {
@@ -39,11 +51,17 @@ internal partial class PostsView : UserControl {
 	}
 }
 
-internal class PostsViewModel(IViewConfigService viewConfigService) : ViewModelBase {
+internal class PostsViewModel(IViewConfigService viewConfigService, IEventAggregator eventAggregator, IAppSettingsService appSettingsService) : ViewModelBase, IDisposable {
 	public IUIObjectService<PostCardListBox> PostsListBoxService => GetService<ITypedUIObjectService>(nameof(PostsListBoxService)).As<PostCardListBox>();
 	public IUIObjectService<ButtonPopup> PaginationButtonPopupService => GetService<ITypedUIObjectService>(nameof(PaginationButtonPopupService)).As<ButtonPopup>();
 
+
+	public IUIObjectService<Grid> DownloadDialogRootService => GetService<ITypedUIObjectService>(nameof(DownloadDialogRootService)).As<Grid>();
+
+
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
+
+	public IDialogServiceEx AppSettingsDialog => GetService<IDialogServiceEx>(nameof(AppSettingsDialog));
 
 
 	public IViewConfigService ViewConfigService { get; } = viewConfigService;
@@ -121,6 +139,22 @@ internal class PostsViewModel(IViewConfigService viewConfigService) : ViewModelB
 
 	public bool CurrentHasPost => CurrentPost != null;
 
+	public DownloadMode DownloadMode {
+		get => GetProperty(() => DownloadMode);
+		set => SetProperty(() => DownloadMode, value);
+	}
+
+	public DownloadConfigViewModel? DownloadConfig {
+		get => GetProperty(() => DownloadConfig);
+		set {
+			DownloadConfig?.Dispose();
+			SetProperty(() => DownloadConfig, value);
+			value?.Initialize();
+			if (value != null) {
+				DownloadDialogRootService.Object.MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
+			}
+		}
+	}
 
 	private CancellationTokenSource? paginationLoadingCts;
 
@@ -130,6 +164,8 @@ internal class PostsViewModel(IViewConfigService viewConfigService) : ViewModelB
 		MaxPage = 750;
 
 		SelectedItems.CollectionChanged += SelectedItems_CollectionChanged;
+
+		eventAggregator.GetEvent<AppSettingsChangedEvent>().Subscribe(OnAppSettingsChanged);
 	}
 
 	public void Initialize(PostTabItem postTabItem) {
@@ -140,6 +176,14 @@ internal class PostsViewModel(IViewConfigService viewConfigService) : ViewModelB
 		CurrentPage = 1;
 
 		Refresh();
+	}
+
+	public void Dispose() {
+		eventAggregator.GetEvent<AppSettingsChangedEvent>().Unsubscribe(OnAppSettingsChanged);
+	}
+
+	private void OnAppSettingsChanged(AppSettingsChangedEventArgs args) {
+
 	}
 
 	private void SelectedItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
@@ -186,7 +230,7 @@ internal class PostsViewModel(IViewConfigService viewConfigService) : ViewModelB
 			return;
 		}
 
-		TabItem.LoadingStatus.InitialLoading();
+		TabItem.LoadingStatus.Initialize();
 		IsMultiSelecting = false;
 
 		try {
@@ -232,15 +276,15 @@ internal class PostsViewModel(IViewConfigService viewConfigService) : ViewModelB
 				if (post.HasNoValidURLs()) {
 					continue;
 				}
-				Items.Add(new PostCardControl(ViewConfigService, post));
+				Items.Add(new PostCardControl(this, ViewConfigService, post));
 				TabItem.Posts.Add(post);
 			}
 
 			PostsListBoxService.Object.Items.Refresh();
 
-			TabItem.LoadingStatus.DoneLoading();
+			TabItem.LoadingStatus.Done();
 		} catch (Exception ex) {
-			TabItem.LoadingStatus.LoadingError(ex.Message);
+			TabItem.LoadingStatus.Error(ex.Message);
 		} finally {
 
 		}
@@ -390,5 +434,245 @@ internal class PostsViewModel(IViewConfigService viewConfigService) : ViewModelB
 	private bool CanJump() => true;
 
 
+
+	private DelegateCommand? downloadSelectedCommand;
+	public IDelegateCommand DownloadSelectedCommand => downloadSelectedCommand ??= new(DownloadSelected, CanDownloadSelected);
+	private void DownloadSelected() {
+		if (CanDownloadSelected()) {
+			DownloadMode = DownloadMode.DownloadSelected;
+			DownloadConfig = new DownloadSelectedViewModel() {
+				ParentViewModel = this,
+				Tags = TabItem.Tags,
+				AppSettingsDownloadFolder = appSettingsService.Model.DownloadFolderPath,
+				Posts = [.. SelectedItems.Select(x => x.Post)],
+			};
+		}
+	}
+	private bool CanDownloadSelected() => SelectedItems.IsNotEmpty();
+
+
+
+	private DelegateCommand? downloadCurrentPageCommand;
+	public IDelegateCommand DownloadCurrentPageCommand => downloadCurrentPageCommand ??= new(DownloadCurrentPage, CanDownloadCurrentPage);
+	private void DownloadCurrentPage() {
+		if (CanDownloadCurrentPage()) {
+			DownloadMode = DownloadMode.DownloadCurrentPage;
+			DownloadConfig = new DownloadSelectedViewModel() {
+				ParentViewModel = this,
+				Tags = TabItem.Tags,
+				AppSettingsDownloadFolder = appSettingsService.Model.DownloadFolderPath,
+				Posts = [.. Items.Select(x => x.Post)],
+			};
+		}
+	}
+	private bool CanDownloadCurrentPage() => Items.IsNotEmpty();
+
+
+
+	private DelegateCommand? customDownloadCommand;
+	public IDelegateCommand CustomDownloadCommand => customDownloadCommand ??= new(CustomDownload, CanCustomDownload);
+	private void CustomDownload() {
+		if (CanCustomDownload()) {
+			DownloadMode = DownloadMode.CustomDownload;
+			DownloadConfig = new CustomDownloadViewModel(TabItem.Api, pageLimit: 75) {
+				ParentViewModel = this,
+				Tags = TabItem.Tags,
+				AppSettingsDownloadFolder = appSettingsService.Model.DownloadFolderPath,
+				CurrentPage = CurrentPage,
+				MaxPage = MaxPage,
+			};
+		}
+	}
+	private bool CanCustomDownload() => true;
+
+
+	private DelegateCommand? dismissDownloadCommand;
+	public IDelegateCommand DismissDownloadCommand => dismissDownloadCommand ??= new(DismissDownload);
+	public void DismissDownload() {
+		DownloadMode = DownloadMode.None;
+	}
+
+
+	private DelegateCommand? openSettingsCommand;
+	public IDelegateCommand OpenSettingsCommand => openSettingsCommand ??= new(OpenSettings);
+	private void OpenSettings() {
+		AppSettingsDialog.ShowOKCancel(this, null);
+	}
+
+}
+
+internal abstract class DownloadConfigViewModel : BindableBase, IDisposable {
+	private readonly IE621ProfileService profileService = IoC.GetService<IE621ProfileService>();
+
+	public required PostsViewModel ParentViewModel { get; init; }
+
+	public required string[] Tags { get; init; }
+
+	public required string AppSettingsDownloadFolder {
+		get => GetProperty(() => AppSettingsDownloadFolder);
+		set => SetProperty(() => AppSettingsDownloadFolder, value);
+	}
+
+	public bool UseCustomPath {
+		get => GetProperty(() => UseCustomPath);
+		set {
+			SetProperty(() => UseCustomPath, value);
+			RaiseDestinationFolder();
+		}
+	}
+
+	public string CustomPath {
+		get => GetProperty(() => CustomPath);
+		set {
+			SetProperty(() => CustomPath, value);
+			RaiseDestinationFolder();
+
+			profileService.Model.LastCustomDownloadPath = value;
+			profileService.SaveSettings();
+		}
+	}
+
+	public string DestinationFolder => UseCustomPath ? CustomPath : AppSettingsDownloadFolder;
+
+	public void RaiseDestinationFolder() => RaisePropertyChanged(() => DestinationFolder);
+	public DownloadConfigViewModel() {
+		UseCustomPath = false;
+
+		CustomPath = profileService.Model.LastCustomDownloadPath.SafeString();
+	}
+
+
+
+	private DelegateCommand? confirmCommand;
+	public IDelegateCommand ConfirmCommand => confirmCommand ??= new(Confirm, CanConfirm);
+	protected virtual void Confirm() {
+		ParentViewModel.DismissDownload();
+	}
+
+	protected virtual bool CanConfirm() {
+		return DestinationFolder.IsNotBlank();
+	}
+
+	public virtual void Dispose() {
+
+	}
+
+	public virtual void Initialize() {
+
+	}
+}
+
+internal class DownloadSelectedViewModel : DownloadConfigViewModel {
+	public required IReadOnlyList<E621Post> Posts { get; init; }
+
+	protected override void Confirm() {
+		base.Confirm();
+
+	}
+
+	protected override bool CanConfirm() {
+		return base.CanConfirm() && Posts.IsNotEmpty();
+	}
+}
+
+internal class DownloadCurrentPageViewModel : DownloadConfigViewModel {
+	public required IReadOnlyList<E621Post> Posts { get; init; }
+
+
+	protected override void Confirm() {
+		base.Confirm();
+
+	}
+
+	protected override bool CanConfirm() {
+		return base.CanConfirm() && Posts.IsNotEmpty();
+	}
+}
+
+internal class CustomDownloadViewModel(E621API api, int pageLimit) : DownloadConfigViewModel {
+
+	public required int CurrentPage { get; init; }
+
+	public int FromPage {
+		get => GetProperty(() => FromPage);
+		set => SetProperty(() => FromPage, value);
+	}
+
+	public int ToPage {
+		get => GetProperty(() => ToPage);
+		set => SetProperty(() => ToPage, value);
+	}
+
+	public int MaxPage {
+		get => GetProperty(() => MaxPage);
+		set => SetProperty(() => MaxPage, value);
+	}
+
+	public LoadingStatus LoadingStatus { get; } = new();
+
+	private readonly CancellationTokenSource cts = new();
+	private AsyncCommand? refreshMaxPageCommand;
+
+	public override void Initialize() {
+		base.Initialize();
+
+		FromPage = 1;
+		ToPage = 1;
+
+		_ = RefreshMaxPage();
+	}
+
+	public IDelegateCommand RefreshMaxPageCommand => refreshMaxPageCommand ??= new(RefreshMaxPage);
+	private async Task RefreshMaxPage() {
+		try {
+			CancellationToken token = cts.Token;
+			LoadingStatus.Initialize();
+
+			E621Paginator? r = await api.GetPaginatorAsync(Tags, pageLimit, CurrentPage, token);
+			if (r != null && !token.IsCancellationRequested) {
+				MaxPage = r.MaxPage;
+			} else {
+				MaxPage = 0;
+			}
+
+			LoadingStatus.Done();
+		} catch (OperationCanceledException) {
+
+		} catch (Exception ex) {
+			Debug.WriteLine(ex);
+			LoadingStatus.ErrorClose(ex.Message);
+		}
+	}
+
+
+	private DelegateCommand? selectCurrentPageCommand;
+	public IDelegateCommand SelectCurrentPageCommand => selectCurrentPageCommand ??= new(SelectCurrentPage);
+	private void SelectCurrentPage() {
+		FromPage = CurrentPage;
+		ToPage = CurrentPage;
+	}
+
+
+	private DelegateCommand? selectAllPageCommand;
+	public IDelegateCommand SelectAllPageCommand => selectAllPageCommand ??= new(SelectAllPage);
+	private void SelectAllPage() {
+		FromPage = 1;
+		ToPage = MaxPage;
+	}
+
+	protected override void Confirm() {
+		base.Confirm();
+
+	}
+
+	protected override bool CanConfirm() {
+		return base.CanConfirm() && FromPage < ToPage;
+	}
+
+	public override void Dispose() {
+		base.Dispose();
+
+		cts.Cancel();
+	}
 
 }

@@ -1,9 +1,5 @@
-﻿using AutoMapper;
-using YiffBrowser.BaseFramework.Events;
-using YiffBrowser.BaseFramework.Resources;
-using YiffBrowser.BaseFramework.Services;
-using YiffBrowser.BaseFramework.ViewModels;
-using DevExpress.Mvvm;
+﻿using DevExpress.Mvvm;
+using MapsterMapper;
 using RW.Base.WPF.Events;
 using RW.Base.WPF.Extensions;
 using RW.Base.WPF.Interfaces;
@@ -12,6 +8,10 @@ using RW.Common.Helpers;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Controls;
+using YiffBrowser.BaseFramework.Events;
+using YiffBrowser.BaseFramework.Resources;
+using YiffBrowser.BaseFramework.Services;
+using YiffBrowser.BaseFramework.ViewModels;
 
 namespace YiffBrowser.BaseFramework.Views.Dialogs;
 
@@ -39,7 +39,6 @@ public class AppSettingsDialogViewModel(
 		get => GetProperty(() => Model);
 		set => SetProperty(() => Model, value);
 	}
-
 
 	public bool IsGeneratingDiagnosticsFile {
 		get => GetProperty(() => IsGeneratingDiagnosticsFile);

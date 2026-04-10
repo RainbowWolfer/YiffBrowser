@@ -13,6 +13,7 @@ using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.E621.Models;
 using YiffBrowser.E621.Models.E621;
 using YiffBrowser.E621.Services;
+using YiffBrowser.E621.Views;
 
 namespace YiffBrowser.E621.Controls;
 
@@ -50,16 +51,16 @@ internal class PostCardControl : ContentControl, IVariableSizedGridItem, IDispos
 		new PropertyMetadata(null)
 	);
 
-	public LoadingStatus LoadingStatus {
-		get => (LoadingStatus)GetValue(LoadingStatusProperty);
+	public PostLoadingStatus LoadingStatus {
+		get => (PostLoadingStatus)GetValue(LoadingStatusProperty);
 		private set => SetValue(LoadingStatusPropertyKey, value);
 	}
 
 	public static readonly DependencyPropertyKey LoadingStatusPropertyKey = DependencyProperty.RegisterReadOnly(
 		nameof(LoadingStatus),
-		typeof(LoadingStatus),
+		typeof(PostLoadingStatus),
 		typeof(PostCardControl),
-		new PropertyMetadata(LoadingStatus.NotStarted)
+		new PropertyMetadata(PostLoadingStatus.NotStarted)
 	);
 
 	public static readonly DependencyProperty LoadingStatusProperty = LoadingStatusPropertyKey.DependencyProperty;
@@ -157,11 +158,13 @@ internal class PostCardControl : ContentControl, IVariableSizedGridItem, IDispos
 
 	public PostImageLoader ImageLoader { get; }
 
-
+	private readonly PostsViewModel parentViewModel;
 	private readonly IViewConfigService viewConfigService;
 
-	public PostCardControl(IViewConfigService viewConfigService, E621Post post) {
+	public PostCardControl(PostsViewModel parentViewModel, IViewConfigService viewConfigService, E621Post post) {
+		this.parentViewModel = parentViewModel;
 		this.viewConfigService = viewConfigService;
+
 		Post = post;
 
 		ImageLoader = new PostImageLoader(post);
@@ -213,13 +216,13 @@ internal class PostCardControl : ContentControl, IVariableSizedGridItem, IDispos
 			return;
 		}
 		if (args.HasError) {
-			LoadingStatus = LoadingStatus.HasError;
+			LoadingStatus = PostLoadingStatus.HasError;
 		} else if (args.HasCompleted) {
-			LoadingStatus = LoadingStatus.HasCompleted;
+			LoadingStatus = PostLoadingStatus.HasCompleted;
 		} else if (!args.HasStarted) {
-			LoadingStatus = LoadingStatus.NotStarted;
+			LoadingStatus = PostLoadingStatus.NotStarted;
 		} else {
-			LoadingStatus = LoadingStatus.Loading;
+			LoadingStatus = PostLoadingStatus.Loading;
 			LoadingProgress = NumberHelper.Remap(args.Progress, 0, 100, 5, 95);
 		}
 	}
@@ -236,17 +239,23 @@ internal class PostCardControl : ContentControl, IVariableSizedGridItem, IDispos
 
 	protected override void OnMouseEnter(MouseEventArgs e) {
 		base.OnMouseEnter(e);
+		if (parentViewModel.IsMultiSelecting) {
+			return;
+		}
 		ScaleOn?.Begin(RootBorder);
 	}
 
 	protected override void OnMouseLeave(MouseEventArgs e) {
 		base.OnMouseLeave(e);
+		if (parentViewModel.IsMultiSelecting) {
+			return;
+		}
 		ScaleOff?.Begin(RootBorder);
 	}
 
 }
 
-public enum LoadingStatus {
+public enum PostLoadingStatus {
 	NotStarted,
 	HasError,
 	HasCompleted,

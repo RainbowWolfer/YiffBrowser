@@ -10,6 +10,7 @@
 		<File Path="nuget.config" />
 		<File Path="README.md" />
 		<File Path="ResXManager.config.xml" />
+		<File Path="XAML_PRESETS.txt" />
 	</Folder>
 	<Folder Name="/Source/">
 		<Project Path="Source/YiffBrowser.BaseFramework/YiffBrowser.BaseFramework.csproj" />

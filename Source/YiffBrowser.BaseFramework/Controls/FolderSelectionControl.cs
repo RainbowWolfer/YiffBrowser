@@ -1,7 +1,9 @@
-﻿using YiffBrowser.BaseFramework.Helpers;
+﻿using DevExpress.Mvvm.UI;
 using RW.Common.Helpers;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using YiffBrowser.BaseFramework.Helpers;
 
 namespace YiffBrowser.BaseFramework.Controls;
 
@@ -67,6 +69,10 @@ public class FolderSelectionControl : Control {
 					Path.OpenPathInSystemDefault();
 				}
 			};
+			buttonShow.SetBinding(IsEnabledProperty, new Binding(nameof(Path)) {
+				Source = this,
+				Converter = new StringToBooleanConverter(),
+			});
 		}
 
 	}

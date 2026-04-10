@@ -96,6 +96,7 @@ internal class E621MainViewModel(
 	public IUIObjectService<ButtonPopup> SitePopupService => GetService<ITypedUIObjectService>(nameof(SitePopupService)).As<ButtonPopup>();
 
 	public IDialogServiceEx AppSettingsDialog => GetService<IDialogServiceEx>(nameof(AppSettingsDialog));
+	public IDialogServiceEx DownloadDialog => GetService<IDialogServiceEx>(nameof(DownloadDialog));
 
 	public IAppManager AppManager { get; } = appManager;
 	public IViewConfigService ViewConfigService { get; } = viewConfigService;
@@ -178,7 +179,7 @@ internal class E621MainViewModel(
 			//Tabs.Add(CreateTabItem(["feet"]));
 			//Tabs.Add(CreateTabItem(["type:gif"]));
 			//Tabs.Add(CreateTabItem(["type:webm"]));
-			//Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
+			Tabs.Add(CreateTabItem(["wallpaper", "rating:safe"]));
 			//Tabs.Add(CreateTabItem(["order:rank"]));
 			TabSelectedIndex = 0;
 
@@ -239,11 +240,6 @@ internal class E621MainViewModel(
 
 	private void UserService_LoginChanged(E621User? sender, E621Post? args) {
 		IsLoggedIn = sender != null;
-	}
-
-	public ICommand CloseTabCommand => new DelegateCommand<PostTabItem>(CloseTab);
-	private void CloseTab(PostTabItem item) {
-		Tabs.Remove(item);
 	}
 
 	public ICommand ShowE621Command => new DelegateCommand(() => {
@@ -358,6 +354,119 @@ internal class E621MainViewModel(
 		}
 	}
 	private bool CanBackToTabs() => Tabs.IsNotEmpty();
+
+
+
+	private DelegateCommand? openDownloadCommand;
+	public IDelegateCommand OpenDownloadCommand => openDownloadCommand ??= new(OpenDownload);
+	private void OpenDownload() {
+		DownloadDialog.ShowDialog(this, null);
+	}
+
+
+	private DelegateCommand<PostTabItem>? cloneTabCommand;
+	public IDelegateCommand CloneTabCommand => cloneTabCommand ??= new(CloneTab, CanCloneTab);
+	private void CloneTab(PostTabItem item) {
+		if (CanCloneTab(item)) {
+
+		}
+	}
+	private bool CanCloneTab(PostTabItem item) => true;
+
+
+	private DelegateCommand<PostTabItem>? refreshTabCommand;
+	public IDelegateCommand RefreshTabCommand => refreshTabCommand ??= new(RefreshTab, CanRefreshTab);
+	private void RefreshTab(PostTabItem item) {
+		if (CanRefreshTab(item)) {
+
+		}
+	}
+	private bool CanRefreshTab(PostTabItem item) => true;
+
+
+
+	private DelegateCommand<PostTabItem>? appendSearchCommand;
+	public IDelegateCommand AppendSearchCommand => appendSearchCommand ??= new(AppendSearch, CanAppendSearch);
+	private void AppendSearch(PostTabItem item) {
+		if (CanAppendSearch(item)) {
+
+		}
+	}
+	private bool CanAppendSearch(PostTabItem item) => true;
+
+	public ICommand CloseTabCommand => new DelegateCommand<PostTabItem>(CloseTab, CanCloseTab);
+	private void CloseTab(PostTabItem item) {
+		if (CanCloseTab(item)) {
+			item.Dispose();
+			Tabs.Remove(item);
+		}
+	}
+	private bool CanCloseTab(PostTabItem item) => item != null;
+
+
+	private DelegateCommand<PostTabItem>? closeAllTabsCommand;
+	public IDelegateCommand CloseAllTabsCommand => closeAllTabsCommand ??= new(CloseAllTabs, CanCloseAllTabs);
+	private void CloseAllTabs(PostTabItem item) {
+		if (CanCloseAllTabs(item)) {
+			Tabs.ForEach(x => x.Dispose());
+			Tabs.Clear();
+		}
+	}
+	private bool CanCloseAllTabs(PostTabItem item) => true;
+
+
+
+	private DelegateCommand<PostTabItem>? closeAllBeforeTabsCommand;
+	public IDelegateCommand CloseAllBeforeTabsCommand => closeAllBeforeTabsCommand ??= new(CloseAllBeforeTabs, CanCloseAllBeforeTabs);
+	private void CloseAllBeforeTabs(PostTabItem item) {
+		if (CanCloseAllBeforeTabs(item)) {
+			int index = Tabs.IndexOf(item);
+			if (index > 0) {
+				// 获取当前项之前的所有项
+				PostTabItem[] toRemove = [.. Tabs.Take(index)];
+				foreach (PostTabItem tab in toRemove) {
+					tab.Dispose();
+					Tabs.Remove(tab);
+				}
+			}
+		}
+	}
+	private bool CanCloseAllBeforeTabs(PostTabItem item) => item != null && Tabs.IndexOf(item) > 0;
+
+
+
+	private DelegateCommand<PostTabItem>? closeAllAfterTabsCommand;
+	public IDelegateCommand CloseAllAfterTabsCommand => closeAllAfterTabsCommand ??= new(CloseAllAfterTabs, CanCloseAllAfterTabs);
+	private void CloseAllAfterTabs(PostTabItem item) {
+		if (CanCloseAllAfterTabs(item)) {
+			int index = Tabs.IndexOf(item);
+			if (index >= 0 && index < Tabs.Count - 1) {
+				// 获取当前项之后的所有项
+				PostTabItem[] toRemove = [.. Tabs.Skip(index + 1)];
+				foreach (PostTabItem tab in toRemove) {
+					tab.Dispose();
+					Tabs.Remove(tab);
+				}
+			}
+		}
+	}
+	private bool CanCloseAllAfterTabs(PostTabItem item) => item != null && Tabs.IndexOf(item) >= 0 && Tabs.IndexOf(item) < Tabs.Count - 1;
+
+
+
+	private DelegateCommand<PostTabItem>? closeAllOtherTabsCommand;
+	public IDelegateCommand CloseAllOtherTabsCommand => closeAllOtherTabsCommand ??= new(CloseAllOtherTabs, CanCloseAllOtherTabs);
+	private void CloseAllOtherTabs(PostTabItem item) {
+		if (CanCloseAllOtherTabs(item)) {
+			// 找出所有不等于当前选中项的标签页
+			PostTabItem[] toRemove = [.. Tabs.Where(x => x != item)];
+			foreach (PostTabItem tab in toRemove) {
+				tab.Dispose();
+				Tabs.Remove(tab);
+			}
+		}
+	}
+	private bool CanCloseAllOtherTabs(PostTabItem item) => item != null && Tabs.Count > 1 && Tabs.Contains(item);
 
 
 }

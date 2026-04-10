@@ -70,16 +70,16 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
 		new PropertyMetadata(false)
 	);
 
-	public LoadingStatusViewModel LoadingStatus {
-		get => (LoadingStatusViewModel)GetValue(LoadingStatusProperty);
+	public BaseFramework.ViewModels.LoadingStatus LoadingStatus {
+		get => (BaseFramework.ViewModels.LoadingStatus)GetValue(LoadingStatusProperty);
 		private set => SetValue(LoadingStatusPropertyKey, value);
 	}
 
 	private static readonly DependencyPropertyKey LoadingStatusPropertyKey = DependencyProperty.RegisterReadOnly(
 		nameof(LoadingStatus),
-		typeof(LoadingStatusViewModel),
+		typeof(BaseFramework.ViewModels.LoadingStatus),
 		typeof(VideoDisplayer),
-		new PropertyMetadata(new LoadingStatusViewModel())
+		new PropertyMetadata(new BaseFramework.ViewModels.LoadingStatus())
 	);
 
 	public static readonly DependencyProperty LoadingStatusProperty = LoadingStatusPropertyKey.DependencyProperty;
@@ -231,14 +231,14 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
 
 		string? url = post.File?.URL;
 		if (url != null && post.File != null) {
-			LoadingStatus.InitialLoading();
+			LoadingStatus.Initialize();
 
 			videoCacheItem = VideoCacheService.Get(url, post.File.Size);
 			videoCacheItem.Initialize();
 
 			if (videoCacheItem.HasCompleted) {
 				SetVideo(videoCacheItem.MemoryStream);
-				LoadingStatus.DoneLoading();
+				LoadingStatus.Done();
 				IsFileReady = true;
 			} else {
 				videoCacheItem.Updated += Item_Updated;
@@ -255,13 +255,13 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
 		}
 
 		if (args.HasCompleted) {
-			LoadingStatus.DoneLoading();
+			LoadingStatus.Done();
 			if (sender.MemoryStream != null) {
 				SetVideo(sender.MemoryStream);
 				IsFileReady = true;
 			}
 		} else if (args.HasError) {
-			LoadingStatus.LoadingError($"Loading Error : {args.Exception?.Message}");
+			LoadingStatus.Error($"Loading Error : {args.Exception?.Message}");
 		} else {
 			double progress = args.Progress / 100d;
 			long downloaded = (long)(fileSize * (args.Progress / 100d));

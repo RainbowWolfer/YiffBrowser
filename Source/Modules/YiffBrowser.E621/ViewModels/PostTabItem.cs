@@ -8,7 +8,7 @@ using YiffBrowser.E621.Views;
 
 namespace YiffBrowser.E621.ViewModels;
 
-internal class PostTabItem : BindableBase {
+internal class PostTabItem : BindableBase, IDisposable {
 
 	public E621API Api { get; }
 
@@ -21,7 +21,7 @@ internal class PostTabItem : BindableBase {
 
 	public ObservableCollection<E621Post> Posts { get; } = [];
 
-	public LoadingStatusViewModel LoadingStatus { get; } = new();
+	public LoadingStatus LoadingStatus { get; } = new();
 
 	public PostTabItem(E621MainViewModel parentViewModel, string[] tags) {
 		ParentViewModel = parentViewModel ?? throw new ArgumentNullException(nameof(parentViewModel));
@@ -33,5 +33,9 @@ internal class PostTabItem : BindableBase {
 		Tags = tags ?? [];
 
 		View = new PostsView(this);
+	}
+
+	public void Dispose() {
+		View.Dispose();
 	}
 }

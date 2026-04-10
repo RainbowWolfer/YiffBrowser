@@ -7,6 +7,8 @@
 	xmlns:c="clr-namespace:YiffBrowser.BaseFramework.Controls"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+	xmlns:enums="clr-namespace:YiffBrowser.BaseFramework.Enums"
+	xmlns:ex="clr-namespace:YiffBrowser.BaseFramework.Extensions"
 	xmlns:hc="https://handyorg.github.io/handycontrol"
 	xmlns:local="clr-namespace:YiffBrowser.BaseFramework.Views.Dialogs"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -135,7 +137,7 @@
 
 	<!--<c:WindowContent>-->
 	<Border Style="{StaticResource DialogBackgroundBorder}">
-		<Grid Width="600" Height="400" Margin="6">
+		<Grid Width="660" Height="450" Margin="6">
 			<TabControl Style="{StaticResource TabControlCapsule.Custom}" TabStripPlacement="Left">
 
 				<TabItem>
@@ -166,8 +168,80 @@
 						<c:HorizontalIconText Style="{StaticResource TabItemHeader}" Glyph="&#xE896;" Text="Download"/>
 					</TabItem.Header>
 
+					<ScrollViewer Margin="4" Padding="12,6" hc:ScrollViewerAttach.AutoHide="False">
+						<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
+
+							<wpf:TitleContent Title="Download Location">
+								<c:FolderSelectionControl Path="{Binding Model.DownloadFolderPath}"/>
+							</wpf:TitleContent>
+
+							<StackPanel Margin="0,4,0,0">
+								<CheckBox ex:CheckBoxExtension.GroupName="DownloadGroup" Content="Group by Searched Tags" IsChecked="{Binding Model.IsGroupBySearchedTags}"/>
+								<TextBlock
+									Margin="22,2,0,0"
+									Opacity="0.7"
+									Text="Files will be downloaded to folders named after the tags (sorted alphabetically)."
+									TextWrapping="Wrap"/>
+								<TextBlock
+									Margin="22,0,0,0"
+									Opacity="0.5"
+									Text="e.g. wallpaper, anthro, rating:s -&gt; /Folder/anthro, rating_s, wallpaper/"
+									TextWrapping="Wrap"/>
+							</StackPanel>
+
+							<StackPanel Margin="0,4,0,0">
+								<CheckBox ex:CheckBoxExtension.GroupName="DownloadGroup" Content="Group by Author Tag Only" IsChecked="{Binding Model.IsGroupByAuthorTagOnly}"/>
+								<TextBlock
+									Margin="22,2,0,0"
+									Opacity="0.7"
+									Text="The folder name will use the 'artist' or 'director' tag."
+									TextWrapping="Wrap"/>
+								<TextBlock
+									Margin="22,0,0,0"
+									Opacity="0.5"
+									Text="If multiple authors are found, they will be sorted alphabetically."
+									TextWrapping="Wrap"/>
+							</StackPanel>
+
+							<Separator/>
+
+							<wpf:TitleContent Title="Max Concurrent Downloads (1-10)">
+								<hc:NumericUpDown Minimum="1" Maximum="10" Value="{Binding Model.MaxConcurrentDownloads, UpdateSourceTrigger=PropertyChanged}"/>
+							</wpf:TitleContent>
+
+							<wpf:TitleContent Title="File Collision Behavior">
+								<hc:ComboBox wpf:EnumBindingExtension.SelectedEnum="{Binding Model.FileCollisionBehavior}" ItemsSource="{wpf:EnumBindingMarkup EnumType={x:Type enums:FileCollisionBehaviorType}, Converter={StaticResource EnumDisplayConverter}}"/>
+							</wpf:TitleContent>
+
+							<StackPanel>
+								<wpf:TitleContent Title="Download File Name">
+									<hc:ComboBox>
+										<ComboBoxItem Content="[id]"/>
+										<ComboBoxItem Content="[id] - [authors]"/>
+										<ComboBoxItem Content="[authors] - [id]"/>
+									</hc:ComboBox>
+								</wpf:TitleContent>
+								<TextBlock
+									Margin="4,0,0,0"
+									Opacity="0.5"
+									Text="e.g. 312221 - zonkpunch, ruaidri.webm"
+									TextWrapping="Wrap"/>
+							</StackPanel>
+
+							<Separator/>
+
+							<StackPanel>
+								<CheckBox Content="Save metadata to local database"/>
+								<TextBlock
+									Margin="22,2,0,0"
+									Opacity="0.7"
+									Text="Saves post metadata (tags, timestamp, ID, authors) to the local database."
+									TextWrapping="Wrap"/>
+							</StackPanel>
 
 
+						</wpf:SpacingStackPanel>
+					</ScrollViewer>
 
 				</TabItem>
 

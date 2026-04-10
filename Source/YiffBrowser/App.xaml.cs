@@ -149,8 +149,8 @@ public partial class App : ApplicationBase {
 
 
 		//new TestWindow().Show();
-		//ShowE6AI();
-		ShowE621();
+		ShowE6AI();
+		//ShowE621();
 
 		startupStopWatch.Stop();
 		Debug.WriteLine($"app started in {startupStopWatch.ElapsedMilliseconds} ms");
@@ -284,7 +284,7 @@ public partial class App : ApplicationBase {
 
 		protected override IEnumerable<string> AdditionalSkipSet() => skipSet;
 
-		private readonly string[] skipNames = [
+		private readonly string[] skipTypeNames = [
 			"BaseFramework.Extensions",
 			"BaseFramework.Enums",
 			"BaseFramework.Converters",
@@ -314,7 +314,7 @@ public partial class App : ApplicationBase {
 		protected override bool MatchType(Type type) {
 			string @namespace = type.Namespace ?? string.Empty;
 
-			foreach (string item in skipNames) {
+			foreach (string item in skipTypeNames) {
 				if (@namespace.StartsWith(item)) {
 					return false;
 				}

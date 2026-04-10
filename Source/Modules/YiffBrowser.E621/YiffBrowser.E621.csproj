@@ -7,4 +7,8 @@
 		<ProjectReference Include="..\..\YiffBrowser.BaseFramework\YiffBrowser.BaseFramework.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="ViewModelServices\" />
+	</ItemGroup>
+
 </Project>

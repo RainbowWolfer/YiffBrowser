@@ -302,12 +302,13 @@
 										<Border.RenderTransform>
 											<ScaleTransform x:Name="Scale" ScaleX="1" ScaleY="1"/>
 										</Border.RenderTransform>
+										<!-- todo: -->
 										<bf:ImageExtend
 											bf:ImageExtension.GifAutoPlayType="{TemplateBinding GifAutoPlayType}"
 											BitmapImage="{TemplateBinding BitmapImage}"
 											GifImage="{TemplateBinding GifImage}"
 											Stretch="UniformToFill"
-											Visibility="Visible"/>
+											Visibility="Collapsed"/>
 									</Border>
 								</Border>
 

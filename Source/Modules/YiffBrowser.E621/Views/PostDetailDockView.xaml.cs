@@ -74,7 +74,7 @@ public partial class PostDetailDockView : UserControl, INotifyPropertyChanged {
 
 	public ObservableCollection<E621CommentViewModel> Comments { get; } = [];
 
-	public LoadingStatusViewModel LoadingStatus { get; } = new();
+	public LoadingStatus LoadingStatus { get; } = new();
 
 	private CancellationTokenSource? comment_cts;
 
@@ -90,7 +90,7 @@ public partial class PostDetailDockView : UserControl, INotifyPropertyChanged {
 		CancellationToken token = newCts.Token;
 
 		try {
-			LoadingStatus.InitialLoading();
+			LoadingStatus.Initialize();
 
 			token.ThrowIfCancellationRequested();
 			foreach (E621CommentViewModel item in Comments) {
@@ -111,14 +111,14 @@ public partial class PostDetailDockView : UserControl, INotifyPropertyChanged {
 			}
 
 			if (!token.IsCancellationRequested) {
-				LoadingStatus.DoneLoading();
+				LoadingStatus.Done();
 			}
 
 		} catch (OperationCanceledException) {
 
 		} catch (Exception ex) {
 			if (!token.IsCancellationRequested) {
-				LoadingStatus.LoadingError(ex.Message);
+				LoadingStatus.Error(ex.Message);
 				Debug.WriteLine(ex);
 			}
 		} finally {

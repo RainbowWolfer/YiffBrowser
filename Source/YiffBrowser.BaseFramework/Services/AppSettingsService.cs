@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using RW.Base.WPF.DependencyInjections;
 using RW.Base.WPF.Services;
+using YiffBrowser.BaseFramework.Enums;
 
 namespace YiffBrowser.BaseFramework.Services;
 
@@ -29,6 +30,14 @@ public class AppSettingsService : JsonSettingsServiceBase<AppSettingsModel>, ISi
 /// <summary> map to self </summary>
 [JsonObject]
 public class AppSettingsModel {
-	public bool EnableTrayIcon { get; set; }
+	public bool EnableTrayIcon { get; set; } = true;
+	public string DownloadFolderPath { get; set; } = string.Empty;
+
+	public int MaxConcurrentDownloads { get; set; } = 3;
+
+	public FileCollisionBehaviorType FileCollisionBehavior { get; set; } = FileCollisionBehaviorType.SkipIfSameSize;
+
+	public bool IsGroupBySearchedTags { get; set; }
+	public bool IsGroupByAuthorTagOnly { get; set; }
 }
 

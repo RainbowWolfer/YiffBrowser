@@ -50,7 +50,7 @@ internal class SearchPanelViewModel(IEventAggregator eventAggregator) : DockPane
 		set => SetProperty(() => RandomTagText, value);
 	}
 
-	public LoadingStatusViewModel RandomTagsLoadingStatus { get; } = new();
+	public BaseFramework.ViewModels.LoadingStatus RandomTagsLoadingStatus { get; } = new();
 
 	public TagsSearchService TagsSearchService { get; } = new();
 
@@ -182,7 +182,7 @@ internal class SearchPanelViewModel(IEventAggregator eventAggregator) : DockPane
 	private async Task GetRandomTags() {
 		if (CanGetRandomTags()) {
 			try {
-				RandomTagsLoadingStatus.InitialLoading();
+				RandomTagsLoadingStatus.Initialize();
 
 				E621Post[] posts = await Api.GetPostsByTagsAsync(new E621PostParameters() {
 					Page = 1,
@@ -204,9 +204,9 @@ internal class SearchPanelViewModel(IEventAggregator eventAggregator) : DockPane
 
 				RandomTagsTextBoxService.Focus();
 
-				RandomTagsLoadingStatus.DoneLoading();
+				RandomTagsLoadingStatus.Done();
 			} catch (Exception ex) {
-				RandomTagsLoadingStatus.LoadingError(ex.Message);
+				RandomTagsLoadingStatus.Error(ex.Message);
 				RandomTagText = ex.Message;
 			}
 		}

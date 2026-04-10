@@ -44,16 +44,16 @@ public partial class ImageDisplayer : UserControl {
 
 	public static readonly DependencyProperty IsFileReadyProperty = IsFileReadyPropertyKey.DependencyProperty;
 
-	public LoadingStatusViewModel LoadingStatus {
-		get => (LoadingStatusViewModel)GetValue(LoadingStatusProperty);
+	public LoadingStatus LoadingStatus {
+		get => (LoadingStatus)GetValue(LoadingStatusProperty);
 		private set => SetValue(LoadingStatusPropertyKey, value);
 	}
 
 	private static readonly DependencyPropertyKey LoadingStatusPropertyKey = DependencyProperty.RegisterReadOnly(
 		nameof(LoadingStatus),
-		typeof(LoadingStatusViewModel),
+		typeof(LoadingStatus),
 		typeof(ImageDisplayer),
-		new PropertyMetadata(new LoadingStatusViewModel())
+		new PropertyMetadata(new LoadingStatus())
 	);
 
 	public static readonly DependencyProperty LoadingStatusProperty = LoadingStatusPropertyKey.DependencyProperty;
@@ -88,7 +88,7 @@ public partial class ImageDisplayer : UserControl {
 			return;
 		}
 
-		LoadingStatus.InitialLoading();
+		LoadingStatus.Initialize();
 
 		IsFileReady = false;
 		fileSize = post.File?.Size ?? 0;
@@ -123,7 +123,7 @@ public partial class ImageDisplayer : UserControl {
 			if (file.HasCompleted) {
 				SetImageContent(file);
 				//ImageViewer.SetBitmapImage(file.Image);
-				LoadingStatus.DoneLoading();
+				LoadingStatus.Done();
 				IsFileReady = true;
 			} else {
 				file.Initialize();
@@ -156,14 +156,14 @@ public partial class ImageDisplayer : UserControl {
 			return;
 		}
 		if (args.HasCompleted) {
-			LoadingStatus.DoneLoading();
+			LoadingStatus.Done();
 			if (sender.Image != null) {
 				SetImageContent(sender);
 				//ImageViewer.SetBitmapImage(sender.Image);
 				IsFileReady = true;
 			}
 		} else if (args.HasError) {
-			LoadingStatus.LoadingError($"Loading Error : {args.Exception?.Message}");
+			LoadingStatus.Error($"Loading Error : {args.Exception?.Message}");
 		} else {
 			double progress = args.Progress / 100d;
 			long downloaded = (long)(fileSize * (args.Progress / 100d));
