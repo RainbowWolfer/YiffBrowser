@@ -71,6 +71,8 @@ public partial class App : ApplicationBase {
 
 		SystemTrayIconService = new SystemTrayIconService();
 
+		CustomInitialize.Initialize();
+
 		//FocusDebugLoop();
 	}
 

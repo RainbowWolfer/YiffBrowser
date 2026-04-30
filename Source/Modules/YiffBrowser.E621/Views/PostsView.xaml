@@ -355,185 +355,226 @@
 				</Border.Effect>
 
 				<Grid>
-					<Grid.RowDefinitions>
-						<RowDefinition Height="auto"/>
-						<RowDefinition Height="*"/>
-						<RowDefinition Height="auto"/>
-					</Grid.RowDefinitions>
 
-					<Border Grid.Row="0">
-						<DockPanel Margin="4,4,4,0">
-							<Border Margin="6,0">
-								<TextBlock VerticalAlignment="Center" FontWeight="Bold" Text="{Binding DownloadMode, Converter={StaticResource EnumDisplayConverter}}"/>
+					<Grid IsEnabled="{Binding DownloadConfig.LoadingStatus_GetPosts.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="auto"/>
+							<RowDefinition Height="*"/>
+							<RowDefinition Height="auto"/>
+						</Grid.RowDefinitions>
+
+						<Border Grid.Row="0">
+							<DockPanel Margin="4,4,4,0">
+								<Border Margin="6,0">
+									<TextBlock VerticalAlignment="Center" FontWeight="Bold" Text="{Binding DownloadMode, Converter={StaticResource EnumDisplayConverter}}"/>
+								</Border>
+								<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Right">
+									<Button
+										Width="24"
+										Height="24"
+										Padding="0"
+										BorderThickness="0"
+										Command="{Binding OpenSettingsCommand}">
+										<wpf:FontIcon Text="&#xE713;"/>
+									</Button>
+									<Button
+										Width="24"
+										Height="24"
+										Padding="0"
+										BorderThickness="0"
+										Command="{Binding DismissDownloadCommand}">
+										<wpf:FontIcon Text="&#xE711;"/>
+									</Button>
+								</wpf:SpacingStackPanel>
+							</DockPanel>
+						</Border>
+
+						<Grid Grid.Row="1" Margin="6">
+
+							<Border d:Visibility="Collapsed" Width="400" Visibility="{Binding DownloadMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static enums:DownloadMode.DownloadSelected}}">
+								<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}">
+
+									<Border Padding="4,2" Background="{DynamicResource ThirdlyRegionBrush}" CornerRadius="4">
+										<TextBlock Text="{Binding SelectedItems.Count, StringFormat='{}Selected {0} Posts'}" TextAlignment="Center"/>
+									</Border>
+
+								</wpf:SpacingStackPanel>
 							</Border>
-							<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Right">
-								<Button
-									Width="24"
-									Height="24"
-									Padding="0"
-									BorderThickness="0"
-									Command="{Binding OpenSettingsCommand}">
-									<wpf:FontIcon Text="&#xE713;"/>
-								</Button>
-								<Button
-									Width="24"
-									Height="24"
-									Padding="0"
-									BorderThickness="0"
-									Command="{Binding DismissDownloadCommand}">
-									<wpf:FontIcon Text="&#xE711;"/>
-								</Button>
-							</wpf:SpacingStackPanel>
-						</DockPanel>
-					</Border>
 
-					<Grid Grid.Row="1" Margin="6">
+							<Border d:Visibility="Collapsed" Width="400" Visibility="{Binding DownloadMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static enums:DownloadMode.DownloadCurrentPage}}">
+								<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}">
 
-						<Border d:Visibility="Collapsed" Width="400" Visibility="{Binding DownloadMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static enums:DownloadMode.DownloadSelected}}">
-							<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}">
+									<Border Padding="4,2" Background="{DynamicResource ThirdlyRegionBrush}" CornerRadius="4">
+										<TextBlock Text="{Binding Items.Count, StringFormat='{}{0} Posts'}" TextAlignment="Center"/>
+									</Border>
 
-								<Border Padding="4,2" Background="{DynamicResource ThirdlyRegionBrush}" CornerRadius="4">
-									<TextBlock Text="{Binding SelectedItems.Count, StringFormat='{}Selected {0} Posts'}" TextAlignment="Center"/>
+								</wpf:SpacingStackPanel>
+							</Border>
+
+							<Border d:Visibility="Visible" Width="420" Visibility="{Binding DownloadMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static enums:DownloadMode.CustomDownload}}">
+								<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}">
+									<!--<hc:NumericUpDown/>-->
+
+									<Grid>
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="*"/>
+											<ColumnDefinition Width="*"/>
+										</Grid.ColumnDefinitions>
+
+										<TextBlock Margin="6,0" VerticalAlignment="Bottom" Text="Page Range"/>
+
+										<!--<TextBlock Grid.Column="1" Margin="6,0" HorizontalAlignment="Right">
+											<Run Text="From:"/>
+											<Run Text="{Binding DownloadConfig.FromPage}"/>
+											<Run Text=", To:"/>
+											<Run Text="{Binding DownloadConfig.ToPage}"/>
+											<Run Text=", Max:"/>
+											<Run Text="{Binding DownloadConfig.MaxPage}"/>
+										</TextBlock>-->
+
+										<wpf:SpacingStackPanel
+											Style="{DynamicResource CustomHorizontalPanel2}"
+											Grid.Column="1"
+											Margin="6,0"
+											HorizontalAlignment="Right">
+
+											<TextBlock VerticalAlignment="Center" Text="From"/>
+											<hc:NumericUpDown
+												Style="{DynamicResource NumericUpDownPlus.Small}"
+												MinWidth="40"
+												Padding="4,0"
+												Minimum="1"
+												Maximum="{Binding DownloadConfig.MaxPage}"
+												Value="{Binding DownloadConfig.FromPage, UpdateSourceTrigger=PropertyChanged}"/>
+
+											<Border Width="1"/>
+
+											<TextBlock VerticalAlignment="Center" Text="To"/>
+											<hc:NumericUpDown
+												Style="{DynamicResource NumericUpDownPlus.Small}"
+												MinWidth="40"
+												Padding="4,0"
+												Minimum="1"
+												Maximum="{Binding DownloadConfig.MaxPage}"
+												Value="{Binding DownloadConfig.ToPage, UpdateSourceTrigger=PropertyChanged}"/>
+
+
+											<Border Width="1"/>
+
+											<TextBlock VerticalAlignment="Center" Text="Max"/>
+											<TextBlock VerticalAlignment="Center" Text="{Binding DownloadConfig.MaxPage}"/>
+										</wpf:SpacingStackPanel>
+
+									</Grid>
+
+									<hc:RangeSlider
+										Minimum="1"
+										Maximum="{Binding DownloadConfig.MaxPage}"
+										Background="{DynamicResource BorderBrush}"
+										Interval="1"
+										IsSnapToTickEnabled="False"
+										TickFrequency="{DXBinding 'DownloadConfig.MaxPage / 30'}"
+										TickPlacement="BottomRight"
+										ValueEnd="{Binding DownloadConfig.ToPage, UpdateSourceTrigger=PropertyChanged}"
+										ValueStart="{Binding DownloadConfig.FromPage, UpdateSourceTrigger=PropertyChanged}"/>
+
+									<Grid>
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="*"/>
+											<ColumnDefinition Width="4"/>
+											<ColumnDefinition Width="*"/>
+											<ColumnDefinition Width="4"/>
+											<ColumnDefinition Width="*"/>
+										</Grid.ColumnDefinitions>
+										<Button
+											Grid.Column="0"
+											HorizontalAlignment="Stretch"
+											Command="{Binding DownloadConfig.RefreshMaxPageCommand}"
+											Content="Refresh Max Page"/>
+										<Button
+											Grid.Column="2"
+											HorizontalAlignment="Stretch"
+											Command="{Binding DownloadConfig.SelectCurrentPageCommand}"
+											Content="Select Current Page"/>
+										<Button
+											Grid.Column="4"
+											HorizontalAlignment="Stretch"
+											Command="{Binding DownloadConfig.SelectAllPageCommand}"
+											Content="Select All Pages"/>
+									</Grid>
+
+									<Grid Visibility="{Binding DownloadConfig.LoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
+										<ProgressBar Height="18" Background="{DynamicResource BorderBrush}" IsIndeterminate="True"/>
+										<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="Refreshing Max Page"/>
+									</Grid>
+
+								</wpf:SpacingStackPanel>
+							</Border>
+
+						</Grid>
+
+						<Border Grid.Row="2">
+							<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}" Margin="6">
+								<Separator/>
+								<CheckBox Margin="4,0" Content="Custom Destination Path" IsChecked="{Binding DownloadConfig.UseCustomPath}"/>
+								<bf:FolderSelectionControl Path="{Binding DownloadConfig.CustomPath}" Visibility="{Binding DownloadConfig.UseCustomPath, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+
+								<Border>
+									<StackPanel Opacity="0.7">
+										<TextBlock Text="Will be downloaded to:"/>
+										<TextBlock Text="{Binding DownloadConfig.DestinationFolder}" TextWrapping="Wrap"/>
+									</StackPanel>
 								</Border>
 
-							</wpf:SpacingStackPanel>
-						</Border>
-
-						<Border d:Visibility="Collapsed" Width="400" Visibility="{Binding DownloadMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static enums:DownloadMode.DownloadCurrentPage}}">
-							<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}">
-
-								<Border Padding="4,2" Background="{DynamicResource ThirdlyRegionBrush}" CornerRadius="4">
-									<TextBlock Text="{Binding Items.Count, StringFormat='{}{0} Posts'}" TextAlignment="Center"/>
+								<Border>
+									<Button
+										Style="{DynamicResource ButtonPrimary}"
+										Margin="0"
+										HorizontalAlignment="Right"
+										Command="{Binding DownloadConfig.ConfirmCommand}"
+										Content="Confirm"/>
 								</Border>
-
-							</wpf:SpacingStackPanel>
-						</Border>
-
-						<Border d:Visibility="Visible" Width="420" Visibility="{Binding DownloadMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static enums:DownloadMode.CustomDownload}}">
-							<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}">
-								<!--<hc:NumericUpDown/>-->
-
-								<Grid>
-									<Grid.ColumnDefinitions>
-										<ColumnDefinition Width="*"/>
-										<ColumnDefinition Width="*"/>
-									</Grid.ColumnDefinitions>
-
-									<TextBlock Margin="6,0" VerticalAlignment="Bottom" Text="Page Range"/>
-
-									<!--<TextBlock Grid.Column="1" Margin="6,0" HorizontalAlignment="Right">
-										<Run Text="From:"/>
-										<Run Text="{Binding DownloadConfig.FromPage}"/>
-										<Run Text=", To:"/>
-										<Run Text="{Binding DownloadConfig.ToPage}"/>
-										<Run Text=", Max:"/>
-										<Run Text="{Binding DownloadConfig.MaxPage}"/>
-									</TextBlock>-->
-
-									<wpf:SpacingStackPanel
-										Style="{DynamicResource CustomHorizontalPanel2}"
-										Grid.Column="1"
-										Margin="6,0"
-										HorizontalAlignment="Right">
-
-										<TextBlock VerticalAlignment="Center" Text="From"/>
-										<hc:NumericUpDown
-											Style="{DynamicResource NumericUpDownPlus.Small}"
-											MinWidth="40"
-											Padding="4,0"
-											Minimum="1"
-											Maximum="{Binding DownloadConfig.MaxPage}"
-											Value="{Binding DownloadConfig.FromPage, UpdateSourceTrigger=PropertyChanged}"/>
-
-										<Border Width="1"/>
-
-										<TextBlock VerticalAlignment="Center" Text="To"/>
-										<hc:NumericUpDown
-											Style="{DynamicResource NumericUpDownPlus.Small}"
-											MinWidth="40"
-											Padding="4,0"
-											Minimum="1"
-											Maximum="{Binding DownloadConfig.MaxPage}"
-											Value="{Binding DownloadConfig.ToPage, UpdateSourceTrigger=PropertyChanged}"/>
-
-
-										<Border Width="1"/>
-
-										<TextBlock VerticalAlignment="Center" Text="Max"/>
-										<TextBlock VerticalAlignment="Center" Text="{Binding DownloadConfig.MaxPage}"/>
-									</wpf:SpacingStackPanel>
-
-								</Grid>
-
-								<hc:RangeSlider
-									Minimum="1"
-									Maximum="{Binding DownloadConfig.MaxPage}"
-									Background="{DynamicResource BorderBrush}"
-									Interval="1"
-									IsSnapToTickEnabled="False"
-									TickFrequency="{DXBinding 'DownloadConfig.MaxPage / 30'}"
-									TickPlacement="BottomRight"
-									ValueEnd="{Binding DownloadConfig.ToPage, UpdateSourceTrigger=PropertyChanged}"
-									ValueStart="{Binding DownloadConfig.FromPage, UpdateSourceTrigger=PropertyChanged}"/>
-
-								<Grid>
-									<Grid.ColumnDefinitions>
-										<ColumnDefinition Width="*"/>
-										<ColumnDefinition Width="4"/>
-										<ColumnDefinition Width="*"/>
-										<ColumnDefinition Width="4"/>
-										<ColumnDefinition Width="*"/>
-									</Grid.ColumnDefinitions>
-									<Button
-										Grid.Column="0"
-										HorizontalAlignment="Stretch"
-										Command="{Binding DownloadConfig.RefreshMaxPageCommand}"
-										Content="Refresh Max Page"/>
-									<Button
-										Grid.Column="2"
-										HorizontalAlignment="Stretch"
-										Command="{Binding DownloadConfig.SelectCurrentPageCommand}"
-										Content="Select Current Page"/>
-									<Button
-										Grid.Column="4"
-										HorizontalAlignment="Stretch"
-										Command="{Binding DownloadConfig.SelectAllPageCommand}"
-										Content="Select All Pages"/>
-								</Grid>
-
-								<Grid Visibility="{Binding DownloadConfig.LoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
-									<ProgressBar Height="18" Background="{DynamicResource BorderBrush}" IsIndeterminate="True"/>
-									<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="Refreshing Max Page"/>
-								</Grid>
-
 							</wpf:SpacingStackPanel>
 						</Border>
 
 					</Grid>
 
-					<Border Grid.Row="2">
-						<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}" Margin="6">
-							<Separator/>
-							<CheckBox Margin="4,0" Content="Custom Destination Path" IsChecked="{Binding DownloadConfig.UseCustomPath}"/>
-							<bf:FolderSelectionControl Path="{Binding DownloadConfig.CustomPath}" Visibility="{Binding DownloadConfig.UseCustomPath, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+					<Grid Visibility="{Binding DownloadConfig.LoadingStatus_GetPosts.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
+						<Border
+							Padding="8"
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center"
+							Background="{DynamicResource RegionBrush}"
+							CornerRadius="8">
 
-							<Border>
-								<StackPanel Opacity="0.7">
-									<TextBlock Text="Will be downloaded to:"/>
-									<TextBlock Text="{Binding DownloadConfig.DestinationFolder}" TextWrapping="Wrap"/>
-								</StackPanel>
-							</Border>
+							<Border.Effect>
+								<DropShadowEffect
+									BlurRadius="20"
+									Opacity="0.3"
+									ShadowDepth="0"
+									Color="{DynamicResource PrimaryTextColor}"/>
+							</Border.Effect>
 
-							<Border>
+							<StackPanel MinWidth="160">
+								<hc:CircleProgressBar
+									Width="40"
+									Height="40"
+									Margin="4"
+									wpf:ProgressBarExtension.Progress="{Binding DownloadConfig.LoadingStatus_GetPosts.Progress}"
+									IsIndeterminate="True"/>
+								<TextBlock
+									d:Text="Loading Posts"
+									Margin="4"
+									Text="{Binding DownloadConfig.LoadingStatus_GetPosts.DownloadInfo}"
+									TextAlignment="Center"/>
 								<Button
-									Style="{DynamicResource ButtonPrimary}"
-									Margin="0"
-									HorizontalAlignment="Right"
-									Command="{Binding DownloadConfig.ConfirmCommand}"
-									Content="Confirm"/>
-							</Border>
-						</wpf:SpacingStackPanel>
-					</Border>
+									Style="{StaticResource ButtonDefault.Small}"
+									Margin="4"
+									Command="{Binding DownloadConfig.CancelLoadingCommand}"
+									Content="Cancel"/>
+							</StackPanel>
+						</Border>
+					</Grid>
 
 				</Grid>
 

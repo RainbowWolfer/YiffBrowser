@@ -44,11 +44,11 @@ public class LoadingStatus : BindableBase {
 		set => SetProperty(() => ElapsedTimeSpan, value);
 	}
 
-	public void Initialize() {
+	public void Initialize(string downloadInfo = "Initializing") {
 		ShowLoading = true;
 		Progress = null;
 		ErrorMessage = string.Empty;
-		DownloadInfo = "Initializing";
+		DownloadInfo = downloadInfo;
 		StartDateTime = DateTime.Now;
 		ToolTip =
 			"Start Downloading\n" +

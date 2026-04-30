@@ -506,6 +506,11 @@ internal abstract class DownloadConfigViewModel : BindableBase, IDisposable {
 
 	public required PostsViewModel ParentViewModel { get; init; }
 
+	public LoadingStatus LoadingStatus_GetPosts { get; } = new();
+
+
+	private CancellationTokenSource? cts;
+
 	public required string[] Tags { get; init; }
 
 	public required string AppSettingsDownloadFolder {
@@ -543,15 +548,45 @@ internal abstract class DownloadConfigViewModel : BindableBase, IDisposable {
 
 
 
-	private DelegateCommand? confirmCommand;
+	private AsyncCommand? confirmCommand;
 	public IDelegateCommand ConfirmCommand => confirmCommand ??= new(Confirm, CanConfirm);
-	protected virtual void Confirm() {
-		ParentViewModel.DismissDownload();
+	protected async Task Confirm() {
+		try {
+			cts = new CancellationTokenSource();
+			CancellationToken token = cts.Token;
+
+			LoadingStatus_GetPosts.Initialize("Loading Posts");
+
+			//await Task.Delay(4000, token);
+			IEnumerable<E621Post> posts = await GetPostsAsync(token);
+
+			//todo: start download
+
+			ParentViewModel.DismissDownload();
+
+			LoadingStatus_GetPosts.Done();
+		} catch (Exception ex) {
+			Debug.WriteLine(ex);
+			LoadingStatus_GetPosts.Error(ex.Message);
+		}
 	}
 
 	protected virtual bool CanConfirm() {
 		return DestinationFolder.IsNotBlank();
 	}
+
+
+
+	public IDelegateCommand CancelLoadingCommand => field ??= new DelegateCommand(CancelLoading, CanCancelLoading);
+	private void CancelLoading() {
+		if (CanCancelLoading()) {
+			cts?.Cancel();
+			cts?.Dispose();
+			cts = null;
+		}
+	}
+	private bool CanCancelLoading() => true;
+
 
 	public virtual void Dispose() {
 
@@ -560,14 +595,16 @@ internal abstract class DownloadConfigViewModel : BindableBase, IDisposable {
 	public virtual void Initialize() {
 
 	}
+
+
+	public abstract Task<IEnumerable<E621Post>> GetPostsAsync(CancellationToken token);
 }
 
 internal class DownloadSelectedViewModel : DownloadConfigViewModel {
 	public required IReadOnlyList<E621Post> Posts { get; init; }
 
-	protected override void Confirm() {
-		base.Confirm();
-
+	public override async Task<IEnumerable<E621Post>> GetPostsAsync(CancellationToken token) {
+		return Posts;
 	}
 
 	protected override bool CanConfirm() {
@@ -578,11 +615,10 @@ internal class DownloadSelectedViewModel : DownloadConfigViewModel {
 internal class DownloadCurrentPageViewModel : DownloadConfigViewModel {
 	public required IReadOnlyList<E621Post> Posts { get; init; }
 
-
-	protected override void Confirm() {
-		base.Confirm();
-
+	public override async Task<IEnumerable<E621Post>> GetPostsAsync(CancellationToken token) {
+		return Posts;
 	}
+
 
 	protected override bool CanConfirm() {
 		return base.CanConfirm() && Posts.IsNotEmpty();
@@ -660,13 +696,27 @@ internal class CustomDownloadViewModel(E621API api, int pageLimit) : DownloadCon
 		ToPage = MaxPage;
 	}
 
-	protected override void Confirm() {
-		base.Confirm();
+	public override async Task<IEnumerable<E621Post>> GetPostsAsync(CancellationToken token) {
 
+		List<E621Post> posts = [];
+
+		int index = 0;
+		int count = ToPage - FromPage + 1;
+		for (int i = FromPage; i <= ToPage; i++) {
+			LoadingStatus_GetPosts.DownloadInfo = $"Loading Posts: Page {i} ({++index}/{count})";
+			E621Post[] r = await api.GetPostsByTagsAsync(new E621PostParameters() {
+				Tags = Tags,
+				PageLimit = pageLimit,
+				Page = i,
+			}, token);
+			posts.AddRange(r);
+		}
+
+		return posts;
 	}
 
 	protected override bool CanConfirm() {
-		return base.CanConfirm() && FromPage < ToPage;
+		return base.CanConfirm() && FromPage <= ToPage;
 	}
 
 	public override void Dispose() {
