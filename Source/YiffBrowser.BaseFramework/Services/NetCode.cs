@@ -37,7 +37,7 @@ public static class NetCode {
 		SocketsHttpHandler handler = new() {
 			PooledConnectionLifetime = TimeSpan.FromMinutes(2),
 			PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1),
-			MaxConnectionsPerServer = 4,
+			MaxConnectionsPerServer = 4, // 最高并发
 			AutomaticDecompression = DecompressionMethods.All,
 			ConnectTimeout = TimeSpan.FromSeconds(15),
 			EnableMultipleHttp2Connections = true,
