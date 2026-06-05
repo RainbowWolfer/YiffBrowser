@@ -4,7 +4,7 @@ using System.Windows.Markup;
 [assembly: XmlnsDefinition("YiffBrowser.BaseFramework", "YiffBrowser.BaseFramework.Controls")]
 [assembly: XmlnsDefinition("YiffBrowser.BaseFramework", "YiffBrowser.BaseFramework.Converters")]
 [assembly: XmlnsDefinition("YiffBrowser.BaseFramework", "YiffBrowser.BaseFramework.Enums")]
-//[assembly: XmlnsDefinition("YiffBrowser.BaseFramework", "YiffBrowser.BaseFramework.Events")]
+[assembly: XmlnsDefinition("YiffBrowser.BaseFramework", "YiffBrowser.BaseFramework.Events")]
 [assembly: XmlnsDefinition("YiffBrowser.BaseFramework", "YiffBrowser.BaseFramework.Extensions")]
 [assembly: XmlnsDefinition("YiffBrowser.BaseFramework", "YiffBrowser.BaseFramework.Helpers")]
 [assembly: XmlnsDefinition("YiffBrowser.BaseFramework", "YiffBrowser.BaseFramework.Interfaces")]

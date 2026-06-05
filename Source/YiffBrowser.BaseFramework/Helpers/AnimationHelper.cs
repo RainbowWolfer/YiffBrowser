@@ -42,7 +42,7 @@ public class AnimationHelper {
     //}
 
     internal static Geometry ComposeGeometry(string[] strings, double[] arr) {
-        var builder = new StringBuilder(strings[0]);
+		StringBuilder builder = new StringBuilder(strings[0]);
         for (var i = 0; i < arr.Length; i++) {
             var s = strings[i + 1];
             var n = arr[i];

@@ -11,6 +11,8 @@
 		<LangVersion>14</LangVersion>
 		<ImplicitUsings>enable</ImplicitUsings>
 
+		<DebugType>embedded</DebugType>
+
 		<Authors>RainbowWolfer</Authors>
 		<Company>RainbowWolfer</Company>
 		<Copyright>RainbowWolfer</Copyright>
