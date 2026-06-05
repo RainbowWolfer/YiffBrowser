@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.BaseFramework.ViewModels;
 
 namespace YiffBrowser.BaseFramework.Views.Dialogs;
@@ -11,7 +12,8 @@ public partial class DownloadDialog : UserControl {
 
 }
 
-internal class DownloadDialogViewModel : DialogViewModel<object> {
+internal class DownloadDialogViewModel(IDownloadService downloadService) : DialogViewModel<object> {
+	public IDownloadService DownloadService { get; } = downloadService;
 
 
 	protected override void OnInitialized() {
@@ -23,6 +25,7 @@ internal class DownloadDialogViewModel : DialogViewModel<object> {
 	public override DialogWindowParameter DialogWindowParameter => base.DialogWindowParameter with {
 		ResizeMode = ResizeMode.CanResizeWithGrip,
 	};
+
 
 	public override void OnWindowInitialized(Window window) {
 		base.OnWindowInitialized(window);

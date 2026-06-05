@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Globalization;
+using System.IO;
 using System.Text.RegularExpressions;
 using YiffBrowser.BaseFramework.Interfaces;
 
@@ -15,7 +16,7 @@ public static partial class NameTemplateHandler {
 	// 严格区分大小写的标签（针对日期和时间）
 	private static readonly string[] CaseSensitiveTags =
 	[
-		"yyyy", "yy", "MM", "dd", "HH", "hh", "mm", "ss", "fff"
+		"yyyy", "yy", "MM", "dd", "HH", "hh", "mm", "ss", "fff", "tt", "t"
 	];
 
 	/// <summary>
@@ -98,7 +99,7 @@ public static partial class NameTemplateHandler {
 		string result = GenerateRawFilename(post, template);
 		result = SanitizeFilename(result);
 
-		string safeExtension = (post.Extension ?? "bin").TrimStart('.');
+		string safeExtension = post.Extension.TrimStart('.');
 		return $"{result}.{safeExtension}";
 	}
 
@@ -108,28 +109,34 @@ public static partial class NameTemplateHandler {
 	private static string GenerateRawFilename(INameTemplateItem post, string template) {
 		string result = template;
 
-		string safeAuthors = SanitizeFilename(string.Join(", ", post.Authors ?? ["unknown_author"]));
-		string safeMd5 = SanitizeFilename(post.Md5 ?? "unknown_md5");
+		string safeAuthors = SanitizeFilename(string.Join(", ", post.Authors));
+		string safeMd5 = SanitizeFilename(post.Md5);
 
 		// 第一部分：实体属性（忽略大小写，支持 <ID> 或 <id>）
-		result = result.Replace("<id>", post.Id.ToString(), StringComparison.OrdinalIgnoreCase);
+		result = result.Replace("<site>", post.Site, StringComparison.OrdinalIgnoreCase);
+		result = result.Replace("<id>", post.Id, StringComparison.OrdinalIgnoreCase);
 		result = result.Replace("<md5>", safeMd5, StringComparison.OrdinalIgnoreCase);
 		result = result.Replace("<authors>", safeAuthors, StringComparison.OrdinalIgnoreCase);
 
 		// 第二部分：日期时间（严格区分大小写，StringComparison.Ordinal）
 		DateTime now = DateTime.Now;
-		result = result.Replace("<yyyy>", now.ToString("yyyy"), StringComparison.Ordinal); // 4位年份: 2026
-		result = result.Replace("<yy>", now.ToString("yy"), StringComparison.Ordinal);     // 2位年份: 26
-		result = result.Replace("<MM>", now.ToString("MM"), StringComparison.Ordinal);     // 补零月份: 01-12
-		result = result.Replace("<dd>", now.ToString("dd"), StringComparison.Ordinal);     // 补零日期: 01-31
-		result = result.Replace("<HH>", now.ToString("HH"), StringComparison.Ordinal);     // 24小时制: 00-23
-		result = result.Replace("<hh>", now.ToString("hh"), StringComparison.Ordinal);     // 12小时制: 01-12
-		result = result.Replace("<mm>", now.ToString("mm"), StringComparison.Ordinal);     // 分钟: 00-59
-		result = result.Replace("<ss>", now.ToString("ss"), StringComparison.Ordinal);     // 秒钟: 00-59
-		result = result.Replace("<f>", now.ToString("f"), StringComparison.Ordinal);   // 毫秒: 000-999
-		result = result.Replace("<ff>", now.ToString("ff"), StringComparison.Ordinal);   // 毫秒: 000-999
-		result = result.Replace("<fff>", now.ToString("fff"), StringComparison.Ordinal);   // 毫秒: 000-999
-		result = result.Replace("<ffff>", now.ToString("ffff"), StringComparison.Ordinal);   // 毫秒: 000-999
+
+		// 建议引入 Globalization 来使用 InvariantCulture
+		CultureInfo culture = CultureInfo.InvariantCulture;
+
+		result = result.Replace("<yyyy>", now.ToString("yyyy", culture), StringComparison.Ordinal);
+		result = result.Replace("<yy>", now.ToString("yy", culture), StringComparison.Ordinal);
+		result = result.Replace("<MM>", now.ToString("MM", culture), StringComparison.Ordinal);
+		result = result.Replace("<dd>", now.ToString("dd", culture), StringComparison.Ordinal);
+		result = result.Replace("<HH>", now.ToString("HH", culture), StringComparison.Ordinal);
+		result = result.Replace("<hh>", now.ToString("hh", culture), StringComparison.Ordinal);
+		result = result.Replace("<mm>", now.ToString("mm", culture), StringComparison.Ordinal);
+		result = result.Replace("<ss>", now.ToString("ss", culture), StringComparison.Ordinal);
+		result = result.Replace("<fff>", now.ToString("fff", culture), StringComparison.Ordinal);
+
+		// 新增：AM/PM 标识符
+		result = result.Replace("<tt>", now.ToString("tt", culture), StringComparison.Ordinal); // 输出 AM 或 PM
+		result = result.Replace("<t>", now.ToString("t", culture), StringComparison.Ordinal);   // 输出 A 或 P
 
 		return result;
 	}
@@ -146,9 +153,10 @@ public static partial class NameTemplateHandler {
 	}
 
 	private class MockPost : INameTemplateItem {
+		public string Site => "site_name";
 		public string Id => "123456";
 		public string Md5 => "a1b2c3d4e5f6g7h8";
-		public IEnumerable<string> Authors => ["SampleAuthor"];
+		public IEnumerable<string> Authors => ["SampleAuthor", "Author2"];
 		public string Extension => "png";
 	}
 

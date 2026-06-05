@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace YiffBrowser.BaseFramework.Interfaces;
+﻿namespace YiffBrowser.BaseFramework.Interfaces;
 
 public interface INameTemplateItem {
+	string Site { get; }
 	string Id { get; }
 	string Md5 { get; }
 	IEnumerable<string> Authors { get; }

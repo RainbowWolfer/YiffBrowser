@@ -15,10 +15,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using YiffBrowser.BaseFramework.Events;
+using YiffBrowser.BaseFramework.Interfaces;
 using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.BaseFramework.ViewModels;
 using YiffBrowser.BaseFramework.ViewModelServices;
-using YiffBrowser.BaseFramework.Views.Dialogs;
 using YiffBrowser.E621.Controls;
 using YiffBrowser.E621.Enums;
 using YiffBrowser.E621.Models.E621;
@@ -51,7 +51,12 @@ internal partial class PostsView : UserControl, IDisposable {
 	}
 }
 
-internal class PostsViewModel(IViewConfigService viewConfigService, IEventAggregator eventAggregator, IAppSettingsService appSettingsService) : ViewModelBase, IDisposable {
+internal class PostsViewModel(
+	IViewConfigService viewConfigService,
+	IEventAggregator eventAggregator,
+	IAppSettingsService appSettingsService,
+	IDownloadService downloadService
+) : ViewModelBase, IDisposable {
 	public IUIObjectService<PostCardListBox> PostsListBoxService => GetService<ITypedUIObjectService>(nameof(PostsListBoxService)).As<PostCardListBox>();
 	public IUIObjectService<ButtonPopup> PaginationButtonPopupService => GetService<ITypedUIObjectService>(nameof(PaginationButtonPopupService)).As<ButtonPopup>();
 
@@ -65,7 +70,7 @@ internal class PostsViewModel(IViewConfigService viewConfigService, IEventAggreg
 
 
 	public IViewConfigService ViewConfigService { get; } = viewConfigService;
-
+	public IDownloadService DownloadService { get; } = downloadService;
 
 	public event TypedEventHandler<PostsViewModel, E621Post?>? CurrentPostChanged;
 
@@ -547,6 +552,12 @@ internal abstract class DownloadConfigViewModel : BindableBase, IDisposable {
 	}
 
 
+	private class E621PostDownloadable(E621Post post) : IDownloadable {
+		public string DownloadUrl => post.File!.URL!;
+		public string TargetFileName => $"{post.ID}.{post.File!.Ext}";
+		public bool CanDownload => post.File != null && post.File.URL.IsNotBlank();
+	}
+
 
 	private AsyncCommand? confirmCommand;
 	public IDelegateCommand ConfirmCommand => confirmCommand ??= new(Confirm, CanConfirm);
@@ -559,8 +570,9 @@ internal abstract class DownloadConfigViewModel : BindableBase, IDisposable {
 
 			//await Task.Delay(4000, token);
 			IEnumerable<E621Post> posts = await GetPostsAsync(token);
+			IEnumerable<E621PostDownloadable> postsDownloadable = posts.Select(x => new E621PostDownloadable(x)).Where(x => x.CanDownload);
 
-			//todo: start download
+			ParentViewModel.DownloadService.StartDownloads(postsDownloadable, DestinationFolder);
 
 			ParentViewModel.DismissDownload();
 
