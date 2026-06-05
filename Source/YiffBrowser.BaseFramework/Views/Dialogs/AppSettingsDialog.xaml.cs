@@ -65,7 +65,7 @@ public class AppSettingsDialogViewModel(
 			eventAggregator.GetEvent<AppSettingsChangedEvent>().Publish(new AppSettingsChangedEventArgs(appSettingsService.Model));
 			return true;
 		} catch (Exception ex) {
-			DebugLoggerManager.LogHandledException(ex);
+			DebugLog.LogHandledException(ex);
 			MessageBoxService.ShowError("Saving settings error", ex);
 			return false;
 		}
@@ -108,7 +108,7 @@ public class AppSettingsDialogViewModel(
 				filePath.OpenPathInSystemDefault();
 			} catch (Exception ex) {
 				MessageBoxService.ShowError("Failed to generate diagnostics file", ex);
-				DebugLoggerManager.LogHandledException(ex);
+				DebugLog.LogHandledException(ex);
 			} finally {
 				stopwatch.Stop();
 				IsGeneratingDiagnosticsFile = false;

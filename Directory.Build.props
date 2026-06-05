@@ -17,12 +17,12 @@
 
 		<Version>1.1.0</Version>
 
-		<RW_Common_Version>1.0.51</RW_Common_Version>
+		<RW_Common_Version>1.0.52</RW_Common_Version>
 
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="PolySharp" Version="1.15.0">
+		<PackageReference Include="PolySharp" Version="1.16.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
