@@ -35,7 +35,7 @@ public partial class App : ApplicationBase {
 
 	static App() {
 		DebugConfig.Print = o => Debug.WriteLine(o);
-		DebugConfig.DebuggerBreak = Debugger.Break;
+		//DebugConfig.DebuggerBreak = Debugger.Break;
 		startupStopWatch.Start();
 
 		ControlConfig.DefaultDirectParameter = false;
@@ -330,17 +330,17 @@ public partial class App : ApplicationBase {
 
 		}
 
-		protected override void AfterInitialized(IReadOnlyDictionary<string, Assembly> pool, IReadOnlyDictionary<string, Type> types) {
-			base.AfterInitialized(pool, types);
+		protected override void AfterInitialized(IReadOnlyList<Assembly> assemblies, IReadOnlyList<Type> types) {
+			base.AfterInitialized(assemblies, types);
 
 			Debug.WriteLine(new string('-', 30));
 
-			foreach (KeyValuePair<string, Assembly> entry in pool) {
-				Debug.WriteLine($"Assembly: {entry}");
+			foreach (Assembly assembly in assemblies) {
+				Debug.WriteLine($"Assembly: {assembly}");
 			}
 
-			foreach (KeyValuePair<string, Type> entry in types) {
-				Debug.WriteLine($"Type: {entry}");
+			foreach (Type type in types) {
+				Debug.WriteLine($"Type: {type}");
 			}
 
 			Debug.WriteLine(new string('-', 30));
