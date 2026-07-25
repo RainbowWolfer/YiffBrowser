@@ -188,7 +188,9 @@ internal class PostsViewModel(
 	}
 
 	private void OnAppSettingsChanged(AppSettingsChangedEventArgs args) {
-
+		if (DownloadConfig is not null) {
+			DownloadConfig.AppSettingsDownloadFolder = args.Model.DownloadFolderPath;
+		}
 	}
 
 	private void SelectedItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
@@ -520,7 +522,11 @@ internal abstract class DownloadConfigViewModel : BindableBase, IDisposable {
 
 	public required string AppSettingsDownloadFolder {
 		get => GetProperty(() => AppSettingsDownloadFolder);
-		set => SetProperty(() => AppSettingsDownloadFolder, value);
+		set {
+			if (SetProperty(() => AppSettingsDownloadFolder, value)) {
+				RaiseDestinationFolder();
+			}
+		}
 	}
 
 	public bool UseCustomPath {
