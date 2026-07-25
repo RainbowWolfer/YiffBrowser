@@ -14,6 +14,26 @@ public class LoadingStatus : BindableBase {
 		set => SetProperty(() => DownloadInfo, value);
 	}
 
+	public string SpeedText {
+		get => GetProperty(() => SpeedText);
+		set => SetProperty(() => SpeedText, value);
+	}
+
+	public string EtaText {
+		get => GetProperty(() => EtaText);
+		set => SetProperty(() => EtaText, value);
+	}
+
+	public double BytesPerSecond {
+		get => GetProperty(() => BytesPerSecond);
+		set => SetProperty(() => BytesPerSecond, value);
+	}
+
+	public long BytesRemaining {
+		get => GetProperty(() => BytesRemaining);
+		set => SetProperty(() => BytesRemaining, value);
+	}
+
 	public string ErrorMessage {
 		get => GetProperty(() => ErrorMessage);
 		set => SetProperty(() => ErrorMessage, value);
@@ -49,6 +69,10 @@ public class LoadingStatus : BindableBase {
 		Progress = null;
 		ErrorMessage = string.Empty;
 		DownloadInfo = downloadInfo;
+		SpeedText = "—";
+		EtaText = "—";
+		BytesPerSecond = 0;
+		BytesRemaining = 0;
 		StartDateTime = DateTime.Now;
 		ToolTip =
 			"Start Downloading\n" +
@@ -58,6 +82,10 @@ public class LoadingStatus : BindableBase {
 	public void Done() {
 		ShowLoading = false;
 		DownloadInfo = "Done";
+		SpeedText = "—";
+		EtaText = "—";
+		BytesPerSecond = 0;
+		BytesRemaining = 0;
 		EndDateTime = DateTime.Now;
 		ToolTip =
 			"Download Finished\n" +
@@ -65,29 +93,57 @@ public class LoadingStatus : BindableBase {
 			$"End DateTime: {EndDateTime}";
 	}
 
-	public void Error(string errorMessage) {
+	public void Error(string errorMessage, string? detail = null) {
 		ShowLoading = true;
 		ErrorMessage = errorMessage;
+		SpeedText = "—";
+		EtaText = "—";
+		BytesPerSecond = 0;
+		BytesRemaining = 0;
 		EndDateTime = DateTime.Now;
-		ToolTip =
+		ToolTip = detail ?? (
 			"Download Error\n" +
 			$"Start DateTime: {StartDateTime}\n" +
-			$"End DateTime: {EndDateTime}";
+			$"End DateTime: {EndDateTime}");
 	}
 
-	public void ErrorClose(string errorMessage) {
-		Error(errorMessage);
+	public void ErrorClose(string errorMessage, string? detail = null) {
+		Error(errorMessage, detail);
 		ShowLoading = false;
 	}
 
-	public void SetProgress(double? progress, string downloadInfo) {
+	public void SetProgress(double? progress, string downloadInfo, string speedText = "", string etaText = "", double bytesPerSecond = 0, long bytesRemaining = 0) {
 		ShowLoading = true;
 		Progress = progress;
 		DownloadInfo = downloadInfo;
+		SpeedText = speedText;
+		EtaText = etaText;
+		BytesPerSecond = bytesPerSecond;
+		BytesRemaining = bytesRemaining;
 		ElapsedTimeSpan = DateTime.Now - StartDateTime;
 		ToolTip =
 			"Downloading\n" +
 			$"Start DateTime: {StartDateTime}\n" +
-			$"Elapsed TimeSpan: {ElapsedTimeSpan}";
+			$"Elapsed TimeSpan: {ElapsedTimeSpan}\n" +
+			$"Speed: {speedText}\n" +
+			$"Time remaining: {etaText}";
+	}
+
+	/// <summary>Browser-style remaining time, e.g. "12s left", "3m left", "1h 05m left".</summary>
+	public static string FormatEtaText(long bytesRemaining, double bytesPerSecond) {
+		if (bytesPerSecond < 1 || bytesRemaining <= 0) {
+			return "—";
+		}
+
+		TimeSpan eta = TimeSpan.FromSeconds(bytesRemaining / bytesPerSecond);
+		if (eta.TotalHours >= 1) {
+			return $"{(int)eta.TotalHours}h {eta.Minutes:D2}m left";
+		}
+
+		if (eta.TotalMinutes >= 1) {
+			return $"{(int)eta.TotalMinutes}m left";
+		}
+
+		return $"{Math.Max(1, (int)Math.Ceiling(eta.TotalSeconds))}s left";
 	}
 }

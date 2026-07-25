@@ -58,7 +58,7 @@
 											ToolTip="Last Viewed Post"
 											Visibility="{Binding LastViewedPost, Converter={StaticResource Object2VisibilityConverter}}">
 											<Button.Background>
-												<ImageBrush ImageSource="{Binding LastViewedPost.Preview.URL}" Stretch="UniformToFill"/>
+												<ImageBrush ImageSource="{Binding LastViewedPost.Preview.URL, TargetNullValue={x:Null}}" Stretch="UniformToFill"/>
 											</Button.Background>
 
 											<Button.ContextMenu>
@@ -283,19 +283,20 @@
 								</ItemsControl.ItemsPanel>
 
 								<ItemsControl.ItemContainerStyle>
-									<Style TargetType="ListBoxItem">
+									<Style TargetType="c1:PostCardListBoxItem" BasedOn="{StaticResource {x:Type c1:PostCardListBoxItem}}">
 										<EventSetter Event="RequestBringIntoView" Handler="ListBoxItem_RequestBringIntoView"/>
 										<Setter Property="bf:ListBoxItemClickExtension.AllowSelection" Value="{Binding Source={StaticResource ViewModel}, Path=Data.IsMultiSelecting}"/>
 										<Setter Property="bf:ListBoxItemClickExtension.ClickCommand" Value="{StaticResource ViewPostDetailCommand}"/>
 										<Setter Property="bf:ListBoxItemClickExtension.ClickCommandParameter" Value="{Binding Post}"/>
 										<Setter Property="Margin" Value="0"/>
-										<Setter Property="Padding" Value="0"/>
-										<Setter Property="BorderThickness" Value="3"/>
 										<Setter Property="Padding" Value="2"/>
+										<Setter Property="BorderThickness" Value="3"/>
+										<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+										<Setter Property="VerticalContentAlignment" Value="Stretch"/>
 										<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
 										<Setter Property="Template">
 											<Setter.Value>
-												<ControlTemplate TargetType="ListBoxItem">
+												<ControlTemplate TargetType="c1:PostCardListBoxItem">
 													<Border Margin="{TemplateBinding Padding}">
 														<ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" UseLayoutRounding="{TemplateBinding UseLayoutRounding}"/>
 													</Border>
@@ -327,7 +328,53 @@
 
 		</DockPanel>
 
-		<Grid d:Visibility="Visible" Visibility="{Binding DownloadMode, Converter={StaticResource EqualToVisibilityReConverter}, ConverterParameter={x:Static enums:DownloadMode.None}}">
+		<!-- Backdrop fades; dialog panel (inner Border) scales + slides up. Visibility is storyboard-driven so exit can fade out. -->
+		<Grid d:Visibility="Visible">
+			<Grid.Style>
+				<Style TargetType="Grid">
+					<Setter Property="Visibility" Value="Collapsed"/>
+					<Setter Property="Opacity" Value="0"/>
+					<Style.Triggers>
+						<DataTrigger Binding="{Binding DownloadMode, Converter={StaticResource EqualToBoolConverter}, ConverterParameter={x:Static enums:DownloadMode.None}}" Value="False">
+							<DataTrigger.EnterActions>
+								<StopStoryboard BeginStoryboardName="DownloadOverlayHide"/>
+								<BeginStoryboard x:Name="DownloadOverlayShow" HandoffBehavior="SnapshotAndReplace">
+									<Storyboard>
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility">
+											<DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}"/>
+										</ObjectAnimationUsingKeyFrames>
+										<DoubleAnimation
+											Storyboard.TargetProperty="Opacity"
+											From="0"
+											To="1"
+											Duration="0:0:0.22">
+											<DoubleAnimation.EasingFunction>
+												<QuadraticEase EasingMode="EaseOut"/>
+											</DoubleAnimation.EasingFunction>
+										</DoubleAnimation>
+									</Storyboard>
+								</BeginStoryboard>
+							</DataTrigger.EnterActions>
+							<DataTrigger.ExitActions>
+								<StopStoryboard BeginStoryboardName="DownloadOverlayShow"/>
+								<BeginStoryboard x:Name="DownloadOverlayHide" HandoffBehavior="SnapshotAndReplace">
+									<Storyboard>
+										<DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.28">
+											<DoubleAnimation.EasingFunction>
+												<QuadraticEase EasingMode="EaseIn"/>
+											</DoubleAnimation.EasingFunction>
+										</DoubleAnimation>
+										<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility">
+											<DiscreteObjectKeyFrame KeyTime="0:0:0.28" Value="{x:Static Visibility.Collapsed}"/>
+										</ObjectAnimationUsingKeyFrames>
+									</Storyboard>
+								</BeginStoryboard>
+							</DataTrigger.ExitActions>
+						</DataTrigger>
+					</Style.Triggers>
+				</Style>
+			</Grid.Style>
+
 			<Grid.Background>
 				<SolidColorBrush Opacity="0.4" Color="Black"/>
 			</Grid.Background>
@@ -344,7 +391,80 @@
 				BorderThickness="1"
 				BorderBrush="{DynamicResource BorderBrush}"
 				Background="{DynamicResource SecondaryRegionBrush}"
-				CornerRadius="8">
+				CornerRadius="8"
+				RenderTransformOrigin="0.5,0.5">
+
+				<Border.RenderTransform>
+					<TransformGroup>
+						<ScaleTransform ScaleX="1" ScaleY="1"/>
+						<TranslateTransform Y="0"/>
+					</TransformGroup>
+				</Border.RenderTransform>
+
+				<Border.Style>
+					<Style TargetType="Border">
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding DownloadMode, Converter={StaticResource EqualToBoolConverter}, ConverterParameter={x:Static enums:DownloadMode.None}}" Value="False">
+								<DataTrigger.EnterActions>
+									<StopStoryboard BeginStoryboardName="DownloadPanelHide"/>
+									<BeginStoryboard x:Name="DownloadPanelShow" HandoffBehavior="SnapshotAndReplace">
+										<Storyboard>
+											<DoubleAnimation
+												Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"
+												From="0.94"
+												To="1"
+												Duration="0:0:0.28">
+												<DoubleAnimation.EasingFunction>
+													<QuadraticEase EasingMode="EaseOut"/>
+												</DoubleAnimation.EasingFunction>
+											</DoubleAnimation>
+											<DoubleAnimation
+												Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"
+												From="0.94"
+												To="1"
+												Duration="0:0:0.28">
+												<DoubleAnimation.EasingFunction>
+													<QuadraticEase EasingMode="EaseOut"/>
+												</DoubleAnimation.EasingFunction>
+											</DoubleAnimation>
+											<DoubleAnimation
+												Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"
+												From="28"
+												To="0"
+												Duration="0:0:0.28">
+												<DoubleAnimation.EasingFunction>
+													<QuadraticEase EasingMode="EaseOut"/>
+												</DoubleAnimation.EasingFunction>
+											</DoubleAnimation>
+										</Storyboard>
+									</BeginStoryboard>
+								</DataTrigger.EnterActions>
+								<DataTrigger.ExitActions>
+									<StopStoryboard BeginStoryboardName="DownloadPanelShow"/>
+									<BeginStoryboard x:Name="DownloadPanelHide" HandoffBehavior="SnapshotAndReplace">
+										<Storyboard>
+											<DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" To="0.96" Duration="0:0:0.28">
+												<DoubleAnimation.EasingFunction>
+													<QuadraticEase EasingMode="EaseIn"/>
+												</DoubleAnimation.EasingFunction>
+											</DoubleAnimation>
+											<DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" To="0.96" Duration="0:0:0.28">
+												<DoubleAnimation.EasingFunction>
+													<QuadraticEase EasingMode="EaseIn"/>
+												</DoubleAnimation.EasingFunction>
+											</DoubleAnimation>
+											<DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)" To="16" Duration="0:0:0.28">
+												<DoubleAnimation.EasingFunction>
+													<QuadraticEase EasingMode="EaseIn"/>
+												</DoubleAnimation.EasingFunction>
+											</DoubleAnimation>
+										</Storyboard>
+									</BeginStoryboard>
+								</DataTrigger.ExitActions>
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+				</Border.Style>
 
 				<Border.Effect>
 					<DropShadowEffect
@@ -411,105 +531,111 @@
 								</wpf:SpacingStackPanel>
 							</Border>
 
-							<Border d:Visibility="Visible" Width="420" Visibility="{Binding DownloadMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static enums:DownloadMode.CustomDownload}}">
-								<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}">
-									<!--<hc:NumericUpDown/>-->
+							<!--
+								Only materialize CustomDownload UI when that mode is active,
+								so MaxPage/FromPage bindings are not evaluated against other DownloadConfig types.
+							-->
+							<ContentControl>
+								<ContentControl.Style>
+									<Style TargetType="ContentControl">
+										<Setter Property="Content" Value="{x:Null}"/>
+										<Style.Triggers>
+											<DataTrigger Binding="{Binding DownloadMode}" Value="{x:Static enums:DownloadMode.CustomDownload}">
+												<Setter Property="Content" Value="{Binding DownloadConfig}"/>
+											</DataTrigger>
+										</Style.Triggers>
+									</Style>
+								</ContentControl.Style>
+								<ContentControl.Resources>
+									<DataTemplate DataType="{x:Type local:CustomDownloadViewModel}">
+										<Border Width="420">
+											<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel3}">
+												<Grid>
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition Width="*"/>
+														<ColumnDefinition Width="*"/>
+													</Grid.ColumnDefinitions>
 
-									<Grid>
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="*"/>
-											<ColumnDefinition Width="*"/>
-										</Grid.ColumnDefinitions>
+													<TextBlock Margin="6,0" VerticalAlignment="Bottom" Text="Page Range"/>
 
-										<TextBlock Margin="6,0" VerticalAlignment="Bottom" Text="Page Range"/>
+													<wpf:SpacingStackPanel
+														Style="{DynamicResource CustomHorizontalPanel2}"
+														Grid.Column="1"
+														Margin="6,0"
+														HorizontalAlignment="Right">
 
-										<!--<TextBlock Grid.Column="1" Margin="6,0" HorizontalAlignment="Right">
-											<Run Text="From:"/>
-											<Run Text="{Binding DownloadConfig.FromPage}"/>
-											<Run Text=", To:"/>
-											<Run Text="{Binding DownloadConfig.ToPage}"/>
-											<Run Text=", Max:"/>
-											<Run Text="{Binding DownloadConfig.MaxPage}"/>
-										</TextBlock>-->
+														<TextBlock VerticalAlignment="Center" Text="From"/>
+														<hc:NumericUpDown
+															Style="{DynamicResource NumericUpDownPlus.Small}"
+															MinWidth="40"
+															Padding="4,0"
+															Minimum="1"
+															Maximum="{Binding MaxPage}"
+															Value="{Binding FromPage, UpdateSourceTrigger=PropertyChanged}"/>
 
-										<wpf:SpacingStackPanel
-											Style="{DynamicResource CustomHorizontalPanel2}"
-											Grid.Column="1"
-											Margin="6,0"
-											HorizontalAlignment="Right">
+														<Border Width="1"/>
 
-											<TextBlock VerticalAlignment="Center" Text="From"/>
-											<hc:NumericUpDown
-												Style="{DynamicResource NumericUpDownPlus.Small}"
-												MinWidth="40"
-												Padding="4,0"
-												Minimum="1"
-												Maximum="{Binding DownloadConfig.MaxPage}"
-												Value="{Binding DownloadConfig.FromPage, UpdateSourceTrigger=PropertyChanged}"/>
+														<TextBlock VerticalAlignment="Center" Text="To"/>
+														<hc:NumericUpDown
+															Style="{DynamicResource NumericUpDownPlus.Small}"
+															MinWidth="40"
+															Padding="4,0"
+															Minimum="1"
+															Maximum="{Binding MaxPage}"
+															Value="{Binding ToPage, UpdateSourceTrigger=PropertyChanged}"/>
 
-											<Border Width="1"/>
+														<Border Width="1"/>
 
-											<TextBlock VerticalAlignment="Center" Text="To"/>
-											<hc:NumericUpDown
-												Style="{DynamicResource NumericUpDownPlus.Small}"
-												MinWidth="40"
-												Padding="4,0"
-												Minimum="1"
-												Maximum="{Binding DownloadConfig.MaxPage}"
-												Value="{Binding DownloadConfig.ToPage, UpdateSourceTrigger=PropertyChanged}"/>
+														<TextBlock VerticalAlignment="Center" Text="Max"/>
+														<TextBlock VerticalAlignment="Center" Text="{Binding MaxPage}"/>
+													</wpf:SpacingStackPanel>
+												</Grid>
 
+												<hc:RangeSlider
+													Minimum="1"
+													Maximum="{Binding MaxPage}"
+													Background="{DynamicResource BorderBrush}"
+													Interval="1"
+													IsSnapToTickEnabled="False"
+													TickFrequency="{DXBinding 'MaxPage / 30'}"
+													TickPlacement="BottomRight"
+													ValueEnd="{Binding ToPage, UpdateSourceTrigger=PropertyChanged}"
+													ValueStart="{Binding FromPage, UpdateSourceTrigger=PropertyChanged}"/>
 
-											<Border Width="1"/>
+												<Grid>
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition Width="*"/>
+														<ColumnDefinition Width="4"/>
+														<ColumnDefinition Width="*"/>
+														<ColumnDefinition Width="4"/>
+														<ColumnDefinition Width="*"/>
+													</Grid.ColumnDefinitions>
+													<Button
+														Grid.Column="0"
+														HorizontalAlignment="Stretch"
+														Command="{Binding RefreshMaxPageCommand}"
+														Content="Refresh Max Page"/>
+													<Button
+														Grid.Column="2"
+														HorizontalAlignment="Stretch"
+														Command="{Binding SelectCurrentPageCommand}"
+														Content="Select Current Page"/>
+													<Button
+														Grid.Column="4"
+														HorizontalAlignment="Stretch"
+														Command="{Binding SelectAllPageCommand}"
+														Content="Select All Pages"/>
+												</Grid>
 
-											<TextBlock VerticalAlignment="Center" Text="Max"/>
-											<TextBlock VerticalAlignment="Center" Text="{Binding DownloadConfig.MaxPage}"/>
-										</wpf:SpacingStackPanel>
-
-									</Grid>
-
-									<hc:RangeSlider
-										Minimum="1"
-										Maximum="{Binding DownloadConfig.MaxPage}"
-										Background="{DynamicResource BorderBrush}"
-										Interval="1"
-										IsSnapToTickEnabled="False"
-										TickFrequency="{DXBinding 'DownloadConfig.MaxPage / 30'}"
-										TickPlacement="BottomRight"
-										ValueEnd="{Binding DownloadConfig.ToPage, UpdateSourceTrigger=PropertyChanged}"
-										ValueStart="{Binding DownloadConfig.FromPage, UpdateSourceTrigger=PropertyChanged}"/>
-
-									<Grid>
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="*"/>
-											<ColumnDefinition Width="4"/>
-											<ColumnDefinition Width="*"/>
-											<ColumnDefinition Width="4"/>
-											<ColumnDefinition Width="*"/>
-										</Grid.ColumnDefinitions>
-										<Button
-											Grid.Column="0"
-											HorizontalAlignment="Stretch"
-											Command="{Binding DownloadConfig.RefreshMaxPageCommand}"
-											Content="Refresh Max Page"/>
-										<Button
-											Grid.Column="2"
-											HorizontalAlignment="Stretch"
-											Command="{Binding DownloadConfig.SelectCurrentPageCommand}"
-											Content="Select Current Page"/>
-										<Button
-											Grid.Column="4"
-											HorizontalAlignment="Stretch"
-											Command="{Binding DownloadConfig.SelectAllPageCommand}"
-											Content="Select All Pages"/>
-									</Grid>
-
-									<Grid Visibility="{Binding DownloadConfig.LoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
-										<ProgressBar Height="18" Background="{DynamicResource BorderBrush}" IsIndeterminate="True"/>
-										<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="Refreshing Max Page"/>
-									</Grid>
-
-								</wpf:SpacingStackPanel>
-							</Border>
+												<Grid Visibility="{Binding LoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
+													<ProgressBar Height="18" Background="{DynamicResource BorderBrush}" IsIndeterminate="True"/>
+													<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="Refreshing Max Page"/>
+												</Grid>
+											</wpf:SpacingStackPanel>
+										</Border>
+									</DataTemplate>
+								</ContentControl.Resources>
+							</ContentControl>
 
 						</Grid>
 

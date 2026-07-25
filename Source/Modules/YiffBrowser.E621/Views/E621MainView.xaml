@@ -326,7 +326,7 @@
 																					d:ImageSource="{StaticResource Temp1_JPG}"
 																					AlignmentX="Center"
 																					AlignmentY="Center"
-																					ImageSource="{Binding Posts[0].Preview.URL}"
+																					ImageSource="{Binding CoverImageUrl, TargetNullValue={x:Null}}"
 																					Stretch="UniformToFill"/>
 																			</Border.Background>
 																		</Border>
@@ -743,7 +743,47 @@
 							</Border>
 
 							<Border Grid.Column="2" HorizontalAlignment="Right">
-								<TextBlock Text="Download Progress"/>
+								<Button
+									Style="{StaticResource ButtonDefault.Small}"
+									Padding="6,2"
+									BorderThickness="0"
+									Background="Transparent"
+									Command="{Binding OpenDownloadCommand}"
+									ToolTip="Open Download Manager">
+									<StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+										<StackPanel
+											VerticalAlignment="Center"
+											Orientation="Horizontal"
+											Visibility="{Binding DownloadService.OverallStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
+											<TextBlock
+												d:Text="3.2 MB/s"
+												VerticalAlignment="Center"
+												Foreground="{DynamicResource PrimaryTextBrush}"
+												Opacity="0.75"
+												Text="{Binding DownloadService.OverallStatus.SpeedText}"/>
+											<TextBlock
+												d:Text="45%"
+												Margin="8,0,0,0"
+												VerticalAlignment="Center"
+												Foreground="{DynamicResource PrimaryTextBrush}"
+												Text="{Binding DownloadService.OverallStatus.Progress, StringFormat={}{0:0}%, TargetNullValue=—}"/>
+											<hc:CircleProgressBar
+												Width="16"
+												Height="16"
+												Margin="8,0,0,0"
+												ArcThickness="2"
+												Background="{DynamicResource RegionBrush}"
+												ShowText="False"
+												wpf:ProgressBarExtension.Progress="{Binding DownloadService.OverallStatus.Progress}"/>
+										</StackPanel>
+
+										<wpf:FontIcon
+											FontSize="12"
+											Foreground="{DynamicResource PrimaryTextBrush}"
+											Text="&#xE896;"
+											Visibility="{Binding DownloadService.OverallStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
+									</StackPanel>
+								</Button>
 							</Border>
 
 						</Grid>

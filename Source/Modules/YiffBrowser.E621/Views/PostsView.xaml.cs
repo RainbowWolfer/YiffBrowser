@@ -555,6 +555,7 @@ internal abstract class DownloadConfigViewModel : BindableBase, IDisposable {
 	private class E621PostDownloadable(E621Post post) : IDownloadable {
 		public string DownloadUrl => post.File!.URL!;
 		public string TargetFileName => $"{post.ID}.{post.File!.Ext}";
+		public string? PreviewUrl => post.Preview?.URL;
 		public bool CanDownload => post.File != null && post.File.URL.IsNotBlank();
 	}
 

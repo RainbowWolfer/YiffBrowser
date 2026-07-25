@@ -86,8 +86,11 @@ internal class E621MainViewModel(
 	IAppManager appManager,
 	IThemeManager themeManager,
 	ISearchRecordHistoryService searchRecordHistoryService,
-	IViewConfigService viewConfigService
+	IViewConfigService viewConfigService,
+	IDownloadService downloadService
 ) : ViewModelBase {
+
+	public IDownloadService DownloadService { get; } = downloadService;
 
 	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
 	public IUIObjectService<UserControl> UserControl => GetService<ITypedUIObjectService>(nameof(UserControl)).As<UserControl>();

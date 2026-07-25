@@ -1,7 +1,11 @@
 ﻿using DevExpress.Mvvm;
+using RW.Common.Helpers;
+using RW.Common.WPF.Helpers;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using YiffBrowser.BaseFramework.Enums;
 
 namespace YiffBrowser.BaseFramework.ViewModels;
@@ -10,23 +14,44 @@ public class DownloadItem : BindableBase {
 	private readonly HttpClient httpClient;
 	private readonly SemaphoreSlim semaphore;
 	private CancellationTokenSource? cts;
+	private readonly Stopwatch downloadStopwatch = new();
+	private long lastUiUpdateMs;
 
-	// 新增：用于区分是“暂停”引发的取消，还是真正的“彻底取消”
+	// Distinguishes a hard cancel from a pause-triggered cancel.
 	private bool isCanceling = false;
 
 	public string FileUrl { get; }
 	public string DestinationPath { get; }
+	public string FileName { get; }
+	public string DirectoryPath { get; }
+	public string? PreviewUrl { get; }
+
+	public string FileSizeText {
+		get => GetProperty(() => FileSizeText);
+		private set => SetProperty(() => FileSizeText, value);
+	}
 
 	public LoadingStatus Status { get; } = new LoadingStatus();
+
+	public bool IsActive => State is DownloadItemState.Pending or DownloadItemState.Downloading or DownloadItemState.Paused;
+	public bool IsCompleted => State == DownloadItemState.Completed;
+	public bool IsFailed => State is DownloadItemState.Error or DownloadItemState.Canceled;
+	public bool IsFinished => IsCompleted || IsFailed;
 
 	public DownloadItemState State {
 		get => GetProperty(() => State);
 		set {
 			SetProperty(() => State, value);
+			RaisePropertyChanged(() => IsActive);
+			RaisePropertyChanged(() => IsCompleted);
+			RaisePropertyChanged(() => IsFailed);
+			RaisePropertyChanged(() => IsFinished);
 			PauseCommand.RaiseCanExecuteChanged();
 			ResumeCommand.RaiseCanExecuteChanged();
 			RetryCommand.RaiseCanExecuteChanged();
 			CancelCommand.RaiseCanExecuteChanged();
+			RemoveFromListCommand.RaiseCanExecuteChanged();
+			OpenFolderCommand.RaiseCanExecuteChanged();
 		}
 	}
 
@@ -34,15 +59,26 @@ public class DownloadItem : BindableBase {
 	public AsyncCommand ResumeCommand => field ??= new AsyncCommand(ResumeAsync, CanResume);
 	public AsyncCommand RetryCommand => field ??= new AsyncCommand(RetryAsync, CanRetry);
 	public DelegateCommand CancelCommand => field ??= new DelegateCommand(Cancel, CanCancel);
+	public DelegateCommand OpenFolderCommand => field ??= new DelegateCommand(OpenFolder, CanOpenFolder);
+	public DelegateCommand RemoveFromListCommand => field ??= new DelegateCommand(RemoveFromList, () => IsFinished);
+	public DelegateCommand CopyUrlCommand => field ??= new DelegateCommand(CopyUrl, () => FileUrl.IsNotBlank());
+	public DelegateCommand CopyFilePathCommand => field ??= new DelegateCommand(CopyFilePath, () => DestinationPath.IsNotBlank());
+	public DelegateCommand CopyFileNameCommand => field ??= new DelegateCommand(CopyFileName, () => FileName.IsNotBlank());
 
-	public DownloadItem(string fileUrl, string destinationPath, HttpClient httpClient, SemaphoreSlim semaphore) {
+	public event EventHandler? RemoveRequested;
+
+	public DownloadItem(string fileUrl, string destinationPath, HttpClient httpClient, SemaphoreSlim semaphore, string? previewUrl = null) {
 		FileUrl = fileUrl;
 		DestinationPath = destinationPath;
+		FileName = Path.GetFileName(destinationPath);
+		DirectoryPath = Path.GetDirectoryName(destinationPath) ?? string.Empty;
+		PreviewUrl = previewUrl;
 		this.httpClient = httpClient;
 		this.semaphore = semaphore;
 
 		State = DownloadItemState.Pending;
 		Status.Initialize("Pending in Queue");
+		Status.Progress = 0;
 	}
 
 	public async Task StartDownloadAsync() {
@@ -50,65 +86,198 @@ public class DownloadItem : BindableBase {
 		CancellationToken token = cts.Token;
 		bool isSemaphoreAcquired = false;
 
-		// 每次重新开始时，重置取消标记
 		isCanceling = false;
 
+		// Keep prior progress while waiting/resuming so the bar does not jump back to 0.
+		double? preservedProgress = Status.Progress is > 0 ? Status.Progress : null;
+		string? preservedInfo = Status.DownloadInfo;
+		long existingLength = GetExistingFileLength();
+
 		try {
-			State = DownloadItemState.Downloading;
-			Status.Initialize("Waiting for available slot...");
+			// Stay Pending while queued for a slot; only flip to Downloading once transfer starts.
+			State = DownloadItemState.Pending;
+			Status.Initialize("Waiting for available slot");
+			ApplyPreservedProgress(preservedProgress, preservedInfo, existingLength);
 
 			await semaphore.WaitAsync(token);
 			isSemaphoreAcquired = true;
 
-			Status.Initialize("Downloading...");
+			existingLength = GetExistingFileLength();
+			State = DownloadItemState.Downloading;
+			Status.Initialize(existingLength > 0 ? "Resuming" : "Downloading");
+			ApplyPreservedProgress(preservedProgress, preservedInfo, existingLength);
+			downloadStopwatch.Restart();
+			lastUiUpdateMs = 0;
 
 			using HttpRequestMessage request = new(HttpMethod.Get, FileUrl);
+			if (existingLength > 0) {
+				request.Headers.Range = new RangeHeaderValue(existingLength, null);
+			}
 
 			using HttpResponseMessage response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
-			response.EnsureSuccessStatusCode();
 
-			long? totalBytes = response.Content.Headers.ContentLength;
+			long startOffset = 0;
+			long? totalBytes = null;
 
-			// 注意这里的 using，它们会在发生异常跳出 try 块时立即关闭释放文件流
+			if (response.StatusCode == HttpStatusCode.PartialContent) {
+				// Server accepted Range — continue from existing bytes.
+				startOffset = existingLength;
+				if (response.Content.Headers.ContentRange?.Length is long totalLength) {
+					totalBytes = totalLength;
+				} else if (response.Content.Headers.ContentLength is long contentLength) {
+					totalBytes = existingLength + contentLength;
+				}
+			} else if (response.StatusCode == HttpStatusCode.RequestedRangeNotSatisfiable) {
+				// 416: local file may already be complete.
+				if (existingLength > 0 && response.Content.Headers.ContentRange?.Length is long completeLength && existingLength >= completeLength) {
+					State = DownloadItemState.Completed;
+					RefreshFileSizeText();
+					Status.Done();
+					return;
+				}
+
+				response.EnsureSuccessStatusCode();
+			} else {
+				// 200 OK: full body. Restart from byte 0 even if a range was requested.
+				response.EnsureSuccessStatusCode();
+				startOffset = 0;
+				totalBytes = response.Content.Headers.ContentLength;
+			}
+
 			using Stream contentStream = await response.Content.ReadAsStreamAsync(token);
-			using FileStream fileStream = new(DestinationPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
+			await using FileStream fileStream = CreateDestinationStream(startOffset);
 
 			byte[] buffer = new byte[8192];
-			long totalRead = 0;
+			long totalRead = startOffset;
 			int readBytes;
+
+			// Speed should reflect the current transfer, not include already-downloaded bytes.
+			long sessionStartOffset = startOffset;
+
+			// Sync bar to resumed offset as soon as total size is known.
+			if (startOffset > 0) {
+				UpdateProgress(totalRead, totalBytes, sessionStartOffset);
+				if (Status.Progress is null && preservedProgress is > 0) {
+					Status.Progress = preservedProgress;
+				}
+			}
 
 			while ((readBytes = await contentStream.ReadAsync(buffer, token)) > 0) {
 				await fileStream.WriteAsync(buffer.AsMemory(0, readBytes), token);
 				totalRead += readBytes;
-
-				if (totalBytes.HasValue) {
-					double progress = (double)totalRead / totalBytes.Value * 100;
-					Status.SetProgress(progress, $"{totalRead / 1024} KB / {totalBytes.Value / 1024} KB");
-				}
+				UpdateProgress(totalRead, totalBytes, sessionStartOffset);
 			}
 
 			State = DownloadItemState.Completed;
+			RefreshFileSizeText();
 			Status.Done();
 		} catch (OperationCanceledException) {
-			// 重点修改：在这里判断到底是“暂停”还是“取消”
 			if (isCanceling) {
 				State = DownloadItemState.Canceled;
-				Status.ErrorClose("Canceled");
-
-				// 此时因为上面已经跳出了 try 块，流已经被 using 自动关闭，可以安全删除文件
+				Status.ErrorClose("Canceled", "Canceled");
 				DeleteIncompleteFile();
 			} else {
 				State = DownloadItemState.Paused;
-				Status.ErrorClose("Paused");
+				Status.SpeedText = "—";
+				Status.EtaText = "—";
+				Status.BytesPerSecond = 0;
+				Status.ShowLoading = false;
+				// Keep determinate progress (0 if nothing transferred yet) — never leave indeterminate after pause.
+				Status.Progress ??= 0;
+				if (string.IsNullOrWhiteSpace(Status.DownloadInfo) || Status.DownloadInfo is "Downloading" or "Resuming" or "Waiting for available slot" or "Pending in Queue") {
+					Status.DownloadInfo = "Paused";
+				}
 			}
 		} catch (Exception ex) {
 			State = DownloadItemState.Error;
-			Status.Error(ex.Message);
+			Status.ErrorClose(ex.Message, ex.ToString());
 		} finally {
+			downloadStopwatch.Stop();
 			if (isSemaphoreAcquired) {
 				semaphore.Release();
 			}
 		}
+	}
+
+	private void RefreshFileSizeText() {
+		try {
+			if (File.Exists(DestinationPath)) {
+				FileSizeText = new FileInfo(DestinationPath).Length.FileSizeToKB();
+			}
+		} catch (Exception ex) {
+			Debug.WriteLine($"Failed to read file size: {ex.Message}");
+		}
+	}
+
+	private void ApplyPreservedProgress(double? preservedProgress, string? preservedInfo, long existingLength) {
+		if (preservedProgress is > 0) {
+			Status.Progress = preservedProgress;
+			if (existingLength > 0
+				&& preservedInfo.IsNotBlank()
+				&& preservedInfo is not ("Waiting for available slot" or "Resuming" or "Downloading" or "Pending in Queue" or "Paused")) {
+				Status.DownloadInfo = preservedInfo;
+			}
+		} else {
+			Status.Progress = 0;
+		}
+	}
+
+	private FileStream CreateDestinationStream(long startOffset) {
+		if (startOffset > 0) {
+			FileStream stream = new(DestinationPath, FileMode.Open, FileAccess.Write, FileShare.None, 8192, true);
+			stream.Seek(startOffset, SeekOrigin.Begin);
+			return stream;
+		}
+
+		return new FileStream(DestinationPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
+	}
+
+	private long GetExistingFileLength() {
+		try {
+			if (File.Exists(DestinationPath)) {
+				long length = new FileInfo(DestinationPath).Length;
+				if (length > 0) {
+					return length;
+				}
+			}
+		} catch (Exception ex) {
+			Debug.WriteLine($"Failed to read partial download length: {ex.Message}");
+		}
+
+		return 0;
+	}
+
+	private void UpdateProgress(long totalRead, long? totalBytes, long sessionStartOffset) {
+		long elapsedMs = downloadStopwatch.ElapsedMilliseconds;
+		bool isComplete = totalBytes.HasValue && totalRead >= totalBytes.Value;
+		if (!isComplete && elapsedMs - lastUiUpdateMs < 200) {
+			return;
+		}
+
+		lastUiUpdateMs = elapsedMs;
+
+		double seconds = Math.Max(downloadStopwatch.Elapsed.TotalSeconds, 0.001);
+		long sessionBytes = Math.Max(0, totalRead - sessionStartOffset);
+		double bytesPerSecond = sessionBytes / seconds;
+		string speedText = FormatSpeed(bytesPerSecond);
+
+		if (totalBytes.HasValue) {
+			long remaining = Math.Max(0, totalBytes.Value - totalRead);
+			double progress = (double)totalRead / totalBytes.Value * 100;
+			string info = $"{totalRead.FileSizeToKB()} / {totalBytes.Value.FileSizeToKB()}";
+			string etaText = LoadingStatus.FormatEtaText(remaining, bytesPerSecond);
+			Status.SetProgress(progress, info, speedText, etaText, bytesPerSecond, remaining);
+		} else {
+			Status.SetProgress(null, $"{totalRead.FileSizeToKB()} downloaded", speedText, "—", bytesPerSecond, 0);
+		}
+	}
+
+	private static string FormatSpeed(double bytesPerSecond) {
+		if (bytesPerSecond < 1) {
+			return "—";
+		}
+
+		return $"{((long)bytesPerSecond).FileSizeToKB()}/s";
 	}
 
 	private void Pause() => cts?.Cancel();
@@ -118,25 +287,20 @@ public class DownloadItem : BindableBase {
 	private bool CanResume() => State == DownloadItemState.Paused;
 
 	private async Task RetryAsync() => await StartDownloadAsync();
-	private bool CanRetry() => State == DownloadItemState.Error;
-
-	// --- Cancel Implementation ---
+	private bool CanRetry() => State is DownloadItemState.Error or DownloadItemState.Canceled;
 
 	private void Cancel() {
 		isCanceling = true;
 
 		if (State is DownloadItemState.Pending or DownloadItemState.Downloading) {
-			// 如果正在排队或下载，触发 CancellationToken
-			// 这会引发 OperationCanceledException，在 catch 中去收尾和删文件
 			cts?.Cancel();
 		} else {
-			// 如果已经是 Paused 或 Error 状态，直接改状态并删文件即可
 			State = DownloadItemState.Canceled;
-			Status.ErrorClose("Canceled");
+			Status.ErrorClose("Canceled", "Canceled");
 			DeleteIncompleteFile();
 		}
 	}
-	// 只有在完成状态下才不能取消
+
 	private bool CanCancel() => State is not DownloadItemState.Completed and not DownloadItemState.Canceled;
 
 	private void DeleteIncompleteFile() {
@@ -145,8 +309,23 @@ public class DownloadItem : BindableBase {
 				File.Delete(DestinationPath);
 			}
 		} catch (Exception ex) {
-			// 有时如果文件被杀毒软件锁住可能会删除失败，此处记录日志或忽略
 			Debug.WriteLine($"Failed to delete cancelled file: {ex.Message}");
 		}
 	}
+
+	private void OpenFolder() {
+		if (DirectoryPath.IsNotBlank()) {
+			DirectoryPath.OpenPathInSystemDefault();
+		}
+	}
+
+	private bool CanOpenFolder() => DirectoryPath.IsNotBlank() && (State == DownloadItemState.Completed || Directory.Exists(DirectoryPath));
+
+	private void RemoveFromList() => RemoveRequested?.Invoke(this, EventArgs.Empty);
+
+	private void CopyUrl() => FileUrl.CopyToClipboard();
+
+	private void CopyFilePath() => DestinationPath.CopyToClipboard();
+
+	private void CopyFileName() => FileName.CopyToClipboard();
 }

@@ -23,30 +23,18 @@ public class PostCardListBox : VariableSizedWrapGridView {
 
 	public PostCardListBox() {
 		SizeChanged += PostCardListBox_SizeChanged;
-
 	}
 
 	public override void OnApplyTemplate() {
 		base.OnApplyTemplate();
-
 		scrollViewer = (ScrollViewer?)GetTemplateChild("PART_ScrollViewer");
 	}
 
 	protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
 		base.OnRenderSizeChanged(sizeInfo);
-
-		//if (scrollViewer != null) {
-		//	scrollViewer.InvalidateMeasure();
-		//	scrollViewer.InvalidateArrange();
-		//	scrollViewer.UpdateLayout();
-		//}
 	}
 
 	private void PostCardListBox_SizeChanged(object sender, SizeChangedEventArgs e) {
-		if (scrollViewer != null) {
-			//scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - 1);
-			//scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset + 1);
-		}
 	}
 
 	protected override void PrepareContainerForItemOverride(DependencyObject element, object item) {
@@ -56,12 +44,22 @@ public class PostCardListBox : VariableSizedWrapGridView {
 	protected override DependencyObject GetContainerForItemOverride() => new PostCardListBoxItem(this);
 
 	protected override bool IsItemItsOwnContainerOverride(object item) => item is PostCardListBoxItem;
-
-
 }
 
-public class PostCardListBoxItem(PostCardListBox parentListBox) : ListBoxItemEx {
-	public PostCardListBox ParentListBox { get; } = parentListBox;
+public class PostCardListBoxItem : ListBoxItemEx {
+	static PostCardListBoxItem() {
+		// Use a dedicated default style key so construction does not pick up the theme
+		// ListBoxItem style (RelativeSource FindAncestor ItemsControl → Error 4 off-tree).
+		DefaultStyleKeyProperty.OverrideMetadata(
+			typeof(PostCardListBoxItem),
+			new FrameworkPropertyMetadata(typeof(PostCardListBoxItem)));
+	}
+
+	public PostCardListBoxItem(PostCardListBox parentListBox) {
+		ParentListBox = parentListBox;
+	}
+
+	public PostCardListBox ParentListBox { get; }
 
 	protected override void OnSelected(RoutedEventArgs e) {
 		base.OnSelected(e);
@@ -78,5 +76,4 @@ public class PostCardListBoxItem(PostCardListBox parentListBox) : ListBoxItemEx 
 	protected override void OnMouseRightButtonDown(MouseButtonEventArgs e) {
 		base.OnMouseRightButtonDown(e);
 	}
-
 }

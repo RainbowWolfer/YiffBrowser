@@ -5,28 +5,957 @@
 	xmlns:base="RW.Base.WPF"
 	xmlns:bf="clr-namespace:YiffBrowser.BaseFramework"
 	xmlns:c="clr-namespace:YiffBrowser.BaseFramework.Controls"
+	xmlns:conv="clr-namespace:YiffBrowser.BaseFramework.Converters"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
 	xmlns:enums="clr-namespace:YiffBrowser.BaseFramework.Enums"
-	xmlns:ex="clr-namespace:YiffBrowser.BaseFramework.Extensions"
 	xmlns:hc="https://handyorg.github.io/handycontrol"
 	xmlns:local="clr-namespace:YiffBrowser.BaseFramework.Views.Dialogs"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:models="clr-namespace:YiffBrowser.BaseFramework.Models"
-	xmlns:services="clr-namespace:YiffBrowser.BaseFramework.Services"
-	xmlns:sri="clr-namespace:System.Runtime.InteropServices;assembly=netstandard"
 	xmlns:tools="clr-namespace:HandyControl.Tools;assembly=HandyControl"
-	xmlns:views="clr-namespace:YiffBrowser.BaseFramework.Views"
+	xmlns:vm="clr-namespace:YiffBrowser.BaseFramework.ViewModels"
 	xmlns:wpf="RW.Common.WPF"
 	d:DataContext="{d:DesignInstance Type=local:DownloadDialogViewModel}"
+	d:DesignHeight="600"
+	d:DesignWidth="800"
 	Style="{StaticResource DialogStyle}"
 	DataContext="{base:DISource Type=local:DownloadDialogViewModel}"
 	SnapsToDevicePixels="True"
 	UseLayoutRounding="True"
 	mc:Ignorable="d">
 
-	<Grid Width="400" Height="400">
+	<UserControl.Resources>
+		<conv:EnumToBoolConverter x:Key="DownloadStateConverter"/>
 
-	</Grid>
+		<!--#region TabControl-->
+		<Style x:Key="TabControlCapsule.Custom" TargetType="{x:Type TabControl}">
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="ItemContainerStyleSelector">
+				<Setter.Value>
+					<tools:TabItemCapsuleStyleSelector/>
+				</Setter.Value>
+			</Setter>
+			<Setter Property="hc:TitleElement.BorderBrush" Value="{DynamicResource TitleBrush}"/>
+			<Setter Property="hc:TitleElement.Background" Value="{DynamicResource TitleBrush}"/>
+			<Setter Property="hc:TitleElement.Foreground" Value="{DynamicResource TextIconBrush}"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type TabControl}">
+						<Grid Background="{TemplateBinding Background}" ClipToBounds="true" SnapsToDevicePixels="true">
+							<Grid.RowDefinitions>
+								<RowDefinition Height="Auto"/>
+								<RowDefinition Height="*"/>
+							</Grid.RowDefinitions>
+
+							<!-- Tab headers left, action buttons right -->
+							<Grid Grid.Row="0" Margin="0,0,0,6">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*"/>
+									<ColumnDefinition Width="Auto"/>
+								</Grid.ColumnDefinitions>
+
+								<UniformGrid
+									Grid.Column="0"
+									HorizontalAlignment="Left"
+									Background="Transparent"
+									IsItemsHost="true"
+									Rows="1"/>
+
+								<Grid
+									DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=local:DownloadDialog}}"
+									Grid.Column="1"
+									Margin="8,0,0,0"
+									VerticalAlignment="Center">
+									<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}">
+										<Button x:Name="PauseAllButton"
+											Width="28"
+											Height="28"
+											Command="{Binding PauseAllCommand}"
+											IsEnabled="{Binding HasPausableItems}"
+											ToolTip="Pause All">
+											<Button.Style>
+												<Style TargetType="Button" BasedOn="{StaticResource Button.Custom.Icon}">
+													<Setter Property="Visibility" Value="Collapsed"/>
+													<Style.Triggers>
+														<DataTrigger Binding="{Binding SelectedIndex, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="0">
+															<Setter Property="Visibility" Value="Visible"/>
+														</DataTrigger>
+													</Style.Triggers>
+												</Style>
+											</Button.Style>
+											<wpf:FontIcon FontSize="12" Foreground="{DynamicResource PrimaryTextBrush}" Text="&#xE769;"/>
+										</Button>
+
+										<Button x:Name="ResumeAllButton"
+											Width="28"
+											Height="28"
+											Command="{Binding ResumeAllCommand}"
+											IsEnabled="{Binding HasResumableItems}"
+											ToolTip="Resume All">
+											<Button.Style>
+												<Style TargetType="Button" BasedOn="{StaticResource Button.Custom.Icon}">
+													<Setter Property="Visibility" Value="Collapsed"/>
+													<Style.Triggers>
+														<DataTrigger Binding="{Binding SelectedIndex, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="0">
+															<Setter Property="Visibility" Value="Visible"/>
+														</DataTrigger>
+													</Style.Triggers>
+												</Style>
+											</Button.Style>
+											<wpf:FontIcon FontSize="12" Foreground="{DynamicResource PrimaryTextBrush}" Text="&#xE768;"/>
+										</Button>
+
+										<Button x:Name="CancelAllButton"
+											Width="28"
+											Height="28"
+											IsEnabled="{Binding HasActiveItems}"
+											ToolTip="Cancel All">
+											<Button.Style>
+												<Style TargetType="Button" BasedOn="{StaticResource Button.Custom.Icon}">
+													<Setter Property="Visibility" Value="Collapsed"/>
+													<Style.Triggers>
+														<DataTrigger Binding="{Binding SelectedIndex, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="0">
+															<Setter Property="Visibility" Value="Visible"/>
+														</DataTrigger>
+													</Style.Triggers>
+												</Style>
+											</Button.Style>
+											<wpf:FontIcon FontSize="12" Foreground="{DynamicResource PrimaryTextBrush}" Text="&#xE711;"/>
+										</Button>
+
+										<Button x:Name="ClearCompletedButton"
+											Width="28"
+											Height="28"
+											IsEnabled="{Binding HasCompletedItems}"
+											ToolTip="Clear Completed">
+											<Button.Style>
+												<Style TargetType="Button" BasedOn="{StaticResource Button.Custom.Icon}">
+													<Setter Property="Visibility" Value="Collapsed"/>
+													<Style.Triggers>
+														<DataTrigger Binding="{Binding SelectedIndex, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="1">
+															<Setter Property="Visibility" Value="Visible"/>
+														</DataTrigger>
+													</Style.Triggers>
+												</Style>
+											</Button.Style>
+											<wpf:FontIcon FontSize="12" Foreground="{DynamicResource PrimaryTextBrush}" Text="&#xE74D;"/>
+										</Button>
+
+										<Button x:Name="RetryFailedButton"
+											Width="28"
+											Height="28"
+											IsEnabled="{Binding HasFailedItems}"
+											ToolTip="Retry All">
+											<Button.Style>
+												<Style TargetType="Button" BasedOn="{StaticResource Button.Custom.Icon}">
+													<Setter Property="Visibility" Value="Collapsed"/>
+													<Style.Triggers>
+														<DataTrigger Binding="{Binding SelectedIndex, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="2">
+															<Setter Property="Visibility" Value="Visible"/>
+														</DataTrigger>
+													</Style.Triggers>
+												</Style>
+											</Button.Style>
+											<wpf:FontIcon FontSize="12" Foreground="{DynamicResource PrimaryTextBrush}" Text="&#xE72C;"/>
+										</Button>
+
+										<Button x:Name="ClearFailedButton"
+											Width="28"
+											Height="28"
+											IsEnabled="{Binding HasFailedItems}"
+											ToolTip="Clear Failed">
+											<Button.Style>
+												<Style TargetType="Button" BasedOn="{StaticResource Button.Custom.Icon}">
+													<Setter Property="Visibility" Value="Collapsed"/>
+													<Style.Triggers>
+														<DataTrigger Binding="{Binding SelectedIndex, RelativeSource={RelativeSource AncestorType=TabControl}}" Value="2">
+															<Setter Property="Visibility" Value="Visible"/>
+														</DataTrigger>
+													</Style.Triggers>
+												</Style>
+											</Button.Style>
+											<wpf:FontIcon FontSize="12" Foreground="{DynamicResource PrimaryTextBrush}" Text="&#xE74D;"/>
+										</Button>
+									</wpf:SpacingStackPanel>
+
+									<wpf:ButtonPopup
+										Placement="Bottom"
+										SourceButton="{Binding ElementName=CancelAllButton}"
+										StaysOpen="False"
+										VerticalOffset="6">
+										<Border Style="{StaticResource ButtonPopupBorder}">
+											<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
+												<TextBlock Foreground="{DynamicResource PrimaryTextBrush}" Text="Cancel all active downloads?"/>
+												<Button
+													Padding="8,2"
+													HorizontalAlignment="Right"
+													Command="{Binding CancelActiveCommand}"
+													Content="Confirm"/>
+											</wpf:SpacingStackPanel>
+										</Border>
+									</wpf:ButtonPopup>
+
+									<wpf:ButtonPopup
+										Placement="Bottom"
+										SourceButton="{Binding ElementName=ClearCompletedButton}"
+										StaysOpen="False"
+										VerticalOffset="6">
+										<Border Style="{StaticResource ButtonPopupBorder}">
+											<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
+												<TextBlock Foreground="{DynamicResource PrimaryTextBrush}" Text="Clear all completed downloads?"/>
+												<Button
+													Padding="8,2"
+													HorizontalAlignment="Right"
+													Command="{Binding ClearCompletedCommand}"
+													Content="Confirm"/>
+											</wpf:SpacingStackPanel>
+										</Border>
+									</wpf:ButtonPopup>
+
+									<wpf:ButtonPopup
+										Placement="Bottom"
+										SourceButton="{Binding ElementName=RetryFailedButton}"
+										StaysOpen="False"
+										VerticalOffset="6">
+										<Border Style="{StaticResource ButtonPopupBorder}">
+											<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
+												<TextBlock Foreground="{DynamicResource PrimaryTextBrush}" Text="Retry all failed downloads?"/>
+												<Button
+													Padding="8,2"
+													HorizontalAlignment="Right"
+													Command="{Binding RetryFailedCommand}"
+													Content="Confirm"/>
+											</wpf:SpacingStackPanel>
+										</Border>
+									</wpf:ButtonPopup>
+
+									<wpf:ButtonPopup
+										Placement="Bottom"
+										SourceButton="{Binding ElementName=ClearFailedButton}"
+										StaysOpen="False"
+										VerticalOffset="6">
+										<Border Style="{StaticResource ButtonPopupBorder}">
+											<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
+												<TextBlock Foreground="{DynamicResource PrimaryTextBrush}" Text="Clear all failed downloads?"/>
+												<Button
+													Padding="8,2"
+													HorizontalAlignment="Right"
+													Command="{Binding ClearFailedCommand}"
+													Content="Confirm"/>
+											</wpf:SpacingStackPanel>
+										</Border>
+									</wpf:ButtonPopup>
+								</Grid>
+							</Grid>
+
+							<Border
+								Grid.Row="1"
+								BorderThickness="{TemplateBinding BorderThickness}"
+								BorderBrush="{TemplateBinding BorderBrush}"
+								Background="{TemplateBinding Background}"
+								CornerRadius="4">
+								<ContentPresenter Margin="0" ContentSource="SelectedContent" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+							</Border>
+						</Grid>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+		<!--#endregion-->
+
+		<!--#region Download ListBox (custom, no HandyControl ListBox chrome)-->
+		<Style x:Key="DownloadListBoxItem" TargetType="ListBoxItem">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderBrush" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="Margin" Value="0"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+			<Setter Property="SnapsToDevicePixels" Value="True"/>
+			<Setter Property="IsTabStop" Value="False"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="ListBoxItem">
+						<Border x:Name="Bd"
+							Padding="{TemplateBinding Padding}"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							Background="{TemplateBinding Background}"
+							SnapsToDevicePixels="True"
+							TextElement.Foreground="{TemplateBinding Foreground}">
+							<ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+						</Border>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<Style x:Key="DownloadListBox" TargetType="ListBox">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="BorderBrush" Value="Transparent"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="Margin" Value="0"/>
+			<Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+			<Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+			<Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+			<Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+			<Setter Property="hc:ScrollViewerAttach.AutoHide" Value="False"/>
+			<Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
+			<Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling"/>
+			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+			<Setter Property="VerticalContentAlignment" Value="Stretch"/>
+			<Setter Property="ItemContainerStyle" Value="{StaticResource DownloadListBoxItem}"/>
+			<Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Contained"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="ListBox">
+						<Border
+							BorderThickness="{TemplateBinding BorderThickness}"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							Background="{TemplateBinding Background}"
+							SnapsToDevicePixels="True"
+							TextElement.Foreground="{TemplateBinding Foreground}">
+							<ScrollViewer
+								Padding="{TemplateBinding Padding}"
+								hc:ScrollViewerAttach.AutoHide="False"
+								CanContentScroll="{TemplateBinding ScrollViewer.CanContentScroll}"
+								Focusable="False"
+								HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+								SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+								VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+								<ItemsPresenter Margin="6"/>
+							</ScrollViewer>
+						</Border>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+		<!--#endregion-->
+
+		<!--#region Item visuals-->
+		<Style x:Key="DownloadStateBadge" TargetType="Border">
+			<Setter Property="Padding" Value="6,1"/>
+			<Setter Property="CornerRadius" Value="3"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Background" Value="{DynamicResource ThirdlyRegionBrush}"/>
+			<Style.Triggers>
+				<DataTrigger Binding="{Binding State, Converter={StaticResource DownloadStateConverter}, ConverterParameter=Completed}" Value="True">
+					<Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+				</DataTrigger>
+				<DataTrigger Binding="{Binding State, Converter={StaticResource DownloadStateConverter}, ConverterParameter=Downloading}" Value="True">
+					<Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
+				</DataTrigger>
+				<!-- Pending: muted so it is distinct from Downloading -->
+				<DataTrigger Binding="{Binding State, Converter={StaticResource DownloadStateConverter}, ConverterParameter=Pending}" Value="True">
+					<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+				</DataTrigger>
+				<DataTrigger Binding="{Binding State, Converter={StaticResource DownloadStateConverter}, ConverterParameter=Paused}" Value="True">
+					<Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+				</DataTrigger>
+				<DataTrigger Binding="{Binding State, Converter={StaticResource DownloadStateConverter}, ConverterParameter=Error}" Value="True">
+					<Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+				</DataTrigger>
+				<!-- Canceled: outlined muted badge vs solid Error -->
+				<DataTrigger Binding="{Binding State, Converter={StaticResource DownloadStateConverter}, ConverterParameter=Canceled}" Value="True">
+					<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+					<Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+					<Setter Property="BorderThickness" Value="1"/>
+				</DataTrigger>
+			</Style.Triggers>
+		</Style>
+
+		<Style x:Key="DownloadStateText" TargetType="TextBlock">
+			<Setter Property="FontSize" Value="10"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextIconBrush}"/>
+			<Style.Triggers>
+				<DataTrigger Binding="{Binding State, Converter={StaticResource DownloadStateConverter}, ConverterParameter=Canceled}" Value="True">
+					<Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+				</DataTrigger>
+				<DataTrigger Binding="{Binding State, Converter={StaticResource DownloadStateConverter}, ConverterParameter=Pending}" Value="True">
+					<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+				</DataTrigger>
+			</Style.Triggers>
+		</Style>
+
+		<Style x:Key="DownloadPrimaryText" TargetType="TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+		</Style>
+
+		<Style x:Key="DownloadMetaText" TargetType="TextBlock" BasedOn="{StaticResource DownloadPrimaryText}">
+			<Setter Property="FontSize" Value="11"/>
+			<Setter Property="Opacity" Value="0.75"/>
+		</Style>
+
+		<Style x:Key="DownloadItemCard" TargetType="Border">
+			<Setter Property="Margin" Value="0,0,0,6"/>
+			<Setter Property="Padding" Value="8,4"/>
+			<Setter Property="Background" Value="{DynamicResource ThirdlyRegionBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="SnapsToDevicePixels" Value="True"/>
+			<Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+		</Style>
+
+		<Style x:Key="DownloadItemCardCompact" TargetType="Border" BasedOn="{StaticResource DownloadItemCard}">
+			<Setter Property="Margin" Value="0,0,0,6"/>
+			<Setter Property="Padding" Value="6,2"/>
+		</Style>
+
+		<Style x:Key="DownloadRowButton" TargetType="Button" BasedOn="{StaticResource Button.Custom.Icon}">
+			<Setter Property="Width" Value="22"/>
+			<Setter Property="Height" Value="22"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="Visibility" Value="Collapsed"/>
+		</Style>
+
+		<Style x:Key="DownloadPreviewThumb" TargetType="Border">
+			<Setter Property="Width" Value="36"/>
+			<Setter Property="Height" Value="36"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="Margin" Value="0,0,8,0"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="ClipToBounds" Value="True"/>
+			<Setter Property="SnapsToDevicePixels" Value="True"/>
+		</Style>
+
+		<Style x:Key="DownloadPreviewThumbCompact" TargetType="Border" BasedOn="{StaticResource DownloadPreviewThumb}">
+			<Setter Property="Width" Value="28"/>
+			<Setter Property="Height" Value="28"/>
+			<Setter Property="Margin" Value="0,0,6,0"/>
+			<Setter Property="CornerRadius" Value="3"/>
+		</Style>
+
+		<ContextMenu x:Key="DownloadItemContextMenu" x:Shared="False">
+			<MenuItem Command="{Binding CopyUrlCommand}" Header="Copy Download URL"/>
+			<MenuItem Command="{Binding CopyFilePathCommand}" Header="Copy File Path"/>
+			<MenuItem Command="{Binding CopyFileNameCommand}" Header="Copy File Name"/>
+			<Separator/>
+			<MenuItem Command="{Binding OpenFolderCommand}" Header="Open Folder"/>
+			<MenuItem Command="{Binding PauseCommand}" Header="Pause"/>
+			<MenuItem Command="{Binding ResumeCommand}" Header="Resume"/>
+			<MenuItem Command="{Binding RetryCommand}" Header="Retry"/>
+			<MenuItem Command="{Binding CancelCommand}" Header="Cancel"/>
+			<Separator/>
+			<MenuItem Command="{Binding RemoveFromListCommand}" Header="Remove from List"/>
+		</ContextMenu>
+
+		<DataTemplate x:Key="ActiveDownloadItemTemplate" DataType="{x:Type vm:DownloadItem}">
+			<Border Style="{StaticResource DownloadItemCard}" ContextMenu="{StaticResource DownloadItemContextMenu}">
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto"/>
+						<ColumnDefinition Width="*"/>
+					</Grid.ColumnDefinitions>
+
+					<Border Style="{StaticResource DownloadPreviewThumb}" Grid.Row="0" Grid.RowSpan="2">
+						<Border.ToolTip>
+							<ToolTip DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+								<Border
+									Width="240"
+									Height="240"
+									Background="{DynamicResource SecondaryRegionBrush}"
+									ClipToBounds="True"
+									CornerRadius="4">
+									<Border>
+										<Border.Background>
+											<ImageBrush
+												AlignmentX="Center"
+												AlignmentY="Center"
+												ImageSource="{Binding PreviewUrl, TargetNullValue={x:Null}}"
+												Stretch="Uniform"/>
+										</Border.Background>
+									</Border>
+								</Border>
+							</ToolTip>
+						</Border.ToolTip>
+						<wpf:ClippingBorder CornerRadius="4">
+							<wpf:ClippingBorder.Background>
+								<ImageBrush
+									AlignmentX="Center"
+									AlignmentY="Center"
+									ImageSource="{Binding PreviewUrl, TargetNullValue={x:Null}}"
+									Stretch="UniformToFill"/>
+							</wpf:ClippingBorder.Background>
+						</wpf:ClippingBorder>
+					</Border>
+
+					<Grid Grid.Row="0" Grid.Column="1">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" MinWidth="72"/>
+							<ColumnDefinition Width="Auto" MinWidth="160"/>
+							<ColumnDefinition Width="Auto" MinWidth="80"/>
+							<ColumnDefinition Width="Auto" MinWidth="90"/>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="Auto"/>
+						</Grid.ColumnDefinitions>
+
+						<TextBlock
+							d:Text="176064.png"
+							Style="{StaticResource DownloadPrimaryText}"
+							Grid.Column="0"
+							FontWeight="SemiBold"
+							Text="{Binding FileName}"
+							ToolTip="{Binding DestinationPath}"/>
+
+						<TextBlock
+							d:Text="2,992 KB / 5,216 KB — 57%"
+							Style="{StaticResource DownloadMetaText}"
+							Grid.Column="1"
+							MinWidth="160"
+							Margin="10,0,0,0"
+							Text="{Binding Status.DownloadInfo}"
+							ToolTip="{Binding Status.DownloadInfo}"/>
+
+						<TextBlock
+							d:Text="1.2 MB/s"
+							Style="{StaticResource DownloadMetaText}"
+							Grid.Column="2"
+							MinWidth="80"
+							Margin="10,0,0,0"
+							Text="{Binding Status.SpeedText}"
+							ToolTip="Speed"/>
+
+						<TextBlock
+							d:Text="12s left"
+							Style="{StaticResource DownloadMetaText}"
+							Grid.Column="3"
+							MinWidth="90"
+							Margin="10,0,0,0"
+							Text="{Binding Status.EtaText}"
+							ToolTip="Time remaining"/>
+
+						<Border Style="{StaticResource DownloadStateBadge}" Grid.Column="4" Margin="10,0,0,0">
+							<TextBlock d:Text="Downloading" Style="{StaticResource DownloadStateText}" Text="{Binding State, Converter={StaticResource EnumDisplayConverter}}"/>
+						</Border>
+
+						<wpf:SpacingStackPanel
+							Style="{StaticResource CustomHorizontalPanel2}"
+							Grid.Column="5"
+							Margin="6,0,0,0"
+							VerticalAlignment="Center">
+							<Button Command="{Binding PauseCommand}" ToolTip="Pause">
+								<Button.Style>
+									<Style TargetType="Button" BasedOn="{StaticResource DownloadRowButton}">
+										<Style.Triggers>
+											<DataTrigger Binding="{Binding State, Converter={StaticResource DownloadStateConverter}, ConverterParameter=Downloading}" Value="True">
+												<Setter Property="Visibility" Value="Visible"/>
+											</DataTrigger>
+											<DataTrigger Binding="{Binding State, Converter={StaticResource DownloadStateConverter}, ConverterParameter=Pending}" Value="True">
+												<Setter Property="Visibility" Value="Visible"/>
+											</DataTrigger>
+										</Style.Triggers>
+									</Style>
+								</Button.Style>
+								<wpf:FontIcon FontSize="10" Foreground="{DynamicResource PrimaryTextBrush}" Text="&#xE769;"/>
+							</Button>
+							<Button Command="{Binding ResumeCommand}" ToolTip="Resume">
+								<Button.Style>
+									<Style TargetType="Button" BasedOn="{StaticResource DownloadRowButton}">
+										<Style.Triggers>
+											<DataTrigger Binding="{Binding State, Converter={StaticResource DownloadStateConverter}, ConverterParameter=Paused}" Value="True">
+												<Setter Property="Visibility" Value="Visible"/>
+											</DataTrigger>
+										</Style.Triggers>
+									</Style>
+								</Button.Style>
+								<wpf:FontIcon FontSize="10" Foreground="{DynamicResource PrimaryTextBrush}" Text="&#xE768;"/>
+							</Button>
+							<Button Command="{Binding CancelCommand}" ToolTip="Cancel">
+								<Button.Style>
+									<Style TargetType="Button" BasedOn="{StaticResource DownloadRowButton}">
+										<Setter Property="Visibility" Value="Visible"/>
+									</Style>
+								</Button.Style>
+								<wpf:FontIcon FontSize="10" Foreground="{DynamicResource PrimaryTextBrush}" Text="&#xE711;"/>
+							</Button>
+						</wpf:SpacingStackPanel>
+					</Grid>
+
+					<ProgressBar
+						Grid.Row="1"
+						Grid.Column="1"
+						Height="8"
+						Margin="0,4,0,0"
+						BorderThickness="0"
+						wpf:ProgressBarExtension.Progress="{Binding Status.Progress}">
+						<ProgressBar.Style>
+							<Style TargetType="ProgressBar" BasedOn="{StaticResource ProgressBar.Custom}">
+								<Setter Property="Visibility" Value="Collapsed"/>
+								<Setter Property="IsIndeterminate" Value="False"/>
+								<Style.Triggers>
+									<DataTrigger Binding="{Binding Status.ShowLoading}" Value="True">
+										<Setter Property="Visibility" Value="Visible"/>
+									</DataTrigger>
+									<MultiDataTrigger>
+										<MultiDataTrigger.Conditions>
+											<Condition Binding="{Binding State, Converter={StaticResource DownloadStateConverter}, ConverterParameter=Downloading}" Value="True"/>
+											<Condition Binding="{Binding Status.Progress}" Value="{x:Null}"/>
+										</MultiDataTrigger.Conditions>
+										<Setter Property="IsIndeterminate" Value="True"/>
+									</MultiDataTrigger>
+									<DataTrigger Binding="{Binding State, Converter={StaticResource DownloadStateConverter}, ConverterParameter=Paused}" Value="True">
+										<Setter Property="Visibility" Value="Visible"/>
+										<Setter Property="IsIndeterminate" Value="False"/>
+										<Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+									</DataTrigger>
+									<DataTrigger Binding="{Binding State, Converter={StaticResource DownloadStateConverter}, ConverterParameter=Pending}" Value="True">
+										<Setter Property="Visibility" Value="Visible"/>
+										<Setter Property="IsIndeterminate" Value="False"/>
+									</DataTrigger>
+								</Style.Triggers>
+							</Style>
+						</ProgressBar.Style>
+					</ProgressBar>
+				</Grid>
+			</Border>
+		</DataTemplate>
+
+		<DataTemplate x:Key="FinishedDownloadItemTemplate" DataType="{x:Type vm:DownloadItem}">
+			<Border Style="{StaticResource DownloadItemCardCompact}" ContextMenu="{StaticResource DownloadItemContextMenu}">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto"/>
+						<ColumnDefinition Width="Auto"/>
+						<ColumnDefinition Width="*" MinWidth="80"/>
+						<ColumnDefinition Width="Auto"/>
+						<ColumnDefinition Width="Auto"/>
+					</Grid.ColumnDefinitions>
+
+					<Border Style="{StaticResource DownloadPreviewThumbCompact}" Grid.Column="0">
+						<Border.ToolTip>
+							<ToolTip DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+								<Border
+									Width="240"
+									Height="240"
+									Background="{DynamicResource SecondaryRegionBrush}"
+									ClipToBounds="True"
+									CornerRadius="4">
+									<Border>
+										<Border.Background>
+											<ImageBrush
+												AlignmentX="Center"
+												AlignmentY="Center"
+												ImageSource="{Binding PreviewUrl, TargetNullValue={x:Null}}"
+												Stretch="Uniform"/>
+										</Border.Background>
+									</Border>
+								</Border>
+							</ToolTip>
+						</Border.ToolTip>
+						<wpf:ClippingBorder CornerRadius="3">
+							<wpf:ClippingBorder.Background>
+								<ImageBrush
+									AlignmentX="Center"
+									AlignmentY="Center"
+									ImageSource="{Binding PreviewUrl, TargetNullValue={x:Null}}"
+									Stretch="UniformToFill"/>
+							</wpf:ClippingBorder.Background>
+						</wpf:ClippingBorder>
+					</Border>
+
+					<StackPanel Grid.Column="1" VerticalAlignment="Center" Orientation="Horizontal">
+						<TextBlock
+							d:Text="166872.jpg"
+							Style="{StaticResource DownloadPrimaryText}"
+							MaxWidth="200"
+							FontWeight="SemiBold"
+							Text="{Binding FileName}"
+							ToolTip="{Binding DestinationPath}"/>
+						<TextBlock
+							d:Text="(5,216 KB)"
+							d:Visibility="Visible"
+							Style="{StaticResource DownloadMetaText}"
+							Margin="6,0,0,0"
+							Text="{Binding FileSizeText, StringFormat=({0})}"
+							Visibility="{Binding FileSizeText, Converter={StaticResource String2VisibilityConverter}}"/>
+					</StackPanel>
+
+					<TextBlock
+						d:Text="The remote server returned an error: (403) Forbidden."
+						Style="{StaticResource DownloadMetaText}"
+						Grid.Column="2"
+						Margin="12,0,8,0"
+						wpf:ToolTipExtension.FastToolTip="True"
+						Foreground="{DynamicResource DangerBrush}"
+						Text="{Binding Status.ErrorMessage}"
+						TextTrimming="CharacterEllipsis"
+						TextWrapping="NoWrap"
+						ToolTip="{Binding Status.ToolTip}"
+						Visibility="{Binding Status.ErrorMessage, Converter={StaticResource String2VisibilityConverter}}"/>
+
+					<Border Style="{StaticResource DownloadStateBadge}" Grid.Column="3" Margin="8,0,0,0">
+						<TextBlock d:Text="Error" Style="{StaticResource DownloadStateText}" Text="{Binding State, Converter={StaticResource EnumDisplayConverter}}"/>
+					</Border>
+
+					<wpf:SpacingStackPanel
+						Style="{StaticResource CustomHorizontalPanel2}"
+						Grid.Column="4"
+						Margin="6,0,0,0"
+						VerticalAlignment="Center">
+						<Button Command="{Binding RetryCommand}" ToolTip="Retry">
+							<Button.Style>
+								<Style TargetType="Button" BasedOn="{StaticResource DownloadRowButton}">
+									<Style.Triggers>
+										<DataTrigger Binding="{Binding State, Converter={StaticResource DownloadStateConverter}, ConverterParameter=Error}" Value="True">
+											<Setter Property="Visibility" Value="Visible"/>
+										</DataTrigger>
+										<DataTrigger Binding="{Binding State, Converter={StaticResource DownloadStateConverter}, ConverterParameter=Canceled}" Value="True">
+											<Setter Property="Visibility" Value="Visible"/>
+										</DataTrigger>
+									</Style.Triggers>
+								</Style>
+							</Button.Style>
+							<wpf:FontIcon FontSize="10" Foreground="{DynamicResource PrimaryTextBrush}" Text="&#xE72C;"/>
+						</Button>
+						<Button Command="{Binding OpenFolderCommand}" ToolTip="Open Folder">
+							<Button.Style>
+								<Style TargetType="Button" BasedOn="{StaticResource DownloadRowButton}">
+									<Style.Triggers>
+										<DataTrigger Binding="{Binding State, Converter={StaticResource DownloadStateConverter}, ConverterParameter=Completed}" Value="True">
+											<Setter Property="Visibility" Value="Visible"/>
+										</DataTrigger>
+									</Style.Triggers>
+								</Style>
+							</Button.Style>
+							<wpf:FontIcon FontSize="10" Foreground="{DynamicResource PrimaryTextBrush}" Text="&#xE838;"/>
+						</Button>
+						<Button Command="{Binding RemoveFromListCommand}" ToolTip="Remove">
+							<Button.Style>
+								<Style TargetType="Button" BasedOn="{StaticResource DownloadRowButton}">
+									<Setter Property="Visibility" Value="Visible"/>
+								</Style>
+							</Button.Style>
+							<wpf:FontIcon FontSize="10" Foreground="{DynamicResource PrimaryTextBrush}" Text="&#xE711;"/>
+						</Button>
+					</wpf:SpacingStackPanel>
+				</Grid>
+			</Border>
+		</DataTemplate>
+		<!--#endregion-->
+	</UserControl.Resources>
+
+	<Border Style="{StaticResource DialogBackgroundBorder}" Padding="8" TextElement.Foreground="{DynamicResource PrimaryTextBrush}">
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="*"/>
+			</Grid.RowDefinitions>
+
+			<Border
+				d:Visibility="Visible"
+				Grid.Row="0"
+				Margin="2,0,2,8"
+				Padding="10,8"
+				BorderThickness="1"
+				BorderBrush="{DynamicResource BorderBrush}"
+				Background="{DynamicResource SecondaryRegionBrush}"
+				CornerRadius="6"
+				Visibility="{Binding HasActiveItems, Converter={StaticResource Boolean2VisibilityConverter}}">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="Auto"/>
+						<ColumnDefinition Width="Auto"/>
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+					</Grid.RowDefinitions>
+
+					<TextBlock
+						d:Text="12 / 73 finished · 61 active"
+						Grid.Row="0"
+						Grid.Column="0"
+						FontSize="11"
+						Foreground="{DynamicResource PrimaryTextBrush}"
+						Text="{Binding OverallStatus.DownloadInfo}"
+						TextTrimming="CharacterEllipsis"/>
+
+					<TextBlock
+						d:Text="3.4 MB/s"
+						Grid.Row="0"
+						Grid.Column="1"
+						Margin="12,0,0,0"
+						FontSize="11"
+						Foreground="{DynamicResource PrimaryTextBrush}"
+						Opacity="0.75"
+						Text="{Binding OverallStatus.SpeedText}"
+						ToolTip="Overall speed"/>
+
+					<TextBlock
+						d:Text="2m left"
+						Grid.Row="0"
+						Grid.Column="2"
+						Margin="12,0,0,0"
+						FontSize="11"
+						Foreground="{DynamicResource PrimaryTextBrush}"
+						Opacity="0.75"
+						Text="{Binding OverallStatus.EtaText}"
+						ToolTip="Overall time remaining"/>
+
+					<ProgressBar
+						d:IsIndeterminate="False"
+						d:Value="50"
+						Grid.Row="1"
+						Grid.Column="0"
+						Grid.ColumnSpan="3"
+						Height="8"
+						Margin="0,6,0,0"
+						BorderThickness="0"
+						wpf:ProgressBarExtension.Progress="{Binding OverallStatus.Progress}"
+						Background="{DynamicResource RegionBrush}">
+						<ProgressBar.Style>
+							<Style TargetType="ProgressBar" BasedOn="{StaticResource ProgressBar.Custom}">
+								<Style.Triggers>
+									<DataTrigger Binding="{Binding OverallStatus.Progress}" Value="{x:Null}">
+										<Setter Property="IsIndeterminate" Value="True"/>
+									</DataTrigger>
+								</Style.Triggers>
+							</Style>
+						</ProgressBar.Style>
+					</ProgressBar>
+				</Grid>
+			</Border>
+
+			<TabControl Style="{StaticResource TabControlCapsule.Custom}" Grid.Row="1" Margin="2,0,2,2">
+				<TabItem d:Header="Downloading (73)" Header="{Binding ActiveTabHeader}">
+					<Grid>
+						<ListBox
+							d:Visibility="Visible"
+							Style="{StaticResource DownloadListBox}"
+							ItemTemplate="{StaticResource ActiveDownloadItemTemplate}"
+							Visibility="{Binding HasActiveItems, Converter={StaticResource Boolean2VisibilityConverter}}"
+							ItemsSource="{Binding ActiveDownloads}"
+							d:ItemsSource="{d:SampleData ItemCount=8}"/>
+
+						<StackPanel
+							d:Visibility="Collapsed"
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center"
+							Visibility="{Binding HasActiveItems, Converter={StaticResource Boolean2VisibilityReConverter}}">
+							<wpf:FontIcon
+								Margin="0,0,0,8"
+								FontSize="32"
+								Foreground="{DynamicResource PrimaryTextBrush}"
+								Opacity="0.35"
+								Text="&#xE896;"/>
+							<TextBlock
+								HorizontalAlignment="Center"
+								Foreground="{DynamicResource PrimaryTextBrush}"
+								Opacity="0.55"
+								Text="No active downloads"
+								TextAlignment="Center"/>
+							<TextBlock
+								Margin="0,4,0,0"
+								HorizontalAlignment="Center"
+								FontSize="11"
+								Foreground="{DynamicResource PrimaryTextBrush}"
+								Opacity="0.45"
+								Text="Queued and in-progress downloads appear here."
+								TextAlignment="Center"/>
+						</StackPanel>
+					</Grid>
+				</TabItem>
+
+				<TabItem d:Header="Completed (12)" Header="{Binding CompletedTabHeader}">
+					<Grid>
+						<ListBox
+							d:Visibility="Visible"
+							Style="{StaticResource DownloadListBox}"
+							ItemTemplate="{StaticResource FinishedDownloadItemTemplate}"
+							Visibility="{Binding HasCompletedItems, Converter={StaticResource Boolean2VisibilityConverter}}"
+							ItemsSource="{Binding CompletedDownloads}"
+							d:ItemsSource="{d:SampleData ItemCount=5}"/>
+
+						<StackPanel
+							d:Visibility="Collapsed"
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center"
+							Visibility="{Binding HasCompletedItems, Converter={StaticResource Boolean2VisibilityReConverter}}">
+							<wpf:FontIcon
+								Margin="0,0,0,8"
+								FontSize="32"
+								Foreground="{DynamicResource PrimaryTextBrush}"
+								Opacity="0.35"
+								Text="&#xE73E;"/>
+							<TextBlock
+								HorizontalAlignment="Center"
+								Foreground="{DynamicResource PrimaryTextBrush}"
+								Opacity="0.55"
+								Text="No completed downloads"
+								TextAlignment="Center"/>
+							<TextBlock
+								Margin="0,4,0,0"
+								HorizontalAlignment="Center"
+								FontSize="11"
+								Foreground="{DynamicResource PrimaryTextBrush}"
+								Opacity="0.45"
+								Text="Successfully finished downloads appear here."
+								TextAlignment="Center"/>
+						</StackPanel>
+					</Grid>
+				</TabItem>
+
+				<TabItem d:Header="Failed (3)" Header="{Binding FailedTabHeader}">
+					<Grid>
+						<ListBox
+							d:Visibility="Visible"
+							Style="{StaticResource DownloadListBox}"
+							ItemTemplate="{StaticResource FinishedDownloadItemTemplate}"
+							Visibility="{Binding HasFailedItems, Converter={StaticResource Boolean2VisibilityConverter}}"
+							ItemsSource="{Binding FailedDownloads}"
+							d:ItemsSource="{d:SampleData ItemCount=3}"/>
+
+						<StackPanel
+							d:Visibility="Collapsed"
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center"
+							Visibility="{Binding HasFailedItems, Converter={StaticResource Boolean2VisibilityReConverter}}">
+							<wpf:FontIcon
+								Margin="0,0,0,8"
+								FontSize="32"
+								Foreground="{DynamicResource PrimaryTextBrush}"
+								Opacity="0.35"
+								Text="&#xEA39;"/>
+							<TextBlock
+								HorizontalAlignment="Center"
+								Foreground="{DynamicResource PrimaryTextBrush}"
+								Opacity="0.55"
+								Text="No failed downloads"
+								TextAlignment="Center"/>
+							<TextBlock
+								Margin="0,4,0,0"
+								HorizontalAlignment="Center"
+								FontSize="11"
+								Foreground="{DynamicResource PrimaryTextBrush}"
+								Opacity="0.45"
+								Text="Failed and canceled downloads appear here."
+								TextAlignment="Center"/>
+						</StackPanel>
+					</Grid>
+				</TabItem>
+			</TabControl>
+		</Grid>
+	</Border>
 
 </UserControl>
