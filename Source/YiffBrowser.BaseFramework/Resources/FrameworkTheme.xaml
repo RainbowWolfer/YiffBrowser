@@ -256,6 +256,13 @@
 
 	<Style x:Key="Button.Custom.Icon" TargetType="Button" BasedOn="{StaticResource ButtonDefault}">
 		<Setter Property="Padding" Value="0"/>
+		<!-- Bottom keeps the tip off the horizontal scanning path between adjacent icons -->
+		<Setter Property="ToolTipService.Placement" Value="Bottom"/>
+	</Style>
+
+	<Style x:Key="Button.Custom.Icon.Vertical" TargetType="Button" BasedOn="{StaticResource Button.Custom.Icon}">
+		<!-- Right keeps the tip off the vertical scanning path in side toolbars -->
+		<Setter Property="ToolTipService.Placement" Value="Right"/>
 	</Style>
 
 	<Style x:Key="DialogBackgroundBorder" TargetType="Border">

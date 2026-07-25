@@ -39,6 +39,8 @@ public partial class App : ApplicationBase {
 		startupStopWatch.Start();
 
 		ControlConfig.DefaultDirectParameter = false;
+
+		ToolTipServiceFix.Apply();
 	}
 
 	protected override bool EnablePipeServerStream => false;
