@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using YiffBrowser.BaseFramework.Helpers;
 using YiffBrowser.BaseFramework.Models;
 
 namespace YiffBrowser.BaseFramework.Services;
@@ -57,7 +58,7 @@ public class VideoCacheItem(string? url, int fileSize) {
 		CancellationToken token = cts.Token;
 
 		try {
-			using HttpClient client = new();
+			using HttpClient client = ProxySettingsHelper.CreateHttpClient();
 			using HttpResponseMessage response = await client.GetAsync(UrlString, HttpCompletionOption.ResponseHeadersRead, token);
 			response.EnsureSuccessStatusCode();
 

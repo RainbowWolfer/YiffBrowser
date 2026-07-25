@@ -247,6 +247,49 @@
 
 				<TabItem>
 					<TabItem.Header>
+						<c:HorizontalIconText Style="{StaticResource TabItemHeader}" Glyph="&#xE774;" Text="Network"/>
+					</TabItem.Header>
+
+					<ScrollViewer Margin="4" Padding="12,6" hc:ScrollViewerAttach.AutoHide="False">
+						<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
+
+							<wpf:TitleContent Title="Proxy">
+								<hc:ComboBox wpf:EnumBindingExtension.SelectedEnum="{Binding ProxyMode}" ItemsSource="{wpf:EnumBindingMarkup EnumType={x:Type enums:ProxyMode}, Converter={StaticResource EnumDisplayConverter}}"/>
+							</wpf:TitleContent>
+
+							<TextBlock
+								Margin="4,0,0,4"
+								Opacity="0.7"
+								Text="Changes apply immediately after saving. Restart is not required."
+								TextWrapping="Wrap"/>
+
+							<GroupBox Header="Custom Proxy" IsEnabled="{Binding IsCustomProxyEnabled}" Margin="0,4,0,0" Padding="4">
+								<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
+									<wpf:TitleContent Title="Host">
+										<TextBox Text="{Binding Model.ProxyHost, UpdateSourceTrigger=PropertyChanged}"/>
+									</wpf:TitleContent>
+
+									<wpf:TitleContent Title="Port">
+										<hc:NumericUpDown Minimum="1" Maximum="65535" Value="{Binding Model.ProxyPort, UpdateSourceTrigger=PropertyChanged}"/>
+									</wpf:TitleContent>
+
+									<wpf:TitleContent Title="Username (optional)">
+										<TextBox Text="{Binding Model.ProxyUsername, UpdateSourceTrigger=PropertyChanged}"/>
+									</wpf:TitleContent>
+
+									<wpf:TitleContent Title="Password (optional)">
+										<TextBox Text="{Binding Model.ProxyPassword, UpdateSourceTrigger=PropertyChanged}"/>
+									</wpf:TitleContent>
+								</wpf:SpacingStackPanel>
+							</GroupBox>
+
+						</wpf:SpacingStackPanel>
+					</ScrollViewer>
+
+				</TabItem>
+
+				<TabItem>
+					<TabItem.Header>
 						<c:HorizontalIconText Style="{StaticResource TabItemHeader}" Glyph="&#xE838;" Text="Data Folders"/>
 					</TabItem.Header>
 

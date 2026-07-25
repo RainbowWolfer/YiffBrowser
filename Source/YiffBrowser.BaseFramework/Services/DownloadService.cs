@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Windows;
 using YiffBrowser.BaseFramework.Enums;
+using YiffBrowser.BaseFramework.Helpers;
 using YiffBrowser.BaseFramework.Interfaces;
 using YiffBrowser.BaseFramework.ViewModels;
 
@@ -25,6 +26,7 @@ public interface IDownloadService {
 	void PauseActive();
 	void ResumePaused();
 	void RetryFailed();
+	void RecreateHttpClient();
 }
 
 internal class DownloadService(IAppSettingsService appSettingsService) : IDownloadService, IAppInitializeAsync {
@@ -35,11 +37,12 @@ internal class DownloadService(IAppSettingsService appSettingsService) : IDownlo
 
 	}
 
-	private static HttpClient CreateHttpClient() {
+	private static HttpClient CreateHttpClient(AppSettingsModel model) {
 		HttpClientHandler handler = new() {
 			AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
 			UseCookies = true,
 		};
+		ProxySettingsHelper.Configure(handler, model);
 
 		return new HttpClient(handler) {
 			Timeout = TimeSpan.FromMinutes(5)
@@ -49,8 +52,13 @@ internal class DownloadService(IAppSettingsService appSettingsService) : IDownlo
 	private static int GetMaxConcurrentDownloads(IAppSettingsService settingsService) =>
 		Math.Clamp(settingsService.Model.MaxConcurrentDownloads, 1, 10);
 
-	private readonly HttpClient httpClient = CreateHttpClient();
+	private HttpClient httpClient = CreateHttpClient(appSettingsService.Model);
 	private readonly SemaphoreSlim globalConcurrencySemaphore = new(GetMaxConcurrentDownloads(appSettingsService));
+
+	public void RecreateHttpClient() {
+		// In-flight DownloadItems keep their existing HttpClient reference.
+		httpClient = CreateHttpClient(appSettingsService.Model);
+	}
 
 	/// <summary>
 	/// Items belonging to the current download session.

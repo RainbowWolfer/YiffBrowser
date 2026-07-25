@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using YiffBrowser.BaseFramework.Helpers;
 
 namespace YiffBrowser.BaseFramework.Services;
 
@@ -41,14 +42,13 @@ public static class NetCode {
 			AutomaticDecompression = DecompressionMethods.All,
 			ConnectTimeout = TimeSpan.FromSeconds(15),
 			EnableMultipleHttp2Connections = true,
-			UseProxy = true,
-			Proxy = HttpClient.DefaultProxy,
 			UseCookies = false,
 			KeepAlivePingDelay = TimeSpan.FromSeconds(30),
 			KeepAlivePingTimeout = TimeSpan.FromSeconds(5),
 			KeepAlivePingPolicy = HttpKeepAlivePingPolicy.Always,
 			PreAuthenticate = true,
 		};
+		ProxySettingsHelper.Configure(handler, model);
 
 		return new HttpClient(handler) {
 			Timeout = TimeSpan.FromSeconds(60),

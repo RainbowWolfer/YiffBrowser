@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Windows.Media.Imaging;
+using YiffBrowser.BaseFramework.Helpers;
 
 namespace YiffBrowser.BaseFramework.Models;
 
@@ -38,9 +39,7 @@ public class GifImage(Uri uri) : IDisposable {
 
 		await Task.Run(async () => {
 
-			using HttpClient client = new();
-
-			//NetCode.AddDefaultRequestHeaders(client, "", "");
+			using HttpClient client = ProxySettingsHelper.CreateHttpClient();
 
 			try {
 				using HttpRequestMessage request = new(HttpMethod.Get, Uri);

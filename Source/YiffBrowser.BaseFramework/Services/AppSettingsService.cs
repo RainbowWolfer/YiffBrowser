@@ -39,5 +39,11 @@ public class AppSettingsModel {
 
 	public bool IsGroupBySearchedTags { get; set; }
 	public bool IsGroupByAuthorTagOnly { get; set; }
+
+	public ProxyMode ProxyMode { get; set; } = ProxyMode.System;
+	public string ProxyHost { get; set; } = "127.0.0.1";
+	public int ProxyPort { get; set; } = 7890;
+	public string ProxyUsername { get; set; } = string.Empty;
+	public string ProxyPassword { get; set; } = string.Empty;
 }
 
