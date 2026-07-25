@@ -13,6 +13,7 @@ namespace YiffBrowser.BaseFramework.ViewModels;
 public class DownloadItem : BindableBase {
 	private readonly HttpClient httpClient;
 	private readonly SemaphoreSlim semaphore;
+	private readonly FileCollisionBehaviorType collisionBehavior;
 	private CancellationTokenSource? cts;
 	private readonly Stopwatch downloadStopwatch = new();
 	private long lastUiUpdateMs;
@@ -21,14 +22,26 @@ public class DownloadItem : BindableBase {
 	private bool isCanceling = false;
 
 	public string FileUrl { get; }
-	public string DestinationPath { get; }
-	public string FileName { get; }
-	public string DirectoryPath { get; }
+	public string DestinationPath { get; private set; }
+	public string FileName { get; private set; }
+	public string DirectoryPath { get; private set; }
 	public string? PreviewUrl { get; }
 
 	public string FileSizeText {
 		get => GetProperty(() => FileSizeText);
 		private set => SetProperty(() => FileSizeText, value);
+	}
+
+	/// <summary>Short label on Completed items: "Downloaded" or "Skipped".</summary>
+	public string CompletionSummary {
+		get => GetProperty(() => CompletionSummary);
+		private set => SetProperty(() => CompletionSummary, value);
+	}
+
+	/// <summary>Full completion detail for tooltip (e.g. skip reason).</summary>
+	public string CompletionReason {
+		get => GetProperty(() => CompletionReason);
+		private set => SetProperty(() => CompletionReason, value);
 	}
 
 	public LoadingStatus Status { get; } = new LoadingStatus();
@@ -67,7 +80,13 @@ public class DownloadItem : BindableBase {
 
 	public event EventHandler? RemoveRequested;
 
-	public DownloadItem(string fileUrl, string destinationPath, HttpClient httpClient, SemaphoreSlim semaphore, string? previewUrl = null) {
+	public DownloadItem(
+		string fileUrl,
+		string destinationPath,
+		HttpClient httpClient,
+		SemaphoreSlim semaphore,
+		string? previewUrl = null,
+		FileCollisionBehaviorType collisionBehavior = FileCollisionBehaviorType.SkipIfSameSize) {
 		FileUrl = fileUrl;
 		DestinationPath = destinationPath;
 		FileName = Path.GetFileName(destinationPath);
@@ -75,6 +94,7 @@ public class DownloadItem : BindableBase {
 		PreviewUrl = previewUrl;
 		this.httpClient = httpClient;
 		this.semaphore = semaphore;
+		this.collisionBehavior = collisionBehavior;
 
 		State = DownloadItemState.Pending;
 		Status.Initialize("Pending in Queue");
@@ -92,6 +112,7 @@ public class DownloadItem : BindableBase {
 		double? preservedProgress = Status.Progress is > 0 ? Status.Progress : null;
 		string? preservedInfo = Status.DownloadInfo;
 		long existingLength = GetExistingFileLength();
+		bool isResume = existingLength > 0 && preservedProgress is > 0;
 
 		try {
 			// Stay Pending while queued for a slot; only flip to Downloading once transfer starts.
@@ -103,6 +124,17 @@ public class DownloadItem : BindableBase {
 			isSemaphoreAcquired = true;
 
 			existingLength = GetExistingFileLength();
+			isResume = existingLength > 0 && preservedProgress is > 0;
+
+			if (!isResume && File.Exists(DestinationPath)) {
+				bool handled = await TryHandleExistingFileAsync(token);
+				if (handled) {
+					return;
+				}
+
+				existingLength = GetExistingFileLength();
+			}
+
 			State = DownloadItemState.Downloading;
 			Status.Initialize(existingLength > 0 ? "Resuming" : "Downloading");
 			ApplyPreservedProgress(preservedProgress, preservedInfo, existingLength);
@@ -130,9 +162,7 @@ public class DownloadItem : BindableBase {
 			} else if (response.StatusCode == HttpStatusCode.RequestedRangeNotSatisfiable) {
 				// 416: local file may already be complete.
 				if (existingLength > 0 && response.Content.Headers.ContentRange?.Length is long completeLength && existingLength >= completeLength) {
-					State = DownloadItemState.Completed;
-					RefreshFileSizeText();
-					Status.Done();
+					MarkCompleted("Skipped: local file already complete");
 					return;
 				}
 
@@ -142,6 +172,16 @@ public class DownloadItem : BindableBase {
 				response.EnsureSuccessStatusCode();
 				startOffset = 0;
 				totalBytes = response.Content.Headers.ContentLength;
+
+				// Skip-if-same-size when we only learned remote size from GET.
+				if (!isResume
+					&& collisionBehavior == FileCollisionBehaviorType.SkipIfSameSize
+					&& existingLength > 0
+					&& totalBytes is long remoteSize
+					&& existingLength == remoteSize) {
+					MarkCompleted("Skipped: file already exists with the same size");
+					return;
+				}
 			}
 
 			using Stream contentStream = await response.Content.ReadAsStreamAsync(token);
@@ -168,12 +208,12 @@ public class DownloadItem : BindableBase {
 				UpdateProgress(totalRead, totalBytes, sessionStartOffset);
 			}
 
-			State = DownloadItemState.Completed;
-			RefreshFileSizeText();
-			Status.Done();
+			MarkCompleted(startOffset > 0 ? "Downloaded (resumed)" : "Downloaded");
 		} catch (OperationCanceledException) {
 			if (isCanceling) {
 				State = DownloadItemState.Canceled;
+				CompletionSummary = string.Empty;
+				CompletionReason = string.Empty;
 				Status.ErrorClose("Canceled", "Canceled");
 				DeleteIncompleteFile();
 			} else {
@@ -190,6 +230,8 @@ public class DownloadItem : BindableBase {
 			}
 		} catch (Exception ex) {
 			State = DownloadItemState.Error;
+			CompletionSummary = string.Empty;
+			CompletionReason = string.Empty;
 			Status.ErrorClose(ex.Message, ex.ToString());
 		} finally {
 			downloadStopwatch.Stop();
@@ -197,6 +239,110 @@ public class DownloadItem : BindableBase {
 				semaphore.Release();
 			}
 		}
+	}
+
+	/// <returns>True if the item was completed/skipped and the download should stop.</returns>
+	private async Task<bool> TryHandleExistingFileAsync(CancellationToken token) {
+		long localLength = GetExistingFileLength();
+		if (localLength <= 0 && !File.Exists(DestinationPath)) {
+			return false;
+		}
+
+		switch (collisionBehavior) {
+			case FileCollisionBehaviorType.Skip:
+				MarkCompleted("Skipped: file already exists");
+				return true;
+
+			case FileCollisionBehaviorType.SkipIfSameSize: {
+				long? remoteSize = await TryGetRemoteContentLengthAsync(token);
+				if (remoteSize is long size && localLength == size) {
+					MarkCompleted("Skipped: file already exists with the same size");
+					return true;
+				}
+
+				// Different size (or unknown remote size): overwrite and re-download.
+				TryDeleteDestination();
+				return false;
+			}
+
+			case FileCollisionBehaviorType.Overwrite:
+				TryDeleteDestination();
+				return false;
+
+			case FileCollisionBehaviorType.AutoRename:
+				ApplyUniqueDestinationPath();
+				return false;
+
+			default:
+				return false;
+		}
+	}
+
+	private async Task<long?> TryGetRemoteContentLengthAsync(CancellationToken token) {
+		try {
+			using HttpRequestMessage request = new(HttpMethod.Head, FileUrl);
+			using HttpResponseMessage response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
+			if (response.IsSuccessStatusCode && response.Content.Headers.ContentLength is long length) {
+				return length;
+			}
+		} catch (Exception ex) {
+			Debug.WriteLine($"HEAD request failed for collision check: {ex.Message}");
+		}
+
+		return null;
+	}
+
+	private void ApplyUniqueDestinationPath() {
+		string uniquePath = GetAvailablePath(DestinationPath);
+		if (uniquePath == DestinationPath) {
+			return;
+		}
+
+		DestinationPath = uniquePath;
+		FileName = Path.GetFileName(uniquePath);
+		DirectoryPath = Path.GetDirectoryName(uniquePath) ?? string.Empty;
+		RaisePropertyChanged(nameof(DestinationPath));
+		RaisePropertyChanged(nameof(FileName));
+		RaisePropertyChanged(nameof(DirectoryPath));
+	}
+
+	private static string GetAvailablePath(string path) {
+		if (!File.Exists(path)) {
+			return path;
+		}
+
+		string? directory = Path.GetDirectoryName(path);
+		string name = Path.GetFileNameWithoutExtension(path);
+		string extension = Path.GetExtension(path);
+
+		for (int i = 1; i < 10_000; i++) {
+			string candidate = Path.Combine(directory ?? string.Empty, $"{name} ({i}){extension}");
+			if (!File.Exists(candidate)) {
+				return candidate;
+			}
+		}
+
+		return Path.Combine(directory ?? string.Empty, $"{name} ({Guid.NewGuid():N}){extension}");
+	}
+
+	private void TryDeleteDestination() {
+		try {
+			if (File.Exists(DestinationPath)) {
+				File.Delete(DestinationPath);
+			}
+		} catch (Exception ex) {
+			Debug.WriteLine($"Failed to delete existing file before overwrite: {ex.Message}");
+		}
+	}
+
+	private void MarkCompleted(string reason) {
+		State = DownloadItemState.Completed;
+		CompletionSummary = reason.StartsWith("Skipped", StringComparison.OrdinalIgnoreCase)
+			? "Skipped"
+			: "Downloaded";
+		CompletionReason = reason;
+		RefreshFileSizeText();
+		Status.Done(reason);
 	}
 
 	private void RefreshFileSizeText() {
@@ -296,6 +442,8 @@ public class DownloadItem : BindableBase {
 			cts?.Cancel();
 		} else {
 			State = DownloadItemState.Canceled;
+			CompletionSummary = string.Empty;
+			CompletionReason = string.Empty;
 			Status.ErrorClose("Canceled", "Canceled");
 			DeleteIncompleteFile();
 		}

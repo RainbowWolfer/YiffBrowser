@@ -52,6 +52,12 @@ internal class DownloadService(IAppSettingsService appSettingsService) : IDownlo
 	private readonly HttpClient httpClient = CreateHttpClient();
 	private readonly SemaphoreSlim globalConcurrencySemaphore = new(GetMaxConcurrentDownloads(appSettingsService));
 
+	/// <summary>
+	/// Items belonging to the current download session.
+	/// A new session starts when downloads begin while nothing is active.
+	/// </summary>
+	private readonly HashSet<DownloadItem> sessionItems = [];
+
 	public ObservableCollection<DownloadItem> DownloadItems { get; } = [];
 
 	public LoadingStatus OverallStatus { get; } = new() { ShowLoading = false };
@@ -82,6 +88,7 @@ internal class DownloadService(IAppSettingsService appSettingsService) : IDownlo
 			item.PropertyChanged -= OnItemPropertyChanged;
 			item.Status.PropertyChanged -= OnItemStatusPropertyChanged;
 			item.RemoveRequested -= OnItemRemoveRequested;
+			sessionItems.Remove(item);
 			DownloadItems.Remove(item);
 		}
 		UpdateOverallStatus();
@@ -109,6 +116,7 @@ internal class DownloadService(IAppSettingsService appSettingsService) : IDownlo
 
 	public void RetryFailed() {
 		foreach (DownloadItem item in DownloadItems.Where(i => i.RetryCommand.CanExecute(null)).ToList()) {
+			sessionItems.Add(item);
 			item.RetryCommand.Execute(null);
 		}
 	}
@@ -121,12 +129,26 @@ internal class DownloadService(IAppSettingsService appSettingsService) : IDownlo
 				string fileName = i.TargetFileName;
 				string destPath = Path.Combine(destinationFolder, fileName);
 
-				DownloadItem item = new(i.DownloadUrl, destPath, httpClient, globalConcurrencySemaphore, i.PreviewUrl);
+				DownloadItem item = new(
+					i.DownloadUrl,
+					destPath,
+					httpClient,
+					globalConcurrencySemaphore,
+					i.PreviewUrl,
+					appSettingsService.Model.FileCollisionBehavior);
 				item.PropertyChanged += OnItemPropertyChanged;
 				item.Status.PropertyChanged += OnItemStatusPropertyChanged;
 				item.RemoveRequested += OnItemRemoveRequested;
 
-				Application.Current.Dispatcher.Invoke(() => DownloadItems.Add(item));
+				Application.Current.Dispatcher.Invoke(() => {
+					// New session when nothing is currently active (previous batch fully settled).
+					if (!DownloadItems.Any(existing => existing.IsActive)) {
+						sessionItems.Clear();
+					}
+
+					DownloadItems.Add(item);
+					sessionItems.Add(item);
+				});
 
 				Task downloadTask = item.StartDownloadAsync();
 				downloadTasks.Add(downloadTask);
@@ -189,6 +211,24 @@ internal class DownloadService(IAppSettingsService appSettingsService) : IDownlo
 				return;
 			}
 
+			// Session progress: finished items count as 100%, active items contribute their own progress.
+			// Starting a new batch while idle resets the session so the next run begins near 0%.
+			List<DownloadItem> session = sessionItems.Where(DownloadItems.Contains).ToList();
+			int sessionTotal = session.Count;
+			if (sessionTotal == 0) {
+				session = activeItems;
+				sessionTotal = activeCount;
+				foreach (DownloadItem item in activeItems) {
+					sessionItems.Add(item);
+				}
+			}
+
+			int sessionFinished = session.Count(i => i.IsFinished);
+			double activeContribution = session
+				.Where(i => i.IsActive)
+				.Sum(i => (i.Status.Progress ?? 0) / 100.0);
+			double globalProgress = (sessionFinished + activeContribution) / sessionTotal * 100;
+
 			int downloadingCount = activeItems.Count(i => i.State == DownloadItemState.Downloading);
 			int pendingCount = activeItems.Count(i => i.State == DownloadItemState.Pending);
 			int pausedCount = activeItems.Count(i => i.State == DownloadItemState.Paused);
@@ -199,12 +239,7 @@ internal class DownloadService(IAppSettingsService appSettingsService) : IDownlo
 			string speedText = FormatSpeed(totalBps);
 			string etaText = LoadingStatus.FormatEtaText(totalRemaining, totalBps);
 
-			// Overall progress is based only on active items (pending / downloading / paused).
-			double? globalProgress = transferring.Any(i => i.Status.Progress is null)
-				? null
-				: activeItems.Average(i => i.Status.Progress ?? 0);
-
-			string info = $"{activeCount} active";
+			string info = $"{sessionFinished} / {sessionTotal} finished · {activeCount} active";
 			List<string> parts = [];
 			if (downloadingCount > 0) {
 				parts.Add($"{downloadingCount} downloading");
@@ -216,7 +251,7 @@ internal class DownloadService(IAppSettingsService appSettingsService) : IDownlo
 				parts.Add($"{pausedCount} paused");
 			}
 			if (parts.Count > 0) {
-				info = string.Join(" · ", parts);
+				info = $"{sessionFinished} / {sessionTotal} · {string.Join(" · ", parts)}";
 			}
 
 			OverallStatus.SetProgress(globalProgress, info, speedText, etaText, totalBps, totalRemaining);

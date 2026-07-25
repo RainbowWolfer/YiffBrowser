@@ -79,16 +79,16 @@ public class LoadingStatus : BindableBase {
 			$"Start DateTime: {StartDateTime}";
 	}
 
-	public void Done() {
+	public void Done(string downloadInfo = "Downloaded") {
 		ShowLoading = false;
-		DownloadInfo = "Done";
+		DownloadInfo = downloadInfo;
 		SpeedText = "—";
 		EtaText = "—";
 		BytesPerSecond = 0;
 		BytesRemaining = 0;
 		EndDateTime = DateTime.Now;
 		ToolTip =
-			"Download Finished\n" +
+			$"{downloadInfo}\n" +
 			$"Start DateTime: {StartDateTime}\n" +
 			$"End DateTime: {EndDateTime}";
 	}

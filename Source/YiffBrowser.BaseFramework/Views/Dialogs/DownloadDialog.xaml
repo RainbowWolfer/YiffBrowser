@@ -691,10 +691,24 @@
 					</StackPanel>
 
 					<TextBlock
+						d:Text="Skipped"
+						Style="{StaticResource DownloadMetaText}"
+						Grid.Column="2"
+						Margin="12,0,8,0"
+						HorizontalAlignment="Right"
+						TextAlignment="Right"
+						wpf:ToolTipExtension.FastToolTip="True"
+						Text="{Binding CompletionSummary}"
+						ToolTip="{Binding CompletionReason}"
+						Visibility="{Binding CompletionSummary, Converter={StaticResource String2VisibilityConverter}}"/>
+
+					<TextBlock
 						d:Text="The remote server returned an error: (403) Forbidden."
 						Style="{StaticResource DownloadMetaText}"
 						Grid.Column="2"
 						Margin="12,0,8,0"
+						HorizontalAlignment="Right"
+						TextAlignment="Right"
 						wpf:ToolTipExtension.FastToolTip="True"
 						Foreground="{DynamicResource DangerBrush}"
 						Text="{Binding Status.ErrorMessage}"
