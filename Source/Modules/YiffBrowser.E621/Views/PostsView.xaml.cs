@@ -42,6 +42,14 @@ internal partial class PostsView : UserControl, IDisposable {
 		viewModel.Dispose();
 	}
 
+	public int CurrentPage => viewModel.CurrentPage;
+
+	public void RefreshPosts() {
+		if (viewModel.RefreshCommand.CanExecute(null)) {
+			viewModel.RefreshCommand.Execute(null);
+		}
+	}
+
 	private void ListBoxItem_RequestBringIntoView(object sender, RequestBringIntoViewEventArgs e) {
 		//e.Handled = true;
 	}
@@ -95,8 +103,17 @@ internal class PostsViewModel(
 	public int CurrentPage {
 		get => GetProperty(() => CurrentPage);
 		set {
-			SetProperty(() => CurrentPage, NumberHelper.Clamp(value, 1, int.MaxValue));
+			int clamped = NumberHelper.Clamp(value, 1, int.MaxValue);
+			int previous = GetProperty(() => CurrentPage);
+			SetProperty(() => CurrentPage, clamped);
 			RaisePropertyChanged(() => CanGoLeft);
+			if (TabItem != null) {
+				TabItem.CurrentPage = clamped;
+			}
+
+			if (previous != clamped && TabItem != null) {
+				TabItem.ParentViewModel.ScheduleSessionSave();
+			}
 		}
 	}
 
@@ -115,6 +132,7 @@ internal class PostsViewModel(
 			foreach (PostCardControl item in Items) {
 				item.IsSelected = false;
 			}
+			RaiseSelectionCommandsCanExecuteChanged();
 		}
 	}
 
@@ -178,7 +196,7 @@ internal class PostsViewModel(
 
 		ModuleType = postTabItem.ViewParameter.ModuleType;
 
-		CurrentPage = 1;
+		CurrentPage = postTabItem.InitialPage;
 
 		Refresh();
 	}
@@ -191,10 +209,13 @@ internal class PostsViewModel(
 		if (DownloadConfig is not null) {
 			DownloadConfig.AppSettingsDownloadFolder = args.Model.DownloadFolderPath;
 		}
+
+		downloadPostCommand?.RaiseCanExecuteChanged();
 	}
 
 	private void SelectedItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
 		UpdateMultiSelectingText();
+		RaiseSelectionCommandsCanExecuteChanged();
 	}
 
 	private void UpdateMultiSelectingText() {
@@ -203,6 +224,14 @@ internal class PostsViewModel(
 		} else {
 			MultiSelectingText = string.Empty;
 		}
+	}
+
+	private void RaiseSelectionCommandsCanExecuteChanged() {
+		selectAllCommand?.RaiseCanExecuteChanged();
+		toggleSelectionCommand?.RaiseCanExecuteChanged();
+		clearSelectionCommand?.RaiseCanExecuteChanged();
+		downloadPostCommand?.RaiseCanExecuteChanged();
+		selectPostCommand?.RaiseCanExecuteChanged();
 	}
 
 
@@ -227,8 +256,112 @@ internal class PostsViewModel(
 
 	public ICommand DownloadCommand => new DelegateCommand(Download);
 	private void Download() {
-
+		if (SelectedItems.IsNotEmpty()) {
+			DownloadSelected();
+		} else if (Items.IsNotEmpty()) {
+			DownloadCurrentPage();
+		}
 	}
+
+	private DelegateCommand? selectAllCommand;
+	public IDelegateCommand SelectAllCommand => selectAllCommand ??= new(SelectAll, CanSelectAll);
+	private void SelectAll() {
+		if (!CanSelectAll()) {
+			return;
+		}
+
+		EnsureMultiSelectingWithoutClearing();
+		foreach (PostCardControl item in Items) {
+			item.IsSelected = true;
+		}
+		UpdateMultiSelectingText();
+		RaiseSelectionCommandsCanExecuteChanged();
+	}
+	private bool CanSelectAll() => Items.IsNotEmpty();
+
+	private DelegateCommand? toggleSelectionCommand;
+	public IDelegateCommand ToggleSelectionCommand => toggleSelectionCommand ??= new(ToggleSelection, CanToggleSelection);
+	private void ToggleSelection() {
+		if (!CanToggleSelection()) {
+			return;
+		}
+
+		EnsureMultiSelectingWithoutClearing();
+		foreach (PostCardControl item in Items) {
+			item.IsSelected = !item.IsSelected;
+		}
+		UpdateMultiSelectingText();
+		RaiseSelectionCommandsCanExecuteChanged();
+	}
+	private bool CanToggleSelection() => IsMultiSelecting && Items.IsNotEmpty();
+
+	private DelegateCommand? clearSelectionCommand;
+	public IDelegateCommand ClearSelectionCommand => clearSelectionCommand ??= new(ClearSelection, CanClearSelection);
+	private void ClearSelection() {
+		if (!CanClearSelection()) {
+			return;
+		}
+
+		foreach (PostCardControl item in Items) {
+			item.IsSelected = false;
+		}
+		UpdateMultiSelectingText();
+		RaiseSelectionCommandsCanExecuteChanged();
+	}
+	private bool CanClearSelection() => IsMultiSelecting && Items.Any(x => x.IsSelected);
+
+	/// <summary>Turns on multi-select without wiping existing item selection flags.</summary>
+	private void EnsureMultiSelectingWithoutClearing() {
+		if (IsMultiSelecting) {
+			return;
+		}
+
+		SetProperty(() => IsMultiSelecting, true);
+		UpdateMultiSelectingText();
+		RaiseSelectionCommandsCanExecuteChanged();
+	}
+
+	private DelegateCommand<E621Post?>? openPostCommand;
+	public IDelegateCommand OpenPostCommand => openPostCommand ??= new(OpenPost, CanOpenPost);
+	private void OpenPost(E621Post? post) {
+		if (CanOpenPost(post)) {
+			ViewPostDetailDirect(post);
+		}
+	}
+	private bool CanOpenPost(E621Post? post) => post != null;
+
+	private DelegateCommand<E621Post?>? downloadPostCommand;
+	public IDelegateCommand DownloadPostCommand => downloadPostCommand ??= new(DownloadPost, CanDownloadPost);
+	private void DownloadPost(E621Post? post) {
+		if (!CanDownloadPost(post)) {
+			return;
+		}
+
+		string folder = appSettingsService.Model.DownloadFolderPath;
+		if (folder.IsBlank()) {
+			return;
+		}
+
+		DownloadService.StartDownloads([new E621PostDownloadable(post!)], folder);
+	}
+	private bool CanDownloadPost(E621Post? post) =>
+		post?.File != null
+		&& post.File.URL.IsNotBlank()
+		&& appSettingsService.Model.DownloadFolderPath.IsNotBlank();
+
+	private DelegateCommand<PostCardControl?>? selectPostCommand;
+	public IDelegateCommand SelectPostCommand => selectPostCommand ??= new(SelectPost, CanSelectPost);
+	private void SelectPost(PostCardControl? card) {
+		if (!CanSelectPost(card)) {
+			return;
+		}
+
+		EnsureMultiSelectingWithoutClearing();
+		card!.IsSelected = true;
+		UpdateMultiSelectingText();
+		RaiseSelectionCommandsCanExecuteChanged();
+	}
+	private bool CanSelectPost(PostCardControl? card) => card != null;
 
 	public ICommand RefreshCommand => new DelegateCommand(Refresh);
 	private async void Refresh() {
@@ -557,15 +690,6 @@ internal abstract class DownloadConfigViewModel : BindableBase, IDisposable {
 		CustomPath = profileService.Model.LastCustomDownloadPath.SafeString();
 	}
 
-
-	private class E621PostDownloadable(E621Post post) : IDownloadable {
-		public string DownloadUrl => post.File!.URL!;
-		public string TargetFileName => $"{post.ID}.{post.File!.Ext}";
-		public string? PreviewUrl => post.Preview?.URL;
-		public bool CanDownload => post.File != null && post.File.URL.IsNotBlank();
-	}
-
-
 	private AsyncCommand? confirmCommand;
 	public IDelegateCommand ConfirmCommand => confirmCommand ??= new(Confirm, CanConfirm);
 	protected async Task Confirm() {
@@ -744,4 +868,11 @@ internal class CustomDownloadViewModel(E621API api, int pageLimit) : DownloadCon
 		cts.Cancel();
 	}
 
+}
+
+file sealed class E621PostDownloadable(E621Post post) : IDownloadable {
+	public string DownloadUrl => post.File!.URL!;
+	public string TargetFileName => $"{post.ID}.{post.File!.Ext}";
+	public string? PreviewUrl => post.Preview?.URL;
+	public bool CanDownload => post.File != null && post.File.URL.IsNotBlank();
 }

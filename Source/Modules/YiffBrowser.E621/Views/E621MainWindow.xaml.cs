@@ -12,9 +12,12 @@ namespace YiffBrowser.E621.Views;
 
 public partial class E621MainWindow : WindowBase, IMainWindow {
 
+	public ModuleType ModuleType { get; }
+
 	public E621MainWindow(ViewParameter viewParameter) {
 		InitializeComponent();
 
+		ModuleType = viewParameter.ModuleType;
 		Title = $"{AppConfig.DisplayAppName} - {viewParameter.ModuleType}";
 
 		Root.Child = new E621MainView(viewParameter);

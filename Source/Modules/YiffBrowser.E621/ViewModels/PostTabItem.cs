@@ -18,9 +18,14 @@ internal class PostTabItem : BindableBase, IDisposable {
 
 	public string[] Tags { get; }
 
+	public int InitialPage { get; }
+
 	public PostsView View { get; }
 
 	public ObservableCollection<E621Post> Posts { get; } = [];
+
+	/// <summary>Up to four preview URLs for the tabs-manage 2×2 card mosaic.</summary>
+	public ObservableCollection<string?> CoverPreviewUrls { get; } = [];
 
 	public string? CoverImageUrl {
 		get => GetProperty(() => CoverImageUrl);
@@ -29,7 +34,18 @@ internal class PostTabItem : BindableBase, IDisposable {
 
 	public LoadingStatus LoadingStatus { get; } = new();
 
-	public PostTabItem(E621MainViewModel parentViewModel, string[] tags) {
+	/// <summary>Selection flag used only on the tabs-manage grid.</summary>
+	public bool IsManageSelected {
+		get => GetProperty(() => IsManageSelected);
+		set => SetProperty(() => IsManageSelected, value);
+	}
+
+	public int CurrentPage {
+		get => GetProperty(() => CurrentPage);
+		set => SetProperty(() => CurrentPage, Math.Max(1, value));
+	}
+
+	public PostTabItem(E621MainViewModel parentViewModel, string[] tags, int initialPage = 1) {
 		ParentViewModel = parentViewModel ?? throw new ArgumentNullException(nameof(parentViewModel));
 		ViewParameter = parentViewModel.ViewParameter ?? throw new ArgumentNullException(nameof(ViewParameter));
 
@@ -37,6 +53,12 @@ internal class PostTabItem : BindableBase, IDisposable {
 
 		ParentViewModel = parentViewModel;
 		Tags = tags ?? [];
+		InitialPage = Math.Max(1, initialPage);
+		CurrentPage = InitialPage;
+
+		for (int i = 0; i < 4; i++) {
+			CoverPreviewUrls.Add(null);
+		}
 
 		Posts.CollectionChanged += OnPostsCollectionChanged;
 
@@ -44,9 +66,28 @@ internal class PostTabItem : BindableBase, IDisposable {
 	}
 
 	private void OnPostsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
-		string? url = Posts.Count > 0 ? Posts[0].Preview?.URL : null;
-		CoverImageUrl = string.IsNullOrWhiteSpace(url) ? null : url;
+		UpdateCoverPreviews();
 	}
+
+	private void UpdateCoverPreviews() {
+		for (int i = 0; i < 4; i++) {
+			string? url = null;
+			if (i < Posts.Count) {
+				url = Posts[i].Preview?.URL;
+				if (string.IsNullOrWhiteSpace(url)) {
+					url = null;
+				}
+			}
+
+			if (!string.Equals(CoverPreviewUrls[i], url, StringComparison.Ordinal)) {
+				CoverPreviewUrls[i] = url;
+			}
+		}
+
+		CoverImageUrl = CoverPreviewUrls.FirstOrDefault(u => u != null);
+	}
+
+	public void Refresh() => View.RefreshPosts();
 
 	public void Dispose() {
 		Posts.CollectionChanged -= OnPostsCollectionChanged;

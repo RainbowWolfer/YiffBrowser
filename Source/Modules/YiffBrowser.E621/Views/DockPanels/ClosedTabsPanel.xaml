@@ -1,0 +1,96 @@
+<UserControl
+	x:Class="YiffBrowser.E621.Views.DockPanels.ClosedTabsPanel"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:b="RW.Base.WPF"
+	xmlns:bf="YiffBrowser.BaseFramework"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:hc="https://handyorg.github.io/handycontrol"
+	xmlns:local="clr-namespace:YiffBrowser.E621.Views.DockPanels"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:wpf="RW.Common.WPF"
+	d:DataContext="{d:DesignInstance Type=local:ClosedTabsPanelViewModel}"
+	d:DesignHeight="300"
+	d:DesignWidth="900"
+	DataContext="{b:DISource Type=local:ClosedTabsPanelViewModel}"
+	mc:Ignorable="d">
+
+	<UserControl.Resources>
+		<wpf:CommandProxy x:Key="RestoreRecordCommand" Command="{Binding RestoreRecordCommand}"/>
+		<wpf:CommandProxy x:Key="RestoreBatchCommand" Command="{Binding RestoreBatchCommand}"/>
+	</UserControl.Resources>
+
+	<Grid Margin="4">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<Border Grid.Row="0">
+			<DockPanel>
+				<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel3}" Margin="4">
+					<Button Command="{Binding RefreshCommand}" ToolTip="Refresh">
+						<wpf:FontIcon Text="&#xE72C;"/>
+					</Button>
+				</wpf:SpacingStackPanel>
+
+				<hc:Pagination
+					d:MaxPageCount="100"
+					Margin="4"
+					HorizontalAlignment="Right"
+					MaxPageCount="{Binding MaxPageCount}"
+					MaxPageInterval="4"
+					PageIndex="{Binding PageIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+			</DockPanel>
+		</Border>
+
+		<Border Grid.Row="1">
+			<DataGrid
+				Style="{StaticResource DataGrid.Custom}"
+				Margin="4"
+				wpf:DataGridExtension.CanUnselectAllWidthEscape="True"
+				wpf:DataGridExtension.CanUnselectAllWithBlankArea="True"
+				AutoGenerateColumns="False"
+				IsReadOnly="True"
+				SelectionMode="Single"
+				SelectionUnit="FullRow"
+				ItemsSource="{Binding RecordList}">
+
+				<DataGrid.Columns>
+					<DataGridTextColumn Width="160" Binding="{Binding ClosedAt, StringFormat=G}" Header="Closed At"/>
+					<DataGridTextColumn Width="120" Binding="{Binding BatchLabel}" Header="Event"/>
+					<DataGridTextColumn Width="*" Binding="{Binding TagsDisplay}" Header="Tags"/>
+					<DataGridTextColumn Width="60" Binding="{Binding Page}" Header="Page"/>
+					<DataGridTemplateColumn Width="220" Header="Action">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel3}">
+									<Button
+										Padding="2,0"
+										BorderThickness="0"
+										bf:ButtonExtension.SetPreviewClick="True"
+										Background="Transparent"
+										Command="{StaticResource RestoreRecordCommand}"
+										CommandParameter="{Binding}">
+										<bf:HorizontalIconText Glyph="&#xE777;" Text="Restore"/>
+									</Button>
+									<Button
+										Padding="2,0"
+										BorderThickness="0"
+										bf:ButtonExtension.SetPreviewClick="True"
+										Background="Transparent"
+										Command="{StaticResource RestoreBatchCommand}"
+										CommandParameter="{Binding}"
+										Visibility="{Binding IsMultiBatch, Converter={StaticResource Boolean2VisibilityConverter}}">
+										<bf:HorizontalIconText Glyph="&#xE8C7;" Text="Restore Batch"/>
+									</Button>
+								</wpf:SpacingStackPanel>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn>
+				</DataGrid.Columns>
+			</DataGrid>
+		</Border>
+	</Grid>
+
+</UserControl>

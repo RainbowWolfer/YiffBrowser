@@ -30,6 +30,10 @@
 
 		<wpf:CommandProxy x:Key="LocateLastViewedCommand" Command="{Binding LocateLastViewedCommand}"/>
 
+		<wpf:CommandProxy x:Key="OpenPostCommand" Command="{Binding OpenPostCommand}"/>
+		<wpf:CommandProxy x:Key="DownloadPostCommand" Command="{Binding DownloadPostCommand}"/>
+		<wpf:CommandProxy x:Key="SelectPostCommand" Command="{Binding SelectPostCommand}"/>
+
 	</Control.Resources>
 
 	<dxmvvm:Interaction.Behaviors>
@@ -306,7 +310,21 @@
 										<Setter Property="ContextMenu">
 											<Setter.Value>
 												<ContextMenu>
-													<MenuItem bf:IconExtension.Glyph="&#xE89F;" Header="Open"/>
+													<MenuItem
+														bf:IconExtension.Glyph="&#xE89F;"
+														Command="{StaticResource OpenPostCommand}"
+														CommandParameter="{Binding PlacementTarget.DataContext.Post, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+														Header="Open"/>
+													<MenuItem
+														bf:IconExtension.Glyph="&#xE896;"
+														Command="{StaticResource DownloadPostCommand}"
+														CommandParameter="{Binding PlacementTarget.DataContext.Post, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+														Header="Quick Download"/>
+													<MenuItem
+														bf:IconExtension.Glyph="&#xE762;"
+														Command="{StaticResource SelectPostCommand}"
+														CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+														Header="Select"/>
 												</ContextMenu>
 											</Setter.Value>
 										</Setter>

@@ -10,6 +10,7 @@ using System.Windows;
 using YiffBrowser.BaseFramework.Enums;
 using YiffBrowser.BaseFramework.Helpers;
 using YiffBrowser.BaseFramework.Interfaces;
+using YiffBrowser.BaseFramework.Models;
 using YiffBrowser.BaseFramework.ViewModels;
 
 namespace YiffBrowser.BaseFramework.Services;
@@ -17,6 +18,9 @@ namespace YiffBrowser.BaseFramework.Services;
 public interface IDownloadService {
 	ObservableCollection<DownloadItem> DownloadItems { get; }
 	LoadingStatus OverallStatus { get; }
+
+	/// <summary>Raised on the UI thread after a batch is queued. Argument is the number of items added.</summary>
+	event EventHandler<int>? DownloadsQueued;
 
 	void StartDownloads(IEnumerable<IDownloadable> items, string destinationFolder);
 	void ClearCompleted();
@@ -27,14 +31,21 @@ public interface IDownloadService {
 	void ResumePaused();
 	void RetryFailed();
 	void RecreateHttpClient();
+	void FlushPersistence();
 }
 
-internal class DownloadService(IAppSettingsService appSettingsService) : IDownloadService, IAppInitializeAsync {
+internal class DownloadService(
+	IAppSettingsService appSettingsService,
+	IDownloadPersistenceService downloadPersistenceService
+) : IDownloadService, IAppInitializeAsync {
 	string IAppInitializeAsync.Description { get; } = "Initialzing Download Service";
 	int IPriority.Priority { get; } = IntPriority.Normal;
 
-	async Task IAppInitializeAsync.AppInitializeAsync(IStatusReport statusReport) {
+	private bool isRestoring;
+	private bool persistenceLoaded;
 
+	async Task IAppInitializeAsync.AppInitializeAsync(IStatusReport statusReport) {
+		RestoreFromPersistence();
 	}
 
 	private static HttpClient CreateHttpClient(AppSettingsModel model) {
@@ -70,13 +81,91 @@ internal class DownloadService(IAppSettingsService appSettingsService) : IDownlo
 
 	public LoadingStatus OverallStatus { get; } = new() { ShowLoading = false };
 
+	public event EventHandler<int>? DownloadsQueued;
+
+	private void RaiseDownloadsQueued(int count) {
+		if (count <= 0) {
+			return;
+		}
+
+		void Raise() => DownloadsQueued?.Invoke(this, count);
+
+		if (Application.Current?.Dispatcher is { } dispatcher && !dispatcher.CheckAccess()) {
+			dispatcher.BeginInvoke(Raise);
+		} else {
+			Raise();
+		}
+	}
+
+	private void RestoreFromPersistence() {
+		if (persistenceLoaded) {
+			return;
+		}
+
+		persistenceLoaded = true;
+		isRestoring = true;
+		try {
+			downloadPersistenceService.LoadSettings();
+			foreach (DownloadItemSnapshot snapshot in downloadPersistenceService.Model.Items) {
+				if (snapshot.FileUrl.IsBlank() || snapshot.DestinationPath.IsBlank()) {
+					continue;
+				}
+
+				DownloadItem item = new(
+					snapshot.FileUrl,
+					snapshot.DestinationPath,
+					httpClient,
+					globalConcurrencySemaphore,
+					snapshot.PreviewUrl,
+					snapshot.CollisionBehavior);
+				item.ApplyRestoredSnapshot(snapshot);
+				item.PropertyChanged += OnItemPropertyChanged;
+				item.Status.PropertyChanged += OnItemStatusPropertyChanged;
+				item.RemoveRequested += OnItemRemoveRequested;
+				DownloadItems.Add(item);
+
+				if (item.IsActive) {
+					sessionItems.Add(item);
+				}
+			}
+
+			UpdateOverallStatus();
+		} finally {
+			isRestoring = false;
+		}
+	}
+
+	private void PersistDownloads() {
+		if (isRestoring) {
+			return;
+		}
+
+		downloadPersistenceService.Model.Items = DownloadItems.Select(i => i.ToSnapshot()).ToList();
+		downloadPersistenceService.ScheduleSave();
+	}
+
+	public void FlushPersistence() {
+		if (isRestoring) {
+			return;
+		}
+
+		downloadPersistenceService.Model.Items = DownloadItems.Select(i => i.ToSnapshot()).ToList();
+		downloadPersistenceService.FlushSave();
+	}
+
 	public void StartDownloads(IEnumerable<IDownloadable> items, string destinationFolder) {
+		List<IDownloadable> list = items as List<IDownloadable> ?? items.ToList();
+		if (list.Count == 0) {
+			return;
+		}
+
 		if (!Directory.Exists(destinationFolder)) {
 			Directory.CreateDirectory(destinationFolder);
 		}
 
 		OverallStatus.Initialize("Starting Batch Download");
-		_ = ProcessBatchInternalAsync(items, destinationFolder);
+		RaiseDownloadsQueued(list.Count);
+		_ = ProcessBatchInternalAsync(list, destinationFolder);
 	}
 
 	public void ClearCompleted() {
@@ -100,6 +189,7 @@ internal class DownloadService(IAppSettingsService appSettingsService) : IDownlo
 			DownloadItems.Remove(item);
 		}
 		UpdateOverallStatus();
+		PersistDownloads();
 	}
 
 	public void CancelActive() {
@@ -158,6 +248,8 @@ internal class DownloadService(IAppSettingsService appSettingsService) : IDownlo
 					sessionItems.Add(item);
 				});
 
+				PersistDownloads();
+
 				Task downloadTask = item.StartDownloadAsync();
 				downloadTasks.Add(downloadTask);
 			}
@@ -195,11 +287,17 @@ internal class DownloadService(IAppSettingsService appSettingsService) : IDownlo
 		}
 
 		UpdateOverallStatus();
+		PersistDownloads();
 	}
 
 	private void OnItemStatusPropertyChanged(object? sender, PropertyChangedEventArgs e) {
 		if (e.PropertyName is nameof(LoadingStatus.BytesPerSecond) or nameof(LoadingStatus.BytesRemaining) or nameof(LoadingStatus.Progress)) {
 			UpdateOverallStatus();
+		}
+
+		// Persist progress occasionally so crash restore keeps approximate progress.
+		if (e.PropertyName is nameof(LoadingStatus.Progress)) {
+			PersistDownloads();
 		}
 	}
 

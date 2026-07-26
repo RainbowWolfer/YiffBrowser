@@ -207,6 +207,13 @@
 					</Border>
 
 					<Border Grid.Column="1">
+
+						<Border.ContextMenu>
+							<ContextMenu>
+								<MenuItem Header="HELLO"/>
+							</ContextMenu>
+						</Border.ContextMenu>
+
 						<ContentControl Focusable="False" IsTabStop="False">
 							<ContentControl.Style>
 								<Style TargetType="ContentControl" BasedOn="{StaticResource BaseStyle}">

@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using YiffBrowser.BaseFramework.Enums;
+using YiffBrowser.BaseFramework.Models;
 
 namespace YiffBrowser.BaseFramework.ViewModels;
 
@@ -26,6 +27,7 @@ public class DownloadItem : BindableBase {
 	public string FileName { get; private set; }
 	public string DirectoryPath { get; private set; }
 	public string? PreviewUrl { get; }
+	public FileCollisionBehaviorType CollisionBehavior => collisionBehavior;
 
 	public string FileSizeText {
 		get => GetProperty(() => FileSizeText);
@@ -100,6 +102,64 @@ public class DownloadItem : BindableBase {
 		Status.Initialize("Pending in Queue");
 		Status.Progress = 0;
 	}
+
+	/// <summary>Applies persisted state without starting a transfer. Active states become Paused.</summary>
+	public void ApplyRestoredSnapshot(DownloadItemSnapshot snapshot) {
+		DownloadItemState restoredState = snapshot.State switch {
+			DownloadItemState.Pending or DownloadItemState.Downloading or DownloadItemState.Paused
+				=> DownloadItemState.Paused,
+			_ => snapshot.State,
+		};
+
+		CompletionSummary = snapshot.CompletionSummary ?? string.Empty;
+		CompletionReason = snapshot.CompletionReason ?? string.Empty;
+		FileSizeText = snapshot.FileSizeText ?? string.Empty;
+
+		State = restoredState;
+
+		switch (restoredState) {
+			case DownloadItemState.Paused:
+				Status.ShowLoading = false;
+				Status.Progress = snapshot.Progress ?? 0;
+				Status.DownloadInfo = string.IsNullOrWhiteSpace(snapshot.DownloadInfo)
+					|| snapshot.DownloadInfo is "Downloading" or "Resuming" or "Waiting for available slot" or "Pending in Queue"
+					? "Paused"
+					: snapshot.DownloadInfo;
+				Status.SpeedText = "—";
+				Status.EtaText = "—";
+				Status.BytesPerSecond = 0;
+				Status.BytesRemaining = 0;
+				Status.ErrorMessage = string.Empty;
+				break;
+
+			case DownloadItemState.Completed:
+				Status.Done(snapshot.CompletionReason.IsNotBlank() ? snapshot.CompletionReason! : (snapshot.DownloadInfo ?? "Downloaded"));
+				Status.Progress = snapshot.Progress ?? 100;
+				break;
+
+			case DownloadItemState.Error:
+			case DownloadItemState.Canceled:
+				Status.ErrorClose(
+					snapshot.ErrorMessage.IsNotBlank() ? snapshot.ErrorMessage! : (snapshot.DownloadInfo ?? restoredState.ToString()),
+					snapshot.ErrorMessage);
+				Status.Progress = snapshot.Progress;
+				break;
+		}
+	}
+
+	public DownloadItemSnapshot ToSnapshot() => new() {
+		FileUrl = FileUrl,
+		DestinationPath = DestinationPath,
+		PreviewUrl = PreviewUrl,
+		State = State,
+		Progress = Status.Progress,
+		DownloadInfo = Status.DownloadInfo,
+		ErrorMessage = Status.ErrorMessage,
+		CompletionSummary = CompletionSummary,
+		CompletionReason = CompletionReason,
+		FileSizeText = FileSizeText,
+		CollisionBehavior = collisionBehavior,
+	};
 
 	public async Task StartDownloadAsync() {
 		cts = new CancellationTokenSource();

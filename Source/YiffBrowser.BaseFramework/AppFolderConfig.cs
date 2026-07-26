@@ -15,6 +15,7 @@ public class AppFolderConfig : FolderConfig {
 
 	public string AppSettingsFilePath => Path.Combine(DataFolder, "AppSettings.json");
 	public string AppProfileFilePath => Path.Combine(DataFolder, "AppProfile.json");
+	public string DownloadsFilePath => Path.Combine(DataFolder, "Downloads.json");
 
 	public string E621ProfileFilePath => Path.Combine(DataFolder, "E621Profile.json");
 

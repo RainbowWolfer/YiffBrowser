@@ -4,6 +4,7 @@ using RW.Base.WPF.Configs;
 using RW.Base.WPF.Extensions;
 using RW.Base.WPF.Interfaces;
 using RW.Base.WPF.ViewModels;
+using RW.Common.Helpers;
 using RW.Common.WPF;
 using RW.Common.WPF.MarkupExtensions;
 using System.ComponentModel;
@@ -54,6 +55,8 @@ public partial class App : ApplicationBase {
 
 	private SystemTrayIconService SystemTrayIconService { get; }
 
+	private bool isRestoringWindows;
+
 	public App() {
 		instance = this;
 
@@ -74,6 +77,15 @@ public partial class App : ApplicationBase {
 		SystemTrayIconService = new SystemTrayIconService();
 
 		CustomInitialize.Initialize();
+
+		DispatcherUnhandledException += (_, args) => {
+			FlushSessionState();
+			Debug.WriteLine(args.Exception);
+		};
+		AppDomain.CurrentDomain.UnhandledException += (_, args) => {
+			FlushSessionState();
+			Debug.WriteLine(args.ExceptionObject);
+		};
 
 		//FocusDebugLoop();
 	}
@@ -98,8 +110,24 @@ public partial class App : ApplicationBase {
 	}
 
 	protected override void BeforeTotalShutdown() {
+		FlushSessionState();
 		base.BeforeTotalShutdown();
 		SystemTrayIconService.Disable();
+	}
+
+	private void FlushSessionState() {
+		try {
+			CaptureAllWindowStates();
+			AppProfileService.FlushSave();
+		} catch (Exception ex) {
+			Debug.WriteLine(ex);
+		}
+
+		try {
+			IoC.Resolve<IDownloadService>()?.FlushPersistence();
+		} catch (Exception ex) {
+			Debug.WriteLine(ex);
+		}
 	}
 
 	protected override void BeforeLoadingModules() {
@@ -133,6 +161,7 @@ public partial class App : ApplicationBase {
 			MainWindows = [Window_E621, Window_E926, Window_E6AI];
 			foreach (Window window in MainWindows) {
 				window.Closing += Window_Closing;
+				HookWindowStateEvents(window);
 			}
 
 		} catch (Exception ex) {
@@ -151,16 +180,12 @@ public partial class App : ApplicationBase {
 	protected override void Loaded() {
 		base.Loaded();
 
-
-		//new TestWindow().Show();
-		ShowE6AI();
-		//ShowE621();
+		RestoreModuleWindows();
 
 		startupStopWatch.Stop();
 		Debug.WriteLine($"app started in {startupStopWatch.ElapsedMilliseconds} ms");
 
 		((AppManagerEx)AppManager).AppStartupTimeSpan = TimeSpan.FromMilliseconds(startupStopWatch.ElapsedMilliseconds);
-		//MessageBox.Show($"app started in {startupStopWatch.ElapsedMilliseconds} ms");
 	}
 
 	//protected override void OnStartup(StartupEventArgs e) {
@@ -224,6 +249,172 @@ public partial class App : ApplicationBase {
 
 	private void ShowE926() => Window_E926.ActivateWindow();
 
+	private void HookWindowStateEvents(Window window) {
+		window.LocationChanged += (_, _) => ScheduleCaptureWindowStates();
+		window.SizeChanged += (_, _) => ScheduleCaptureWindowStates();
+		window.StateChanged += (_, _) => ScheduleCaptureWindowStates();
+		window.IsVisibleChanged += (_, _) => ScheduleCaptureWindowStates();
+		window.Activated += Window_Activated;
+	}
+
+	private void Window_Activated(object? sender, EventArgs e) {
+		if (isRestoringWindows || sender is not E621MainWindow mainWindow) {
+			return;
+		}
+
+		AppProfileService.Model.LastFocusedModule = mainWindow.ModuleType.ToString();
+		ScheduleCaptureWindowStates();
+	}
+
+	private void ScheduleCaptureWindowStates() {
+		if (isRestoringWindows || AppManager.IsShuttingDown) {
+			return;
+		}
+
+		CaptureAllWindowStates();
+		AppProfileService.ScheduleSave();
+	}
+
+	private void CaptureAllWindowStates() {
+		List<ModuleWindowState> states = [];
+		foreach (Window window in MainWindows) {
+			if (window is E621MainWindow mainWindow) {
+				states.Add(CaptureWindowState(mainWindow));
+			}
+		}
+
+		AppProfileService.Model.Windows = states;
+	}
+
+	private static ModuleWindowState CaptureWindowState(E621MainWindow window) {
+		Rect restoreBounds = window.RestoreBounds;
+		bool useRestore = window.WindowState != WindowState.Normal;
+		double left = useRestore ? restoreBounds.Left : window.Left;
+		double top = useRestore ? restoreBounds.Top : window.Top;
+		double width = useRestore ? restoreBounds.Width : window.Width;
+		double height = useRestore ? restoreBounds.Height : window.Height;
+
+		if (width <= 0) {
+			width = 1270;
+		}
+
+		if (height <= 0) {
+			height = 800;
+		}
+
+		return new ModuleWindowState {
+			Module = window.ModuleType.ToString(),
+			IsOpen = window.Visibility == Visibility.Visible,
+			Left = left,
+			Top = top,
+			Width = width,
+			Height = height,
+			WindowState = window.WindowState.ToString(),
+			RestoreLeft = left,
+			RestoreTop = top,
+			RestoreWidth = width,
+			RestoreHeight = height,
+		};
+	}
+
+	private void RestoreModuleWindows() {
+		isRestoringWindows = true;
+		try {
+			Dictionary<string, ModuleWindowState> savedByModule = AppProfileService.Model.Windows
+				.Where(w => w.Module.IsNotBlank())
+				.GroupBy(w => w.Module, StringComparer.OrdinalIgnoreCase)
+				.ToDictionary(g => g.Key, g => g.Last(), StringComparer.OrdinalIgnoreCase);
+
+			E621MainWindow?[] all = [Window_E621, Window_E926, Window_E6AI];
+			List<E621MainWindow> openWindows = [];
+
+			foreach (E621MainWindow? window in all) {
+				if (window == null) {
+					continue;
+				}
+
+				string key = window.ModuleType.ToString();
+				if (savedByModule.TryGetValue(key, out ModuleWindowState? state)) {
+					ApplyWindowGeometry(window, state);
+					if (state.IsOpen) {
+						window.Show();
+						ApplyWindowState(window, state.WindowState);
+						openWindows.Add(window);
+					}
+				}
+			}
+
+			string? lastFocused = AppProfileService.Model.LastFocusedModule;
+			E621MainWindow? focusWindow = null;
+			if (lastFocused.IsNotBlank()) {
+				focusWindow = openWindows.FirstOrDefault(w =>
+					string.Equals(w.ModuleType.ToString(), lastFocused, StringComparison.OrdinalIgnoreCase));
+			}
+
+			if (focusWindow == null && openWindows.Count > 0) {
+				focusWindow = openWindows[0];
+			}
+
+			if (focusWindow == null) {
+				// Always show at least one window so startup does not look like the app failed to open.
+				E621MainWindow? fallback = ResolveWindowByModuleName(lastFocused) ?? Window_E6AI;
+				if (fallback != null) {
+					if (savedByModule.TryGetValue(fallback.ModuleType.ToString(), out ModuleWindowState? state)) {
+						ApplyWindowGeometry(fallback, state);
+					}
+
+					fallback.ActivateWindow();
+					focusWindow = fallback;
+				}
+			} else {
+				focusWindow.Activate();
+				focusWindow.Focus();
+			}
+
+			if (focusWindow != null) {
+				AppProfileService.Model.LastFocusedModule = focusWindow.ModuleType.ToString();
+			}
+		} finally {
+			isRestoringWindows = false;
+		}
+	}
+
+	private E621MainWindow? ResolveWindowByModuleName(string? moduleName) {
+		if (moduleName.IsBlank()) {
+			return null;
+		}
+
+		return moduleName.ToUpperInvariant() switch {
+			"E621" => Window_E621,
+			"E926" => Window_E926,
+			"E6AI" => Window_E6AI,
+			_ => null,
+		};
+	}
+
+	private static void ApplyWindowGeometry(E621MainWindow window, ModuleWindowState state) {
+		window.WindowStartupLocation = WindowStartupLocation.Manual;
+
+		double left = state.RestoreWidth > 0 ? state.RestoreLeft : state.Left;
+		double top = state.RestoreHeight > 0 ? state.RestoreTop : state.Top;
+		double width = state.RestoreWidth > 0 ? state.RestoreWidth : state.Width;
+		double height = state.RestoreHeight > 0 ? state.RestoreHeight : state.Height;
+
+		Rect clamped = WindowBoundsHelper.ClampToVirtualScreen(left, top, width, height);
+		window.Left = clamped.Left;
+		window.Top = clamped.Top;
+		window.Width = clamped.Width;
+		window.Height = clamped.Height;
+	}
+
+	private static void ApplyWindowState(E621MainWindow window, string? windowStateName) {
+		if (!Enum.TryParse(windowStateName, ignoreCase: true, out WindowState windowState)) {
+			windowState = WindowState.Normal;
+		}
+
+		window.WindowState = windowState;
+	}
+
 	private void Window_Closing(object? sender, CancelEventArgs e) {
 		if (AppManager.IsShuttingDown) {
 			return;
@@ -243,6 +434,7 @@ public partial class App : ApplicationBase {
 		if (sender is Window window) {
 			window.Hide();
 			e.Cancel = true;
+			ScheduleCaptureWindowStates();
 		}
 
 	}
