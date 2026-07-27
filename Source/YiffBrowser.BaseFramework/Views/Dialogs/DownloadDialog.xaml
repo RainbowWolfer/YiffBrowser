@@ -481,7 +481,7 @@
 									Background="{DynamicResource SecondaryRegionBrush}"
 									ClipToBounds="True"
 									CornerRadius="4">
-									<Border>
+									<Border Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
 										<Border.Background>
 											<ImageBrush
 												AlignmentX="Center"
@@ -493,7 +493,9 @@
 								</Border>
 							</ToolTip>
 						</Border.ToolTip>
-						<wpf:ClippingBorder CornerRadius="4">
+						<wpf:ClippingBorder
+							CornerRadius="4"
+							Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
 							<wpf:ClippingBorder.Background>
 								<ImageBrush
 									AlignmentX="Center"
@@ -655,7 +657,7 @@
 									Background="{DynamicResource SecondaryRegionBrush}"
 									ClipToBounds="True"
 									CornerRadius="4">
-									<Border>
+									<Border Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
 										<Border.Background>
 											<ImageBrush
 												AlignmentX="Center"
@@ -667,7 +669,9 @@
 								</Border>
 							</ToolTip>
 						</Border.ToolTip>
-						<wpf:ClippingBorder CornerRadius="3">
+						<wpf:ClippingBorder
+							CornerRadius="3"
+							Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
 							<wpf:ClippingBorder.Background>
 								<ImageBrush
 									AlignmentX="Center"

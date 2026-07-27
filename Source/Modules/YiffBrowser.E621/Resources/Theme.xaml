@@ -1405,7 +1405,10 @@
 									<TextBlock FontSize="18" Text="{Binding Comment.Comment.CreatorName}"/>
 									<TextBlock FontSize="14" Text="{Binding Comment.User.LevelString}"/>
 									<Grid Margin="0,4,0,0">
-										<wpf:ClippingBorder Height="100" CornerRadius="4">
+										<wpf:ClippingBorder
+											Height="100"
+											CornerRadius="4"
+											Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
 											<wpf:ClippingBorder.Background>
 												<ImageBrush
 													AlignmentX="Center"
@@ -1623,16 +1626,18 @@
 					<Grid x:Name="root" Background="Transparent">
 						<Border x:Name="background" Background="{DynamicResource SlidePanelImageControl.Background}"/>
 
-						<Image x:Name="image"
-							d:Source="{x:Null}"
-							HorizontalAlignment="Center"
-							VerticalAlignment="Center"
-							Stretch="UniformToFill"
-							Visibility="Visible">
-							<Image.Source>
-								<BitmapImage UriSource="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Url}"/>
-							</Image.Source>
-						</Image>
+						<Border Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
+							<Image x:Name="image"
+								d:Source="{x:Null}"
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center"
+								Stretch="UniformToFill"
+								Visibility="Visible">
+								<Image.Source>
+									<BitmapImage UriSource="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Url}"/>
+								</Image.Source>
+							</Image>
+						</Border>
 
 						<hc:CircleProgressBar x:Name="loading"
 							Width="30"

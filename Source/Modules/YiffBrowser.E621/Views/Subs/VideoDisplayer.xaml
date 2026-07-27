@@ -37,7 +37,8 @@
 			AttachedDragMove="None"
 			DetachedDragMove="None"
 			KeyBindings="None"
-			ToggleFullScreenOnDoubleClick="None">
+			ToggleFullScreenOnDoubleClick="None"
+			Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
 
 			<Border DataContext="{Binding HostDataContext}" Background="Transparent">
 				<Grid>

@@ -10,6 +10,18 @@ namespace YiffBrowser.BaseFramework.Controls;
 
 public class ImageExtend : Image {
 
+	static ImageExtend() {
+		VisibilityProperty.OverrideMetadata(
+			typeof(ImageExtend),
+			new FrameworkPropertyMetadata(
+				AppConfig.SafeMode ? Visibility.Hidden : Visibility.Visible,
+				null,
+				CoerceVisibility));
+	}
+
+	private static object CoerceVisibility(DependencyObject d, object baseValue) {
+		return AppConfig.SafeMode ? Visibility.Hidden : baseValue;
+	}
 
 	public BitmapImage BitmapImage {
 		get => (BitmapImage)GetValue(BitmapImageProperty);

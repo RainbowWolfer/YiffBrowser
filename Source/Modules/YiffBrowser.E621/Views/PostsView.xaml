@@ -58,12 +58,18 @@
 									<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Left">
 										<Button
 											Width="100"
+											Height="30"
+											Padding="0"
+											HorizontalContentAlignment="Stretch"
+											VerticalContentAlignment="Stretch"
 											Command="{Binding OpenLastViewedPostCommand}"
 											ToolTip="Last Viewed Post"
 											Visibility="{Binding LastViewedPost, Converter={StaticResource Object2VisibilityConverter}}">
-											<Button.Background>
-												<ImageBrush ImageSource="{Binding LastViewedPost.Preview.URL, TargetNullValue={x:Null}}" Stretch="UniformToFill"/>
-											</Button.Background>
+											<Border Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
+												<Border.Background>
+													<ImageBrush ImageSource="{Binding LastViewedPost.Preview.URL, TargetNullValue={x:Null}}" Stretch="UniformToFill"/>
+												</Border.Background>
+											</Border>
 
 											<Button.ContextMenu>
 												<ContextMenu>

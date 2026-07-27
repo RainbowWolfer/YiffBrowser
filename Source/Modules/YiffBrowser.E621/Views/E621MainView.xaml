@@ -418,43 +418,36 @@
 																				<Grid.RowDefinitions>
 																					<RowDefinition Height="auto"/>
 																					<RowDefinition Height="*"/>
-																					<RowDefinition Height="auto"/>
 																				</Grid.RowDefinitions>
 
-																				<Border
+																				<wpf:ClippingBorder
 																					Grid.Row="0"
 																					BorderThickness="0,0,0,1"
 																					BorderBrush="{DynamicResource BorderBrush}"
 																					Background="{DynamicResource SecondaryRegionBrush}">
-																					<Grid>
-																						<Grid.ColumnDefinitions>
-																							<ColumnDefinition Width="auto"/>
-																							<ColumnDefinition Width="*"/>
-																						</Grid.ColumnDefinitions>
+																					<DockPanel>
 																						<Border
-																							Grid.Column="0"
-																							Width="20"
-																							BorderThickness="0,0,1,0"
+																							MinWidth="20"
+																							VerticalAlignment="Stretch"
+																							BorderThickness="1,0,0,0"
 																							BorderBrush="{DynamicResource BorderBrush}"
-																							Background="{DynamicResource ThirdlyRegionBrush}">
-																							<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">
-																								<TextBlock.Text>
-																									<MultiBinding Converter="{StaticResource IListToIndexConverter}">
-																										<Binding Path="Data.Tabs" Source="{StaticResource ViewModel}"/>
-																										<Binding/>
-																									</MultiBinding>
-																								</TextBlock.Text>
-																							</TextBlock>
-																						</Border>
-																						<Border Grid.Column="1">
+																							Background="{DynamicResource ThirdlyRegionBrush}"
+																							DockPanel.Dock="Right">
 																							<TextBlock
-																								Padding="4,2"
+																								Margin="4,0"
 																								VerticalAlignment="Center"
-																								Text="{Binding Tags, Converter={StaticResource TagsDisplayConverter}}"
-																								TextTrimming="CharacterEllipsis"/>
+																								DockPanel.Dock="Right"
+																								FontSize="11"
+																								Opacity="0.8"
+																								Text="{Binding CurrentPage, StringFormat=P{0}}"/>
 																						</Border>
-																					</Grid>
-																				</Border>
+																						<TextBlock
+																							Margin="4,2"
+																							VerticalAlignment="Center"
+																							Text="{Binding Tags, Converter={StaticResource TagsDisplayConverter}}"
+																							TextTrimming="CharacterEllipsis"/>
+																					</DockPanel>
+																				</wpf:ClippingBorder>
 
 																				<Border Grid.Row="1" Background="{DynamicResource ThirdlyRegionBrush}">
 																					<ItemsControl ItemsSource="{Binding CoverPreviewUrls}">
@@ -466,7 +459,7 @@
 																						<ItemsControl.ItemTemplate>
 																							<DataTemplate>
 																								<Border Margin="0.5" Background="{DynamicResource SecondaryRegionBrush}">
-																									<Border>
+																									<Border Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
 																										<Border.Background>
 																											<ImageBrush
 																												d:ImageSource="{StaticResource Temp1_JPG}"
@@ -480,15 +473,6 @@
 																							</DataTemplate>
 																						</ItemsControl.ItemTemplate>
 																					</ItemsControl>
-																				</Border>
-
-																				<Border
-																					Grid.Row="2"
-																					Padding="4,2"
-																					BorderThickness="0,1,0,0"
-																					BorderBrush="{DynamicResource BorderBrush}"
-																					Background="{DynamicResource SecondaryRegionBrush}">
-																					<TextBlock FontSize="11" Opacity="0.8" Text="{Binding CurrentPage, StringFormat=Page {0}}"/>
 																				</Border>
 
 																			</Grid>
