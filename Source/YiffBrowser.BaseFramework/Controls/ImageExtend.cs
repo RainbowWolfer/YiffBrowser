@@ -36,8 +36,11 @@ public class ImageExtend : Image {
 	);
 
 	private static void OnBitmapImageChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		ImageExtend control = (ImageExtend)d;
 		if (e.NewValue is BitmapImage bitmap) {
-			((ImageExtend)d).LoadBitmap(bitmap);
+			control.LoadBitmap(bitmap);
+		} else if (e.OldValue != null && control.GifImage == null) {
+			control.Clear();
 		}
 	}
 
@@ -61,25 +64,25 @@ public class ImageExtend : Image {
 	);
 
 	private static void OnGifImageChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		ImageExtend control = (ImageExtend)d;
 		if (e.NewValue is GifImage gif) {
-			((ImageExtend)d).LoadGif(gif);
+			control.LoadGif(gif);
+		} else if (e.OldValue != null && control.BitmapImage == null) {
+			control.Clear();
 		}
 	}
 
 	private static object GifImageCoerce(DependencyObject d, object baseValue) {
-		if (baseValue == d.GetValue(GifImageProperty)) {
-
-		}
 		return baseValue;
 	}
 
 
 	private void LoadGif(GifImage gifImage) {
 		ClearValue(AnimationBehavior.SourceStreamProperty);
+		Source = null;
 		MemoryStream? stream = gifImage.GetMemoryStream();
 		if (stream != null) {
 			AnimationBehavior.SetSourceStream(this, stream);
-			//AnimationBehavior.SetCacheFramesInMemory(this, false);
 		}
 	}
 

@@ -58,19 +58,13 @@ public partial class ImageDisplayer : UserControl {
 
 	public static readonly DependencyProperty LoadingStatusProperty = LoadingStatusPropertyKey.DependencyProperty;
 
-
-
-
-
 	public ImageDisplayer() {
 		InitializeComponent();
 	}
 
 	protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
 		base.OnRenderSizeChanged(sizeInfo);
-		//if (!IsFileReady) {
 		ImageViewer.Initialize();
-		//}
 	}
 
 	private void Update() {
@@ -79,12 +73,16 @@ public partial class ImageDisplayer : UserControl {
 
 	private long fileSize = 0;
 
+	private BitmapCacheItem? preview;
 	private BitmapCacheItem? sample;
 	private BitmapCacheItem? file;
 
 	public void Update(E621Post? post) {
+		Unbind();
+
 		if (post is null || !post.GetFileType().IsImage()) {
-			Dispatcher.Invoke(ImageViewer.Clear, DispatcherPriority.Loaded);
+			preview = sample = file = null;
+			ImageViewer.Clear();
 			return;
 		}
 
@@ -93,73 +91,136 @@ public partial class ImageDisplayer : UserControl {
 		IsFileReady = false;
 		fileSize = post.File?.Size ?? 0;
 
-		sample?.Updated -= Sample_Updated;
+		preview = GetCache(post.Preview?.URL);
+		sample = GetCache(post.Sample?.URL);
+		file = GetCache(post.File?.URL);
 
-		file?.Updated -= File_Updated;
+		Bind();
 
-		if (post.Sample != null && post.Sample.URL != null) {
-			sample = BitmapCacheService.Get(post.Sample.URL);
+		// Show preview/sample already cached from the post card while the full file loads.
+		if (!ShowBestAvailable()) {
+			ImageViewer.Clear();
 		}
 
-		if (post.File != null && post.File.URL != null) {
-			file = BitmapCacheService.Get(post.File.URL);
+		if (HasContent(file)) {
+			LoadingStatus.Done();
+			IsFileReady = true;
+			return;
 		}
 
-		sample?.Updated += Sample_Updated;
+		if (preview != null && !preview.HasCompleted) {
+			preview.Initialize();
+		}
 
-		file?.Updated += File_Updated;
+		if (sample != null && !sample.HasCompleted) {
+			sample.Initialize();
+		} else {
+			file?.Initialize();
+		}
+	}
 
+	private static BitmapCacheItem? GetCache(string? url) {
+		if (url.IsBlank()) {
+			return null;
+		}
+		BitmapCacheItem item = BitmapCacheService.Get(url);
+		return item.IsNull ? null : item;
+	}
+
+	private static bool HasContent(BitmapCacheItem? item) =>
+		item != null && (item.Image != null || item.GifImage != null);
+
+	private void Unbind() {
+		if (preview != null) {
+			preview.Updated -= Preview_Updated;
+		}
 		if (sample != null) {
-			if (sample.HasCompleted) {
-				SetImageContent(sample);
-				//ImageViewer.SetBitmapImage(sample.Image);
-			} else {
-				sample.Initialize();
-				return;
-			}
+			sample.Updated -= Sample_Updated;
 		}
-
 		if (file != null) {
-			if (file.HasCompleted) {
-				SetImageContent(file);
-				//ImageViewer.SetBitmapImage(file.Image);
-				LoadingStatus.Done();
-				IsFileReady = true;
-			} else {
-				file.Initialize();
-				return;
-			}
+			file.Updated -= File_Updated;
+		}
+	}
+
+	private void Bind() {
+		if (preview != null) {
+			preview.Updated += Preview_Updated;
+		}
+		if (sample != null) {
+			sample.Updated += Sample_Updated;
+		}
+		if (file != null) {
+			file.Updated += File_Updated;
+		}
+	}
+
+	private bool ShowBestAvailable() {
+		if (HasContent(file)) {
+			SetImageContent(file!);
+			return true;
+		}
+		if (HasContent(sample)) {
+			SetImageContent(sample!);
+			return true;
+		}
+		if (HasContent(preview)) {
+			SetImageContent(preview!);
+			return true;
+		}
+		return false;
+	}
+
+	private void Preview_Updated(BitmapCacheItem sender, CacheLoadingModel args) {
+		if (!CheckAccess()) {
+			Dispatcher.Invoke(Preview_Updated, DispatcherPriority.Normal, sender, args);
+			return;
+		}
+		if (!args.HasCompleted) {
+			return;
 		}
 
+		if (!HasContent(sample) && !HasContent(file)) {
+			SetImageContent(sender);
+		}
+
+		if (sample != null && !sample.HasCompleted) {
+			sample.Initialize();
+		} else {
+			file?.Initialize();
+		}
 	}
 
 	private void Sample_Updated(BitmapCacheItem sender, CacheLoadingModel args) {
 		if (!CheckAccess()) {
-			Dispatcher.Invoke(Sample_Updated, DispatcherPriority.Loaded, sender, args);
+			Dispatcher.Invoke(Sample_Updated, DispatcherPriority.Normal, sender, args);
 			return;
 		}
-		if (args.HasCompleted) {
-			file?.Initialize();
-			if (sender.Image != null) {
-				SetImageContent(sender);
-				//ImageViewer.SetBitmapImage(sender.Image);
-			}
-			if (file != null && file.HasCompleted) {
-				SetImageContent(file);
-			}
+		if (!args.HasCompleted) {
+			return;
+		}
+
+		if (!HasContent(file)) {
+			SetImageContent(sender);
+		}
+
+		file?.Initialize();
+
+		if (HasContent(file)) {
+			SetImageContent(file!);
+			LoadingStatus.Done();
+			IsFileReady = true;
 		}
 	}
 
 	private void File_Updated(BitmapCacheItem sender, CacheLoadingModel args) {
 		if (!CheckAccess()) {
-			Dispatcher.Invoke(File_Updated, DispatcherPriority.Loaded, sender, args);
+			Dispatcher.Invoke(File_Updated, DispatcherPriority.Normal, sender, args);
 			return;
 		}
 		if (args.HasCompleted) {
 			LoadingStatus.Done();
-			if (sender.Image != null) {
+			if (HasContent(sender)) {
 				SetImageContent(sender);
-				//ImageViewer.SetBitmapImage(sender.Image);
 				IsFileReady = true;
 			}
 		} else if (args.HasError) {
@@ -174,15 +235,20 @@ public partial class ImageDisplayer : UserControl {
 	}
 
 	private void SetImageContent(BitmapCacheItem item) {
-		Dispatcher.Invoke(() => {
+		void Apply() {
 			if (item.IsGif && item.GifImage != null) {
 				ImageViewer.SetGifImage(item.GifImage);
 			} else if (item.Image != null) {
 				ImageViewer.SetBitmapImage(item.Image);
 			}
-		}, DispatcherPriority.Loaded);
-	}
+		}
 
+		if (CheckAccess()) {
+			Apply();
+		} else {
+			Dispatcher.Invoke(Apply);
+		}
+	}
 
 	private DelegateCommand? reloadCommand;
 	public IDelegateCommand ReloadCommand => reloadCommand ??= new(Reload);

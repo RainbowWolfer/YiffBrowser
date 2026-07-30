@@ -9,6 +9,7 @@ namespace YiffBrowser.BaseFramework.Models;
 
 public class GifImage(Uri uri) : IDisposable {
 	private bool disposedValue;
+	private MemoryStream? memoryStream;
 
 	public event TypedEventHandler<GifImage, EventArgs>? DownloadCompleted;
 	public event TypedEventHandler<GifImage, int>? DownloadProgress;
@@ -16,9 +17,12 @@ public class GifImage(Uri uri) : IDisposable {
 
 	public Uri Uri { get; } = uri;
 
-	private ThreadLocal<MemoryStream?> MemoryStream { get; } = new();
-
-	public MemoryStream? GetMemoryStream() => MemoryStream.Value;
+	public MemoryStream? GetMemoryStream() {
+		if (memoryStream != null) {
+			memoryStream.Position = 0;
+		}
+		return memoryStream;
+	}
 
 	public int Width { get; private set; }
 	public int Height { get; private set; }
@@ -34,7 +38,7 @@ public class GifImage(Uri uri) : IDisposable {
 
 		Action? action = null;
 
-		using MemoryStream memoryStream = new();
+		using MemoryStream downloadStream = new();
 		bool success = false;
 
 		await Task.Run(async () => {
@@ -59,7 +63,7 @@ public class GifImage(Uri uri) : IDisposable {
 					if (read == 0) {
 						isMoreToRead = false;
 					} else {
-						await memoryStream.WriteAsync(buffer, 0, read);
+						await downloadStream.WriteAsync(buffer, 0, read);
 						totalRead += read;
 
 						if (contentLength.HasValue) {
@@ -69,10 +73,10 @@ public class GifImage(Uri uri) : IDisposable {
 					}
 				} while (isMoreToRead);
 
-				memoryStream.Position = 0; // Reset stream position before usage
+				downloadStream.Position = 0;
 
 				// Create GifBitmapDecoder to get dimensions
-				GifBitmapDecoder decoder = new(memoryStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
+				GifBitmapDecoder decoder = new(downloadStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
 				if (decoder.Frames.Count > 0) {
 					Width = decoder.Frames[0].PixelWidth;
 					Height = decoder.Frames[0].PixelHeight;
@@ -96,7 +100,7 @@ public class GifImage(Uri uri) : IDisposable {
 		});
 
 		if (success) {
-			MemoryStream.Value = new MemoryStream(memoryStream.ToArray(), false);
+			memoryStream = new MemoryStream(downloadStream.ToArray(), false);
 		}
 
 		action?.Invoke();
@@ -105,12 +109,10 @@ public class GifImage(Uri uri) : IDisposable {
 	protected virtual void Dispose(bool disposing) {
 		if (!disposedValue) {
 			if (disposing) {
-				// dispose managed state (managed objects)
-				MemoryStream?.Dispose();
+				memoryStream?.Dispose();
+				memoryStream = null;
 			}
 
-			// free unmanaged resources (unmanaged objects) and override finalizer
-			// set large fields to null
 			disposedValue = true;
 		}
 	}

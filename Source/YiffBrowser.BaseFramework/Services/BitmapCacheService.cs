@@ -107,7 +107,8 @@ public class BitmapCacheItem(string? url) {
 		}
 		Image = null;
 		GifImage = null;
-		//Updated?.Invoke(this, new CacheLoadingModel(false, false, false, 0));
+		HasCompleted = false;
+		HasError = false;
 	}
 
 	public static BitmapCacheItem Null => new(null);

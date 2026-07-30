@@ -192,6 +192,7 @@ public class ImageViewer : Control, IDisposable {
         ImageOriginalWidth = bitmapImage.PixelWidth;
         ImageOriginalHeight = bitmapImage.PixelHeight;
 
+        GifImage = null;
         BitmapImage = bitmapImage;
 
         Initialize();
@@ -201,6 +202,11 @@ public class ImageViewer : Control, IDisposable {
         ImageOriginalWidth = gifImage.Width;
         ImageOriginalHeight = gifImage.Height;
 
+        BitmapImage = null;
+        // Force PropertyChanged so ImageExtend reloads when the same cached instance is reused.
+        if (ReferenceEquals(GifImage, gifImage)) {
+            GifImage = null;
+        }
         GifImage = gifImage;
 
         Initialize();
