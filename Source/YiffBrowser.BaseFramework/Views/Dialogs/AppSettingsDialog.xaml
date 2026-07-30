@@ -161,6 +161,22 @@
 						<c:HorizontalIconText Style="{StaticResource TabItemHeader}" Glyph="&#xF577;" Text="View"/>
 					</TabItem.Header>
 
+					<ScrollViewer Margin="4" Padding="12,6" hc:ScrollViewerAttach.AutoHide="False">
+						<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
+
+							<wpf:TitleContent Title="Preview Quality">
+								<hc:ComboBox wpf:EnumBindingExtension.SelectedEnum="{Binding Model.PreviewQuality}" ItemsSource="{wpf:EnumBindingMarkup EnumType={x:Type enums:PreviewQuality}, Converter={StaticResource EnumDisplayConverter}}"/>
+							</wpf:TitleContent>
+
+							<TextBlock
+								Margin="4,0,0,0"
+								Opacity="0.7"
+								Text="Preview: load preview only. Sample: load preview, then continue loading sample."
+								TextWrapping="Wrap"/>
+
+						</wpf:SpacingStackPanel>
+					</ScrollViewer>
+
 				</TabItem>
 
 				<TabItem>

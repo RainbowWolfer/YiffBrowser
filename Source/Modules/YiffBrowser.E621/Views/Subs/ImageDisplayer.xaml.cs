@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using YiffBrowser.BaseFramework.Enums;
 using YiffBrowser.BaseFramework.Models;
 using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.BaseFramework.ViewModels;
@@ -77,6 +78,9 @@ public partial class ImageDisplayer : UserControl {
 	private BitmapCacheItem? sample;
 	private BitmapCacheItem? file;
 
+	private static bool LoadSample =>
+		AppSettingsService.Instance.Model.PreviewQuality == PreviewQuality.Sample;
+
 	public void Update(E621Post? post) {
 		Unbind();
 
@@ -92,7 +96,7 @@ public partial class ImageDisplayer : UserControl {
 		fileSize = post.File?.Size ?? 0;
 
 		preview = GetCache(post.Preview?.URL);
-		sample = GetCache(post.Sample?.URL);
+		sample = LoadSample ? GetCache(post.Sample?.URL) : null;
 		file = GetCache(post.File?.URL);
 
 		Bind();
@@ -110,13 +114,10 @@ public partial class ImageDisplayer : UserControl {
 
 		if (preview != null && !preview.HasCompleted) {
 			preview.Initialize();
+			return;
 		}
 
-		if (sample != null && !sample.HasCompleted) {
-			sample.Initialize();
-		} else {
-			file?.Initialize();
-		}
+		ContinueAfterPreview();
 	}
 
 	private static BitmapCacheItem? GetCache(string? url) {
@@ -159,7 +160,7 @@ public partial class ImageDisplayer : UserControl {
 			SetImageContent(file!);
 			return true;
 		}
-		if (HasContent(sample)) {
+		if (LoadSample && HasContent(sample)) {
 			SetImageContent(sample!);
 			return true;
 		}
@@ -168,6 +169,15 @@ public partial class ImageDisplayer : UserControl {
 			return true;
 		}
 		return false;
+	}
+
+	private void ContinueAfterPreview() {
+		if (sample != null && !sample.HasCompleted) {
+			sample.Initialize();
+			return;
+		}
+
+		file?.Initialize();
 	}
 
 	private void Preview_Updated(BitmapCacheItem sender, CacheLoadingModel args) {
@@ -183,11 +193,7 @@ public partial class ImageDisplayer : UserControl {
 			SetImageContent(sender);
 		}
 
-		if (sample != null && !sample.HasCompleted) {
-			sample.Initialize();
-		} else {
-			file?.Initialize();
-		}
+		ContinueAfterPreview();
 	}
 
 	private void Sample_Updated(BitmapCacheItem sender, CacheLoadingModel args) {
