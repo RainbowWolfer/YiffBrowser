@@ -68,7 +68,8 @@
 
 											<Expander.ContextMenu>
 												<ContextMenu>
-													<MenuItem bf:IconExtension.Glyph="" Header="Detail"/>
+													<MenuItem bf:IconExtension.Glyph="&#xE8C8;" Click="CopyCategoryTags_Click" Header="Copy Category Tags"/>
+													<MenuItem bf:IconExtension.Glyph="&#xE721;" Click="SearchCategoryTags_Click" Header="Search Category Tags"/>
 												</ContextMenu>
 											</Expander.ContextMenu>
 
@@ -91,7 +92,24 @@
 
 			<ListBox.ItemTemplate>
 				<DataTemplate DataType="local:TagListItem">
-					<Border>
+					<Border Background="Transparent">
+						<Border.ContextMenu>
+							<ContextMenu>
+								<MenuItem bf:IconExtension.Glyph="&#xE8C8;" Click="CopyTag_Click" Header="Copy Tag"/>
+								<MenuItem bf:IconExtension.Glyph="&#xE8C8;" Click="CopyAllTags_Click" Header="Copy All Tags"/>
+								<Separator/>
+								<MenuItem bf:IconExtension.Glyph="&#xE948;" Header="Search With Tag">
+									<MenuItem Click="SearchWithTagIncludeCurrent_Click" Header="Include Current Tags"/>
+									<MenuItem Click="SearchWithTagNew_Click" Header="New Search"/>
+								</MenuItem>
+								<MenuItem bf:IconExtension.Glyph="&#xE949;" Header="Search Without Tag">
+									<MenuItem Click="SearchWithoutTagIncludeCurrent_Click" Header="Include Current Tags"/>
+									<MenuItem Click="SearchWithoutTagNew_Click" Header="New Search"/>
+								</MenuItem>
+								<Separator/>
+								<MenuItem bf:IconExtension.Glyph="&#xE774;" Click="OpenTagInBrowser_Click" Header="Open in Browser"/>
+							</ContextMenu>
+						</Border.ContextMenu>
 						<Grid>
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition Width="auto"/>
@@ -100,7 +118,7 @@
 								<ColumnDefinition Width="auto"/>
 							</Grid.ColumnDefinitions>
 
-							<Border Grid.Column="1">
+							<Border Grid.Column="1" Height="16">
 								<TextBlock
 									VerticalAlignment="Center"
 									Foreground="{Binding Category, Converter={StaticResource E621TagCategoryBrushConverter}}"
@@ -108,10 +126,11 @@
 									TextTrimming="CharacterEllipsis"/>
 							</Border>
 
-							<Button
+							<!--<Button
 								Grid.Column="2"
 								BorderThickness="0"
 								Background="Transparent"
+								Click="SearchWithoutTag_Click"
 								ToolTip="Search without this tag">
 								<wpf:FontIcon FontSize="14" Text="&#xE949;"/>
 							</Button>
@@ -120,9 +139,10 @@
 								Grid.Column="3"
 								BorderThickness="0"
 								Background="Transparent"
+								Click="SearchWithTag_Click"
 								ToolTip="Search with this tag">
 								<wpf:FontIcon FontSize="14" Text="&#xE948;"/>
-							</Button>
+							</Button>-->
 
 						</Grid>
 					</Border>
@@ -132,22 +152,6 @@
 			<ListBox.ItemContainerStyle>
 				<Style TargetType="ListBoxItem" BasedOn="{StaticResource ListBoxItem.Custom}">
 					<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-					<Setter Property="ContextMenu">
-						<Setter.Value>
-							<ContextMenu>
-								<MenuItem bf:IconExtension.Glyph="" Header="Detail">
-									<MenuItem bf:IconExtension.Glyph="" Header="Detail"/>
-									<MenuItem bf:IconExtension.Glyph="" Header="Detail"/>
-									<MenuItem bf:IconExtension.Glyph="" Header="Detail">
-										<MenuItem bf:IconExtension.Glyph="" Header="Detail"/>
-										<MenuItem bf:IconExtension.Glyph="" Header="Detail"/>
-									</MenuItem>
-								</MenuItem>
-								<MenuItem bf:IconExtension.Glyph="" Header="Detail"/>
-								<MenuItem bf:IconExtension.Glyph="" Header="Detail"/>
-							</ContextMenu>
-						</Setter.Value>
-					</Setter>
 				</Style>
 			</ListBox.ItemContainerStyle>
 

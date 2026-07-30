@@ -144,23 +144,33 @@
 								<ColumnDefinition Width="*"/>
 							</Grid.ColumnDefinitions>
 
-							<Border x:Name="PlayTimeBorder" Background="Transparent">
+							<Border x:Name="PlayTimeBorder" Background="Transparent" Cursor="Hand" ToolTip="Click to cycle time display format">
 								<Border.ContextMenu>
-									<ContextMenu>
-										<MenuItem Header="1"/>
-										<MenuItem Header="2"/>
-										<MenuItem Header="3"/>
+									<ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+										<MenuItem
+											Header="Elapsed / Total"
+											IsCheckable="True"
+											IsChecked="{Binding VideoControlsParameters.TimeProgressFormat, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Time_Total, Mode=TwoWay}"/>
+										<MenuItem
+											Header="Elapsed / Remaining"
+											IsCheckable="True"
+											IsChecked="{Binding VideoControlsParameters.TimeProgressFormat, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Time_Ramaining, Mode=TwoWay}"/>
+										<MenuItem
+											Header="Frame / Total"
+											IsCheckable="True"
+											IsChecked="{Binding VideoControlsParameters.TimeProgressFormat, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Frame_Total, Mode=TwoWay}"/>
+										<MenuItem
+											Header="Frame / Remaining"
+											IsCheckable="True"
+											IsChecked="{Binding VideoControlsParameters.TimeProgressFormat, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Frame_Ramaining, Mode=TwoWay}"/>
 									</ContextMenu>
 								</Border.ContextMenu>
-								<StackPanel
+								<TextBlock
+									x:Name="PlayTimeText"
 									Margin="10,0,10,0"
 									VerticalAlignment="Center"
-									Orientation="Horizontal"
-									TextBlock.FontSize="14">
-									<TextBlock Text="{Binding Player.CurTime, Converter={StaticResource PlaybackTickToTimeSpanConverter}}"/>
-									<TextBlock Text=" / "/>
-									<TextBlock Text="{Binding Player.Duration, Converter={StaticResource PlaybackTickToTimeSpanConverter}}"/>
-								</StackPanel>
+									FontSize="14"
+									Text="00:00 / 00:00"/>
 							</Border>
 
 							<Grid Grid.Column="1">

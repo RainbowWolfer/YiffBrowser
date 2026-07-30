@@ -13,7 +13,10 @@
 	Style="{DynamicResource ContextMenu.Custom}"
 	mc:Ignorable="d">
 
-	<MenuItem Header="1"/>
+	<MenuItem x:Name="ShowWindow"
+		bf:IconExtension.Glyph="&#xE8A5;"
+		Click="ShowWindow_Click"
+		Header="Show Window"/>
 	<MenuItem x:Name="DisableTrayIcon"
 		bf:IconExtension.Glyph=""
 		Click="DisableTrayIcon_Click"

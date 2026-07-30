@@ -8,8 +8,13 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media;
 using YiffBrowser.BaseFramework.Events;
+using YiffBrowser.BaseFramework.Helpers;
+using YiffBrowser.E621.Enums;
 using YiffBrowser.E621.Models.E621;
+using YiffBrowser.E621.Services;
+using YiffBrowser.E621.Views;
 
 namespace YiffBrowser.E621.Controls;
 
@@ -119,6 +124,184 @@ public partial class TagsListView : UserControl {
 		foreach (string item in list ?? []) {
 			Items.Add(new TagListItem(category, item));
 		}
+	}
+
+	private void CopyTag_Click(object sender, RoutedEventArgs e) {
+		if (GetContextTag(sender) is TagListItem item) {
+			item.Text.CopyToClipboard();
+		}
+	}
+
+	private void CopyAllTags_Click(object sender, RoutedEventArgs e) {
+		string tags = string.Join(' ', Items.Select(x => x.Text));
+		if (tags.IsNotBlank()) {
+			tags.CopyToClipboard();
+		}
+	}
+
+	private void CopyCategoryTags_Click(object sender, RoutedEventArgs e) {
+		if (GetContextGroup(sender) is CollectionViewGroup group) {
+			string tags = string.Join(' ', group.Items.OfType<TagListItem>().Select(x => x.Text));
+			if (tags.IsNotBlank()) {
+				tags.CopyToClipboard();
+			}
+		}
+	}
+
+	private void SearchCategoryTags_Click(object sender, RoutedEventArgs e) {
+		if (GetContextGroup(sender) is CollectionViewGroup group) {
+			string[] tags = [.. group.Items.OfType<TagListItem>().Select(x => x.Text)];
+			if (tags.Length > 0) {
+				SearchTags(tags);
+			}
+		}
+	}
+
+	private void SearchWithTag_Click(object sender, RoutedEventArgs e) {
+		if (GetButtonTag(sender) is TagListItem item) {
+			SearchTags([item.Text]);
+		}
+	}
+
+	private void SearchWithoutTag_Click(object sender, RoutedEventArgs e) {
+		if (GetButtonTag(sender) is TagListItem item) {
+			SearchTags([$"-{item.Text}"]);
+		}
+	}
+
+	private void SearchWithTagIncludeCurrent_Click(object sender, RoutedEventArgs e) {
+		if (GetContextTag(sender) is TagListItem item) {
+			SearchTags(MergeWithCurrentTags(item.Text));
+		}
+	}
+
+	private void SearchWithTagNew_Click(object sender, RoutedEventArgs e) {
+		if (GetContextTag(sender) is TagListItem item) {
+			SearchTags([item.Text]);
+		}
+	}
+
+	private void SearchWithoutTagIncludeCurrent_Click(object sender, RoutedEventArgs e) {
+		if (GetContextTag(sender) is TagListItem item) {
+			SearchTags(MergeWithoutCurrentTags(item.Text));
+		}
+	}
+
+	private void SearchWithoutTagNew_Click(object sender, RoutedEventArgs e) {
+		if (GetContextTag(sender) is TagListItem item) {
+			SearchTags([$"-{item.Text}"]);
+		}
+	}
+
+	private void OpenTagInBrowser_Click(object sender, RoutedEventArgs e) {
+		if (GetContextTag(sender) is not TagListItem item) {
+			return;
+		}
+
+		ModuleType moduleType = GetModuleType();
+		string url = $"https://{E621API.GetHost(moduleType)}/posts?tags={Uri.EscapeDataString(item.Text)}";
+		url.OpenInBrowser();
+	}
+
+	private void SearchTags(string[] tags) {
+		GetMainViewModel()?.SearchSubmit(tags);
+	}
+
+	private string[] GetCurrentTabTags() {
+		return GetDetailViewModel()?.ParentViewModel?.TabItem.Tags ?? [];
+	}
+
+	private string[] MergeWithCurrentTags(string tag) {
+		string[] current = GetCurrentTabTags();
+		if (current.Length == 0) {
+			return [tag];
+		}
+
+		List<string> tags = [.. current.Where(t => !string.Equals(t, tag, StringComparison.OrdinalIgnoreCase)
+			&& !string.Equals(t, $"-{tag}", StringComparison.OrdinalIgnoreCase))];
+		tags.Add(tag);
+		return [.. tags];
+	}
+
+	private string[] MergeWithoutCurrentTags(string tag) {
+		string[] current = GetCurrentTabTags();
+		string excluded = $"-{tag}";
+		if (current.Length == 0) {
+			return [excluded];
+		}
+
+		List<string> tags = [.. current.Where(t => !string.Equals(t, tag, StringComparison.OrdinalIgnoreCase)
+			&& !string.Equals(t, excluded, StringComparison.OrdinalIgnoreCase))];
+		tags.Add(excluded);
+		return [.. tags];
+	}
+
+	private ModuleType GetModuleType() {
+		return GetDetailViewModel()?.ParentViewModel?.ModuleType ?? ModuleType.E621;
+	}
+
+	private PostDetailViewModel? GetDetailViewModel() {
+		if (DataContext is PostDetailViewModel detail) {
+			return detail;
+		}
+
+		DependencyObject? current = this;
+		while (current != null) {
+			if (current is FrameworkElement { DataContext: PostDetailViewModel vm }) {
+				return vm;
+			}
+			current = VisualTreeHelper.GetParent(current);
+		}
+		return null;
+	}
+
+	private E621MainViewModel? GetMainViewModel() {
+		PostDetailViewModel? detail = GetDetailViewModel();
+		return detail?.ParentViewModel?.TabItem.ParentViewModel;
+	}
+
+	private static TagListItem? GetContextTag(object sender) {
+		if (sender is not MenuItem menuItem) {
+			return null;
+		}
+		if (menuItem.DataContext is TagListItem item) {
+			return item;
+		}
+		if (FindContextMenu(menuItem) is { PlacementTarget: FrameworkElement target }
+			&& target.DataContext is TagListItem placementItem) {
+			return placementItem;
+		}
+		return null;
+	}
+
+	private static CollectionViewGroup? GetContextGroup(object sender) {
+		if (sender is not MenuItem menuItem) {
+			return null;
+		}
+		if (menuItem.DataContext is CollectionViewGroup group) {
+			return group;
+		}
+		if (FindContextMenu(menuItem) is { PlacementTarget: FrameworkElement target }) {
+			return target.DataContext as CollectionViewGroup;
+		}
+		return null;
+	}
+
+	private static ContextMenu? FindContextMenu(DependencyObject? current) {
+		while (current != null) {
+			if (current is ContextMenu contextMenu) {
+				return contextMenu;
+			}
+			current = LogicalTreeHelper.GetParent(current) ?? VisualTreeHelper.GetParent(current);
+		}
+		return null;
+	}
+
+	private static TagListItem? GetButtonTag(object sender) {
+		if (sender is FrameworkElement { DataContext: TagListItem item }) {
+			return item;
+		}
+		return null;
 	}
 
 }

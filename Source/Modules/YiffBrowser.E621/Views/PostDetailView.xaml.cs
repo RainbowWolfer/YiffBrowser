@@ -1,10 +1,13 @@
 ﻿using DevExpress.Mvvm;
 using RW.Base.WPF.ViewModelServices;
+using RW.Common.Helpers;
+using RW.Common.WPF.Helpers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
+using YiffBrowser.BaseFramework.Helpers;
 using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.BaseFramework.ViewModels;
 using YiffBrowser.E621.Enums;
@@ -35,6 +38,9 @@ internal class PostDetailViewModel(IVideoControlsService videoControlsService) :
 			SetProperty(() => Post, value);
 			RaisePropertyChanged(() => FileType);
 			RaisePropertyChanged(() => DisplayType);
+			copyPostUrlCommand?.RaiseCanExecuteChanged();
+			openPostInBrowserCommand?.RaiseCanExecuteChanged();
+			downloadPostCommand?.RaiseCanExecuteChanged();
 		}
 	}
 
@@ -103,6 +109,45 @@ internal class PostDetailViewModel(IVideoControlsService videoControlsService) :
 				break;
 			}
 		}
+	}
+
+	private DelegateCommand? copyPostUrlCommand;
+	public IDelegateCommand CopyPostUrlCommand => copyPostUrlCommand ??= new(CopyPostUrl, CanCopyPostUrl);
+	private void CopyPostUrl() {
+		if (CanCopyPostUrl()) {
+			Post!.GetPostLink(ParentViewModel!.ModuleType).CopyToClipboard();
+		}
+	}
+	private bool CanCopyPostUrl() => Post != null && ParentViewModel != null;
+
+	private DelegateCommand? openPostInBrowserCommand;
+	public IDelegateCommand OpenPostInBrowserCommand => openPostInBrowserCommand ??= new(OpenPostInBrowser, CanOpenPostInBrowser);
+	private void OpenPostInBrowser() {
+		if (CanOpenPostInBrowser()) {
+			Post!.GetPostLink(ParentViewModel!.ModuleType).OpenInBrowser();
+		}
+	}
+	private bool CanOpenPostInBrowser() => Post != null && ParentViewModel != null;
+
+	private DelegateCommand? downloadPostCommand;
+	public IDelegateCommand DownloadPostCommand => downloadPostCommand ??= new(DownloadPost, CanDownloadPost);
+	private void DownloadPost() {
+		if (CanDownloadPost()) {
+			ParentViewModel!.DownloadPostCommand.Execute(Post);
+		}
+	}
+	private bool CanDownloadPost() => Post != null && ParentViewModel?.DownloadPostCommand.CanExecute(Post) == true;
+
+	private DelegateCommand? toggleLeftPanelCommand;
+	public IDelegateCommand ToggleLeftPanelCommand => toggleLeftPanelCommand ??= new(ToggleLeftPanel);
+	private void ToggleLeftPanel() {
+		LeftSideGrid.IsExpanded = !LeftSideGrid.IsExpanded;
+	}
+
+	private DelegateCommand? toggleRightPanelCommand;
+	public IDelegateCommand ToggleRightPanelCommand => toggleRightPanelCommand ??= new(ToggleRightPanel);
+	private void ToggleRightPanel() {
+		RightSideGrid.IsExpanded = !RightSideGrid.IsExpanded;
 	}
 
 }

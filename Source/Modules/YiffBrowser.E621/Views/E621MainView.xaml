@@ -35,7 +35,9 @@
 		<wpf:CommandProxy x:Key="CloseTabCommand" Command="{Binding CloseTabCommand}"/>
 		<wpf:CommandProxy x:Key="CloseDockPanelCommand" Command="{Binding CloseDockPanelCommand}"/>
 		<wpf:CommandProxy x:Key="CollapseDockPanelCommand" Command="{Binding CollapseDockPanelCommand}"/>
+		<wpf:CommandProxy x:Key="ExpandDockPanelCommand" Command="{Binding ExpandDockPanelCommand}"/>
 		<wpf:CommandProxy x:Key="DockPanelTabItemHeaderDoubleClickCommand" Command="{Binding DockPanelTabItemHeaderDoubleClickCommand}"/>
+		<wpf:CommandProxy x:Key="DockPanelGridSplitterDoubleClickCommand" Command="{Binding DockPanelGridSplitterDoubleClickCommand}"/>
 
 		<wpf:CommandProxy x:Key="CloneTabCommand" Command="{Binding CloneTabCommand}"/>
 		<wpf:CommandProxy x:Key="RefresgTabCommand" Command="{Binding RefreshTabCommand}"/>
@@ -918,8 +920,20 @@
 											<Setter Property="ContextMenu">
 												<Setter.Value>
 													<ContextMenu>
-														<MenuItem Header="1"/>
-														<MenuItem Header="2"/>
+														<MenuItem
+															bf:IconExtension.Glyph="&#xE70D;"
+															Command="{StaticResource CollapseDockPanelCommand}"
+															Header="Collapse Panel"/>
+														<MenuItem
+															bf:IconExtension.Glyph="&#xE70E;"
+															Command="{StaticResource ExpandDockPanelCommand}"
+															Header="Expand Panel"/>
+														<Separator/>
+														<MenuItem
+															bf:IconExtension.Glyph="&#xE8BB;"
+															Command="{StaticResource CloseDockPanelCommand}"
+															CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+															Header="Close Panel"/>
 													</ContextMenu>
 												</Setter.Value>
 											</Setter>
@@ -1014,8 +1028,19 @@
 
 							<GridSplitter.ContextMenu>
 								<ContextMenu>
-									<MenuItem Header="1"/>
-									<MenuItem Header="2"/>
+									<MenuItem
+										bf:IconExtension.Glyph="&#xE70D;"
+										Command="{StaticResource CollapseDockPanelCommand}"
+										Header="Collapse Panel"/>
+									<MenuItem
+										bf:IconExtension.Glyph="&#xE70E;"
+										Command="{StaticResource ExpandDockPanelCommand}"
+										Header="Expand Panel"/>
+									<Separator/>
+									<MenuItem
+										bf:IconExtension.Glyph="&#xE8BB;"
+										Command="{Binding Source={StaticResource ViewModel}, Path=Data.CloseAllDockPanelsCommand}"
+										Header="Close All Panels"/>
 								</ContextMenu>
 							</GridSplitter.ContextMenu>
 

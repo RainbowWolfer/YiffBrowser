@@ -210,7 +210,43 @@
 
 						<Border.ContextMenu>
 							<ContextMenu>
-								<MenuItem Header="HELLO"/>
+								<MenuItem
+									bf:IconExtension.Glyph="&#xE8C8;"
+									Command="{Binding CopyPostUrlCommand}"
+									Header="Copy Post URL"/>
+								<MenuItem
+									bf:IconExtension.Glyph="&#xE774;"
+									Command="{Binding OpenPostInBrowserCommand}"
+									Header="Open in Browser"/>
+								<Separator/>
+								<MenuItem
+									bf:IconExtension.Glyph="&#xE896;"
+									Command="{Binding DownloadPostCommand}"
+									Header="Quick Download"/>
+								<Separator/>
+								<MenuItem
+									bf:IconExtension.Glyph="&#xE72B;"
+									Command="{Binding ParentViewModel.PreviousPostCommand}"
+									Header="Previous Post"/>
+								<MenuItem
+									bf:IconExtension.Glyph="&#xE72A;"
+									Command="{Binding ParentViewModel.NextPostCommand}"
+									Header="Next Post"/>
+								<MenuItem
+									bf:IconExtension.Glyph="&#xE76B;"
+									Command="{Binding ParentViewModel.QuitPostDetailViewCommand}"
+									Header="Back to List"/>
+								<Separator/>
+								<MenuItem
+									Header="Toggle Left Panel"
+									Command="{Binding ToggleLeftPanelCommand}"/>
+								<MenuItem
+									Header="Toggle Right Panel"
+									Command="{Binding ToggleRightPanelCommand}"/>
+								<MenuItem
+									Header="Toggle Slide Panel"
+									IsCheckable="True"
+									IsChecked="{Binding ShowSlidePanel, Mode=TwoWay}"/>
 							</ContextMenu>
 						</Border.ContextMenu>
 

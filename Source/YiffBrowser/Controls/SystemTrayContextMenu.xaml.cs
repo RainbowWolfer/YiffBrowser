@@ -14,6 +14,10 @@ public partial class SystemTrayContextMenu : ContextMenu {
 		InitializeComponent();
 	}
 
+	private void ShowWindow_Click(object sender, RoutedEventArgs e) {
+		systemTrayIconService.ActivateWindow();
+	}
+
 	private void DisableTrayIcon_Click(object sender, RoutedEventArgs e) {
 		systemTrayIconService.Disable();
 		IAppSettingsService appSettingsService = IoC.GetService<IAppSettingsService>();

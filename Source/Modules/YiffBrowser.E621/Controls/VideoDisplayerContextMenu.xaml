@@ -14,38 +14,59 @@
 
 	<MenuItem Header="Always Show Control" IsCheckable="True" IsChecked="{Binding AlwaysShowControls, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 	<MenuItem f:IconExtension.Glyph="&#xE75A;" Header="Control Location">
-		<MenuItem Header="Top" IsCheckable="True"/>
-		<MenuItem Header="Bottom" IsCheckable="True"/>
+		<MenuItem
+			Header="Top"
+			IsCheckable="True"
+			IsChecked="{Binding ControlLocation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Top, Mode=TwoWay}"/>
+		<MenuItem
+			Header="Bottom"
+			IsCheckable="True"
+			IsChecked="{Binding ControlLocation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Bottom, Mode=TwoWay}"/>
 	</MenuItem>
 
 	<Separator/>
 
-	<MenuItem Header="Show Scrubber Bar" IsCheckable="True"/>
+	<MenuItem Header="Show Scrubber Bar" IsCheckable="True" IsChecked="{Binding ShowScrubberBar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 	<MenuItem f:IconExtension.Glyph="&#xE90E;" Header="Scrubber Bar Location">
-		<MenuItem Header="Top" IsCheckable="True"/>
-		<MenuItem Header="Bottom" IsCheckable="True"/>
+		<MenuItem
+			Header="Top"
+			IsCheckable="True"
+			IsChecked="{Binding ScrubberBarLocation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Top, Mode=TwoWay}"/>
+		<MenuItem
+			Header="Bottom"
+			IsCheckable="True"
+			IsChecked="{Binding ScrubberBarLocation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Bottom, Mode=TwoWay}"/>
 	</MenuItem>
 
 	<Separator/>
 
-	<MenuItem f:IconExtension.Glyph="&#xE121;" Header="Time Display" ItemsSource="{wpf:EnumBindingMarkup f:TimeProgressFormat}">
-		<MenuItem.ItemContainerStyle>
-			<Style TargetType="MenuItem" BasedOn="{StaticResource MenuItem.Custom}">
-				<Setter Property="Header" Value="{Binding Value, Converter={StaticResource EnumDisplayConverter}}"/>
-				<Setter Property="IsCheckable" Value="True"/>
-			</Style>
-		</MenuItem.ItemContainerStyle>
+	<MenuItem f:IconExtension.Glyph="&#xE121;" Header="Time Display">
+		<MenuItem
+			Header="Elapsed / Total"
+			IsCheckable="True"
+			IsChecked="{Binding TimeProgressFormat, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Time_Total, Mode=TwoWay}"/>
+		<MenuItem
+			Header="Elapsed / Remaining"
+			IsCheckable="True"
+			IsChecked="{Binding TimeProgressFormat, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Time_Ramaining, Mode=TwoWay}"/>
+		<MenuItem
+			Header="Frame / Total"
+			IsCheckable="True"
+			IsChecked="{Binding TimeProgressFormat, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Frame_Total, Mode=TwoWay}"/>
+		<MenuItem
+			Header="Frame / Remaining"
+			IsCheckable="True"
+			IsChecked="{Binding TimeProgressFormat, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Frame_Ramaining, Mode=TwoWay}"/>
 	</MenuItem>
 
 	<Separator/>
 
 	<MenuItem Header="Controls">
-		<MenuItem Header="Time Display" IsCheckable="True"/>
-		<MenuItem Header="Next/Previous Frame Button" IsCheckable="True"/>
-		<MenuItem Header="Loop Button" IsCheckable="True"/>
-		<MenuItem Header="Reverse Playback Button" IsCheckable="True"/>
-		<MenuItem Header="Volume Button" IsCheckable="True"/>
+		<MenuItem Header="Time Display" IsCheckable="True" IsChecked="{Binding ShowTimeDisplay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+		<MenuItem Header="Next/Previous Frame Button" IsCheckable="True" IsChecked="{Binding NextPreviousFrameButton, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+		<MenuItem Header="Loop Button" IsCheckable="True" IsChecked="{Binding LoopButton, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+		<MenuItem Header="Reverse Playback Button" IsCheckable="True" IsChecked="{Binding ReversePlaybackButton, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+		<MenuItem Header="Volume Button" IsCheckable="True" IsChecked="{Binding VolumeButton, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 	</MenuItem>
-
 
 </ContextMenu>

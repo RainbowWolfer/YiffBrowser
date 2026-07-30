@@ -6,7 +6,7 @@ using System.Windows.Threading;
 
 namespace YiffBrowser.BaseFramework.Helpers;
 
-public static class ViewHelper {
+public static class AppViewHelper {
 
     public static Color HexToColor(this string hex) {
         // 移除前导的 '#' 符号

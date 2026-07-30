@@ -231,7 +231,11 @@ internal class E621MainViewModel(
 
 	public bool IsDockPanelCollapsed {
 		get => GetProperty(() => IsDockPanelCollapsed);
-		set => SetProperty(() => IsDockPanelCollapsed, value);
+		set {
+			if (SetProperty(() => IsDockPanelCollapsed, value)) {
+				expandDockPanelCommand?.RaiseCanExecuteChanged();
+			}
+		}
 	}
 
 	public void Initialize(ViewParameter parameter) {
@@ -512,6 +516,15 @@ internal class E621MainViewModel(
 	private void CollapseDockPanel() {
 		IsDockPanelCollapsed = true;
 	}
+
+	private DelegateCommand? expandDockPanelCommand;
+	public IDelegateCommand ExpandDockPanelCommand => expandDockPanelCommand ??= new(ExpandDockPanel, CanExpandDockPanel);
+	private void ExpandDockPanel() {
+		if (CanExpandDockPanel()) {
+			IsDockPanelCollapsed = false;
+		}
+	}
+	private bool CanExpandDockPanel() => IsDockPanelCollapsed;
 
 
 	private DelegateCommand? dockPanelGridSplitterDoubleClickCommand;

@@ -15,6 +15,9 @@ public class EnumToBoolConverter : IValueConverter {
 
 	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
 		if (value is bool b && b) {
+			if (parameter is Enum enumValue) {
+				return enumValue;
+			}
 			return Enum.Parse(targetType, parameter.SafeToString());
 		}
 		return Binding.DoNothing;
