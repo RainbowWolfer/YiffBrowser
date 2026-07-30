@@ -65,6 +65,13 @@
 											BorderThickness="0"
 											hc:BorderElement.CornerRadius="0"
 											IsExpanded="True">
+
+											<Expander.ContextMenu>
+												<ContextMenu>
+													<MenuItem bf:IconExtension.Glyph="" Header="Detail"/>
+												</ContextMenu>
+											</Expander.ContextMenu>
+
 											<Expander.Header>
 												<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel}">
 													<TextBlock FontWeight="SemiBold" Text="{Binding Name}"/>
@@ -128,16 +135,16 @@
 					<Setter Property="ContextMenu">
 						<Setter.Value>
 							<ContextMenu>
-								<MenuItem bf:IconExtension.Glyph="&#xE8F6;" Header="Detail">
-									<MenuItem bf:IconExtension.Glyph="&#xE8F6;" Header="Detail"/>
-									<MenuItem bf:IconExtension.Glyph="&#xE8F6;" Header="Detail"/>
-									<MenuItem bf:IconExtension.Glyph="&#xE8F6;" Header="Detail">
-										<MenuItem bf:IconExtension.Glyph="&#xE8F6;" Header="Detail"/>
-										<MenuItem bf:IconExtension.Glyph="&#xE8F6;" Header="Detail"/>
+								<MenuItem bf:IconExtension.Glyph="" Header="Detail">
+									<MenuItem bf:IconExtension.Glyph="" Header="Detail"/>
+									<MenuItem bf:IconExtension.Glyph="" Header="Detail"/>
+									<MenuItem bf:IconExtension.Glyph="" Header="Detail">
+										<MenuItem bf:IconExtension.Glyph="" Header="Detail"/>
+										<MenuItem bf:IconExtension.Glyph="" Header="Detail"/>
 									</MenuItem>
 								</MenuItem>
-								<MenuItem bf:IconExtension.Glyph="&#xE8F6;" Header="Detail"/>
-								<MenuItem bf:IconExtension.Glyph="&#xE8F6;" Header="Detail"/>
+								<MenuItem bf:IconExtension.Glyph="" Header="Detail"/>
+								<MenuItem bf:IconExtension.Glyph="" Header="Detail"/>
 							</ContextMenu>
 						</Setter.Value>
 					</Setter>

@@ -210,6 +210,10 @@ internal class PostsViewModel(
 			DownloadConfig.AppSettingsDownloadFolder = args.Model.DownloadFolderPath;
 		}
 
+		foreach (PostCardControl card in Items) {
+			card.GifAutoPlayType = args.Model.GifAutoPlayType;
+		}
+
 		downloadPostCommand?.RaiseCanExecuteChanged();
 	}
 

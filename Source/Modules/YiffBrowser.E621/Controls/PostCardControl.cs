@@ -166,6 +166,7 @@ internal class PostCardControl : ContentControl, IVariableSizedGridItem, IDispos
 		this.viewConfigService = viewConfigService;
 
 		Post = post;
+		GifAutoPlayType = AppSettingsService.Instance.Model.GifAutoPlayType;
 
 		ImageLoader = new PostImageLoader(post);
 		ImageLoader.Progress += ImageLoader_Progress;

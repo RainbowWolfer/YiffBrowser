@@ -42,6 +42,8 @@ public class AppSettingsModel {
 
 	public PreviewQuality PreviewQuality { get; set; } = PreviewQuality.Sample;
 
+	public GifAutoPlayType GifAutoPlayType { get; set; } = GifAutoPlayType.WhenMouseOver;
+
 	public ProxyMode ProxyMode { get; set; } = ProxyMode.System;
 	public string ProxyHost { get; set; } = "127.0.0.1";
 	public int ProxyPort { get; set; } = 7890;
