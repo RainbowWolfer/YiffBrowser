@@ -40,6 +40,8 @@ public class AppSettingsModel {
 	public bool IsGroupBySearchedTags { get; set; }
 	public bool IsGroupByAuthorTagOnly { get; set; }
 
+	public string FileNameTemplate { get; set; } = "<id>";
+
 	public PreviewQuality PreviewQuality { get; set; } = PreviewQuality.Sample;
 
 	public GifAutoPlayType GifAutoPlayType { get; set; } = GifAutoPlayType.WhenMouseOver;

@@ -10,13 +10,35 @@ public static partial class NameTemplateHandler {
 	// 忽略大小写的标签（针对文件本身的属性）
 	private static readonly string[] CaseInsensitiveTags =
 	[
-		"id", "md5", "authors"
+		"id", "site", "md5", "authors"
 	];
 
 	// 严格区分大小写的标签（针对日期和时间）
 	private static readonly string[] CaseSensitiveTags =
 	[
 		"yyyy", "yy", "MM", "dd", "HH", "hh", "mm", "ss", "fff", "tt", "t"
+	];
+
+	/// <summary>Available macros for the settings UI (angle-bracket form).</summary>
+	public static IReadOnlyList<string> AvailableMacros { get; } =
+	[
+		"_", " - ",
+		"<id>", "<site>", "<md5>", "<authors>",
+		"<yyyy>", "<yy>", "<MM>", "<dd>",
+		"<HH>", "<hh>", "<mm>", "<ss>", "<fff>", "<tt>", "<t>"
+	];
+
+	/// <summary>Common filename templates for the settings presets dropdown.</summary>
+	public static IReadOnlyList<string> AvailablePresets { get; } =
+	[
+		"<id>",
+		"<id> - <authors>",
+		"<authors> - <id>",
+		"<site> - <id> - <authors>",
+		"<site>_<id>_<authors>",
+		"<site>_<id>",
+		"<id>_<md5>",
+		"<yyyy>-<MM>-<dd> <id>"
 	];
 
 	/// <summary>
@@ -103,6 +125,10 @@ public static partial class NameTemplateHandler {
 		return $"{result}.{safeExtension}";
 	}
 
+	/// <summary>Generates a sample filename for settings preview using mock post data.</summary>
+	public static string GeneratePreviewFilename(string template) =>
+		GenerateFilename(new MockPost(), template);
+
 	/// <summary>
 	/// 核心替换逻辑
 	/// </summary>
@@ -160,10 +186,10 @@ public static partial class NameTemplateHandler {
 	private static string SanitizeFilename(string filename) => SanitizePathSegment(filename);
 
 	private class MockPost : INameTemplateItem {
-		public string Site => "site_name";
-		public string Id => "123456";
-		public string Md5 => "a1b2c3d4e5f6g7h8";
-		public IEnumerable<string> Authors => ["SampleAuthor", "Author2"];
+		public string Site => "e621";
+		public string Id => "73312";
+		public string Md5 => "8f3a2c9e1b4d7a60c5e8f1a2b3c4d5e6";
+		public IEnumerable<string> Authors => ["zonkpunch", "ruaidri"];
 		public string Extension => "png";
 	}
 

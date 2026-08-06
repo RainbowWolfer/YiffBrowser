@@ -129,6 +129,8 @@
 			<Setter Property="Margin" Value="-4,0"/>
 		</Style>
 
+		<wpf:BindingProxy x:Key="ViewModel" Data="{Binding}"/>
+
 	</UserControl.Resources>
 
 	<dxmvvm:Interaction.Behaviors>
@@ -243,17 +245,102 @@
 
 							<StackPanel>
 								<wpf:TitleContent Title="Download File Name">
-									<hc:ComboBox>
-										<ComboBoxItem Content="[id]"/>
-										<ComboBoxItem Content="[id] - [authors]"/>
-										<ComboBoxItem Content="[authors] - [id]"/>
-									</hc:ComboBox>
+									<DockPanel LastChildFill="True">
+										<wpf:MenuButton
+											Style="{StaticResource Button.Custom.Icon}"
+											Width="30"
+											Padding="0"
+											DockPanel.Dock="Right"
+											Focusable="False"
+											ToolTip="Common presets">
+											<wpf:FontIcon Text="&#xE70D;"/>
+											<wpf:MenuButton.ContextMenu>
+												<ContextMenu Style="{DynamicResource ContextMenu.Custom}" DataContext="{Binding Source={StaticResource ViewModel}, Path=Data}" ItemsSource="{Binding AvailableFileNamePresets}">
+													<ContextMenu.ItemContainerStyle>
+														<Style TargetType="MenuItem" BasedOn="{StaticResource MenuItem.Custom}">
+															<Setter Property="HeaderTemplate">
+																<Setter.Value>
+																	<DataTemplate>
+																		<TextBlock Text="{Binding}"/>
+																	</DataTemplate>
+																</Setter.Value>
+															</Setter>
+															<Setter Property="FontFamily" Value="Consolas"/>
+															<Setter Property="Command" Value="{Binding Source={StaticResource ViewModel}, Path=Data.ApplyFileNamePresetCommand}"/>
+															<Setter Property="CommandParameter" Value="{Binding}"/>
+														</Style>
+													</ContextMenu.ItemContainerStyle>
+												</ContextMenu>
+												<!--<ContextMenu Style="{DynamicResource ContextMenu.Custom}">
+													<MenuItem
+														Command="{Binding ApplyFileNamePresetCommand}"
+														CommandParameter="&lt;id&gt;"
+														FontFamily="Consolas"
+														Header="&lt;id&gt;"/>
+													<MenuItem
+														Command="{Binding ApplyFileNamePresetCommand}"
+														CommandParameter="&lt;id&gt; - &lt;authors&gt;"
+														FontFamily="Consolas"
+														Header="&lt;id&gt; - &lt;authors&gt;"/>
+													<MenuItem
+														Command="{Binding ApplyFileNamePresetCommand}"
+														CommandParameter="&lt;authors&gt; - &lt;id&gt;"
+														FontFamily="Consolas"
+														Header="&lt;authors&gt; - &lt;id&gt;"/>
+													<MenuItem
+														Command="{Binding ApplyFileNamePresetCommand}"
+														CommandParameter="&lt;site&gt;_&lt;id&gt;"
+														FontFamily="Consolas"
+														Header="&lt;site&gt;_&lt;id&gt;"/>
+													<MenuItem
+														Command="{Binding ApplyFileNamePresetCommand}"
+														CommandParameter="&lt;id&gt;_&lt;md5&gt;"
+														FontFamily="Consolas"
+														Header="&lt;id&gt;_&lt;md5&gt;"/>
+													<MenuItem
+														Command="{Binding ApplyFileNamePresetCommand}"
+														CommandParameter="&lt;yyyy&gt;-&lt;MM&gt;-&lt;dd&gt; &lt;id&gt;"
+														FontFamily="Consolas"
+														Header="&lt;yyyy&gt;-&lt;MM&gt;-&lt;dd&gt; &lt;id&gt;"/>
+												</ContextMenu>-->
+											</wpf:MenuButton.ContextMenu>
+										</wpf:MenuButton>
+										<TextBox x:Name="FileNameTemplateTextBox" Margin="0,0,4,0" Text="{Binding FileNameTemplate, UpdateSourceTrigger=PropertyChanged}"/>
+									</DockPanel>
 								</wpf:TitleContent>
+								<ItemsControl Margin="0,4,0,0" ItemsSource="{Binding AvailableFileNameMacros}">
+									<ItemsControl.ItemsPanel>
+										<ItemsPanelTemplate>
+											<WrapPanel/>
+										</ItemsPanelTemplate>
+									</ItemsControl.ItemsPanel>
+									<ItemsControl.ItemTemplate>
+										<DataTemplate>
+											<Button
+												Height="16"
+												MinHeight="0"
+												Margin="0,0,2,2"
+												Padding="4,0"
+												Click="InsertFileNameMacro_Click"
+												Content="{Binding}"
+												Focusable="False"
+												FontFamily="Consolas"
+												FontSize="12"/>
+										</DataTemplate>
+									</ItemsControl.ItemTemplate>
+								</ItemsControl>
 								<TextBlock
-									Margin="4,0,0,0"
-									Opacity="0.5"
-									Text="e.g. 312221 - zonkpunch, ruaidri.webm"
-									TextWrapping="Wrap"/>
+									Margin="4,2,0,0"
+									Foreground="{DynamicResource DangerBrush}"
+									Text="{Binding FileNameTemplateError}"
+									TextWrapping="Wrap"
+									Visibility="{Binding FileNameTemplateError, Converter={StaticResource String2VisibilityConverter}}"/>
+								<TextBlock
+									Margin="4,2,0,0"
+									Opacity="0.7"
+									Text="{Binding FileNameTemplatePreview, StringFormat='Preview: {0}'}"
+									TextWrapping="Wrap"
+									Visibility="{Binding HasFileNameTemplateError, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
 							</StackPanel>
 
 							<Separator/>
@@ -291,7 +378,11 @@
 								Text="Changes apply immediately after saving. Restart is not required."
 								TextWrapping="Wrap"/>
 
-							<GroupBox Header="Custom Proxy" IsEnabled="{Binding IsCustomProxyEnabled}" Margin="0,4,0,0" Padding="4">
+							<GroupBox
+								Margin="0,4,0,0"
+								Padding="4"
+								Header="Custom Proxy"
+								IsEnabled="{Binding IsCustomProxyEnabled}">
 								<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
 									<wpf:TitleContent Title="Host">
 										<TextBox Text="{Binding Model.ProxyHost, UpdateSourceTrigger=PropertyChanged}"/>

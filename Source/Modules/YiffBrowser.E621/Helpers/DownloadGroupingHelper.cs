@@ -45,6 +45,14 @@ internal static class DownloadGroupingHelper {
 		}
 	}
 
+	/// <summary>Author/director tags for file naming: blank-filtered, case-insensitive distinct, alphabetical.</summary>
+	public static IEnumerable<string> GetAuthorsForFileName(E621Post post) {
+		return GetAuthorTags(post)
+			.Where(t => t.IsNotBlank())
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.OrderBy(t => t, StringComparer.OrdinalIgnoreCase);
+	}
+
 	private static string? FormatFolderName(IEnumerable<string>? tags, string? emptyFallback) {
 		string[] parts = (tags ?? [])
 			.Where(t => t.IsNotBlank())

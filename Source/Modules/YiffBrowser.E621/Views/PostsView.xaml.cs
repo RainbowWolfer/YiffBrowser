@@ -17,6 +17,7 @@ using System.Windows.Input;
 using YiffBrowser.BaseFramework.Events;
 using YiffBrowser.BaseFramework.Interfaces;
 using YiffBrowser.BaseFramework.Services;
+using YiffBrowser.BaseFramework.Utilities;
 using YiffBrowser.BaseFramework.ViewModels;
 using YiffBrowser.BaseFramework.ViewModelServices;
 using YiffBrowser.E621.Controls;
@@ -353,7 +354,8 @@ internal class PostsViewModel(
 			appSettingsService.Model,
 			TabItem.Tags,
 			post!);
-		DownloadService.StartDownloads([new E621PostDownloadable(post!, subDirectory)], folder);
+		string site = E621API.GetHost(ModuleType);
+		DownloadService.StartDownloads([new E621PostDownloadable(post!, site, subDirectory)], folder);
 	}
 	private bool CanDownloadPost(E621Post? post) =>
 		post?.File != null
@@ -731,9 +733,11 @@ internal abstract class DownloadConfigViewModel : BindableBase, IDisposable {
 			//await Task.Delay(4000, token);
 			IEnumerable<E621Post> posts = await GetPostsAsync(token);
 			AppSettingsModel settings = AppSettingsService.Instance.Model;
+			string site = E621API.GetHost(ParentViewModel.ModuleType);
 			IEnumerable<E621PostDownloadable> postsDownloadable = posts
 				.Select(x => new E621PostDownloadable(
 					x,
+					site,
 					DownloadGroupingHelper.ResolveSubDirectory(settings, Tags, x)))
 				.Where(x => x.CanDownload);
 
@@ -904,10 +908,18 @@ internal class CustomDownloadViewModel(E621API api, int pageLimit) : DownloadCon
 
 }
 
-file sealed class E621PostDownloadable(E621Post post, string? subDirectory = null) : IDownloadable {
+file sealed class E621PostDownloadable(E621Post post, string site, string? subDirectory = null) : IDownloadable, INameTemplateItem {
 	public string DownloadUrl => post.File!.URL!;
-	public string TargetFileName => $"{post.ID}.{post.File!.Ext}";
+	public string TargetFileName => NameTemplateHandler.GenerateFilename(
+		this,
+		AppSettingsService.Instance.Model.FileNameTemplate);
 	public string? PreviewUrl => post.Preview?.URL;
 	public string? SubDirectory => subDirectory;
 	public bool CanDownload => post.File != null && post.File.URL.IsNotBlank();
+
+	public string Site => site;
+	public string Id => post.ID.ToString();
+	public string Md5 => post.File?.Md5 ?? string.Empty;
+	public IEnumerable<string> Authors => DownloadGroupingHelper.GetAuthorsForFileName(post);
+	public string Extension => post.File?.Ext ?? string.Empty;
 }
