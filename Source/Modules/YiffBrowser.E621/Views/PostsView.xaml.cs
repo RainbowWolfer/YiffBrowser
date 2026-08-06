@@ -82,6 +82,7 @@ internal class PostsViewModel(
 	public IDownloadService DownloadService { get; } = downloadService;
 
 	public event TypedEventHandler<PostsViewModel, E621Post?>? CurrentPostChanged;
+	public event TypedEventHandler<PostsViewModel, EventArgs>? SelectionChanged;
 
 	public ObservableCollection<PostCardControl> Items { get; } = [];
 	public ObservableCollection<PostCardControl> SelectedItems { get; } = [];
@@ -237,6 +238,7 @@ internal class PostsViewModel(
 		clearSelectionCommand?.RaiseCanExecuteChanged();
 		downloadPostCommand?.RaiseCanExecuteChanged();
 		selectPostCommand?.RaiseCanExecuteChanged();
+		SelectionChanged?.Invoke(this, EventArgs.Empty);
 	}
 
 
@@ -371,6 +373,24 @@ internal class PostsViewModel(
 		RaiseSelectionCommandsCanExecuteChanged();
 	}
 	private bool CanSelectPost(PostCardControl? card) => card != null;
+
+	public bool IsPostSelected(E621Post? post) => FindCard(post)?.IsSelected == true;
+
+	public void SetPostSelected(E621Post? post, bool selected) {
+		if (FindCard(post) is not { } card) {
+			return;
+		}
+
+		if (selected) {
+			EnsureMultiSelectingWithoutClearing();
+		}
+		card.IsSelected = selected;
+		UpdateMultiSelectingText();
+		RaiseSelectionCommandsCanExecuteChanged();
+	}
+
+	private PostCardControl? FindCard(E621Post? post) =>
+		post == null ? null : Items.FirstOrDefault(x => x.Post.ID == post.ID);
 
 	public ICommand RefreshCommand => new DelegateCommand(Refresh);
 	private async void Refresh() {

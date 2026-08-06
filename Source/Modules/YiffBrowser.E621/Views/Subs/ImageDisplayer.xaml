@@ -17,6 +17,14 @@
 	</Control.Resources>
 
 	<Grid DataContext="{Binding ElementName=Root}">
+
+		<Grid.ContextMenu>
+			<c:PostDisplayerContextMenu
+				Displayer="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}"
+				ImageDisplayer="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}"
+				IsVideo="False"/>
+		</Grid.ContextMenu>
+
 		<Grid>
 
 			<Border>

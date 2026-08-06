@@ -20,7 +20,7 @@ using YiffBrowser.E621.Models.E621;
 
 namespace YiffBrowser.E621.Views.Subs;
 
-public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
+public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPostDisplayer {
 	public event PropertyChangedEventHandler? PropertyChanged;
 	private void Raise(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
@@ -165,10 +165,6 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
 		FlyleafHost.Surface.MouseDoubleClick += Surface_MouseDoubleClick;
 		FlyleafHost.Surface.ContextMenu = CreateContextMenu();
 
-		FlyleafHost.Surface.SetBinding(ContextMenuService.IsEnabledProperty, new Binding(nameof(IsFileReady)) {
-			Source = this,
-		});
-
 		Player.Stop();
 
 		Raise(nameof(Config));
@@ -288,14 +284,24 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged {
 	private DelegateCommand? reloadCommand;
 	public IDelegateCommand ReloadCommand => reloadCommand ??= new(Reload);
 	private void Reload() {
-
+		ClearVideo();
+		videoCacheItem?.Clear();
+		Update();
 	}
 
 
 	private ContextMenu CreateContextMenu() {
-		ContextMenu contextMenu = new VideoDisplayerContextMenu() {
-			VideoDisplayer = this,
+		PostDisplayerContextMenu contextMenu = new() {
+			IsVideo = true,
 		};
+
+		contextMenu.SetBinding(PostDisplayerContextMenu.DisplayerProperty, new Binding() {
+			Source = this,
+		});
+		contextMenu.SetBinding(PostDisplayerContextMenu.VideoControlsParametersProperty, new Binding(nameof(VideoControlsParameters)) {
+			Source = this,
+		});
+
 		return contextMenu;
 	}
 

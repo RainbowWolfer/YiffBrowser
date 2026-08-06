@@ -144,7 +144,11 @@
 								<ColumnDefinition Width="*"/>
 							</Grid.ColumnDefinitions>
 
-							<Border x:Name="PlayTimeBorder" Background="Transparent" Cursor="Hand" ToolTip="Click to cycle time display format">
+							<Border x:Name="PlayTimeBorder"
+								Background="Transparent"
+								Cursor="Hand"
+								ToolTip="Click to cycle time display format"
+								Visibility="{Binding VideoControlsParameters.ShowTimeDisplay, Converter={StaticResource Boolean2VisibilityConverter}}">
 								<Border.ContextMenu>
 									<ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
 										<MenuItem
@@ -203,7 +207,8 @@
 										BorderThickness="0"
 										hc:BorderElement.CornerRadius="0"
 										Command="{Binding Player.Commands.ShowFramePrev}"
-										ToolTip="Previous Frame">
+										ToolTip="Previous Frame"
+										Visibility="{Binding VideoControlsParameters.NextPreviousFrameButton, Converter={StaticResource Boolean2VisibilityConverter}}">
 										<wpf:FontIcon Text="&#xF5A1;"/>
 									</RepeatButton>
 
@@ -214,7 +219,8 @@
 										BorderThickness="0"
 										hc:BorderElement.CornerRadius="0"
 										Command="{Binding Player.Commands.ShowFrameNext}"
-										ToolTip="Next Frame">
+										ToolTip="Next Frame"
+										Visibility="{Binding VideoControlsParameters.NextPreviousFrameButton, Converter={StaticResource Boolean2VisibilityConverter}}">
 										<wpf:FontIcon Text="&#xF5A4;"/>
 									</RepeatButton>
 
@@ -226,7 +232,8 @@
 										BorderThickness="0"
 										hc:BorderElement.CornerRadius="0"
 										IsChecked="{Binding Player.LoopPlayback, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-										ToolTip="Loop">
+										ToolTip="Loop"
+										Visibility="{Binding VideoControlsParameters.LoopButton, Converter={StaticResource Boolean2VisibilityConverter}}">
 										<wpf:FontIcon Text="&#xEF3B;"/>
 									</ToggleButton>
 
@@ -238,7 +245,8 @@
 										BorderThickness="0"
 										hc:BorderElement.CornerRadius="0"
 										IsChecked="{Binding Player.ReversePlayback, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-										ToolTip="Reverse Playback">
+										ToolTip="Reverse Playback"
+										Visibility="{Binding VideoControlsParameters.ReversePlaybackButton, Converter={StaticResource Boolean2VisibilityConverter}}">
 										<wpf:FontIcon Text="&#xE97A;"/>
 									</ToggleButton>
 
@@ -249,7 +257,8 @@
 										BorderThickness="0"
 										hc:BorderElement.CornerRadius="0"
 										IsEnabled="{Binding Player.Audio.IsOpened}"
-										ToolTip="Volumn">
+										ToolTip="Volumn"
+										Visibility="{Binding VideoControlsParameters.VolumeButton, Converter={StaticResource Boolean2VisibilityConverter}}">
 										<c:BoolContent Bool="{Binding Player.Audio.Mute}">
 											<c:BoolContent.TrueContent>
 												<wpf:FontIcon Text="&#xE74F;"/>

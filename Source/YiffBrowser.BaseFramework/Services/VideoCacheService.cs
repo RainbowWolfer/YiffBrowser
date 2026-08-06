@@ -112,6 +112,8 @@ public class VideoCacheItem(string? url, int fileSize) {
 	public void Clear() {
 		cacheStream?.Dispose();
 		cacheStream = null;
+		HasCompleted = false;
+		HasError = false;
 		//Updated?.Invoke(this, new CacheLoadingModel(false, false, false, 0));
 	}
 

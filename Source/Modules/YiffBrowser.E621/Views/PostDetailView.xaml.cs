@@ -38,9 +38,18 @@ internal class PostDetailViewModel(IVideoControlsService videoControlsService) :
 			SetProperty(() => Post, value);
 			RaisePropertyChanged(() => FileType);
 			RaisePropertyChanged(() => DisplayType);
+			RaisePropertyChanged(() => IsCurrentPostSelected);
 			copyPostUrlCommand?.RaiseCanExecuteChanged();
 			openPostInBrowserCommand?.RaiseCanExecuteChanged();
 			downloadPostCommand?.RaiseCanExecuteChanged();
+		}
+	}
+
+	public bool IsCurrentPostSelected {
+		get => ParentViewModel?.IsPostSelected(Post) == true;
+		set {
+			ParentViewModel?.SetPostSelected(Post, value);
+			RaisePropertyChanged(() => IsCurrentPostSelected);
 		}
 	}
 
@@ -71,12 +80,17 @@ internal class PostDetailViewModel(IVideoControlsService videoControlsService) :
 
 		ParentViewModel = (PostsViewModel)parentViewModel;
 		ParentViewModel.CurrentPostChanged += PostsViewModel_CurrentPostChanged;
+		ParentViewModel.SelectionChanged += PostsViewModel_SelectionChanged;
 
 	}
 
 	private void PostsViewModel_CurrentPostChanged(PostsViewModel sender, E621Post? args) {
 		Post = args;
 		Focus();
+	}
+
+	private void PostsViewModel_SelectionChanged(PostsViewModel sender, EventArgs args) {
+		RaisePropertyChanged(() => IsCurrentPostSelected);
 	}
 
 	public void Focus() {

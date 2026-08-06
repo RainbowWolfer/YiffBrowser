@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using RW.Base.WPF.DependencyInjections;
 using RW.Base.WPF.Services;
+using YiffBrowser.BaseFramework.Enums;
 using YiffBrowser.BaseFramework.Helpers;
 
 namespace YiffBrowser.BaseFramework.Services;
@@ -54,6 +55,26 @@ public class AppProfileModel {
 
 	/// <summary>Per-module recently closed tab batches.</summary>
 	public List<ModuleClosedTabsState> ModuleClosedTabs { get; set; } = [];
+
+	/// <summary>Layout and visibility of the video playback controls.</summary>
+	public VideoControlsState VideoControls { get; set; } = new();
+}
+
+[JsonObject]
+public class VideoControlsState {
+	public bool AlwaysShowControls { get; set; }
+	public VerticalPlacement ControlLocation { get; set; } = VerticalPlacement.Top;
+
+	public bool ShowScrubberBar { get; set; } = true;
+	public VerticalPlacement ScrubberBarLocation { get; set; } = VerticalPlacement.Top;
+
+	public TimeProgressFormat TimeProgressFormat { get; set; } = TimeProgressFormat.Time_Total;
+
+	public bool ShowTimeDisplay { get; set; } = true;
+	public bool NextPreviousFrameButton { get; set; } = true;
+	public bool LoopButton { get; set; } = true;
+	public bool ReversePlaybackButton { get; set; } = true;
+	public bool VolumeButton { get; set; } = true;
 }
 
 [JsonObject]

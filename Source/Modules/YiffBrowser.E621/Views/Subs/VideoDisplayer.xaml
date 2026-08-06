@@ -13,19 +13,56 @@
 	d:DesignWidth="800"
 	mc:Ignorable="d">
 
+	<Control.Resources>
+
+		<!-- Row 0 is above the video, row 2 below it. -->
+		<Style x:Key="ControlBarContainer" TargetType="Border">
+			<Setter Property="Grid.Row" Value="0"/>
+			<Style.Triggers>
+				<DataTrigger Binding="{Binding VideoControlsParameters.ControlLocation}" Value="Bottom">
+					<Setter Property="Grid.Row" Value="2"/>
+				</DataTrigger>
+			</Style.Triggers>
+		</Style>
+
+		<Style x:Key="ControlBar" TargetType="bf:PlaybackControl" BasedOn="{StaticResource PlaybackControl}">
+			<Setter Property="Height" Value="30"/>
+			<Setter Property="VerticalAlignment" Value="Top"/>
+			<Setter Property="BorderThickness" Value="0,0,0,1"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+			<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
+			<Style.Triggers>
+				<DataTrigger Binding="{Binding VideoControlsParameters.ControlLocation}" Value="Bottom">
+					<Setter Property="BorderThickness" Value="0,1,0,0"/>
+				</DataTrigger>
+			</Style.Triggers>
+		</Style>
+
+		<Style x:Key="ScrubberBar" TargetType="ProgressBar" BasedOn="{StaticResource ProgressBarFlat}">
+			<Setter Property="Height" Value="1"/>
+			<Setter Property="VerticalAlignment" Value="Top"/>
+			<Style.Triggers>
+				<DataTrigger Binding="{Binding VideoControlsParameters.ScrubberBarLocation}" Value="Bottom">
+					<Setter Property="VerticalAlignment" Value="Bottom"/>
+				</DataTrigger>
+			</Style.Triggers>
+		</Style>
+
+	</Control.Resources>
+
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto"/>
 			<RowDefinition Height="*"/>
+			<RowDefinition Height="auto"/>
 		</Grid.RowDefinitions>
 
-		<Border DataContext="{Binding RelativeSource={RelativeSource AncestorType=local:VideoDisplayer}}" Grid.Row="0" Visibility="{Binding VideoControlsParameters.AlwaysShowControls, Converter={StaticResource Boolean2VisibilityConverter}}">
+		<Border
+			Style="{StaticResource ControlBarContainer}"
+			DataContext="{Binding RelativeSource={RelativeSource AncestorType=local:VideoDisplayer}}"
+			Visibility="{Binding VideoControlsParameters.AlwaysShowControls, Converter={StaticResource Boolean2VisibilityConverter}}">
 			<bf:PlaybackControl
-				Height="30"
-				VerticalAlignment="Top"
-				BorderThickness="0,0,0,1"
-				BorderBrush="{DynamicResource BorderBrush}"
-				Background="{DynamicResource RegionBrush}"
+				Style="{StaticResource ControlBar}"
 				Player="{Binding Player}"
 				VideoControlsParameters="{Binding VideoControlsParameters}"
 				Visibility="{Binding IsFileReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
@@ -41,55 +78,66 @@
 			Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
 
 			<Border DataContext="{Binding HostDataContext}" Background="Transparent">
+
+				<Border.ContextMenu>
+					<c:PostDisplayerContextMenu
+						Displayer="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}"
+						IsVideo="True"
+						VideoControlsParameters="{Binding PlacementTarget.DataContext.VideoControlsParameters, RelativeSource={RelativeSource Self}}"/>
+				</Border.ContextMenu>
+
 				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="auto"/>
+						<RowDefinition Height="*"/>
+						<RowDefinition Height="auto"/>
+					</Grid.RowDefinitions>
 
-					<Image Source="{Binding Post.Sample.URL}" Visibility="{Binding IsFileReady, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
+					<Image
+						Grid.RowSpan="3"
+						Source="{Binding Post.Sample.URL}"
+						Visibility="{Binding IsFileReady, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
 
-					<StackPanel>
-						<Border>
+					<Border Style="{StaticResource ControlBarContainer}">
 
-							<Border.Visibility>
-								<MultiBinding Converter="{StaticResource BooleanArr2VisibilityConverter}">
-									<Binding Path="ShowControls"/>
-									<Binding Path="VideoControlsParameters.AlwaysShowControls" Converter="{StaticResource Boolean2BooleanReConverter}"/>
-								</MultiBinding>
-							</Border.Visibility>
+						<Border.Visibility>
+							<MultiBinding Converter="{StaticResource BooleanArr2VisibilityConverter}">
+								<Binding Path="ShowControls"/>
+								<Binding Path="VideoControlsParameters.AlwaysShowControls" Converter="{StaticResource Boolean2BooleanReConverter}"/>
+							</MultiBinding>
+						</Border.Visibility>
 
-							<bf:PlaybackControl
-								Height="30"
-								VerticalAlignment="Top"
-								BorderThickness="0,0,0,1"
-								BorderBrush="{DynamicResource BorderBrush}"
-								Background="{DynamicResource RegionBrush}"
-								Player="{Binding Player}"
-								VideoControlsParameters="{Binding VideoControlsParameters}"
-								Visibility="{Binding IsFileReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
-						</Border>
-						<c:LoadingProgresControl
-							Margin="4"
-							VerticalAlignment="Top"
-							wpf:ToolTipExtension.FastToolTip="True"
-							DownloadInfo="{Binding LoadingStatus.DownloadInfo}"
-							ErrorMessage="{Binding LoadingStatus.ErrorMessage}"
-							Progress="{Binding LoadingStatus.Progress}"
-							ReloadCommand="{Binding ReloadCommand}"
-							ToolTip="{Binding LoadingStatus.ToolTip}"
-							Visibility="{Binding LoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+						<bf:PlaybackControl
+							Style="{StaticResource ControlBar}"
+							Player="{Binding Player}"
+							VideoControlsParameters="{Binding VideoControlsParameters}"
+							Visibility="{Binding IsFileReady, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+					</Border>
 
-					</StackPanel>
+					<c:LoadingProgresControl
+						Grid.Row="1"
+						Margin="4"
+						VerticalAlignment="Top"
+						wpf:ToolTipExtension.FastToolTip="True"
+						DownloadInfo="{Binding LoadingStatus.DownloadInfo}"
+						ErrorMessage="{Binding LoadingStatus.ErrorMessage}"
+						Progress="{Binding LoadingStatus.Progress}"
+						ReloadCommand="{Binding ReloadCommand}"
+						ToolTip="{Binding LoadingStatus.ToolTip}"
+						Visibility="{Binding LoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}"/>
 
 					<!--
 						Value="{Binding Player.CurTime, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
 					-->
 					<ProgressBar x:Name="QuickProgressBar"
-						Style="{DynamicResource ProgressBarFlat}"
-						Height="1"
-						VerticalAlignment="Top"
+						Style="{StaticResource ScrubberBar}"
+						Grid.RowSpan="3"
 						Maximum="{Binding Player.Duration}">
 						<ProgressBar.Visibility>
 							<MultiBinding Converter="{StaticResource BooleanArr2VisibilityConverter}">
 								<Binding Path="ShowControls" Converter="{StaticResource Boolean2BooleanReConverter}"/>
 								<Binding Path="IsFileReady"/>
+								<Binding Path="VideoControlsParameters.ShowScrubberBar"/>
 							</MultiBinding>
 						</ProgressBar.Visibility>
 					</ProgressBar>

@@ -13,7 +13,7 @@ using YiffBrowser.E621.Models.E621;
 
 namespace YiffBrowser.E621.Views.Subs;
 
-public partial class ImageDisplayer : UserControl {
+public partial class ImageDisplayer : UserControl, IPostDisplayer {
 
 	public E621Post? Post {
 		get => (E621Post)GetValue(PostProperty);
@@ -262,6 +262,22 @@ public partial class ImageDisplayer : UserControl {
 		file?.Clear();
 		Update();
 	}
+
+	private DelegateCommand? fitToWindowCommand;
+	public IDelegateCommand FitToWindowCommand => fitToWindowCommand ??= new(ImageViewer.Initialize);
+
+	private DelegateCommand? actualSizeCommand;
+	public IDelegateCommand ActualSizeCommand => actualSizeCommand ??= new(ImageViewer.Actual);
+
+	private DelegateCommand? copyImageCommand;
+	public IDelegateCommand CopyImageCommand => copyImageCommand ??= new(CopyImage, CanCopyImage);
+	private void CopyImage() {
+		if (ImageViewer.BitmapImage is { } bitmap) {
+			Clipboard.SetImage(bitmap);
+		}
+	}
+	// Gifs are played through GifImage and have no single BitmapSource to hand over.
+	private bool CanCopyImage() => ImageViewer.BitmapImage != null;
 
 	private void ImageViewer_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
 		if (Math.Abs(ImageViewer.ImageScale - 1) < 0.01) {
