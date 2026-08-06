@@ -21,6 +21,7 @@ using YiffBrowser.BaseFramework.ViewModels;
 using YiffBrowser.BaseFramework.ViewModelServices;
 using YiffBrowser.E621.Controls;
 using YiffBrowser.E621.Enums;
+using YiffBrowser.E621.Helpers;
 using YiffBrowser.E621.Models.E621;
 using YiffBrowser.E621.Services;
 using YiffBrowser.E621.ViewModels;
@@ -346,7 +347,11 @@ internal class PostsViewModel(
 			return;
 		}
 
-		DownloadService.StartDownloads([new E621PostDownloadable(post!)], folder);
+		string? subDirectory = DownloadGroupingHelper.ResolveSubDirectory(
+			appSettingsService.Model,
+			TabItem.Tags,
+			post!);
+		DownloadService.StartDownloads([new E621PostDownloadable(post!, subDirectory)], folder);
 	}
 	private bool CanDownloadPost(E621Post? post) =>
 		post?.File != null
@@ -705,7 +710,12 @@ internal abstract class DownloadConfigViewModel : BindableBase, IDisposable {
 
 			//await Task.Delay(4000, token);
 			IEnumerable<E621Post> posts = await GetPostsAsync(token);
-			IEnumerable<E621PostDownloadable> postsDownloadable = posts.Select(x => new E621PostDownloadable(x)).Where(x => x.CanDownload);
+			AppSettingsModel settings = AppSettingsService.Instance.Model;
+			IEnumerable<E621PostDownloadable> postsDownloadable = posts
+				.Select(x => new E621PostDownloadable(
+					x,
+					DownloadGroupingHelper.ResolveSubDirectory(settings, Tags, x)))
+				.Where(x => x.CanDownload);
 
 			ParentViewModel.DownloadService.StartDownloads(postsDownloadable, DestinationFolder);
 
@@ -874,9 +884,10 @@ internal class CustomDownloadViewModel(E621API api, int pageLimit) : DownloadCon
 
 }
 
-file sealed class E621PostDownloadable(E621Post post) : IDownloadable {
+file sealed class E621PostDownloadable(E621Post post, string? subDirectory = null) : IDownloadable {
 	public string DownloadUrl => post.File!.URL!;
 	public string TargetFileName => $"{post.ID}.{post.File!.Ext}";
 	public string? PreviewUrl => post.Preview?.URL;
+	public string? SubDirectory => subDirectory;
 	public bool CanDownload => post.File != null && post.File.URL.IsNotBlank();
 }

@@ -141,16 +141,23 @@ public static partial class NameTemplateHandler {
 		return result;
 	}
 
-	private static string SanitizeFilename(string filename) {
-		char[] invalidChars = Path.GetInvalidFileNameChars();
-		string safeFilename = filename;
-
-		foreach (char invalidChar in invalidChars) {
-			safeFilename = safeFilename.Replace(invalidChar.ToString(), "_");
+	/// <summary>Replaces characters illegal in Windows file/folder names with '_'.</summary>
+	public static string SanitizePathSegment(string segment) {
+		if (string.IsNullOrEmpty(segment)) {
+			return string.Empty;
 		}
 
-		return safeFilename;
+		char[] invalidChars = Path.GetInvalidFileNameChars();
+		string safe = segment;
+
+		foreach (char invalidChar in invalidChars) {
+			safe = safe.Replace(invalidChar.ToString(), "_");
+		}
+
+		return safe.Trim();
 	}
+
+	private static string SanitizeFilename(string filename) => SanitizePathSegment(filename);
 
 	private class MockPost : INameTemplateItem {
 		public string Site => "site_name";

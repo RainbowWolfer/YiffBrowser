@@ -225,7 +225,16 @@ internal class DownloadService(
 
 			foreach (IDownloadable i in items) {
 				string fileName = i.TargetFileName;
-				string destPath = Path.Combine(destinationFolder, fileName);
+				string itemFolder = destinationFolder;
+				if (i.SubDirectory.IsNotBlank()) {
+					itemFolder = Path.Combine(destinationFolder, i.SubDirectory);
+				}
+
+				if (!Directory.Exists(itemFolder)) {
+					Directory.CreateDirectory(itemFolder);
+				}
+
+				string destPath = Path.Combine(itemFolder, fileName);
 
 				DownloadItem item = new(
 					i.DownloadUrl,
