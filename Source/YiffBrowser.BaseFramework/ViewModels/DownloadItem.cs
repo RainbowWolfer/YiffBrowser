@@ -52,6 +52,32 @@ public class DownloadItem : BindableBase {
 		private set => SetProperty(() => CompletionReason, value);
 	}
 
+	/// <summary>When the item finished (completed, failed, or canceled).</summary>
+	public DateTime? FinishedAt {
+		get => GetProperty(() => FinishedAt);
+		private set {
+			if (SetProperty(() => FinishedAt, value)) {
+				RaisePropertyChanged(() => StateBadgeToolTip);
+			}
+		}
+	}
+
+	/// <summary>Tooltip for the colored state badge: status + finished time.</summary>
+	public string StateBadgeToolTip {
+		get {
+			string label = State.ToString();
+			if (FinishedAt is DateTime finishedAt) {
+				return $"{label}\n{finishedAt:yyyy-MM-dd HH:mm:ss}";
+			}
+
+			if (Status.EndDateTime != default) {
+				return $"{label}\n{Status.EndDateTime:yyyy-MM-dd HH:mm:ss}";
+			}
+
+			return label;
+		}
+	}
+
 	public LoadingStatus Status { get; } = new LoadingStatus();
 
 	public bool IsActive => State is DownloadItemState.Pending or DownloadItemState.Downloading or DownloadItemState.Paused;
@@ -67,6 +93,7 @@ public class DownloadItem : BindableBase {
 			RaisePropertyChanged(() => IsCompleted);
 			RaisePropertyChanged(() => IsFailed);
 			RaisePropertyChanged(() => IsFinished);
+			RaisePropertyChanged(() => StateBadgeToolTip);
 			PauseCommand.RaiseCanExecuteChanged();
 			ResumeCommand.RaiseCanExecuteChanged();
 			RetryCommand.RaiseCanExecuteChanged();
@@ -135,6 +162,7 @@ public class DownloadItem : BindableBase {
 		CompletionSummary = snapshot.CompletionSummary ?? string.Empty;
 		CompletionReason = snapshot.CompletionReason ?? string.Empty;
 		FileSizeText = snapshot.FileSizeText ?? string.Empty;
+		FinishedAt = snapshot.FinishedAt;
 
 		State = restoredState;
 
@@ -156,6 +184,21 @@ public class DownloadItem : BindableBase {
 			case DownloadItemState.Completed:
 				Status.Done(snapshot.CompletionReason.IsNotBlank() ? snapshot.CompletionReason! : (snapshot.DownloadInfo ?? "Downloaded"));
 				Status.Progress = snapshot.Progress ?? 100;
+				if (FinishedAt is DateTime finishedAt) {
+					Status.EndDateTime = finishedAt;
+				} else {
+					FinishedAt = Status.EndDateTime;
+				}
+
+				if (FileSizeText.IsBlank()) {
+					RefreshFileSizeText();
+				}
+
+				if (CompletionSummary.IsBlank()) {
+					CompletionSummary = CompletionReason.StartsWith("Skipped", StringComparison.OrdinalIgnoreCase)
+						? "Skipped"
+						: "Downloaded";
+				}
 				break;
 
 			case DownloadItemState.Error:
@@ -164,6 +207,11 @@ public class DownloadItem : BindableBase {
 					snapshot.ErrorMessage.IsNotBlank() ? snapshot.ErrorMessage! : (snapshot.DownloadInfo ?? restoredState.ToString()),
 					snapshot.ErrorMessage);
 				Status.Progress = snapshot.Progress;
+				if (FinishedAt is DateTime failedAt) {
+					Status.EndDateTime = failedAt;
+				} else {
+					FinishedAt = Status.EndDateTime;
+				}
 				break;
 		}
 	}
@@ -184,6 +232,7 @@ public class DownloadItem : BindableBase {
 		IndexSite = IndexSite,
 		IndexItemId = IndexItemId,
 		IndexMd5 = IndexMd5,
+		FinishedAt = FinishedAt,
 	};
 
 	public async Task StartDownloadAsync() {
@@ -299,6 +348,7 @@ public class DownloadItem : BindableBase {
 				State = DownloadItemState.Canceled;
 				CompletionSummary = string.Empty;
 				CompletionReason = string.Empty;
+				FinishedAt = DateTime.Now;
 				Status.ErrorClose("Canceled", "Canceled");
 				DeleteIncompleteFile();
 			} else {
@@ -317,6 +367,7 @@ public class DownloadItem : BindableBase {
 			State = DownloadItemState.Error;
 			CompletionSummary = string.Empty;
 			CompletionReason = string.Empty;
+			FinishedAt = DateTime.Now;
 			Status.ErrorClose(ex.Message, ex.ToString());
 		} finally {
 			downloadStopwatch.Stop();
@@ -426,6 +477,7 @@ public class DownloadItem : BindableBase {
 			? "Skipped"
 			: "Downloaded";
 		CompletionReason = reason;
+		FinishedAt = DateTime.Now;
 		RefreshFileSizeText();
 		Status.Done(reason);
 	}
@@ -529,6 +581,7 @@ public class DownloadItem : BindableBase {
 			State = DownloadItemState.Canceled;
 			CompletionSummary = string.Empty;
 			CompletionReason = string.Empty;
+			FinishedAt = DateTime.Now;
 			Status.ErrorClose("Canceled", "Canceled");
 			DeleteIncompleteFile();
 		}

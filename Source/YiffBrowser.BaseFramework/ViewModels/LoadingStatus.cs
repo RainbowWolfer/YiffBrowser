@@ -1,4 +1,5 @@
 ﻿using DevExpress.Mvvm;
+using RW.Common.Helpers;
 
 namespace YiffBrowser.BaseFramework.ViewModels;
 
@@ -101,10 +102,12 @@ public class LoadingStatus : BindableBase {
 		BytesPerSecond = 0;
 		BytesRemaining = 0;
 		EndDateTime = DateTime.Now;
-		ToolTip = detail ?? (
-			"Download Error\n" +
+		string timeInfo =
 			$"Start DateTime: {StartDateTime}\n" +
-			$"End DateTime: {EndDateTime}");
+			$"End DateTime: {EndDateTime}";
+		ToolTip = detail.IsNotBlank()
+			? $"{detail}\n{timeInfo}"
+			: $"Download Error\n{timeInfo}";
 	}
 
 	public void ErrorClose(string errorMessage, string? detail = null) {

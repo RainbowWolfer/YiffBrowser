@@ -25,4 +25,7 @@ public class DownloadItemSnapshot {
 	public string? IndexSite { get; set; }
 	public string? IndexItemId { get; set; }
 	public string? IndexMd5 { get; set; }
+
+	/// <summary>When the item finished (completed, failed, or canceled).</summary>
+	public DateTime? FinishedAt { get; set; }
 }

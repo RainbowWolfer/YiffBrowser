@@ -551,7 +551,11 @@
 							Text="{Binding Status.EtaText}"
 							ToolTip="Time remaining"/>
 
-						<Border Style="{StaticResource DownloadStateBadge}" Grid.Column="4" Margin="10,0,0,0">
+						<Border
+							Style="{StaticResource DownloadStateBadge}"
+							Grid.Column="4"
+							Margin="10,0,0,0"
+							ToolTip="{Binding StateBadgeToolTip}">
 							<TextBlock d:Text="Downloading" Style="{StaticResource DownloadStateText}" Text="{Binding State, Converter={StaticResource EnumDisplayConverter}}"/>
 						</Border>
 
@@ -726,7 +730,11 @@
 						ToolTip="{Binding Status.ToolTip}"
 						Visibility="{Binding Status.ErrorMessage, Converter={StaticResource String2VisibilityConverter}}"/>
 
-					<Border Style="{StaticResource DownloadStateBadge}" Grid.Column="3" Margin="8,0,0,0">
+					<Border
+						Style="{StaticResource DownloadStateBadge}"
+						Grid.Column="3"
+						Margin="8,0,0,0"
+						ToolTip="{Binding StateBadgeToolTip}">
 						<TextBlock d:Text="Error" Style="{StaticResource DownloadStateText}" Text="{Binding State, Converter={StaticResource EnumDisplayConverter}}"/>
 					</Border>
 
