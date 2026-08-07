@@ -128,12 +128,27 @@
 						<Border Style="{StaticResource HorizontalSeparator}"/>
 
 						<Button
-							Style="{StaticResource Button.Custom.Icon}"
 							Width="30"
 							Height="30"
-							Command="{Binding DownloadPostCommand}"
-							ToolTip="Quick Download">
-							<wpf:FontIcon Text="&#xE896;"/>
+							Command="{Binding DownloadPostCommand}">
+							<Button.Style>
+								<Style TargetType="Button" BasedOn="{StaticResource Button.Custom.Icon}">
+									<Setter Property="ToolTip" Value="Quick Download"/>
+									<Style.Triggers>
+										<DataTrigger Binding="{Binding IsCurrentPostDownloaded}" Value="True">
+											<Setter Property="ToolTip" Value="Already Downloaded"/>
+										</DataTrigger>
+									</Style.Triggers>
+								</Style>
+							</Button.Style>
+							<bf:BoolContent Bool="{Binding IsCurrentPostDownloaded}">
+								<bf:BoolContent.TrueContent>
+									<wpf:FontIcon Foreground="{DynamicResource SuccessBrush}" Text="&#xE73E;"/>
+								</bf:BoolContent.TrueContent>
+								<bf:BoolContent.FalseContent>
+									<wpf:FontIcon Text="&#xE896;"/>
+								</bf:BoolContent.FalseContent>
+							</bf:BoolContent>
 						</Button>
 
 						<ToggleButton

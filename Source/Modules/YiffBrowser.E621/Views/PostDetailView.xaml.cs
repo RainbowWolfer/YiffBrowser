@@ -39,6 +39,7 @@ internal class PostDetailViewModel(IVideoControlsService videoControlsService) :
 			RaisePropertyChanged(() => FileType);
 			RaisePropertyChanged(() => DisplayType);
 			RaisePropertyChanged(() => IsCurrentPostSelected);
+			RaisePropertyChanged(() => IsCurrentPostDownloaded);
 			copyPostUrlCommand?.RaiseCanExecuteChanged();
 			openPostInBrowserCommand?.RaiseCanExecuteChanged();
 			downloadPostCommand?.RaiseCanExecuteChanged();
@@ -52,6 +53,8 @@ internal class PostDetailViewModel(IVideoControlsService videoControlsService) :
 			RaisePropertyChanged(() => IsCurrentPostSelected);
 		}
 	}
+
+	public bool IsCurrentPostDownloaded => ParentViewModel?.IsPostDownloaded(Post) == true;
 
 	public IVideoControlsService VideoControlsService { get; } = videoControlsService;
 
@@ -76,12 +79,18 @@ internal class PostDetailViewModel(IVideoControlsService videoControlsService) :
 	protected override void OnParentViewModelChanged(object parentViewModel) {
 		base.OnParentViewModelChanged(parentViewModel);
 
+		if (ParentViewModel is not null) {
+			ParentViewModel.CurrentPostChanged -= PostsViewModel_CurrentPostChanged;
+			ParentViewModel.SelectionChanged -= PostsViewModel_SelectionChanged;
+			ParentViewModel.PropertyChanged -= ParentViewModel_PropertyChanged;
+		}
+
 		Post = null;
 
 		ParentViewModel = (PostsViewModel)parentViewModel;
 		ParentViewModel.CurrentPostChanged += PostsViewModel_CurrentPostChanged;
 		ParentViewModel.SelectionChanged += PostsViewModel_SelectionChanged;
-
+		ParentViewModel.PropertyChanged += ParentViewModel_PropertyChanged;
 	}
 
 	private void PostsViewModel_CurrentPostChanged(PostsViewModel sender, E621Post? args) {
@@ -91,6 +100,12 @@ internal class PostDetailViewModel(IVideoControlsService videoControlsService) :
 
 	private void PostsViewModel_SelectionChanged(PostsViewModel sender, EventArgs args) {
 		RaisePropertyChanged(() => IsCurrentPostSelected);
+	}
+
+	private void ParentViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) {
+		if (e.PropertyName == nameof(PostsViewModel.DownloadIndexVersion)) {
+			RaisePropertyChanged(() => IsCurrentPostDownloaded);
+		}
 	}
 
 	public void Focus() {
