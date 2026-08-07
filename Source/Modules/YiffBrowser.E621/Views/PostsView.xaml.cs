@@ -65,7 +65,8 @@ internal class PostsViewModel(
 	IViewConfigService viewConfigService,
 	IEventAggregator eventAggregator,
 	IAppSettingsService appSettingsService,
-	IDownloadService downloadService
+	IDownloadService downloadService,
+	IDownloadIndexService downloadIndexService
 ) : ViewModelBase, IDisposable {
 	public IUIObjectService<PostCardListBox> PostsListBoxService => GetService<ITypedUIObjectService>(nameof(PostsListBoxService)).As<PostCardListBox>();
 	public IUIObjectService<ButtonPopup> PaginationButtonPopupService => GetService<ITypedUIObjectService>(nameof(PaginationButtonPopupService)).As<ButtonPopup>();
@@ -81,6 +82,13 @@ internal class PostsViewModel(
 
 	public IViewConfigService ViewConfigService { get; } = viewConfigService;
 	public IDownloadService DownloadService { get; } = downloadService;
+	public IDownloadIndexService DownloadIndexService { get; } = downloadIndexService;
+
+	/// <summary>Bumped when the download index changes so slide-panel badges refresh.</summary>
+	public int DownloadIndexVersion {
+		get => GetProperty(() => DownloadIndexVersion);
+		private set => SetProperty(() => DownloadIndexVersion, value);
+	}
 
 	public event TypedEventHandler<PostsViewModel, E621Post?>? CurrentPostChanged;
 	public event TypedEventHandler<PostsViewModel, EventArgs>? SelectionChanged;
@@ -192,6 +200,7 @@ internal class PostsViewModel(
 		SelectedItems.CollectionChanged += SelectedItems_CollectionChanged;
 
 		eventAggregator.GetEvent<AppSettingsChangedEvent>().Subscribe(OnAppSettingsChanged);
+		DownloadIndexService.IndexChanged += OnDownloadIndexChanged;
 	}
 
 	public void Initialize(PostTabItem postTabItem) {
@@ -206,6 +215,7 @@ internal class PostsViewModel(
 
 	public void Dispose() {
 		eventAggregator.GetEvent<AppSettingsChangedEvent>().Unsubscribe(OnAppSettingsChanged);
+		DownloadIndexService.IndexChanged -= OnDownloadIndexChanged;
 	}
 
 	private void OnAppSettingsChanged(AppSettingsChangedEventArgs args) {
@@ -213,11 +223,53 @@ internal class PostsViewModel(
 			DownloadConfig.AppSettingsDownloadFolder = args.Model.DownloadFolderPath;
 		}
 
+		DownloadIndexService.EnsureRoot(args.Model.DownloadFolderPath);
+
 		foreach (PostCardControl card in Items) {
 			card.GifAutoPlayType = args.Model.GifAutoPlayType;
 		}
 
+		RefreshDownloadedBadges();
 		downloadPostCommand?.RaiseCanExecuteChanged();
+	}
+
+	private void OnDownloadIndexChanged(object? sender, EventArgs e) {
+		void Refresh() => RefreshDownloadedBadges();
+
+		if (DispatcherService is { } dispatcher) {
+			dispatcher.Invoke(Refresh);
+		} else {
+			Refresh();
+		}
+	}
+
+	private bool isRefreshingDownloadedBadges;
+
+	public bool IsPostDownloaded(E621Post? post) {
+		if (post == null) {
+			return false;
+		}
+
+		string site = E621API.GetHost(ModuleType);
+		return DownloadIndexService.IsDownloaded(site, post.ID.ToString());
+	}
+
+	private void RefreshDownloadedBadges() {
+		if (isRefreshingDownloadedBadges) {
+			return;
+		}
+
+		isRefreshingDownloadedBadges = true;
+		try {
+			string site = E621API.GetHost(ModuleType);
+			foreach (PostCardControl card in Items) {
+				card.IsDownloaded = DownloadIndexService.IsDownloaded(site, card.Post.ID.ToString());
+			}
+
+			DownloadIndexVersion++;
+		} finally {
+			isRefreshingDownloadedBadges = false;
+		}
 	}
 
 	private void SelectedItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
@@ -447,11 +499,14 @@ internal class PostsViewModel(
 				if (post.HasNoValidURLs()) {
 					continue;
 				}
-				Items.Add(new PostCardControl(this, ViewConfigService, post));
+				PostCardControl card = new(this, ViewConfigService, post);
+				card.IsDownloaded = IsPostDownloaded(post);
+				Items.Add(card);
 				TabItem.Posts.Add(post);
 			}
 
 			PostsListBoxService.Object.Items.Refresh();
+			DownloadIndexVersion++;
 
 			TabItem.LoadingStatus.Done();
 		} catch (Exception ex) {
@@ -916,6 +971,10 @@ file sealed class E621PostDownloadable(E621Post post, string site, string? subDi
 	public string? PreviewUrl => post.Preview?.URL;
 	public string? SubDirectory => subDirectory;
 	public bool CanDownload => post.File != null && post.File.URL.IsNotBlank();
+
+	public string? IndexSite => site;
+	public string? IndexItemId => post.ID.ToString();
+	public string? IndexMd5 => post.File?.Md5;
 
 	public string Site => site;
 	public string Id => post.ID.ToString();

@@ -120,6 +120,19 @@ internal class PostCardControl : ContentControl, IVariableSizedGridItem, IDispos
 	);
 
 
+	public bool IsDownloaded {
+		get => (bool)GetValue(IsDownloadedProperty);
+		set => SetValue(IsDownloadedProperty, value);
+	}
+
+	public static readonly DependencyProperty IsDownloadedProperty = DependencyProperty.Register(
+		nameof(IsDownloaded),
+		typeof(bool),
+		typeof(PostCardControl),
+		new PropertyMetadata(false)
+	);
+
+
 	public int ColSpan {
 		get => (int)GetValue(ColSpanProperty);
 		set => SetValue(ColSpanProperty, value);

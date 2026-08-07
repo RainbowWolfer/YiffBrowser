@@ -191,6 +191,13 @@
 								wpf:ToolTipExtension.FastToolTip="True"
 								wpf:ToolTipExtension.FastToolTipDelay="500"
 								Url="{Binding Preview.URL}">
+								<c:SlidePanelImageControl.IsDownloaded>
+									<MultiBinding Converter="{StaticResource PostIsDownloadedMultiConverter}">
+										<Binding />
+										<Binding Path="DataContext.ParentViewModel.DownloadIndexVersion" RelativeSource="{RelativeSource AncestorType=local:PostDetailView}"/>
+										<Binding Path="DataContext.ParentViewModel" RelativeSource="{RelativeSource AncestorType=local:PostDetailView}"/>
+									</MultiBinding>
+								</c:SlidePanelImageControl.IsDownloaded>
 								<c:SlidePanelImageControl.ToolTip>
 									<StackPanel>
 										<TextBlock Text="{Binding ID, StringFormat='{}#{0}'}"/>

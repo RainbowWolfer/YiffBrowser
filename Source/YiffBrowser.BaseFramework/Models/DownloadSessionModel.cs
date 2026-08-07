@@ -21,4 +21,8 @@ public class DownloadItemSnapshot {
 	public string? CompletionReason { get; set; }
 	public string? FileSizeText { get; set; }
 	public FileCollisionBehaviorType CollisionBehavior { get; set; } = FileCollisionBehaviorType.SkipIfSameSize;
+	public string? IndexRootFolder { get; set; }
+	public string? IndexSite { get; set; }
+	public string? IndexItemId { get; set; }
+	public string? IndexMd5 { get; set; }
 }

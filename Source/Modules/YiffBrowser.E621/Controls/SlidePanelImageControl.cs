@@ -30,6 +30,18 @@ internal class SlidePanelImageControl : Control {
 		//control.LoadImage();
 	}
 
+	public bool IsDownloaded {
+		get => (bool)GetValue(IsDownloadedProperty);
+		set => SetValue(IsDownloadedProperty, value);
+	}
+
+	public static readonly DependencyProperty IsDownloadedProperty = DependencyProperty.Register(
+		nameof(IsDownloaded),
+		typeof(bool),
+		typeof(SlidePanelImageControl),
+		new PropertyMetadata(false)
+	);
+
 
 	//private Image? _image;
 	//private CircleProgressBar? _progress;

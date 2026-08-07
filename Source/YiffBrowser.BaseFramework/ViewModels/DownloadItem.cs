@@ -29,6 +29,12 @@ public class DownloadItem : BindableBase {
 	public string? PreviewUrl { get; }
 	public FileCollisionBehaviorType CollisionBehavior => collisionBehavior;
 
+	/// <summary>Download-root folder used for the on-disk index (batch destination).</summary>
+	public string? IndexRootFolder { get; private set; }
+	public string? IndexSite { get; private set; }
+	public string? IndexItemId { get; private set; }
+	public string? IndexMd5 { get; private set; }
+
 	public string FileSizeText {
 		get => GetProperty(() => FileSizeText);
 		private set => SetProperty(() => FileSizeText, value);
@@ -88,12 +94,20 @@ public class DownloadItem : BindableBase {
 		HttpClient httpClient,
 		SemaphoreSlim semaphore,
 		string? previewUrl = null,
-		FileCollisionBehaviorType collisionBehavior = FileCollisionBehaviorType.SkipIfSameSize) {
+		FileCollisionBehaviorType collisionBehavior = FileCollisionBehaviorType.SkipIfSameSize,
+		string? indexRootFolder = null,
+		string? indexSite = null,
+		string? indexItemId = null,
+		string? indexMd5 = null) {
 		FileUrl = fileUrl;
 		DestinationPath = destinationPath;
 		FileName = Path.GetFileName(destinationPath);
 		DirectoryPath = Path.GetDirectoryName(destinationPath) ?? string.Empty;
 		PreviewUrl = previewUrl;
+		IndexRootFolder = indexRootFolder;
+		IndexSite = indexSite;
+		IndexItemId = indexItemId;
+		IndexMd5 = indexMd5;
 		this.httpClient = httpClient;
 		this.semaphore = semaphore;
 		this.collisionBehavior = collisionBehavior;
@@ -101,6 +115,13 @@ public class DownloadItem : BindableBase {
 		State = DownloadItemState.Pending;
 		Status.Initialize("Pending in Queue");
 		Status.Progress = 0;
+	}
+
+	public void SetIndexInfo(string? indexRootFolder, string? indexSite, string? indexItemId, string? indexMd5) {
+		IndexRootFolder = indexRootFolder;
+		IndexSite = indexSite;
+		IndexItemId = indexItemId;
+		IndexMd5 = indexMd5;
 	}
 
 	/// <summary>Applies persisted state without starting a transfer. Active states become Paused.</summary>
@@ -159,6 +180,10 @@ public class DownloadItem : BindableBase {
 		CompletionReason = CompletionReason,
 		FileSizeText = FileSizeText,
 		CollisionBehavior = collisionBehavior,
+		IndexRootFolder = IndexRootFolder,
+		IndexSite = IndexSite,
+		IndexItemId = IndexItemId,
+		IndexMd5 = IndexMd5,
 	};
 
 	public async Task StartDownloadAsync() {

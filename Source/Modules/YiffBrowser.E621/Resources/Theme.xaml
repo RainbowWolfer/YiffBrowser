@@ -28,6 +28,7 @@
 	<con:UrlIconConverter x:Key="UrlIconConverter"/>
 	<con:ModuleTypeIconConverter x:Key="ModuleTypeIconConverter"/>
 	<con:E621TypeHintConverter x:Key="E621TypeHintConverter"/>
+	<con:PostIsDownloadedMultiConverter x:Key="PostIsDownloadedMultiConverter"/>
 
 	<bf:SubStringConverter x:Key="RatingHeaderConverter" Length="1" StartIndex="0"/>
 
@@ -338,6 +339,25 @@
 											Stretch="UniformToFill"
 											Visibility="Visible"/>
 									</Border>
+								</Border>
+
+								<Border
+									Width="22"
+									Height="22"
+									Margin="6"
+									Padding="0"
+									HorizontalAlignment="Right"
+									VerticalAlignment="Bottom"
+									Background="{DynamicResource SuccessBrush}"
+									CornerRadius="11"
+									ToolTip="Downloaded"
+									Visibility="{TemplateBinding IsDownloaded, Converter={StaticResource Boolean2VisibilityConverter}}">
+									<wpf:FontIcon
+										HorizontalAlignment="Center"
+										VerticalAlignment="Center"
+										FontSize="12"
+										Foreground="White"
+										Text="&#xE73E;"/>
 								</Border>
 
 								<StackPanel>
@@ -1650,6 +1670,24 @@
 							Height="30"
 							Visibility="Collapsed">
 							<wpf:FontIcon FontSize="24" Foreground="{DynamicResource DangerBrush}" Text="&#xE7BA;"/>
+						</Border>
+
+						<Border
+							Width="18"
+							Height="18"
+							Margin="3"
+							HorizontalAlignment="Right"
+							VerticalAlignment="Bottom"
+							Background="{DynamicResource SuccessBrush}"
+							CornerRadius="9"
+							ToolTip="Downloaded"
+							Visibility="{TemplateBinding IsDownloaded, Converter={StaticResource Boolean2VisibilityConverter}}">
+							<wpf:FontIcon
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center"
+								FontSize="10"
+								Foreground="White"
+								Text="&#xE73E;"/>
 						</Border>
 
 						<Grid.Triggers>

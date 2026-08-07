@@ -36,7 +36,8 @@ public interface IDownloadService {
 
 internal class DownloadService(
 	IAppSettingsService appSettingsService,
-	IDownloadPersistenceService downloadPersistenceService
+	IDownloadPersistenceService downloadPersistenceService,
+	IDownloadIndexService downloadIndexService
 ) : IDownloadService, IAppInitializeAsync {
 	string IAppInitializeAsync.Description { get; } = "Initialzing Download Service";
 	int IPriority.Priority { get; } = IntPriority.Normal;
@@ -117,12 +118,20 @@ internal class DownloadService(
 					httpClient,
 					globalConcurrencySemaphore,
 					snapshot.PreviewUrl,
-					snapshot.CollisionBehavior);
+					snapshot.CollisionBehavior,
+					snapshot.IndexRootFolder,
+					snapshot.IndexSite,
+					snapshot.IndexItemId,
+					snapshot.IndexMd5);
 				item.ApplyRestoredSnapshot(snapshot);
 				item.PropertyChanged += OnItemPropertyChanged;
 				item.Status.PropertyChanged += OnItemStatusPropertyChanged;
 				item.RemoveRequested += OnItemRemoveRequested;
 				DownloadItems.Add(item);
+
+				if (item.IsCompleted) {
+					TryIndexCompletedDownload(item);
+				}
 
 				if (item.IsActive) {
 					sessionItems.Add(item);
@@ -242,7 +251,11 @@ internal class DownloadService(
 					httpClient,
 					globalConcurrencySemaphore,
 					i.PreviewUrl,
-					appSettingsService.Model.FileCollisionBehavior);
+					appSettingsService.Model.FileCollisionBehavior,
+					destinationFolder,
+					i.IndexSite,
+					i.IndexItemId,
+					i.IndexMd5);
 				item.PropertyChanged += OnItemPropertyChanged;
 				item.Status.PropertyChanged += OnItemStatusPropertyChanged;
 				item.RemoveRequested += OnItemRemoveRequested;
@@ -280,6 +293,10 @@ internal class DownloadService(
 			return;
 		}
 
+		if (item.IsCompleted) {
+			TryIndexCompletedDownload(item);
+		}
+
 		if (item.IsCompleted || item.IsFailed) {
 			void MoveToFront() {
 				int index = DownloadItems.IndexOf(item);
@@ -297,6 +314,27 @@ internal class DownloadService(
 
 		UpdateOverallStatus();
 		PersistDownloads();
+	}
+
+	private void TryIndexCompletedDownload(DownloadItem item) {
+		if (item.IndexRootFolder.IsBlank() || item.IndexSite.IsBlank() || item.IndexItemId.IsBlank()) {
+			return;
+		}
+
+		if (item.DestinationPath.IsBlank()) {
+			return;
+		}
+
+		try {
+			downloadIndexService.Upsert(
+				item.IndexRootFolder,
+				item.IndexSite,
+				item.IndexItemId,
+				item.IndexMd5,
+				item.DestinationPath);
+		} catch (Exception ex) {
+			System.Diagnostics.Debug.WriteLine($"Failed to index completed download: {ex.Message}");
+		}
 	}
 
 	private void OnItemStatusPropertyChanged(object? sender, PropertyChangedEventArgs e) {
