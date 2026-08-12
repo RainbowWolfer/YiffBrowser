@@ -52,7 +52,7 @@ public class E621Post {
 	public List<string>? Sources { get; set; }
 
 	[JsonProperty("pools")]
-	public List<string>? Pools { get; set; }
+	public List<int>? Pools { get; set; }
 
 	[JsonProperty("relationships")]
 	public Relationships? Relationships { get; set; }
@@ -63,6 +63,9 @@ public class E621Post {
 	[JsonProperty("uploader_id")]
 	public int UploaderId { get; set; }
 
+	[JsonProperty("uploader_name")]
+	public string? UploaderName { get; set; }
+
 	[JsonProperty("description")]
 	public string? Description { get; set; }
 
@@ -72,6 +75,10 @@ public class E621Post {
 	[JsonProperty("is_favorited")]
 	public bool IsFavorited { get; set; }
 
+	/// <summary>Current user's vote when authenticated: 1 up, -1 down, 0 none.</summary>
+	[JsonProperty("vote")]
+	public int Vote { get; set; }
+
 	[JsonProperty("has_notes")]
 	public bool HasNotes { get; set; }
 
@@ -80,8 +87,8 @@ public class E621Post {
 
 	#region Additional
 
-	public bool HasVotedUp { get; set; }
-	public bool HasVotedDown { get; set; }
+	public bool HasVotedUp => Vote > 0;
+	public bool HasVotedDown => Vote < 0;
 
 	#endregion
 
@@ -156,9 +163,9 @@ public class Preview {
 
 	[JsonProperty("url")]
 	public string? URL { get; set; }
-}
 
-public class Alternates {
+	[JsonProperty("alt")]
+	public string? Alt { get; set; }
 }
 
 public class Sample {
@@ -174,8 +181,45 @@ public class Sample {
 	[JsonProperty("url")]
 	public string? URL { get; set; }
 
+	[JsonProperty("alt")]
+	public string? Alt { get; set; }
+
 	[JsonProperty("alternates")]
-	public Alternates? Alternates { get; set; }
+	public SampleAlternates? Alternates { get; set; }
+}
+
+public class SampleAlternates {
+	[JsonProperty("has")]
+	public bool Has { get; set; }
+
+	[JsonProperty("original")]
+	public MediaVariant? Original { get; set; }
+
+	[JsonProperty("variants")]
+	public Dictionary<string, MediaVariant>? Variants { get; set; }
+
+	[JsonProperty("samples")]
+	public Dictionary<string, MediaVariant>? Samples { get; set; }
+}
+
+public class MediaVariant {
+	[JsonProperty("fps")]
+	public double Fps { get; set; }
+
+	[JsonProperty("codec")]
+	public string? Codec { get; set; }
+
+	[JsonProperty("size")]
+	public long Size { get; set; }
+
+	[JsonProperty("width")]
+	public int Width { get; set; }
+
+	[JsonProperty("height")]
+	public int Height { get; set; }
+
+	[JsonProperty("url")]
+	public string? URL { get; set; }
 }
 
 
@@ -197,14 +241,23 @@ public class Tags : ICloneable {
 	[JsonProperty("species")]
 	public List<string>? Species { get; set; }
 
+	/// <summary>e6ai: maps to API category 1 (same slot as e621 artist).</summary>
 	[JsonProperty("director")]
 	public List<string>? Director { get; set; }
+
+	/// <summary>e621 contributor tags (category 2).</summary>
+	[JsonProperty("contributor")]
+	public List<string>? Contributor { get; set; }
 
 	[JsonProperty("character")]
 	public List<string>? Character { get; set; }
 
 	[JsonProperty("copyright")]
 	public List<string>? Copyright { get; set; }
+
+	/// <summary>e6ai: maps to API category 3 (same slot as e621 copyright).</summary>
+	[JsonProperty("franchise")]
+	public List<string>? Franchise { get; set; }
 
 	[JsonProperty("artist")]
 	public List<string>? Artist { get; set; }
@@ -223,8 +276,10 @@ public class Tags : ICloneable {
 		General?.ForEach(x => result.Add(x));
 		Species?.ForEach(x => result.Add(x));
 		Director?.ForEach(x => result.Add(x));
+		Contributor?.ForEach(x => result.Add(x));
 		Character?.ForEach(x => result.Add(x));
 		Copyright?.ForEach(x => result.Add(x));
+		Franchise?.ForEach(x => result.Add(x));
 		Artist?.ForEach(x => result.Add(x));
 		Invalid?.ForEach(x => result.Add(x));
 		Lore?.ForEach(x => result.Add(x));
@@ -241,8 +296,10 @@ public class Tags : ICloneable {
 			General = General?.Where(x => x.SearchFor(searchKey)).ToList(),
 			Species = Species?.Where(x => x.SearchFor(searchKey)).ToList(),
 			Director = Director?.Where(x => x.SearchFor(searchKey)).ToList(),
+			Contributor = Contributor?.Where(x => x.SearchFor(searchKey)).ToList(),
 			Character = Character?.Where(x => x.SearchFor(searchKey)).ToList(),
 			Copyright = Copyright?.Where(x => x.SearchFor(searchKey)).ToList(),
+			Franchise = Franchise?.Where(x => x.SearchFor(searchKey)).ToList(),
 			Artist = Artist?.Where(x => x.SearchFor(searchKey)).ToList(),
 			Invalid = Invalid?.Where(x => x.SearchFor(searchKey)).ToList(),
 			Lore = Lore?.Where(x => x.SearchFor(searchKey)).ToList(),

@@ -43,6 +43,12 @@ internal static class DownloadGroupingHelper {
 				yield return director;
 			}
 		}
+
+		if (tags.Contributor is not null) {
+			foreach (string contributor in tags.Contributor) {
+				yield return contributor;
+			}
+		}
 	}
 
 	/// <summary>Author/director tags for file naming: blank-filtered, case-insensitive distinct, alphabetical.</summary>

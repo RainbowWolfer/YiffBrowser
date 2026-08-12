@@ -111,10 +111,12 @@ public partial class TagsListView : UserControl {
 
 		AddItems(E621TagCategory.Artists, Tags.Artist);
 		AddItems(E621TagCategory.Director, Tags.Director);
+		AddItems(E621TagCategory.Contributor, Tags.Contributor);
+		AddItems(E621TagCategory.Copyrights, Tags.Copyright);
+		AddItems(E621TagCategory.Franchise, Tags.Franchise);
 		AddItems(E621TagCategory.Characters, Tags.Character);
 		AddItems(E621TagCategory.Species, Tags.Species);
 		AddItems(E621TagCategory.General, Tags.General);
-		AddItems(E621TagCategory.Copyrights, Tags.Copyright);
 		AddItems(E621TagCategory.Invalid, Tags.Invalid);
 		AddItems(E621TagCategory.Lore, Tags.Lore);
 		AddItems(E621TagCategory.Meta, Tags.Meta);

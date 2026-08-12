@@ -12,6 +12,16 @@ namespace YiffBrowser.BaseFramework.Services;
 
 // todo: 改成不同的网站有自己的netcode实例
 public static class NetCode {
+	/// <summary>
+	/// e621 hard limit is 2 req/s; docs recommend staying at ~1 req/s sustained.
+	/// </summary>
+	private static readonly TimeSpan MinRequestInterval = TimeSpan.FromMilliseconds(1000);
+	private static readonly TimeSpan RateLimitBackoffBase = TimeSpan.FromSeconds(2);
+	private const int MaxAttempts = 3;
+
+	private static readonly SemaphoreSlim throttleLock = new(1, 1);
+	private static DateTime lastRequestUtc = DateTime.MinValue;
+
 	private static HttpClientWrapper currentClientWrapper;
 	private static readonly Lock @lock = new();
 
@@ -66,49 +76,82 @@ public static class NetCode {
 		=> SendRequestAsync(HttpMethod.Get, url, null, username, api, token);
 
 	public static Task<HttpResult<string>> PutRequestAsync(string url, KeyValuePair<string, string> pair, string? username, string? api, CancellationToken? token = null)
-		=> SendRequestAsync(HttpMethod.Put, url, new FormUrlEncodedContent([pair]), username, api, token);
+		=> SendRequestAsync(HttpMethod.Put, url, () => new FormUrlEncodedContent([pair]), username, api, token);
 
 	public static Task<HttpResult<string>> PostRequestAsync(string url, List<KeyValuePair<string, string>> pairs, string? username, string? api, CancellationToken? token = null)
-		=> SendRequestAsync(HttpMethod.Post, url, new FormUrlEncodedContent(pairs), username, api, token);
+		=> SendRequestAsync(HttpMethod.Post, url, () => new FormUrlEncodedContent(pairs), username, api, token);
 
 	public static Task<HttpResult<string>> DeleteRequestAsync(string url, string? username, string? api, CancellationToken? token = null)
 		=> SendRequestAsync(HttpMethod.Delete, url, null, username, api, token);
 
-	private static async Task<HttpResult<string>> SendRequestAsync(
+	private static Task<HttpResult<string>> SendRequestAsync(
 		HttpMethod method,
 		string url,
-		HttpContent? content,
+		Func<HttpContent?>? contentFactory,
 		string? username,
 		string? api,
 		CancellationToken? token = null
 	) {
+		return SendRequestAsync(method, url, contentFactory, username, api, token ?? CancellationToken.None);
+	}
 
+	private static async Task<HttpResult<string>> SendRequestAsync(
+		HttpMethod method,
+		string url,
+		Func<HttpContent?>? contentFactory,
+		string? username,
+		string? api,
+		CancellationToken token
+	) {
 		Debug.WriteLine($"{method}: {url}");
 
 		DateTime startTime = DateTime.Now;
 		Stopwatch sw = Stopwatch.StartNew();
 
-		using HttpRequestMessage request = new(method, url) { Content = content };
-
-		ApplyRequestHeaders(request, username, api);
-
-		HttpResponseMessage? response = null;
-		HttpResultType resultType;
+		HttpResultType resultType = HttpResultType.Error;
+		HttpStatusCode code = HttpStatusCode.BadRequest;
 		string? responseContent = null;
 		string helper = "";
 
 		try {
-			HttpClientWrapper client = GetClient();
-			using (client.Use(method, url)) {
-				response = await client.HttpClient.SendAsync(request, token ?? CancellationToken.None);
+			for (int attempt = 1; attempt <= MaxAttempts; attempt++) {
+				token.ThrowIfCancellationRequested();
+				await ThrottleAsync(token).ConfigureAwait(false);
 
-				responseContent = await response.Content.ReadAsStringAsync();
+				HttpContent? content = contentFactory?.Invoke();
+				using HttpRequestMessage request = new(method, url) { Content = content };
+				ApplyRequestHeaders(request, username, api);
 
-				if (response.IsSuccessStatusCode) {
-					resultType = HttpResultType.Success;
-				} else {
-					resultType = HttpResultType.Error;
-					helper = $"Status Code: {response.StatusCode}";
+				HttpResponseMessage? response = null;
+				try {
+					HttpClientWrapper client = GetClient();
+					using (client.Use(method, url)) {
+						response = await client.HttpClient.SendAsync(request, token).ConfigureAwait(false);
+						responseContent = await response.Content.ReadAsStringAsync(token).ConfigureAwait(false);
+						code = response.StatusCode;
+
+						if (response.IsSuccessStatusCode) {
+							resultType = HttpResultType.Success;
+							helper = "";
+							break;
+						}
+
+						bool rateLimited = code is HttpStatusCode.TooManyRequests
+							or HttpStatusCode.ServiceUnavailable;
+						helper = $"Status Code: {code}";
+
+						if (rateLimited && attempt < MaxAttempts) {
+							TimeSpan backoff = GetRetryDelay(response, attempt);
+							Debug.WriteLine($"Rate limited ({(int)code}), retry {attempt}/{MaxAttempts} after {backoff.TotalSeconds:0.#}s");
+							await Task.Delay(backoff, token).ConfigureAwait(false);
+							continue;
+						}
+
+						resultType = HttpResultType.Error;
+						break;
+					}
+				} finally {
+					response?.Dispose();
 				}
 			}
 		} catch (OperationCanceledException) {
@@ -119,11 +162,7 @@ public static class NetCode {
 			helper = e.Message;
 		} finally {
 			sw.Stop();
-			response?.Dispose();
 		}
-
-		HttpStatusCode code = response?.StatusCode
-			?? (resultType == HttpResultType.Success ? HttpStatusCode.OK : HttpStatusCode.BadRequest);
 
 		return new HttpResult<string>(
 			Result: resultType,
@@ -133,6 +172,27 @@ public static class NetCode {
 			StartTime: startTime,
 			Helper: helper
 		);
+	}
+
+	private static async Task ThrottleAsync(CancellationToken token) {
+		await throttleLock.WaitAsync(token).ConfigureAwait(false);
+		try {
+			TimeSpan wait = MinRequestInterval - (DateTime.UtcNow - lastRequestUtc);
+			if (wait > TimeSpan.Zero) {
+				await Task.Delay(wait, token).ConfigureAwait(false);
+			}
+			lastRequestUtc = DateTime.UtcNow;
+		} finally {
+			throttleLock.Release();
+		}
+	}
+
+	private static TimeSpan GetRetryDelay(HttpResponseMessage response, int attempt) {
+		if (response.Headers.RetryAfter?.Delta is TimeSpan retryAfter && retryAfter > TimeSpan.Zero) {
+			return retryAfter;
+		}
+		// 2s, 4s, ...
+		return TimeSpan.FromTicks(RateLimitBackoffBase.Ticks * (1L << (attempt - 1)));
 	}
 
 	private static void ApplyRequestHeaders(HttpRequestMessage request, string? username, string? api) {

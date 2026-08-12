@@ -46,36 +46,47 @@ public class E621Tag {
 	public static Color GetCategoryColor(E621TagCategory category) {
 		bool isDarkTheme = IoC.GetService<IThemeManager>().IsDarkTheme();
 		return category switch {
-			E621TagCategory.Artists => (isDarkTheme ? "#F2AC08" : "#E39B00").HexToColor(),
-			E621TagCategory.Copyrights => (isDarkTheme ? "#DD00DD" : "#DD00DD").HexToColor(),
-			E621TagCategory.Species => (isDarkTheme ? "#ED5D1F" : "#ED5D1F").HexToColor(),
-			E621TagCategory.Director => (isDarkTheme ? "#00AA00" : "#00AA00").HexToColor(),
-			E621TagCategory.Characters => (isDarkTheme ? "#00AA00" : "#00AA00").HexToColor(),
+			// Align with e621 API category ids 0–8
 			E621TagCategory.General => (isDarkTheme ? "#B4C7D9" : "#0B7EE2").HexToColor(),
-			E621TagCategory.Meta => (isDarkTheme ? "#FFFFFF" : "#000000").HexToColor(),
+			E621TagCategory.Artists => (isDarkTheme ? "#F2AC08" : "#E39B00").HexToColor(),
+			E621TagCategory.Contributor => (isDarkTheme ? "#00AABB" : "#0088AA").HexToColor(),
+			E621TagCategory.Copyrights => (isDarkTheme ? "#DD00DD" : "#DD00DD").HexToColor(),
+			E621TagCategory.Characters => (isDarkTheme ? "#00AA00" : "#00AA00").HexToColor(),
+			E621TagCategory.Species => (isDarkTheme ? "#ED5D1F" : "#ED5D1F").HexToColor(),
 			E621TagCategory.Invalid => (isDarkTheme ? "#FF3D3D" : "#FF3D3D").HexToColor(),
+			E621TagCategory.Meta => (isDarkTheme ? "#FFFFFF" : "#000000").HexToColor(),
 			E621TagCategory.Lore => (isDarkTheme ? "#228822" : "#228822").HexToColor(),
+			// e6ai display-only groups share artist / copyright colors
+			E621TagCategory.Director => (isDarkTheme ? "#F2AC08" : "#E39B00").HexToColor(),
+			E621TagCategory.Franchise => (isDarkTheme ? "#DD00DD" : "#DD00DD").HexToColor(),
 			E621TagCategory.NotFound => (isDarkTheme ? "#B85277" : "#B40249").HexToColor(),
-			E621TagCategory.UnKnown => (isDarkTheme ? "#CCCBF9" : "#050507").HexToColor(),
 			_ => (isDarkTheme ? "#FFFFFF" : "#000000").HexToColor(),
 		};
 	}
 
 	public static Color GetCategoryColor(int category) {
-		return GetCategoryColor((E621TagCategory)category);
+		if (Enum.IsDefined(typeof(E621TagCategory), category)) {
+			return GetCategoryColor((E621TagCategory)category);
+		}
+		return GetCategoryColor(E621TagCategory.NotFound);
 	}
 }
 
+/// <summary>
+/// e621 API category ids 0–8. Director/Franchise are e6ai JSON-key display groups only
+/// (API still reports them as Artists=1 / Copyrights=3).
+/// </summary>
 public enum E621TagCategory {
 	NotFound = -1,
-	UnKnown = 0,
-	General = 1,
-	Artists = 2,
-	Director = 3,
+	General = 0,
+	Artists = 1,
+	Contributor = 2,
+	Copyrights = 3,
 	Characters = 4,
-	Copyrights = 5,
-	Species = 6,
-	Invalid = 7,
-	Meta = 8,
-	Lore = 9,
+	Species = 5,
+	Invalid = 6,
+	Meta = 7,
+	Lore = 8,
+	Director = 101,
+	Franchise = 103,
 }
