@@ -2,6 +2,7 @@ using DevExpress.Mvvm;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using YiffBrowser.BaseFramework.Services;
+using YiffBrowser.E621.Enums;
 
 namespace YiffBrowser.E621.ViewModels;
 
@@ -9,8 +10,19 @@ internal sealed class ClosedTabRecord {
 	public Guid Id { get; init; } = Guid.NewGuid();
 	public string[] Tags { get; init; } = [];
 	public int Page { get; init; } = 1;
+	public PostTabKind Kind { get; init; } = PostTabKind.Search;
+	public int? PoolId { get; init; }
+	public int? RelationsRootPostId { get; init; }
 
 	public ClosedTabRecord() { }
+
+	public ClosedTabRecord(PostTabItem tab) {
+		Tags = tab.Tags ?? [];
+		Page = Math.Max(1, tab.GetContentPage());
+		Kind = tab.Kind;
+		PoolId = tab.PoolId;
+		RelationsRootPostId = tab.RelationsRootPostId;
+	}
 
 	public ClosedTabRecord(string[] tags, int page) {
 		Tags = tags ?? [];
@@ -19,23 +31,37 @@ internal sealed class ClosedTabRecord {
 
 	public string DisplayText {
 		get {
-			string tagsText = Tags.Length > 0 ? string.Join(" ", Tags) : "(empty)";
-			return $"{tagsText} · p.{Page}";
+			string tagsText = Kind switch {
+				PostTabKind.Pool when PoolId is int poolId => PostTabTitleHelper.ForPool(poolId),
+				PostTabKind.Relations when RelationsRootPostId is int rootId => PostTabTitleHelper.ForRelations(rootId),
+				_ => Tags.Length > 0 ? string.Join(" ", Tags) : "(empty)",
+			};
+			return Kind == PostTabKind.Relations ? tagsText : $"{tagsText} · p.{Page}";
 		}
 	}
 
-	public string TagsDisplay => Tags.Length > 0 ? string.Join(" ", Tags) : "(empty)";
+	public string TagsDisplay => Kind switch {
+		PostTabKind.Pool when PoolId is int poolId => PostTabTitleHelper.ForPool(poolId),
+		PostTabKind.Relations when RelationsRootPostId is int rootId => PostTabTitleHelper.ForRelations(rootId),
+		_ => Tags.Length > 0 ? string.Join(" ", Tags) : "(empty)",
+	};
 
 	public ClosedTabRecordState ToState() => new() {
 		Id = Id,
 		Tags = Tags,
 		Page = Page,
+		Kind = (int)Kind,
+		PoolId = PoolId,
+		RelationsRootPostId = RelationsRootPostId,
 	};
 
 	public static ClosedTabRecord FromState(ClosedTabRecordState state) => new() {
 		Id = state.Id == Guid.Empty ? Guid.NewGuid() : state.Id,
 		Tags = state.Tags ?? [],
 		Page = Math.Max(1, state.Page),
+		Kind = Enum.IsDefined(typeof(PostTabKind), state.Kind) ? (PostTabKind)state.Kind : PostTabKind.Search,
+		PoolId = state.PoolId,
+		RelationsRootPostId = state.RelationsRootPostId,
 	};
 }
 

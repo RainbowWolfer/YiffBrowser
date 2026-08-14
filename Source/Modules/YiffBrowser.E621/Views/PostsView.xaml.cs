@@ -29,7 +29,7 @@ using YiffBrowser.E621.ViewModels;
 
 namespace YiffBrowser.E621.Views;
 
-internal partial class PostsView : UserControl, IDisposable {
+internal partial class PostsView : UserControl, IPostTabContent {
 	private readonly PostsViewModel viewModel;
 
 	public PostsView(PostTabItem postTabItem) {
@@ -203,15 +203,26 @@ internal class PostsViewModel(
 		DownloadIndexService.IndexChanged += OnDownloadIndexChanged;
 	}
 
-	public void Initialize(PostTabItem postTabItem) {
+	public void Initialize(PostTabItem postTabItem) => Initialize(postTabItem, autoRefresh: true);
+
+	public void Initialize(PostTabItem postTabItem, bool autoRefresh) {
 		TabItem = postTabItem;
 
 		ModuleType = postTabItem.ViewParameter.ModuleType;
 
 		CurrentPage = postTabItem.InitialPage;
 
-		Refresh();
+		RaisePropertyChanged(() => IsPoolTab);
+		RaisePropertyChanged(() => PoolHeaderVisible);
+
+		if (autoRefresh) {
+			Refresh();
+		}
 	}
+
+	public bool IsPoolTab => TabItem?.Kind == PostTabKind.Pool;
+
+	public bool PoolHeaderVisible => IsPoolTab && TabItem?.Pool != null;
 
 	public void Dispose() {
 		eventAggregator.GetEvent<AppSettingsChangedEvent>().Unsubscribe(OnAppSettingsChanged);
@@ -448,7 +459,6 @@ internal class PostsViewModel(
 
 	public ICommand RefreshCommand => new DelegateCommand(Refresh);
 	private async void Refresh() {
-		//return;
 		if (TabItem.LoadingStatus.ShowLoading) {
 			return;
 		}
@@ -465,35 +475,42 @@ internal class PostsViewModel(
 
 			paginationLoadingCts?.Cancel();
 			paginationLoadingCts = new CancellationTokenSource();
+			CancellationToken token = paginationLoadingCts.Token;
 
 			int pageLimit = 75;
+			E621Post[] posts;
 
-			_ = Task.Run(async () => {
-				CancellationToken token = paginationLoadingCts.Token;
-				IsLoadingPagination = true;
-				try {
-					E621Paginator? r = await TabItem.Api.GetPaginatorAsync(TabItem.Tags, pageLimit, CurrentPage, token);
-					if (r != null && !token.IsCancellationRequested) {
-						DispatcherService.Invoke(() => {
-							MaxPage = r.MaxPage;
-						});
+			if (TabItem.Kind == PostTabKind.Pool && TabItem.PoolId is int poolId) {
+				posts = await LoadPoolPageAsync(poolId, pageLimit, token);
+			} else {
+				_ = Task.Run(async () => {
+					IsLoadingPagination = true;
+					try {
+						E621Paginator? r = await TabItem.Api.GetPaginatorAsync(TabItem.Tags, pageLimit, CurrentPage, token);
+						if (r != null && !token.IsCancellationRequested) {
+							DispatcherService.Invoke(() => {
+								MaxPage = r.MaxPage;
+							});
+						}
+					} catch (OperationCanceledException) {
+
+					} catch (Exception ex) {
+						Debug.WriteLine(ex);
+					} finally {
+						if (!token.IsCancellationRequested) {
+							IsLoadingPagination = false;
+						}
 					}
-				} catch (OperationCanceledException) {
+				});
 
-				} catch (Exception ex) {
-					Debug.WriteLine(ex);
-				} finally {
-					if (!token.IsCancellationRequested) {
-						IsLoadingPagination = false;
-					}
-				}
-			});
+				posts = await TabItem.Api.GetPostsByTagsAsync(new E621PostParameters() {
+					Tags = TabItem.Tags,
+					Page = CurrentPage,
+					PageLimit = pageLimit,
+				}, token);
+			}
 
-			E621Post[] posts = await TabItem.Api.GetPostsByTagsAsync(new E621PostParameters() {
-				Tags = TabItem.Tags,
-				Page = CurrentPage,
-				PageLimit = pageLimit,
-			});
+			token.ThrowIfCancellationRequested();
 
 			foreach (E621Post post in posts) {
 				if (post.HasNoValidURLs()) {
@@ -507,15 +524,41 @@ internal class PostsViewModel(
 
 			PostsListBoxService.Object.Items.Refresh();
 			DownloadIndexVersion++;
+			RaisePropertyChanged(() => PoolHeaderVisible);
 
+			TabItem.LoadingStatus.Done();
+		} catch (OperationCanceledException) {
 			TabItem.LoadingStatus.Done();
 		} catch (Exception ex) {
 			TabItem.LoadingStatus.Error(ex.Message);
-		} finally {
+		}
+	}
 
+	private async Task<E621Post[]> LoadPoolPageAsync(int poolId, int pageLimit, CancellationToken token) {
+		E621Pool? pool = TabItem.Pool;
+		if (pool == null || pool.ID != poolId) {
+			pool = await TabItem.Api.GetPoolAsync(poolId.ToString(), token);
+			if (pool == null) {
+				MaxPage = 1;
+				return [];
+			}
+			TabItem.Pool = pool;
 		}
 
+		int[] ids = pool.PostIDs?.ToArray() ?? [];
+		int maxPage = Math.Max(1, (int)Math.Ceiling(ids.Length / (double)pageLimit));
+		MaxPage = maxPage;
+		if (CurrentPage > maxPage) {
+			CurrentPage = maxPage;
+		}
 
+		int skip = (CurrentPage - 1) * pageLimit;
+		int[] pageIds = ids.Skip(skip).Take(pageLimit).ToArray();
+		if (pageIds.Length == 0) {
+			return [];
+		}
+
+		return await TabItem.Api.GetPostsByIdsAsync(pageIds, token);
 	}
 
 	public ICommand ViewPostDetailCommand => new DelegateCommand<E621Post?>(ViewPostDetail);

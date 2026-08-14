@@ -446,7 +446,7 @@
 																						<TextBlock
 																							Margin="4,2"
 																							VerticalAlignment="Center"
-																							Text="{Binding Tags, Converter={StaticResource TagsDisplayConverter}}"
+																							Text="{Binding Title}"
 																							TextTrimming="CharacterEllipsis"/>
 																					</DockPanel>
 																				</wpf:ClippingBorder>
@@ -678,7 +678,7 @@
 															ArcThickness="2"
 															IsIndeterminate="True"
 															Visibility="{Binding LoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}"/>
-														<TextBlock VerticalAlignment="Center" Text="{Binding Tags, Converter={StaticResource TagsDisplayConverter}}"/>
+														<TextBlock VerticalAlignment="Center" Text="{Binding Title}"/>
 													</DockPanel>
 												</DataTemplate>
 											</c:TabControlEx.TabListItemTemplate>
@@ -825,7 +825,7 @@
 																<wpf:FontIcon Text="&#xF157;"/>
 															</Border>-->
 
-															<TextBlock Margin="4,0,0,2" VerticalAlignment="Bottom" Text="{Binding Tags, Converter={StaticResource TagsDisplayConverter}}"/>
+															<TextBlock Margin="4,0,0,2" VerticalAlignment="Bottom" Text="{Binding Title}"/>
 														</DockPanel>
 
 														<wpf:ButtonPopup SourceButton="{Binding ElementName=CloseTabButton}">

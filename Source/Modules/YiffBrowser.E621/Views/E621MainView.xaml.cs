@@ -14,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.BaseFramework.ViewModelServices;
+using YiffBrowser.E621.Enums;
 using YiffBrowser.E621.Interfaces;
 using YiffBrowser.E621.Models.Database;
 using YiffBrowser.E621.Models.E621;
@@ -317,6 +318,69 @@ internal class E621MainViewModel(
 		return item;
 	}
 
+	private PostTabItem CreateTabFromRecord(ClosedTabRecord record) {
+		return CreateTabFromKind(record.Kind, record.Tags, record.Page, record.PoolId, record.RelationsRootPostId);
+	}
+
+	private PostTabItem CreateTabFromSession(TabSessionState tab) {
+		PostTabKind kind = Enum.IsDefined(typeof(PostTabKind), tab.Kind) ? (PostTabKind)tab.Kind : PostTabKind.Search;
+		return CreateTabFromKind(kind, tab.Tags, Math.Max(1, tab.CurrentPage), tab.PoolId, tab.RelationsRootPostId);
+	}
+
+	private PostTabItem CreateTabFromKind(
+		PostTabKind kind,
+		string[]? tags,
+		int page,
+		int? poolId,
+		int? relationsRootPostId
+	) {
+		return kind switch {
+			PostTabKind.Pool when poolId is int pid => PostTabItem.CreatePool(this, pid, page),
+			PostTabKind.Relations when relationsRootPostId is int rid => PostTabItem.CreateRelations(this, rid),
+			_ => CreateTabItem(tags is { Length: > 0 } ? tags : ["wallpaper", "rating:safe"], page),
+		};
+	}
+
+	private PostTabItem CloneTabItem(PostTabItem item) {
+		return item.Kind switch {
+			PostTabKind.Pool when item.PoolId is int pid => PostTabItem.CreatePool(this, pid, item.GetContentPage()),
+			PostTabKind.Relations when item.RelationsRootPostId is int rid => PostTabItem.CreateRelations(this, rid),
+			_ => CreateTabItem(item.Tags, item.GetContentPage()),
+		};
+	}
+
+	public void OpenPoolTab(int poolId) {
+		if (ViewParameter == null || poolId <= 0) {
+			return;
+		}
+
+		int existing = Tabs.ToList().FindIndex(t => t.Kind == PostTabKind.Pool && t.PoolId == poolId);
+		if (existing >= 0) {
+			TabSelectedIndex = existing;
+			return;
+		}
+
+		PostTabItem item = PostTabItem.CreatePool(this, poolId);
+		Tabs.Add(item);
+		TabSelectedIndex = Tabs.Count - 1;
+	}
+
+	public void OpenRelationsTab(int rootPostId) {
+		if (ViewParameter == null || rootPostId <= 0) {
+			return;
+		}
+
+		int existing = Tabs.ToList().FindIndex(t => t.Kind == PostTabKind.Relations && t.RelationsRootPostId == rootPostId);
+		if (existing >= 0) {
+			TabSelectedIndex = existing;
+			return;
+		}
+
+		PostTabItem item = PostTabItem.CreateRelations(this, rootPostId);
+		Tabs.Add(item);
+		TabSelectedIndex = Tabs.Count - 1;
+	}
+
 	public void ScheduleSessionSave() {
 		if (isRestoringSession || ViewParameter == null) {
 			return;
@@ -328,7 +392,10 @@ internal class E621MainViewModel(
 			SelectedTabIndex = TabSelectedIndex,
 			Tabs = Tabs.Select(t => new TabSessionState {
 				Tags = t.Tags,
-				CurrentPage = t.View.CurrentPage,
+				CurrentPage = t.GetContentPage(),
+				Kind = (int)t.Kind,
+				PoolId = t.PoolId,
+				RelationsRootPostId = t.RelationsRootPostId,
 			}).ToList(),
 		};
 
@@ -362,8 +429,7 @@ internal class E621MainViewModel(
 
 			if (saved?.Tabs is { Count: > 0 }) {
 				foreach (TabSessionState tab in saved.Tabs) {
-					string[] tags = tab.Tags is { Length: > 0 } ? tab.Tags : ["wallpaper", "rating:safe"];
-					Tabs.Add(CreateTabItem(tags, Math.Max(1, tab.CurrentPage)));
+					Tabs.Add(CreateTabFromSession(tab));
 				}
 
 				TabSelectedIndex = NumberHelper.Clamp(saved.SelectedTabIndex, 0, Tabs.Count - 1);
@@ -610,7 +676,7 @@ internal class E621MainViewModel(
 			return;
 		}
 
-		PostTabItem clone = CreateTabItem(item.Tags, item.CurrentPage);
+		PostTabItem clone = CloneTabItem(item);
 		int index = Tabs.IndexOf(item);
 		if (index >= 0 && index < Tabs.Count - 1) {
 			Tabs.Insert(index + 1, clone);
@@ -669,7 +735,7 @@ internal class E621MainViewModel(
 
 		}
 	}
-	private bool CanAppendSearch(PostTabItem item) => item != null;
+	private bool CanAppendSearch(PostTabItem item) => item is { Kind: PostTabKind.Search };
 
 	private DelegateCommand<PostTabItem>? addTabToBookmarksCommand;
 	public IDelegateCommand AddTabToBookmarksCommand => addTabToBookmarksCommand ??= new(AddTabToBookmarks, CanAddTabToBookmarks);
@@ -678,7 +744,7 @@ internal class E621MainViewModel(
 			AddBookmarkFromTab(item, SelectedBookmark);
 		}
 	}
-	private bool CanAddTabToBookmarks(PostTabItem item) => item != null;
+	private bool CanAddTabToBookmarks(PostTabItem item) => item is { Kind: PostTabKind.Search };
 
 	public ICommand CloseTabCommand => new DelegateCommand<PostTabItem>(CloseTab, CanCloseTab);
 	private void CloseTab(PostTabItem item) {
@@ -740,7 +806,7 @@ internal class E621MainViewModel(
 
 		ClosedTabBatch batch = new();
 		foreach (PostTabItem tab in tabs) {
-			batch.Tabs.Add(new ClosedTabRecord(tab.Tags, tab.CurrentPage));
+			batch.Tabs.Add(new ClosedTabRecord(tab));
 			tab.Dispose();
 			Tabs.Remove(tab);
 		}
@@ -764,7 +830,7 @@ internal class E621MainViewModel(
 		}
 
 		foreach (ClosedTabRecord record in batch.Tabs) {
-			Tabs.Add(CreateTabItem(record.Tags, record.Page));
+			Tabs.Add(CreateTabFromRecord(record));
 		}
 
 		TabSelectedIndex = Tabs.Count - 1;
@@ -780,7 +846,7 @@ internal class E621MainViewModel(
 			return;
 		}
 
-		Tabs.Add(CreateTabItem(record.Tags, record.Page));
+		Tabs.Add(CreateTabFromRecord(record));
 		TabSelectedIndex = Tabs.Count - 1;
 
 		ClosedTabBatch? owningBatch = recentClosedBatches.FirstOrDefault(b => b.Tabs.Contains(record));

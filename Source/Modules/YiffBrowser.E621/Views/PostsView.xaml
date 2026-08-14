@@ -52,6 +52,35 @@
 
 					<Border Visibility="{Binding CurrentHasPost, Converter={StaticResource Boolean2VisibilityReConverter}}">
 						<DockPanel>
+							<Border
+								Padding="8,6"
+								Background="{DynamicResource RegionBrush}"
+								BorderBrush="{DynamicResource BorderBrush}"
+								BorderThickness="0,0,0,1"
+								DockPanel.Dock="Top"
+								Visibility="{Binding PoolHeaderVisible, Converter={StaticResource Boolean2VisibilityConverter}}">
+								<StackPanel>
+									<TextBlock
+										FontSize="16"
+										FontWeight="SemiBold"
+										Text="{Binding TabItem.Pool.Name}"
+										TextWrapping="Wrap"/>
+									<TextBlock Margin="0,2,0,0" Opacity="0.75">
+										<Run Text="{Binding TabItem.Pool.Category, Mode=OneWay}"/>
+										<Run Text=" · "/>
+										<Run Text="{Binding TabItem.Pool.PostCount, Mode=OneWay}"/>
+										<Run Text=" posts"/>
+									</TextBlock>
+									<TextBlock
+										Margin="0,4,0,0"
+										Opacity="0.9"
+										Text="{Binding TabItem.Pool.Description}"
+										TextWrapping="Wrap"
+										MaxHeight="72"
+										TextTrimming="CharacterEllipsis"/>
+								</StackPanel>
+							</Border>
+
 							<Border Padding="4" Background="{DynamicResource RegionBrush}" DockPanel.Dock="Top">
 
 								<Grid>

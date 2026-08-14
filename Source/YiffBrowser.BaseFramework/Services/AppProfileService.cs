@@ -104,6 +104,10 @@ public class ModuleSessionState {
 public class TabSessionState {
 	public string[] Tags { get; set; } = [];
 	public int CurrentPage { get; set; } = 1;
+	/// <summary>0=Search, 1=Pool, 2=Relations. Missing/unknown deserializes as Search.</summary>
+	public int Kind { get; set; }
+	public int? PoolId { get; set; }
+	public int? RelationsRootPostId { get; set; }
 }
 
 [JsonObject]
@@ -139,4 +143,7 @@ public class ClosedTabRecordState {
 	public Guid Id { get; set; }
 	public string[] Tags { get; set; } = [];
 	public int Page { get; set; } = 1;
+	public int Kind { get; set; }
+	public int? PoolId { get; set; }
+	public int? RelationsRootPostId { get; set; }
 }

@@ -6,6 +6,7 @@ using RW.Common.Helpers;
 using System.Diagnostics;
 using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.E621.Enums;
+using YiffBrowser.E621.Models;
 using YiffBrowser.E621.Models.E621;
 
 namespace YiffBrowser.E621.Services;
@@ -108,6 +109,122 @@ public class E621API(ModuleType moduleType) {
 		} else {
 			return null;
 		}
+	}
+
+	/// <summary>
+	/// Fetches posts by id list (chunked via id:a,b,c) and returns them in the requested order.
+	/// Missing ids are skipped.
+	/// </summary>
+	public async ValueTask<E621Post[]> GetPostsByIdsAsync(IEnumerable<int> ids, CancellationToken? token = null) {
+		int[] ordered = ids.Where(id => id > 0).Distinct().ToArray();
+		if (ordered.Length == 0) {
+			return [];
+		}
+
+		const int chunkSize = 75;
+		Dictionary<int, E621Post> map = [];
+
+		for (int i = 0; i < ordered.Length; i += chunkSize) {
+			token?.ThrowIfCancellationRequested();
+			int[] chunk = ordered.Skip(i).Take(chunkSize).ToArray();
+			string idTag = "id:" + string.Join(",", chunk);
+			E621Post[] posts = await GetPostsByTagsAsync(new E621PostParameters {
+				Page = 1,
+				PageLimit = chunk.Length,
+				Tags = [idTag],
+			}, token);
+
+			foreach (E621Post post in posts) {
+				map[post.ID] = post;
+			}
+		}
+
+		return ordered.Where(map.ContainsKey).Select(id => map[id]).ToArray();
+	}
+
+	/// <summary>
+	/// Walks parent chain to root, then BFS children to build the full relationship tree.
+	/// </summary>
+	public async ValueTask<RelationTreeBuildResult> BuildRelationTreeAsync(int seedPostId, CancellationToken? token = null) {
+		Dictionary<int, E621Post> cache = [];
+
+		async Task<E621Post?> EnsurePost(int id) {
+			if (cache.TryGetValue(id, out E621Post? cached)) {
+				return cached;
+			}
+			E621Post? post = await GetPostAsync(id, token);
+			if (post != null) {
+				cache[post.ID] = post;
+			}
+			return post;
+		}
+
+		E621Post? seed = await EnsurePost(seedPostId);
+		if (seed == null) {
+			return new RelationTreeBuildResult(null, [], []);
+		}
+
+		E621Post rootPost = seed;
+		while (rootPost.Relationships?.ParentId is int parentId and > 0) {
+			token?.ThrowIfCancellationRequested();
+			E621Post? parent = await EnsurePost(parentId);
+			if (parent == null) {
+				break;
+			}
+			rootPost = parent;
+		}
+
+		Queue<int> queue = new();
+		HashSet<int> visited = [];
+		queue.Enqueue(rootPost.ID);
+		visited.Add(rootPost.ID);
+
+		while (queue.Count > 0) {
+			token?.ThrowIfCancellationRequested();
+			int currentId = queue.Dequeue();
+			E621Post? current = await EnsurePost(currentId);
+			if (current?.Relationships?.Children is not { Count: > 0 } children) {
+				continue;
+			}
+
+			List<int> missing = [];
+			foreach (int? childId in children) {
+				if (childId is int cid and > 0 && visited.Add(cid)) {
+					if (!cache.ContainsKey(cid)) {
+						missing.Add(cid);
+					}
+					queue.Enqueue(cid);
+				}
+			}
+
+			if (missing.Count > 0) {
+				E621Post[] fetched = await GetPostsByIdsAsync(missing, token);
+				foreach (E621Post post in fetched) {
+					cache[post.ID] = post;
+				}
+			}
+		}
+
+		RelationTreeNode BuildNode(E621Post post, int depth) {
+			RelationTreeNode node = new() {
+				Post = post,
+				Depth = depth,
+				IsSeed = post.ID == seedPostId,
+			};
+			IEnumerable<int> childIds = (post.Relationships?.Children ?? [])
+				.Where(id => id is int and > 0)
+				.Select(id => id!.Value);
+			foreach (int childId in childIds) {
+				if (cache.TryGetValue(childId, out E621Post? childPost)) {
+					node.Children.Add(BuildNode(childPost, depth + 1));
+				}
+			}
+			return node;
+		}
+
+		RelationTreeNode root = BuildNode(rootPost, 0);
+		List<E621Post> flat = [.. cache.Values.OrderBy(p => p.ID)];
+		return new RelationTreeBuildResult(root, flat, cache.Values.ToList());
 	}
 
 	#endregion
