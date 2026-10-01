@@ -165,6 +165,7 @@ public class AppSettingsDialogViewModel(
 			eventAggregator.GetEvent<AppSettingsChangedEvent>().Publish(new AppSettingsChangedEventArgs(appSettingsService.Model));
 
 			NetCode.CreateNewClient();
+			MediaDownloadService.ResetClient();
 			downloadService.RecreateHttpClient();
 
 			return true;

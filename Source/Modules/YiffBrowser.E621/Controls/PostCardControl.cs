@@ -193,6 +193,11 @@ internal class PostCardControl : ContentControl, IVariableSizedGridItem, IDispos
 
 	public void Dispose() {
 		viewConfigService.PostItemSizeChanged -= ViewConfigService_PostItemSizeChanged;
+
+		ImageLoader.Progress -= ImageLoader_Progress;
+		ImageLoader.ImageChanged -= ImageLoader_ImageChanged;
+		ImageLoader.ImageGifChanged -= ImageLoader_ImageGifChanged;
+		ImageLoader.Dispose();
 	}
 
 	private void ViewConfigService_PostItemSizeChanged(IViewConfigService sender, EventArgs args) {

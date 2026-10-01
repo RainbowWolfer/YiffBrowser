@@ -1,6 +1,5 @@
 using DevExpress.Mvvm;
 using RW.Base.WPF.Extensions;
-using RW.Base.WPF.ViewModelServices;
 using RW.Common.Helpers;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -8,11 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 using YiffBrowser.BaseFramework.Services;
-using YiffBrowser.BaseFramework.ViewModels;
 using YiffBrowser.E621.Models;
 using YiffBrowser.E621.Models.E621;
 using YiffBrowser.E621.ViewModels;
@@ -41,11 +36,35 @@ internal partial class RelationsGraphView : UserControl, IPostTabContent {
 	public void Dispose() {
 		viewModel.Dispose();
 	}
+
+	private void NodeCard_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+		if (sender is FrameworkElement { DataContext: RelationGraphNodeVm node }) {
+			viewModel.OpenNode(node);
+		}
+	}
 }
 
 internal class RelationsGraphViewModel : ViewModelBase, IDisposable {
-	public IDispatcherServiceEx DispatcherService => GetService<IDispatcherServiceEx>();
-	public IUIObjectService<Canvas> GraphCanvasService => GetService<ITypedUIObjectService>(nameof(GraphCanvasService)).As<Canvas>();
+
+	public RelationsGraphViewModel() {
+		// Visibility defaults to Visible (enum 0), which would let the detail overlay
+		// cover the graph before anything is loaded.
+		GraphVisibility = Visibility.Visible;
+		DetailVisibility = Visibility.Collapsed;
+		LoadingVisibility = Visibility.Collapsed;
+		EmptyVisibility = Visibility.Collapsed;
+	}
+
+	/// <summary>Set before the tree loads so the header/status can render immediately.</summary>
+	public string HeaderTitle {
+		get => GetProperty(() => HeaderTitle);
+		private set => SetProperty(() => HeaderTitle, value);
+	}
+
+	public string StatusText {
+		get => GetProperty(() => StatusText);
+		private set => SetProperty(() => StatusText, value);
+	}
 
 	public PostsViewModel? PostsHost {
 		get => GetProperty(() => PostsHost);
@@ -57,44 +76,89 @@ internal class RelationsGraphViewModel : ViewModelBase, IDisposable {
 		private set => SetProperty(() => TabItem, value);
 	}
 
-	public RelationTreeNode? Root {
-		get => GetProperty(() => Root);
-		private set => SetProperty(() => Root, value);
+	/// <summary>
+	/// Visibility is driven from the view model instead of nested bindings + converters:
+	/// a failed binding would leave both layers at their default Visible and the detail
+	/// overlay would cover the graph.
+	/// </summary>
+	public Visibility GraphVisibility {
+		get => GetProperty(() => GraphVisibility);
+		private set => SetProperty(() => GraphVisibility, value);
+	}
+
+	public Visibility DetailVisibility {
+		get => GetProperty(() => DetailVisibility);
+		private set => SetProperty(() => DetailVisibility, value);
+	}
+
+	public Visibility LoadingVisibility {
+		get => GetProperty(() => LoadingVisibility);
+		private set => SetProperty(() => LoadingVisibility, value);
+	}
+
+	public Visibility EmptyVisibility {
+		get => GetProperty(() => EmptyVisibility);
+		private set => SetProperty(() => EmptyVisibility, value);
 	}
 
 	public ObservableCollection<RelationGraphNodeVm> Nodes { get; } = [];
+	public ObservableCollection<RelationGraphEdgeVm> Edges { get; } = [];
 
-	public string StatusText {
-		get => GetProperty(() => StatusText);
-		set => SetProperty(() => StatusText, value);
+	public double GraphWidth {
+		get => GetProperty(() => GraphWidth);
+		private set => SetProperty(() => GraphWidth, value);
+	}
+
+	public double GraphHeight {
+		get => GetProperty(() => GraphHeight);
+		private set => SetProperty(() => GraphHeight, value);
 	}
 
 	private CancellationTokenSource? loadCts;
-	private RelationTreeNode? pendingRoot;
 
 	public void Initialize(PostTabItem postTabItem) {
 		TabItem = postTabItem;
+		HeaderTitle = postTabItem.Title;
+
+		GraphVisibility = Visibility.Visible;
+		DetailVisibility = Visibility.Collapsed;
+		LoadingVisibility = Visibility.Collapsed;
+		EmptyVisibility = Visibility.Collapsed;
 
 		PostsHost = IoC.Resolve<PostsViewModel>()!;
 		PostsHost.Initialize(postTabItem, autoRefresh: false);
+		PostsHost.CurrentPostChanged += OnCurrentPostChanged;
 
 		Refresh();
 	}
 
 	public void Dispose() {
 		loadCts?.Cancel();
-		PostsHost?.Dispose();
+		if (PostsHost != null) {
+			PostsHost.CurrentPostChanged -= OnCurrentPostChanged;
+			PostsHost.Dispose();
+		}
 	}
 
-	public ICommand RefreshCommand => new DelegateCommand(Refresh);
+	private void OnCurrentPostChanged(PostsViewModel sender, E621Post? args) {
+		bool hasPost = args != null;
+		DetailVisibility = hasPost ? Visibility.Visible : Visibility.Collapsed;
+		GraphVisibility = hasPost ? Visibility.Collapsed : Visibility.Visible;
+	}
+
+	public void OpenNode(RelationGraphNodeVm node) {
+		if (PostsHost != null) {
+			PostsHost.CurrentPost = node.Post;
+		}
+	}
+
+	private DelegateCommand? refreshCommand;
+	public IDelegateCommand RefreshCommand => refreshCommand ??= new(Refresh);
 
 	private async void Refresh() {
-		if (TabItem.RelationsRootPostId is not int seedId || seedId <= 0) {
-			TabItem.LoadingStatus.Error("Missing relations root post id.");
-			return;
-		}
-
-		if (TabItem.LoadingStatus.ShowLoading) {
+		if (TabItem?.RelationsRootPostId is not int seedId || seedId <= 0) {
+			StatusText = "Missing relations root post id.";
+			EmptyVisibility = Visibility.Visible;
 			return;
 		}
 
@@ -103,226 +167,155 @@ internal class RelationsGraphViewModel : ViewModelBase, IDisposable {
 		CancellationToken token = loadCts.Token;
 
 		TabItem.LoadingStatus.Initialize();
-		StatusText = "Loading relationship tree…";
-		Nodes.Clear();
+		LoadingVisibility = Visibility.Visible;
+		EmptyVisibility = Visibility.Collapsed;
+		StatusText = "Loading relationship tree...";
+
+		ClearGraph();
 		TabItem.Posts.Clear();
-		Root = null;
-		PostsHost!.CurrentPost = null;
+		if (PostsHost != null) {
+			PostsHost.CurrentPost = null;
+		}
 
 		try {
 			RelationTreeBuildResult result = await TabItem.Api.BuildRelationTreeAsync(seedId, token);
 			token.ThrowIfCancellationRequested();
 
-			Root = result.Root;
-			pendingRoot = result.Root;
 			foreach (E621Post post in result.AllPosts) {
 				TabItem.Posts.Add(post);
 			}
 
-			_ = DispatcherService.Dispatcher.BeginInvoke(() => BuildLayout(pendingRoot), DispatcherPriority.Loaded);
-			StatusText = result.Root == null
-				? "No relationship tree found."
-				: $"{result.AllPosts.Count} related post(s)";
+			BuildLayout(result.Root, seedId);
+
+			if (Nodes.Count == 0) {
+				StatusText = "No related posts found.";
+				EmptyVisibility = Visibility.Visible;
+			} else {
+				StatusText = $"{Nodes.Count} related post(s)";
+			}
 
 			TabItem.LoadingStatus.Done();
 		} catch (OperationCanceledException) {
-			TabItem.LoadingStatus.Done();
+			// A newer refresh owns the status from here on.
 		} catch (Exception ex) {
 			Debug.WriteLine(ex);
 			StatusText = ex.Message;
+			EmptyVisibility = Visibility.Visible;
 			TabItem.LoadingStatus.Error(ex.Message);
+		} finally {
+			if (!token.IsCancellationRequested) {
+				LoadingVisibility = Visibility.Collapsed;
+			}
 		}
 	}
 
-	private const double NodeWidth = 120;
-	private const double NodeHeight = 140;
-	private const double HGap = 24;
-	private const double VGap = 48;
+	private const double NodeWidth = 132;
+	private const double NodeHeight = 156;
+	private const double HGap = 20;
+	private const double VGap = 44;
+	private const double Margin = 20;
 
-	private void BuildLayout(RelationTreeNode? root) {
+	private void ClearGraph() {
 		Nodes.Clear();
-		Canvas? canvas = null;
-		try {
-			canvas = GraphCanvasService.Object;
-		} catch {
-			// service may not be ready yet
-		}
+		Edges.Clear();
+		GraphWidth = 0;
+		GraphHeight = 0;
+	}
 
-		canvas?.Children.Clear();
+	private void BuildLayout(RelationTreeNode? root, int seedId) {
+		ClearGraph();
 		if (root == null) {
-			if (canvas != null) {
-				canvas.Width = 0;
-				canvas.Height = 0;
-			}
 			return;
 		}
 
-		Dictionary<RelationTreeNode, double> subtreeWidths = [];
+		Dictionary<RelationTreeNode, double> widths = [];
+
 		double Measure(RelationTreeNode node) {
 			if (node.Children.Count == 0) {
-				subtreeWidths[node] = NodeWidth;
-				return NodeWidth;
+				return widths[node] = NodeWidth;
 			}
-			double width = 0;
-			foreach (RelationTreeNode child in node.Children) {
-				width += Measure(child);
-			}
-			width += HGap * (node.Children.Count - 1);
-			width = Math.Max(width, NodeWidth);
-			subtreeWidths[node] = width;
-			return width;
+
+			double width = node.Children.Sum(Measure) + HGap * (node.Children.Count - 1);
+			return widths[node] = Math.Max(width, NodeWidth);
 		}
 
-		double totalWidth = Measure(root);
-		List<(RelationTreeNode parent, RelationTreeNode child, Point from, Point to)> edges = [];
+		Measure(root);
 
 		void Place(RelationTreeNode node, double left, double top) {
-			double subtree = subtreeWidths[node];
-			double x = left + (subtree - NodeWidth) / 2;
-			RelationGraphNodeVm vm = new(node) {
+			double x = left + (widths[node] - NodeWidth) / 2;
+			Nodes.Add(new RelationGraphNodeVm(node, seedId) {
 				X = x,
 				Y = top,
-			};
-			Nodes.Add(vm);
-
-			if (node.Children.Count == 0) {
-				return;
-			}
+			});
 
 			double childLeft = left;
+			double childTop = top + NodeHeight + VGap;
+
 			foreach (RelationTreeNode child in node.Children) {
-				double childWidth = subtreeWidths[child];
-				Place(child, childLeft, top + NodeHeight + VGap);
-				RelationGraphNodeVm? childVm = Nodes.FirstOrDefault(n => n.Post.ID == child.Post.ID);
-				if (childVm != null) {
-					edges.Add((node, child,
-						new Point(x + NodeWidth / 2, top + NodeHeight),
-						new Point(childVm.X + NodeWidth / 2, childVm.Y)));
-				}
-				childLeft += childWidth + HGap;
+				double childX = childLeft + (widths[child] - NodeWidth) / 2;
+				Edges.Add(RelationGraphEdgeVm.Create(
+					new Point(x + NodeWidth / 2, top + NodeHeight),
+					new Point(childX + NodeWidth / 2, childTop)
+				));
+
+				Place(child, childLeft, childTop);
+				childLeft += widths[child] + HGap;
 			}
 		}
 
-		Place(root, 16, 16);
+		Place(root, Margin, Margin);
 
-		double maxX = Nodes.Count == 0 ? totalWidth : Nodes.Max(n => n.X + NodeWidth) + 16;
-		double maxY = Nodes.Count == 0 ? NodeHeight : Nodes.Max(n => n.Y + NodeHeight) + 16;
-
-		if (canvas != null) {
-			canvas.Width = Math.Max(maxX, totalWidth + 32);
-			canvas.Height = maxY;
-
-			foreach ((RelationTreeNode parent, RelationTreeNode child, Point from, Point to) in edges) {
-				_ = parent;
-				_ = child;
-				PathFigure figure = new() { StartPoint = from };
-				double midY = (from.Y + to.Y) / 2;
-				figure.Segments.Add(new BezierSegment(
-					new Point(from.X, midY),
-					new Point(to.X, midY),
-					to,
-					isStroked: true));
-				PathGeometry geometry = new();
-				geometry.Figures.Add(figure);
-				Path path = new() {
-					Data = geometry,
-					Stroke = TryBrush("PrimaryTextBrush", Brushes.Gray),
-					StrokeThickness = 1.5,
-					Opacity = 0.45,
-				};
-				canvas.Children.Add(path);
-			}
-
-			foreach (RelationGraphNodeVm node in Nodes) {
-				Border card = CreateNodeCard(node);
-				Canvas.SetLeft(card, node.X);
-				Canvas.SetTop(card, node.Y);
-				canvas.Children.Add(card);
-			}
-		}
-	}
-
-	private Border CreateNodeCard(RelationGraphNodeVm node) {
-		Image image = new() {
-			Stretch = Stretch.UniformToFill,
-			Source = null,
-		};
-		if (node.Post.Preview?.URL.IsNotBlank() == true) {
-			image.Source = new BitmapImage(new Uri(node.Post.Preview.URL!));
-		}
-
-		Border preview = new() {
-			Width = NodeWidth - 8,
-			Height = 96,
-			CornerRadius = new CornerRadius(4),
-			ClipToBounds = true,
-			Child = image,
-			Background = TryBrush("SecondaryRegionBrush", Brushes.DimGray),
-		};
-
-		TextBlock idText = new() {
-			Text = $"#{node.Post.ID}",
-			FontWeight = FontWeights.SemiBold,
-			HorizontalAlignment = HorizontalAlignment.Center,
-			Margin = new Thickness(0, 4, 0, 0),
-		};
-
-		TextBlock badge = new() {
-			Text = node.IsSeed ? "seed" : node.Depth == 0 ? "root" : $"d{node.Depth}",
-			FontSize = 11,
-			Opacity = 0.7,
-			HorizontalAlignment = HorizontalAlignment.Center,
-		};
-
-		StackPanel stack = new() { Children = { preview, idText, badge } };
-
-		Border card = new() {
-			Width = NodeWidth,
-			Height = NodeHeight,
-			Padding = new Thickness(4),
-			CornerRadius = new CornerRadius(6),
-			BorderThickness = new Thickness(node.IsSeed ? 2 : 1),
-			BorderBrush = TryBrush(node.IsSeed ? "PrimaryBrush" : "BorderBrush", Brushes.Gray),
-			Background = TryBrush("RegionBrush", Brushes.White),
-			Child = stack,
-			Cursor = Cursors.Hand,
-			Tag = node,
-			ToolTip = $"Post #{node.Post.ID}",
-		};
-
-		card.MouseLeftButtonUp += (_, _) => OpenPost(node.Post);
-		return card;
-	}
-
-	private void OpenPost(E621Post post) {
-		if (PostsHost == null) {
-			return;
-		}
-		PostsHost.CurrentPost = post;
-	}
-
-	public ICommand QuitDetailCommand => new DelegateCommand(() => {
-		if (PostsHost != null) {
-			PostsHost.CurrentPost = null;
-		}
-	});
-
-	private static Brush TryBrush(string key, Brush fallback) {
-		try {
-			if (Application.Current?.TryFindResource(key) is Brush brush) {
-				return brush;
-			}
-		} catch {
-			// ignore
-		}
-		return fallback;
+		GraphWidth = Nodes.Max(n => n.X + NodeWidth) + Margin;
+		GraphHeight = Nodes.Max(n => n.Y + NodeHeight) + Margin;
 	}
 }
 
-internal sealed class RelationGraphNodeVm(RelationTreeNode node) {
-	public E621Post Post { get; } = node.Post;
-	public bool IsSeed { get; } = node.IsSeed;
-	public int Depth { get; } = node.Depth;
+internal sealed class RelationGraphNodeVm {
+	public RelationGraphNodeVm(RelationTreeNode node, int seedId) {
+		Post = node.Post;
+		Depth = node.Depth;
+		IsSeed = node.Post.ID == seedId;
+		HasParent = node.Depth > 0;
+	}
+
+	public E621Post Post { get; }
+	public int Depth { get; }
+	public bool IsSeed { get; }
+	public bool HasParent { get; }
+
 	public double X { get; set; }
 	public double Y { get; set; }
+
+	public string Title => $"#{Post.ID}";
+	public string? PreviewUrl => Post.Preview?.URL;
+
+	public string Badge => IsSeed
+		? "current"
+		: HasParent ? $"child · d{Depth}" : "root";
+
+	public string ToolTipText => $"Post #{Post.ID} ({Post.Rating})";
+
+	public Thickness BorderThickness => new(IsSeed ? 2 : 1);
+}
+
+internal sealed class RelationGraphEdgeVm {
+	public required Geometry Data { get; init; }
+
+	public static RelationGraphEdgeVm Create(Point from, Point to) {
+		double midY = (from.Y + to.Y) / 2;
+
+		PathFigure figure = new() { StartPoint = from };
+		figure.Segments.Add(new BezierSegment(
+			new Point(from.X, midY),
+			new Point(to.X, midY),
+			to,
+			isStroked: true
+		));
+
+		PathGeometry geometry = new();
+		geometry.Figures.Add(figure);
+		geometry.Freeze();
+
+		return new RelationGraphEdgeVm { Data = geometry };
+	}
 }

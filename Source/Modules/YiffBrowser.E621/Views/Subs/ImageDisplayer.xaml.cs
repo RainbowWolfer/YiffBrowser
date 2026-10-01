@@ -106,7 +106,8 @@ public partial class ImageDisplayer : UserControl, IPostDisplayer {
 			ImageViewer.Clear();
 		}
 
-		if (HasContent(file)) {
+		// HasContent only means the BitmapImage object exists; it may still be downloading.
+		if (file?.HasCompleted == true) {
 			LoadingStatus.Done();
 			IsFileReady = true;
 			return;
@@ -211,8 +212,8 @@ public partial class ImageDisplayer : UserControl, IPostDisplayer {
 
 		file?.Initialize();
 
-		if (HasContent(file)) {
-			SetImageContent(file!);
+		if (file?.HasCompleted == true) {
+			SetImageContent(file);
 			LoadingStatus.Done();
 			IsFileReady = true;
 		}

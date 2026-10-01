@@ -87,7 +87,12 @@ internal class PostDetailViewModel(IVideoControlsService videoControlsService) :
 
 		Post = null;
 
-		ParentViewModel = (PostsViewModel)parentViewModel;
+		if (parentViewModel is not PostsViewModel postsViewModel) {
+			ParentViewModel = null;
+			return;
+		}
+
+		ParentViewModel = postsViewModel;
 		ParentViewModel.CurrentPostChanged += PostsViewModel_CurrentPostChanged;
 		ParentViewModel.SelectionChanged += PostsViewModel_SelectionChanged;
 		ParentViewModel.PropertyChanged += ParentViewModel_PropertyChanged;

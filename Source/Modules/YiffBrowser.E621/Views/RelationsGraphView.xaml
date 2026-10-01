@@ -4,11 +4,13 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:b="RW.Base.WPF"
+	xmlns:bf="YiffBrowser.BaseFramework"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
 	xmlns:local="clr-namespace:YiffBrowser.E621.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:wpf="RW.Common.WPF"
+	d:DataContext="{d:DesignInstance Type=local:RelationsGraphViewModel}"
 	d:DesignHeight="450"
 	d:DesignWidth="800"
 	mc:Ignorable="d">
@@ -21,8 +23,10 @@
 		<b:DispatcherServiceEx/>
 	</dxmvvm:Interaction.Behaviors>
 
-	<Grid>
-		<DockPanel Visibility="{Binding PostsHost.CurrentHasPost, Converter={StaticResource Boolean2VisibilityReConverter}}">
+	<Grid Background="{DynamicResource SecondaryRegionBrush}">
+
+		<DockPanel Visibility="{Binding GraphVisibility}">
+
 			<Border
 				Padding="8,6"
 				Background="{DynamicResource RegionBrush}"
@@ -31,8 +35,12 @@
 				DockPanel.Dock="Top">
 				<Grid>
 					<StackPanel VerticalAlignment="Center">
-						<TextBlock FontWeight="SemiBold" Text="{Binding TabItem.Title}"/>
-						<TextBlock Margin="0,2,0,0" Opacity="0.75" Text="{Binding StatusText}"/>
+						<TextBlock FontWeight="SemiBold" Text="{Binding HeaderTitle}"/>
+						<TextBlock
+							Margin="0,2,0,0"
+							FontSize="11"
+							Opacity="0.75"
+							Text="{Binding StatusText}"/>
 					</StackPanel>
 					<Button
 						Width="30"
@@ -46,21 +54,114 @@
 				</Grid>
 			</Border>
 
-			<Border DockPanel.Dock="Top" Visibility="{Binding TabItem.LoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
-				<ProgressBar Height="4" IsIndeterminate="True"/>
-			</Border>
+			<ProgressBar
+				Height="4"
+				DockPanel.Dock="Top"
+				IsIndeterminate="True"
+				Visibility="{Binding LoadingVisibility}"/>
 
-			<ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-				<Canvas>
-					<dxmvvm:Interaction.Behaviors>
-						<b:TypedUIObjectService Name="GraphCanvasService"/>
-					</dxmvvm:Interaction.Behaviors>
-				</Canvas>
-			</ScrollViewer>
+			<Grid>
+				<ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+					<Grid Width="{Binding GraphWidth}" Height="{Binding GraphHeight}">
+
+						<ItemsControl ItemsSource="{Binding Edges}">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<Canvas/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+							<ItemsControl.ItemTemplate>
+								<DataTemplate>
+									<Path
+										Data="{Binding Data}"
+										Opacity="0.4"
+										Stroke="{DynamicResource PrimaryTextBrush}"
+										StrokeThickness="1.5"/>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+
+						<ItemsControl ItemsSource="{Binding Nodes}">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<Canvas/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+							<ItemsControl.ItemContainerStyle>
+								<Style TargetType="ContentPresenter">
+									<Setter Property="Canvas.Left" Value="{Binding X}"/>
+									<Setter Property="Canvas.Top" Value="{Binding Y}"/>
+								</Style>
+							</ItemsControl.ItemContainerStyle>
+							<ItemsControl.ItemTemplate>
+								<DataTemplate>
+									<Border
+										Width="132"
+										Height="156"
+										Padding="5"
+										Cursor="Hand"
+										CornerRadius="6"
+										MouseLeftButtonUp="NodeCard_MouseLeftButtonUp"
+										ToolTip="{Binding ToolTipText}">
+										<Border.Style>
+											<Style TargetType="Border">
+												<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
+												<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+												<Setter Property="BorderThickness" Value="{Binding BorderThickness}"/>
+												<Style.Triggers>
+													<DataTrigger Binding="{Binding IsSeed}" Value="True">
+														<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+													</DataTrigger>
+													<Trigger Property="IsMouseOver" Value="True">
+														<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+														<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+													</Trigger>
+												</Style.Triggers>
+											</Style>
+										</Border.Style>
+
+										<DockPanel>
+											<TextBlock
+												DockPanel.Dock="Bottom"
+												FontSize="10"
+												HorizontalAlignment="Center"
+												Opacity="0.7"
+												Text="{Binding Badge}"/>
+											<TextBlock
+												DockPanel.Dock="Bottom"
+												FontFamily="Cascadia Mono"
+												FontWeight="SemiBold"
+												HorizontalAlignment="Center"
+												Text="{Binding Title}"/>
+											<wpf:ClippingBorder
+												Background="{DynamicResource SecondaryRegionBrush}"
+												CornerRadius="4">
+												<Border Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
+													<Image Source="{Binding PreviewUrl, TargetNullValue={x:Null}}" Stretch="UniformToFill"/>
+												</Border>
+											</wpf:ClippingBorder>
+										</DockPanel>
+									</Border>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+
+					</Grid>
+				</ScrollViewer>
+
+				<TextBlock
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center"
+					Opacity="0.6"
+					Text="{Binding StatusText}"
+					Visibility="{Binding EmptyVisibility}"/>
+			</Grid>
 		</DockPanel>
 
-		<Border Visibility="{Binding PostsHost.CurrentHasPost, Converter={StaticResource Boolean2VisibilityConverter}}">
-			<local:PostDetailView dxmvvm:ViewModelExtensions.ParentViewModel="{Binding PostsHost}"/>
+		<Border Visibility="{Binding DetailVisibility}">
+			<!-- PostDetailView overrides its own DataContext (DISource), so the parent view
+			model has to be reached through the proxy instead of a plain {Binding}. -->
+			<local:PostDetailView dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data.PostsHost}"/>
 		</Border>
 	</Grid>
 </UserControl>

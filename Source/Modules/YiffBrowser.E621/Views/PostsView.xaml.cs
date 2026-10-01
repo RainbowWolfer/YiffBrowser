@@ -227,6 +227,13 @@ internal class PostsViewModel(
 	public void Dispose() {
 		eventAggregator.GetEvent<AppSettingsChangedEvent>().Unsubscribe(OnAppSettingsChanged);
 		DownloadIndexService.IndexChanged -= OnDownloadIndexChanged;
+
+		// Cards stay subscribed to the static image cache, so a closed tab would never be collected.
+		foreach (PostCardControl item in Items) {
+			item.Dispose();
+		}
+		Items.Clear();
+		SelectedItems.Clear();
 	}
 
 	private void OnAppSettingsChanged(AppSettingsChangedEventArgs args) {

@@ -7,7 +7,7 @@ using YiffBrowser.E621.Models.E621;
 
 namespace YiffBrowser.E621.Models;
 
-public class PostImageLoader {
+public class PostImageLoader : IDisposable {
 
 	public event TypedEventHandler<PostImageLoader, BitmapImage?>? ImageChanged;
 	public event TypedEventHandler<PostImageLoader, GifImage?>? ImageGifChanged;
@@ -30,10 +30,26 @@ public class PostImageLoader {
 		Sample.Updated += Sample_Updated;
 	}
 
-	~PostImageLoader() {
+	/// <summary>
+	/// The cache items live in a static pool, so staying subscribed keeps this loader (and the
+	/// card owning it) alive forever. Owners must dispose instead of relying on the GC.
+	/// </summary>
+	public void Dispose() {
+		if (disposed) {
+			return;
+		}
+
+		disposed = true;
+
 		Preview.Updated -= Preview_Updated;
 		Sample.Updated -= Sample_Updated;
+
+		ImageChanged = null;
+		ImageGifChanged = null;
+		Progress = null;
 	}
+
+	private bool disposed;
 
 	private void Preview_Updated(BitmapCacheItem sender, CacheLoadingModel args) {
 		Progress?.Invoke(sender, args);
