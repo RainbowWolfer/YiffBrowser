@@ -147,11 +147,14 @@ public partial class PostDetailDockView : UserControl, INotifyPropertyChanged {
 		Raise(nameof(HasRelations));
 		Raise(nameof(HasPools));
 
-		if (ModuleType is null || Post is null) {
+		// Snapshot before any await: Post is a DP and can become null while we load
+		// (switch post / close detail), which used to NRE on the continuation.
+		E621Post? post = Post;
+		if (ModuleType is null || post is null) {
 			return;
 		}
 
-		foreach (int poolId in Post.Pools ?? []) {
+		foreach (int poolId in post.Pools ?? []) {
 			PoolItems.Add(new PoolChipItem(poolId));
 		}
 		Raise(nameof(HasPools));
@@ -165,15 +168,17 @@ public partial class PostDetailDockView : UserControl, INotifyPropertyChanged {
 			RelationsLoadingStatus.Initialize();
 			E621API api = E621API.GetAPI(ModuleType.Value);
 
+			int? parentId = post.Relationships?.ParentId is int pid and > 0 ? pid : null;
+			List<int> childIds = (post.Relationships?.Children ?? [])
+				.Where(id => id is int and > 0)
+				.Select(id => id!.Value)
+				.ToList();
+
 			List<int> ids = [];
-			if (Post.Relationships?.ParentId is int parentId and > 0) {
-				ids.Add(parentId);
+			if (parentId is int p) {
+				ids.Add(p);
 			}
-			foreach (int? child in Post.Relationships?.Children ?? []) {
-				if (child is int cid and > 0) {
-					ids.Add(cid);
-				}
-			}
+			ids.AddRange(childIds);
 
 			if (ids.Count == 0) {
 				RelationsLoadingStatus.Done();
@@ -184,12 +189,20 @@ public partial class PostDetailDockView : UserControl, INotifyPropertyChanged {
 			E621Post[] posts = await api.GetPostsByIdsAsync(ids, token);
 			token.ThrowIfCancellationRequested();
 
-			Dictionary<int, E621Post> map = posts.ToDictionary(p => p.ID);
-			if (Post.Relationships?.ParentId is int pid && map.TryGetValue(pid, out E621Post? parentPost)) {
+			// User already moved on to another post — drop this result.
+			if (!ReferenceEquals(Post, post)) {
+				return;
+			}
+
+			Dictionary<int, E621Post> map = posts
+				.GroupBy(p => p.ID)
+				.ToDictionary(g => g.Key, g => g.First());
+
+			if (parentId is int resolvedParent && map.TryGetValue(resolvedParent, out E621Post? parentPost)) {
 				ParentItems.Add(new RelationNeighborItem(parentPost, "Parent"));
 			}
-			foreach (int? child in Post.Relationships?.Children ?? []) {
-				if (child is int cid && map.TryGetValue(cid, out E621Post? childPost)) {
+			foreach (int cid in childIds) {
+				if (map.TryGetValue(cid, out E621Post? childPost)) {
 					ChildItems.Add(new RelationNeighborItem(childPost, "Child"));
 				}
 			}

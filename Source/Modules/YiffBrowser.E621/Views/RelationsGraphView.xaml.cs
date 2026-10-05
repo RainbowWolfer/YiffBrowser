@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.E621.Models;
 using YiffBrowser.E621.Models.E621;
@@ -17,12 +18,36 @@ namespace YiffBrowser.E621.Views;
 internal partial class RelationsGraphView : UserControl, IPostTabContent {
 	private readonly RelationsGraphViewModel viewModel;
 
+	private const double MinScale = 0.15;
+	private const double MaxScale = 4.0;
+	private const double ZoomStep = 1.12;
+	private const double GridSpacing = 48;
+	private const double PanDragThreshold = 3;
+
+	private bool isPanning;
+	private bool panMoved;
+	private Point panStartScreen;
+	private double panStartTranslateX;
+	private double panStartTranslateY;
+	private bool pendingFit;
+
+	private RelationGraphNodeVm? pressedNode;
+	private Point pressedNodeScreen;
+
 	public RelationsGraphView(PostTabItem postTabItem) {
 		InitializeComponent();
 
 		viewModel = IoC.Resolve<RelationsGraphViewModel>()!;
+		viewModel.LayoutReady += OnLayoutReady;
 		viewModel.Initialize(postTabItem);
 		DataContext = viewModel;
+
+		Loaded += (_, _) => {
+			RedrawGrid();
+			if (pendingFit || viewModel.Nodes.Count > 0) {
+				FitToView();
+			}
+		};
 	}
 
 	public int CurrentPage => 1;
@@ -34,17 +59,291 @@ internal partial class RelationsGraphView : UserControl, IPostTabContent {
 	}
 
 	public void Dispose() {
+		viewModel.LayoutReady -= OnLayoutReady;
 		viewModel.Dispose();
 	}
 
-	private void NodeCard_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+	private void OnLayoutReady() {
+		pendingFit = true;
+		if (IsLoaded && Viewport.ActualWidth > 0 && Viewport.ActualHeight > 0) {
+			FitToView();
+		}
+	}
+
+	private void NodeCard_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+		if (e.ChangedButton != MouseButton.Left) {
+			return;
+		}
 		if (sender is FrameworkElement { DataContext: RelationGraphNodeVm node }) {
-			viewModel.OpenNode(node);
+			pressedNode = node;
+			pressedNodeScreen = e.GetPosition(Viewport);
+		}
+	}
+
+	private void NodeCard_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+		RelationGraphNodeVm? node = pressedNode;
+		pressedNode = null;
+
+		// Ignore if this release finishes a pan, or the pointer dragged off the click.
+		if (node == null || isPanning || panMoved) {
+			return;
+		}
+		if ((e.GetPosition(Viewport) - pressedNodeScreen).LengthSquared > PanDragThreshold * PanDragThreshold) {
+			return;
+		}
+		if (sender is not FrameworkElement { DataContext: RelationGraphNodeVm upNode } || upNode != node) {
+			return;
+		}
+
+		viewModel.OpenNode(node);
+		e.Handled = true;
+	}
+
+	private void FitView_Click(object sender, RoutedEventArgs e) => FitToView();
+
+	private void ResetZoom_Click(object sender, RoutedEventArgs e) {
+		double oldScale = WorldScale.ScaleX;
+		if (oldScale <= 0) {
+			oldScale = 1;
+		}
+
+		Point center = new(Viewport.ActualWidth / 2, Viewport.ActualHeight / 2);
+		double worldX = (center.X - WorldTranslate.X) / oldScale;
+		double worldY = (center.Y - WorldTranslate.Y) / oldScale;
+		SetTransform(1, center.X - worldX, center.Y - worldY);
+		RedrawGrid();
+	}
+
+	private void Viewport_SizeChanged(object sender, SizeChangedEventArgs e) {
+		RedrawGrid();
+		if (pendingFit) {
+			FitToView();
+		}
+	}
+
+	private void Viewport_MouseWheel(object sender, MouseWheelEventArgs e) {
+		Viewport.Focus();
+
+		double factor = e.Delta > 0 ? ZoomStep : 1 / ZoomStep;
+		double oldScale = WorldScale.ScaleX;
+		double newScale = Math.Clamp(oldScale * factor, MinScale, MaxScale);
+		if (Math.Abs(newScale - oldScale) < 0.0001) {
+			e.Handled = true;
+			return;
+		}
+
+		Point mouse = e.GetPosition(Viewport);
+		double worldX = (mouse.X - WorldTranslate.X) / oldScale;
+		double worldY = (mouse.Y - WorldTranslate.Y) / oldScale;
+
+		SetTransform(newScale, mouse.X - worldX * newScale, mouse.Y - worldY * newScale);
+		RedrawGrid();
+		e.Handled = true;
+	}
+
+	private void Viewport_PreviewMouseDown(object sender, MouseButtonEventArgs e) {
+		Viewport.Focus();
+
+		bool middle = e.ChangedButton == MouseButton.Middle;
+		bool leftOnEmpty = e.ChangedButton == MouseButton.Left && IsEmptyViewportHit(e.OriginalSource);
+
+		if (!middle && !leftOnEmpty) {
+			return;
+		}
+
+		isPanning = true;
+		panMoved = false;
+		panStartScreen = e.GetPosition(Viewport);
+		panStartTranslateX = WorldTranslate.X;
+		panStartTranslateY = WorldTranslate.Y;
+		Viewport.CaptureMouse();
+		Viewport.Cursor = Cursors.SizeAll;
+		e.Handled = true;
+	}
+
+	private void Viewport_PreviewMouseMove(object sender, MouseEventArgs e) {
+		if (!isPanning) {
+			return;
+		}
+
+		Point current = e.GetPosition(Viewport);
+		Vector delta = current - panStartScreen;
+		if (!panMoved && delta.Length >= PanDragThreshold) {
+			panMoved = true;
+		}
+
+		SetTranslate(panStartTranslateX + delta.X, panStartTranslateY + delta.Y);
+		RedrawGrid();
+		e.Handled = true;
+	}
+
+	private void Viewport_PreviewMouseUp(object sender, MouseButtonEventArgs e) {
+		if (!isPanning) {
+			return;
+		}
+
+		EndPan();
+		e.Handled = true;
+	}
+
+	private void Viewport_MouseLeave(object sender, MouseEventArgs e) {
+		if (isPanning && !Viewport.IsMouseCaptured) {
+			EndPan();
+		}
+	}
+
+	private void EndPan() {
+		isPanning = false;
+		// Must clear this: leaving it true permanently swallowed every later node click.
+		panMoved = false;
+		pressedNode = null;
+		if (Viewport.IsMouseCaptured) {
+			Viewport.ReleaseMouseCapture();
+		}
+		Viewport.Cursor = Cursors.Arrow;
+	}
+
+	/// <summary>
+	/// Left-drag pans only on empty chrome (viewport / world / graph host), never on a node card.
+	/// </summary>
+	private bool IsEmptyViewportHit(object? source) {
+		if (source is not DependencyObject current) {
+			return false;
+		}
+
+		while (current != null) {
+			if (current is FrameworkElement { DataContext: RelationGraphNodeVm }) {
+				return false;
+			}
+			if (ReferenceEquals(current, Viewport)
+				|| ReferenceEquals(current, World)
+				|| ReferenceEquals(current, GraphHost)
+				|| ReferenceEquals(current, GridCanvas)) {
+				return true;
+			}
+			current = VisualTreeHelper.GetParent(current);
+		}
+
+		return false;
+	}
+
+	private void FitToView() {
+		double graphW = viewModel.GraphWidth;
+		double graphH = viewModel.GraphHeight;
+		double viewW = Viewport.ActualWidth;
+		double viewH = Viewport.ActualHeight;
+
+		if (graphW <= 0 || graphH <= 0 || viewW <= 0 || viewH <= 0) {
+			return;
+		}
+
+		const double padding = 48;
+		double scale = Math.Min((viewW - padding) / graphW, (viewH - padding) / graphH);
+		scale = Math.Clamp(scale, MinScale, MaxScale);
+
+		double tx = (viewW - graphW * scale) / 2;
+		double ty = (viewH - graphH * scale) / 2;
+		SetTransform(scale, tx, ty);
+		RedrawGrid();
+		pendingFit = false;
+	}
+
+	private void SetTransform(double scale, double translateX, double translateY) {
+		WorldScale.ScaleX = scale;
+		WorldScale.ScaleY = scale;
+		WorldTranslate.X = translateX;
+		WorldTranslate.Y = translateY;
+	}
+
+	private void SetTranslate(double translateX, double translateY) {
+		WorldTranslate.X = translateX;
+		WorldTranslate.Y = translateY;
+	}
+
+	/// <summary>
+	/// Dot grid in world space (lives under <see cref="World"/>). Enough tiles to cover the
+	/// visible viewport plus a margin so panning does not flash empty edges.
+	/// </summary>
+	private void RedrawGrid() {
+		if (GridCanvas == null || Viewport == null || WorldScale == null || WorldTranslate == null) {
+			return;
+		}
+
+		GridCanvas.Children.Clear();
+
+		double scale = WorldScale.ScaleX;
+		if (scale <= 0 || Viewport.ActualWidth <= 0 || Viewport.ActualHeight <= 0) {
+			return;
+		}
+
+		Brush brush = TryBrush("BorderBrush", Brushes.Gray).Clone();
+		brush.Opacity = 0.22;
+		if (brush.CanFreeze) {
+			brush.Freeze();
+		}
+
+		double worldLeft = -WorldTranslate.X / scale;
+		double worldTop = -WorldTranslate.Y / scale;
+		double worldRight = worldLeft + Viewport.ActualWidth / scale;
+		double worldBottom = worldTop + Viewport.ActualHeight / scale;
+
+		double pad = GridSpacing * 2;
+		int startX = (int)Math.Floor((worldLeft - pad) / GridSpacing);
+		int endX = (int)Math.Ceiling((worldRight + pad) / GridSpacing);
+		int startY = (int)Math.Floor((worldTop - pad) / GridSpacing);
+		int endY = (int)Math.Ceiling((worldBottom + pad) / GridSpacing);
+
+		int countX = Math.Max(0, endX - startX + 1);
+		int countY = Math.Max(0, endY - startY + 1);
+		int step = 1;
+		const int maxDots = 2500;
+		if (countX * countY > maxDots) {
+			step = (int)Math.Ceiling(Math.Sqrt((double)countX * countY / maxDots));
+		}
+
+		double radius = Math.Max(0.8, 1.2 / scale);
+
+		for (int ix = startX; ix <= endX; ix += step) {
+			for (int iy = startY; iy <= endY; iy += step) {
+				Ellipse dot = new() {
+					Width = radius * 2,
+					Height = radius * 2,
+					Fill = brush,
+					IsHitTestVisible = false,
+				};
+				Canvas.SetLeft(dot, ix * GridSpacing - radius);
+				Canvas.SetTop(dot, iy * GridSpacing - radius);
+				GridCanvas.Children.Add(dot);
+			}
+		}
+	}
+
+	private static Brush TryBrush(string key, Brush fallback) {
+		try {
+			if (Application.Current?.TryFindResource(key) is Brush brush) {
+				return brush;
+			}
+		} catch {
+			// ignore
+		}
+		return fallback;
+	}
+
+	protected override void OnPreviewKeyDown(KeyEventArgs e) {
+		base.OnPreviewKeyDown(e);
+		if (e.Key == Key.Home) {
+			FitToView();
+			e.Handled = true;
+		} else if ((e.Key == Key.D0 || e.Key == Key.NumPad0) && Keyboard.Modifiers == ModifierKeys.Control) {
+			ResetZoom_Click(this, new RoutedEventArgs());
+			e.Handled = true;
 		}
 	}
 }
 
 internal class RelationsGraphViewModel : ViewModelBase, IDisposable {
+
+	public event Action? LayoutReady;
 
 	public RelationsGraphViewModel() {
 		// Visibility defaults to Visible (enum 0), which would let the detail overlay
@@ -192,6 +491,7 @@ internal class RelationsGraphViewModel : ViewModelBase, IDisposable {
 				EmptyVisibility = Visibility.Visible;
 			} else {
 				StatusText = $"{Nodes.Count} related post(s)";
+				LayoutReady?.Invoke();
 			}
 
 			TabItem.LoadingStatus.Done();

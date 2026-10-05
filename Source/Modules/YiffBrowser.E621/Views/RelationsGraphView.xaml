@@ -42,15 +42,41 @@
 							Opacity="0.75"
 							Text="{Binding StatusText}"/>
 					</StackPanel>
-					<Button
-						Width="30"
-						Height="30"
+					<StackPanel
 						HorizontalAlignment="Right"
-						Command="{Binding RefreshCommand}"
-						Style="{StaticResource Button.Custom.Icon}"
-						ToolTip="Refresh">
-						<wpf:FontIcon Text="&#xE72C;"/>
-					</Button>
+						Orientation="Horizontal">
+						<TextBlock
+							Margin="0,0,8,0"
+							VerticalAlignment="Center"
+							FontFamily="Cascadia Mono"
+							FontSize="11"
+							Opacity="0.65"
+							Text="{Binding ElementName=WorldScale, Path=ScaleX, StringFormat={}{0:P0}}"/>
+						<Button
+							Width="30"
+							Height="30"
+							Click="FitView_Click"
+							Style="{StaticResource Button.Custom.Icon}"
+							ToolTip="Fit to view (Home)">
+							<wpf:FontIcon Text="&#xE740;"/>
+						</Button>
+						<Button
+							Width="30"
+							Height="30"
+							Click="ResetZoom_Click"
+							Style="{StaticResource Button.Custom.Icon}"
+							ToolTip="Reset zoom to 100% (Ctrl+0)">
+							<wpf:FontIcon Text="&#xE71E;"/>
+						</Button>
+						<Button
+							Width="30"
+							Height="30"
+							Command="{Binding RefreshCommand}"
+							Style="{StaticResource Button.Custom.Icon}"
+							ToolTip="Refresh">
+							<wpf:FontIcon Text="&#xE72C;"/>
+						</Button>
+					</StackPanel>
 				</Grid>
 			</Border>
 
@@ -61,100 +87,146 @@
 				Visibility="{Binding LoadingVisibility}"/>
 
 			<Grid>
-				<ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-					<Grid Width="{Binding GraphWidth}" Height="{Binding GraphHeight}">
+				<!-- Blender-like viewport: wheel zoom toward cursor, middle-drag pan. -->
+				<Border
+					x:Name="Viewport"
+					Background="Transparent"
+					ClipToBounds="True"
+					Cursor="Arrow"
+					Focusable="True"
+					FocusVisualStyle="{x:Null}"
+					PreviewMouseDown="Viewport_PreviewMouseDown"
+					PreviewMouseMove="Viewport_PreviewMouseMove"
+					PreviewMouseUp="Viewport_PreviewMouseUp"
+					MouseLeave="Viewport_MouseLeave"
+					MouseWheel="Viewport_MouseWheel"
+					SizeChanged="Viewport_SizeChanged">
 
-						<ItemsControl ItemsSource="{Binding Edges}">
-							<ItemsControl.ItemsPanel>
-								<ItemsPanelTemplate>
-									<Canvas/>
-								</ItemsPanelTemplate>
-							</ItemsControl.ItemsPanel>
-							<ItemsControl.ItemTemplate>
-								<DataTemplate>
-									<Path
-										Data="{Binding Data}"
-										Opacity="0.4"
-										Stroke="{DynamicResource PrimaryTextBrush}"
-										StrokeThickness="1.5"/>
-								</DataTemplate>
-							</ItemsControl.ItemTemplate>
-						</ItemsControl>
+					<!-- World space: grid + graph share one transform (WPF transforms are single-parent). -->
+					<Grid
+						x:Name="World"
+						HorizontalAlignment="Left"
+						VerticalAlignment="Top"
+						RenderTransformOrigin="0,0">
+						<Grid.RenderTransform>
+							<TransformGroup>
+								<ScaleTransform x:Name="WorldScale" ScaleX="1" ScaleY="1"/>
+								<TranslateTransform x:Name="WorldTranslate"/>
+							</TransformGroup>
+						</Grid.RenderTransform>
 
-						<ItemsControl ItemsSource="{Binding Nodes}">
-							<ItemsControl.ItemsPanel>
-								<ItemsPanelTemplate>
-									<Canvas/>
-								</ItemsPanelTemplate>
-							</ItemsControl.ItemsPanel>
-							<ItemsControl.ItemContainerStyle>
-								<Style TargetType="ContentPresenter">
-									<Setter Property="Canvas.Left" Value="{Binding X}"/>
-									<Setter Property="Canvas.Top" Value="{Binding Y}"/>
-								</Style>
-							</ItemsControl.ItemContainerStyle>
-							<ItemsControl.ItemTemplate>
-								<DataTemplate>
-									<Border
-										Width="132"
-										Height="156"
-										Padding="5"
-										Cursor="Hand"
-										CornerRadius="6"
-										MouseLeftButtonUp="NodeCard_MouseLeftButtonUp"
-										ToolTip="{Binding ToolTipText}">
-										<Border.Style>
-											<Style TargetType="Border">
-												<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
-												<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-												<Setter Property="BorderThickness" Value="{Binding BorderThickness}"/>
-												<Style.Triggers>
-													<DataTrigger Binding="{Binding IsSeed}" Value="True">
-														<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
-													</DataTrigger>
-													<Trigger Property="IsMouseOver" Value="True">
-														<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
-														<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
-													</Trigger>
-												</Style.Triggers>
-											</Style>
-										</Border.Style>
+						<Canvas x:Name="GridCanvas" IsHitTestVisible="False"/>
 
-										<DockPanel>
-											<TextBlock
-												DockPanel.Dock="Bottom"
-												FontSize="10"
-												HorizontalAlignment="Center"
-												Opacity="0.7"
-												Text="{Binding Badge}"/>
-											<TextBlock
-												DockPanel.Dock="Bottom"
-												FontFamily="Cascadia Mono"
-												FontWeight="SemiBold"
-												HorizontalAlignment="Center"
-												Text="{Binding Title}"/>
-											<wpf:ClippingBorder
-												Background="{DynamicResource SecondaryRegionBrush}"
-												CornerRadius="4">
-												<Border Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
-													<Image Source="{Binding PreviewUrl, TargetNullValue={x:Null}}" Stretch="UniformToFill"/>
-												</Border>
-											</wpf:ClippingBorder>
-										</DockPanel>
-									</Border>
-								</DataTemplate>
-							</ItemsControl.ItemTemplate>
-						</ItemsControl>
+						<Grid
+							x:Name="GraphHost"
+							Width="{Binding GraphWidth}"
+							Height="{Binding GraphHeight}"
+							HorizontalAlignment="Left"
+							VerticalAlignment="Top"
+							Background="Transparent">
 
+							<ItemsControl ItemsSource="{Binding Edges}">
+								<ItemsControl.ItemsPanel>
+									<ItemsPanelTemplate>
+										<Canvas/>
+									</ItemsPanelTemplate>
+								</ItemsControl.ItemsPanel>
+								<ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<Path
+											Data="{Binding Data}"
+											Opacity="0.4"
+											Stroke="{DynamicResource PrimaryTextBrush}"
+											StrokeThickness="1.5"/>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+
+							<ItemsControl ItemsSource="{Binding Nodes}">
+								<ItemsControl.ItemsPanel>
+									<ItemsPanelTemplate>
+										<Canvas/>
+									</ItemsPanelTemplate>
+								</ItemsControl.ItemsPanel>
+								<ItemsControl.ItemContainerStyle>
+									<Style TargetType="ContentPresenter">
+										<Setter Property="Canvas.Left" Value="{Binding X}"/>
+										<Setter Property="Canvas.Top" Value="{Binding Y}"/>
+									</Style>
+								</ItemsControl.ItemContainerStyle>
+								<ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<Border
+											Width="132"
+											Height="156"
+											Padding="5"
+											Cursor="Hand"
+											CornerRadius="6"
+											MouseLeftButtonDown="NodeCard_MouseLeftButtonDown"
+											MouseLeftButtonUp="NodeCard_MouseLeftButtonUp"
+											ToolTip="{Binding ToolTipText}">
+											<Border.Style>
+												<Style TargetType="Border">
+													<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
+													<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+													<Setter Property="BorderThickness" Value="{Binding BorderThickness}"/>
+													<Style.Triggers>
+														<DataTrigger Binding="{Binding IsSeed}" Value="True">
+															<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+														</DataTrigger>
+														<Trigger Property="IsMouseOver" Value="True">
+															<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+															<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+														</Trigger>
+													</Style.Triggers>
+												</Style>
+											</Border.Style>
+
+											<DockPanel>
+												<TextBlock
+													DockPanel.Dock="Bottom"
+													FontSize="10"
+													HorizontalAlignment="Center"
+													Opacity="0.7"
+													Text="{Binding Badge}"/>
+												<TextBlock
+													DockPanel.Dock="Bottom"
+													FontFamily="Cascadia Mono"
+													FontWeight="SemiBold"
+													HorizontalAlignment="Center"
+													Text="{Binding Title}"/>
+												<wpf:ClippingBorder
+													Background="{DynamicResource SecondaryRegionBrush}"
+													CornerRadius="4">
+													<Border Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
+														<Image Source="{Binding PreviewUrl, TargetNullValue={x:Null}}" Stretch="UniformToFill"/>
+													</Border>
+												</wpf:ClippingBorder>
+											</DockPanel>
+										</Border>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+						</Grid>
 					</Grid>
-				</ScrollViewer>
+				</Border>
 
 				<TextBlock
 					HorizontalAlignment="Center"
 					VerticalAlignment="Center"
+					IsHitTestVisible="False"
 					Opacity="0.6"
 					Text="{Binding StatusText}"
 					Visibility="{Binding EmptyVisibility}"/>
+
+				<TextBlock
+					Margin="10"
+					HorizontalAlignment="Left"
+					VerticalAlignment="Bottom"
+					FontSize="11"
+					IsHitTestVisible="False"
+					Opacity="0.45"
+					Text="Scroll: zoom · Middle-drag: pan · Home: fit"/>
 			</Grid>
 		</DockPanel>
 
