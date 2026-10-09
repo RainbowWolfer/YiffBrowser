@@ -188,6 +188,50 @@
 								Text="Controls how GIF posts play in the posts list. Play when visible only animates GIFs currently in the viewport."
 								TextWrapping="Wrap"/>
 
+							<Separator Margin="0,8"/>
+
+							<CheckBox Content="Enable local media cache" IsChecked="{Binding EnableMediaCache}"/>
+							<TextBlock
+								Margin="4,0,0,0"
+								Opacity="0.7"
+								Text="Saves preview, sample, and full media on disk so they can be opened again without downloading. Off by default. This is separate from your download folder."
+								TextWrapping="Wrap"/>
+
+							<StackPanel IsEnabled="{Binding EnableMediaCache}">
+								<wpf:TitleContent Title="Cache Location">
+									<c:FolderSelectionControl Path="{Binding Model.MediaCacheFolder}"/>
+								</wpf:TitleContent>
+								<TextBlock
+									Margin="4,2,0,0"
+									Opacity="0.5"
+									Text="Leave empty to use %LocalAppData%\YiffBrowser\MediaCache."
+									TextWrapping="Wrap"/>
+
+								<wpf:TitleContent Margin="0,8,0,0" Title="Cache Size Limit (GB, 1-512)">
+									<hc:NumericUpDown
+										Maximum="512"
+										Minimum="1"
+										Value="{Binding MediaCacheMaxGigabytes, UpdateSourceTrigger=PropertyChanged}"/>
+								</wpf:TitleContent>
+								<TextBlock
+									Margin="4,2,0,0"
+									Opacity="0.5"
+									Text="Oldest files are removed when the cache grows past this size. Default is 32 GB."
+									TextWrapping="Wrap"/>
+							</StackPanel>
+
+							<StackPanel Margin="0,8,0,0" Orientation="Horizontal">
+								<Button
+									Command="{Binding OpenMediaCacheFolderCommand}"
+									Content="Open Folder"
+									Style="{StaticResource ButtonDefault}"/>
+								<Button
+									Margin="8,0,0,0"
+									Command="{Binding ClearMediaCacheCommand}"
+									Content="Clear Cache"
+									Style="{StaticResource ButtonDefault}"/>
+							</StackPanel>
+
 						</wpf:SpacingStackPanel>
 					</ScrollViewer>
 

@@ -94,4 +94,41 @@ public static class MediaDownloadService {
 		}
 	}
 
+	/// <summary>Same gate and client as <see cref="DownloadAsync"/>, but writes straight to disk.</summary>
+	public static async Task DownloadToFileAsync(Uri uri, string destination, Action<int>? progress = null, CancellationToken token = default) {
+		await gate.WaitAsync(token).ConfigureAwait(false);
+		try {
+			using HttpRequestMessage request = new(HttpMethod.Get, uri);
+			request.Headers.UserAgent.ParseAdd(NetCode.UserAgent);
+
+			using HttpResponseMessage response = await GetClient()
+				.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token)
+				.ConfigureAwait(false);
+
+			response.EnsureSuccessStatusCode();
+
+			long length = response.Content.Headers.ContentLength ?? 0;
+			using Stream stream = await response.Content.ReadAsStreamAsync(token).ConfigureAwait(false);
+			await using FileStream file = new(destination, FileMode.Create, FileAccess.Write, FileShare.None);
+
+			byte[] chunk = ArrayPool<byte>.Shared.Rent(81920);
+			try {
+				long total = 0;
+				int read;
+				while ((read = await stream.ReadAsync(chunk, token).ConfigureAwait(false)) > 0) {
+					await file.WriteAsync(chunk.AsMemory(0, read), token).ConfigureAwait(false);
+					total += read;
+
+					if (progress != null && length > 0) {
+						progress((int)(total * 100 / length));
+					}
+				}
+			} finally {
+				ArrayPool<byte>.Shared.Return(chunk);
+			}
+		} finally {
+			gate.Release();
+		}
+	}
+
 }

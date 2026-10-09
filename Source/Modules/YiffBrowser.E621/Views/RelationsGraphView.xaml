@@ -199,7 +199,7 @@
 													Background="{DynamicResource SecondaryRegionBrush}"
 													CornerRadius="4">
 													<Border Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
-														<Image Source="{Binding PreviewUrl, TargetNullValue={x:Null}}" Stretch="UniformToFill"/>
+														<Image Source="{Binding PreviewImage, TargetNullValue={x:Null}}" Stretch="UniformToFill"/>
 													</Border>
 												</wpf:ClippingBorder>
 											</DockPanel>

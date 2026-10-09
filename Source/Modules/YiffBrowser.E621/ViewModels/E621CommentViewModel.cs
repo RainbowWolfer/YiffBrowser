@@ -3,6 +3,9 @@ using DevExpress.Mvvm;
 using RW.Common.Helpers;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using YiffBrowser.BaseFramework.Models;
+using YiffBrowser.BaseFramework.Services;
+using YiffBrowser.E621.Helpers;
 using YiffBrowser.E621.Models.E621;
 using YiffBrowser.E621.Services;
 using YiffBrowser.E621.Enums;
@@ -40,7 +43,7 @@ public class E621CommentViewModel(E621Comment comment, ModuleType moduleType) : 
 	}
 
 	public LoadingStatus LoadingStatus { get; } = new();
-	//private BitmapCacheItem? bitmapCacheItem;
+	private BitmapCacheItem? bitmapCacheItem;
 
 	private readonly CancellationTokenSource cts = new();
 
@@ -49,66 +52,60 @@ public class E621CommentViewModel(E621Comment comment, ModuleType moduleType) : 
 			LoadingStatus.Initialize();
 			User = await api.GetUserAsync(Comment.CreatorId, cts.Token);
 			Avatar = await api.GetPostAsync(User?.AvatarId, cts.Token);
+			cts.Token.ThrowIfCancellationRequested();
 
 			string? avatarUrl = Avatar?.Sample?.URL;
-			if (avatarUrl.IsNotBlank()) {
-				BitmapImage = new BitmapImage(new Uri(avatarUrl));
-				BitmapImage.DownloadCompleted += BitmapImage_DownloadCompleted;
-				BitmapImage.DownloadFailed += BitmapImage_DownloadFailed;
-				BitmapImage.DownloadProgress += BitmapImage_DownloadProgress;
-			} else {
+			if (avatarUrl.IsBlank()) {
 				LoadingStatus.Done();
+				return;
 			}
 
-			//bitmapCacheItem = BitmapCacheService.Get(Avatar?.Sample?.URL);
-			//if (bitmapCacheItem.IsNull || bitmapCacheItem.HasCompleted) {
-			//	GifImage = bitmapCacheItem.GifImage;
-			//	BitmapImage = bitmapCacheItem.Image;
-			//	LoadingStatus.DoneLoading();
-			//} else {
-			//	bitmapCacheItem.Initialize();
-			//	bitmapCacheItem.Updated += CacheItem_Updated;
-			//}
-
+			UnbindAvatar();
+			bitmapCacheItem = BitmapCacheService.Get(avatarUrl, E621MediaCacheKeys.For(Avatar, E621MediaCacheKeys.Sample, avatarUrl));
+			bitmapCacheItem.Updated += AvatarUpdated;
+			bitmapCacheItem.Initialize();
+			if (bitmapCacheItem.HasCompleted) {
+				ApplyAvatar(bitmapCacheItem);
+			}
+		} catch (OperationCanceledException) {
 		} catch (Exception ex) {
 			LoadingStatus.Error(ex.Message);
 		}
 	}
 
-	private void BitmapImage_DownloadFailed(object? sender, ExceptionEventArgs e) {
-		LoadingStatus.Error(e.ErrorException?.Message ?? "Loading Error");
+	private void AvatarUpdated(BitmapCacheItem sender, CacheLoadingModel args) {
+		if (!args.HasCompleted && !args.HasError) {
+			return;
+		}
+
+		sender.Updated -= AvatarUpdated;
+		if (cts.IsCancellationRequested) {
+			return;
+		}
+
+		if (args.HasCompleted) {
+			ApplyAvatar(sender);
+		} else if (args.HasError) {
+			LoadingStatus.Error(args.Exception?.Message ?? "Loading Error");
+		}
 	}
 
-	private void BitmapImage_DownloadCompleted(object? sender, EventArgs e) {
+	private void ApplyAvatar(BitmapCacheItem item) {
+		item.Updated -= AvatarUpdated;
+		BitmapImage = item.Image;
 		LoadingStatus.Done();
 	}
 
-	private void BitmapImage_DownloadProgress(object? sender, DownloadProgressEventArgs e) {
-
+	private void UnbindAvatar() {
+		if (bitmapCacheItem != null) {
+			bitmapCacheItem.Updated -= AvatarUpdated;
+			bitmapCacheItem = null;
+		}
 	}
 
 	public void Dispose() {
-		//cts.Cancel();
-		//if (bitmapCacheItem != null) {
-		//	bitmapCacheItem.Updated -= CacheItem_Updated;
-		//}
+		cts.Cancel();
+		UnbindAvatar();
 	}
-
-	//private void CacheItem_Updated(BitmapCacheItem sender, BitmapLoadingModel args) {
-	//	if (cts.Token.IsCancellationRequested) {
-	//		return;
-	//	}
-
-	//	if (args.HasCompleted) {
-	//		GifImage = sender.GifImage;
-	//		BitmapImage = sender.Image;
-	//		LoadingStatus.DoneLoading();
-	//	}
-
-	//	if (args.HasError || args.Exception != null) {
-	//		LoadingStatus.LoadingError(args.Exception?.Message ?? "Loading Error");
-	//	}
-
-	//}
 
 }

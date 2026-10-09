@@ -44,6 +44,15 @@ public class AppSettingsModel {
 
 	public PreviewQuality PreviewQuality { get; set; } = PreviewQuality.Sample;
 
+	/// <summary>Off by default. When on, preview/sample/file bytes are kept under <see cref="MediaCacheFolder"/>.</summary>
+	public bool EnableMediaCache { get; set; }
+
+	/// <summary>Empty uses <c>%LocalAppData%\YiffBrowser\MediaCache</c>.</summary>
+	public string MediaCacheFolder { get; set; } = string.Empty;
+
+	/// <summary>0 means the built-in default (32 GiB).</summary>
+	public long MediaCacheMaxBytes { get; set; } = MediaDiskCache.DefaultMaxBytes;
+
 	public GifAutoPlayType GifAutoPlayType { get; set; } = GifAutoPlayType.WhenMouseOver;
 
 	public ProxyMode ProxyMode { get; set; } = ProxyMode.System;

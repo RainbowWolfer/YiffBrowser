@@ -16,6 +16,7 @@ using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.BaseFramework.ViewModels;
 using YiffBrowser.E621.Controls;
 using YiffBrowser.E621.Enums;
+using YiffBrowser.E621.Helpers;
 using YiffBrowser.E621.Models.E621;
 
 namespace YiffBrowser.E621.Views.Subs;
@@ -102,6 +103,8 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 	private readonly DispatcherTimer dispatcherTimer;
 
 	private long fileSize = 0;
+	private int openedPostId;
+	private bool videoOpenRetried;
 
 	private VideoCacheItem? videoCacheItem;
 
@@ -150,6 +153,7 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 		Player.OpenCompleted += (o, e) => {
 			if (e.Error.IsNotBlank()) {
 				Debug.WriteLine("Player.OpenCompleted" + e.Error);
+				Dispatcher.BeginInvoke(() => HandleVideoOpenError(e.Error));
 			}
 		};
 		Player.BufferingCompleted += (o, e) => {
@@ -224,16 +228,20 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 
 		IsFileReady = false;
 		fileSize = post.File?.Size ?? 0;
+		if (openedPostId != post.ID) {
+			openedPostId = post.ID;
+			videoOpenRetried = false;
+		}
 
 		string? url = post.File?.URL;
 		if (url != null && post.File != null) {
 			LoadingStatus.Initialize();
 
-			videoCacheItem = VideoCacheService.Get(url, post.File.Size);
+			videoCacheItem = VideoCacheService.Get(url, post.File.Size, E621MediaCacheKeys.For(post, E621MediaCacheKeys.File, url));
 			videoCacheItem.Initialize();
 
 			if (videoCacheItem.HasCompleted) {
-				SetVideo(videoCacheItem.MemoryStream);
+				OpenCached(videoCacheItem);
 				LoadingStatus.Done();
 				IsFileReady = true;
 			} else {
@@ -252,10 +260,8 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 
 		if (args.HasCompleted) {
 			LoadingStatus.Done();
-			if (sender.MemoryStream != null) {
-				SetVideo(sender.MemoryStream);
-				IsFileReady = true;
-			}
+			OpenCached(sender);
+			IsFileReady = true;
 		} else if (args.HasError) {
 			LoadingStatus.Error($"Loading Error : {args.Exception?.Message}");
 		} else {
@@ -265,6 +271,29 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 
 			LoadingStatus.SetProgress(progress, downloadInfo);
 		}
+	}
+
+	private void HandleVideoOpenError(string error) {
+		VideoCacheItem? item = videoCacheItem;
+		if (item?.LocalPath.IsNotBlank() != true || videoOpenRetried) {
+			LoadingStatus.Error(error);
+			IsFileReady = false;
+			return;
+		}
+
+		videoOpenRetried = true;
+		item.DiscardDisk();
+		Update();
+	}
+
+	private void OpenCached(VideoCacheItem item) {
+		if (item.LocalPath.IsNotBlank()) {
+			_ = Player?.Open(item.LocalPath);
+			Player?.Play();
+			return;
+		}
+
+		SetVideo(item.MemoryStream);
 	}
 
 	private void SetVideo(MemoryStream? memoryStream) {
@@ -285,7 +314,8 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 	public IDelegateCommand ReloadCommand => reloadCommand ??= new(Reload);
 	private void Reload() {
 		ClearVideo();
-		videoCacheItem?.Clear();
+		videoOpenRetried = false;
+		videoCacheItem?.DiscardDisk();
 		Update();
 	}
 

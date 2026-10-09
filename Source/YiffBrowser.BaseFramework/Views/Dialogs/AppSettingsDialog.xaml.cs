@@ -132,6 +132,30 @@ public class AppSettingsDialogViewModel(
 		set => SetProperty(() => IsGeneratingDiagnosticsFile, value);
 	}
 
+	public bool EnableMediaCache {
+		get => GetProperty(() => EnableMediaCache);
+		set {
+			if (SetProperty(() => EnableMediaCache, value) && Model is not null) {
+				Model.EnableMediaCache = value;
+			}
+		}
+	}
+
+	public int MediaCacheMaxGigabytes {
+		get => GetProperty(() => MediaCacheMaxGigabytes);
+		set {
+			int clamped = Math.Clamp(value, 1, 512);
+			if (SetProperty(() => MediaCacheMaxGigabytes, clamped) && Model is not null) {
+				Model.MediaCacheMaxBytes = MediaDiskCache.GigabytesToBytes(clamped);
+			}
+		}
+	}
+
+	public bool IsClearingMediaCache {
+		get => GetProperty(() => IsClearingMediaCache);
+		set => SetProperty(() => IsClearingMediaCache, value);
+	}
+
 	protected override void OnInitialized() {
 		base.OnInitialized();
 
@@ -140,6 +164,8 @@ public class AppSettingsDialogViewModel(
 		Model = mapper.Map<AppSettingsModel>(appSettingsService.Model);
 		ProxyMode = Model.ProxyMode;
 		FileNameTemplate = Model.FileNameTemplate.IsBlank() ? "<id>" : Model.FileNameTemplate;
+		EnableMediaCache = Model.EnableMediaCache;
+		MediaCacheMaxGigabytes = MediaDiskCache.BytesToGigabytes(Model.MediaCacheMaxBytes);
 	}
 
 	protected override bool Validate(out string message) {
@@ -160,9 +186,45 @@ public class AppSettingsDialogViewModel(
 		try {
 			Model.ProxyMode = ProxyMode;
 			Model.FileNameTemplate = FileNameTemplate;
+			Model.EnableMediaCache = EnableMediaCache;
+			Model.MediaCacheMaxBytes = MediaDiskCache.GigabytesToBytes(MediaCacheMaxGigabytes);
+
+			string oldRoot = MediaDiskCache.ResolveRoot(appSettingsService.Model);
+			string newRoot = MediaDiskCache.ResolveRoot(Model);
+			if (MediaDiskCache.IsNestedCachePath(oldRoot, newRoot)) {
+				MessageBoxService.Show(
+					"The new cache folder cannot be inside the current one, or the other way around.",
+					"Media cache folder",
+					MessageButton.OK,
+					MessageIcon.Warning,
+					MessageResult.OK);
+				return false;
+			}
+
+			if (MediaDiskCache.ShouldOfferMigration(oldRoot, newRoot)) {
+				MessageResult move = MessageBoxService.Show(
+					$"The media cache folder is changing.\n\nMove the existing cache to:\n{newRoot}\n\nYes moves the files (this can take a while). No leaves them in the old folder and starts a new cache.",
+					"Move media cache?",
+					MessageButton.YesNo,
+					MessageIcon.Question,
+					MessageResult.No);
+				if (move == MessageResult.Yes) {
+					System.Windows.Input.Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+					try {
+						Task.Run(() => MediaDiskCache.Migrate(oldRoot, newRoot)).GetAwaiter().GetResult();
+					} finally {
+						System.Windows.Input.Mouse.OverrideCursor = null;
+					}
+				}
+			}
+
 			mapper.Map(Model, appSettingsService.Model);
 			appSettingsService.SaveSettings();
 			eventAggregator.GetEvent<AppSettingsChangedEvent>().Publish(new AppSettingsChangedEventArgs(appSettingsService.Model));
+			if (appSettingsService.Model.EnableMediaCache) {
+				BitmapCacheService.BackfillDisk();
+				VideoCacheService.BackfillDisk();
+			}
 
 			NetCode.CreateNewClient();
 			MediaDownloadService.ResetClient();
@@ -186,6 +248,57 @@ public class AppSettingsDialogViewModel(
 	}
 
 
+
+	private DelegateCommand? openMediaCacheFolderCommand;
+	public IDelegateCommand OpenMediaCacheFolderCommand => openMediaCacheFolderCommand ??= new(OpenMediaCacheFolder);
+	private void OpenMediaCacheFolder() {
+		try {
+			string root = MediaDiskCache.ResolveRoot(Model);
+			Directory.CreateDirectory(root);
+			root.OpenPathInSystemDefault();
+		} catch (Exception ex) {
+			MessageBoxService.ShowError("Could not open the cache folder", ex);
+		}
+	}
+
+	private AsyncCommand? clearMediaCacheCommand;
+	public IDelegateCommand ClearMediaCacheCommand => clearMediaCacheCommand ??= new(ClearMediaCache, CanClearMediaCache);
+	private bool CanClearMediaCache() => !IsClearingMediaCache;
+	private async Task ClearMediaCache() {
+		if (!CanClearMediaCache()) {
+			return;
+		}
+
+		string root = MediaDiskCache.ResolveRoot(appSettingsService.Model);
+		string pending = MediaDiskCache.ResolveRoot(Model);
+		string pendingNote = string.Equals(root, pending, StringComparison.OrdinalIgnoreCase)
+			? ""
+			: $"\n\nThe folder typed above is not cleared until you save settings. This deletes the cache that is already in use:\n{root}";
+		MessageResult confirm = MessageBoxService.Show(
+			$"Delete all locally cached previews, samples, and media files?\n\n{root}\n\nThis cannot be undone. Files in your download folder are not affected. A file that is currently open may be skipped.{pendingNote}",
+			"Clear media cache?",
+			MessageButton.YesNo,
+			MessageIcon.Warning,
+			MessageResult.No);
+		if (confirm != MessageResult.Yes) {
+			return;
+		}
+
+		IsClearingMediaCache = true;
+		clearMediaCacheCommand?.RaiseCanExecuteChanged();
+		try {
+			MediaCacheClearResult result = await Task.Run(() => MediaDiskCache.Clear(root));
+			string summary = result.Skipped == 0
+				? $"Removed {result.Deleted} cached file(s)."
+				: $"Removed {result.Deleted} cached file(s). {result.Skipped} file(s) were in use and could not be deleted.";
+			MessageBoxService.Show(summary, "Media cache", MessageButton.OK, MessageIcon.Information, MessageResult.OK);
+		} catch (Exception ex) {
+			MessageBoxService.ShowError("Failed to clear the media cache", ex);
+		} finally {
+			IsClearingMediaCache = false;
+			clearMediaCacheCommand?.RaiseCanExecuteChanged();
+		}
+	}
 
 	private AsyncCommand? generateDiagnosticsFileCommand;
 	public IDelegateCommand GenerateDiagnosticsFileCommand => generateDiagnosticsFileCommand ??= new(GenerateDiagnosticsFile, CanGenerateDiagnosticsFile);

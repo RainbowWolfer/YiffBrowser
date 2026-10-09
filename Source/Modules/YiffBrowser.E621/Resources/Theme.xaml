@@ -1433,7 +1433,7 @@
 												<ImageBrush
 													AlignmentX="Center"
 													AlignmentY="Center"
-													ImageSource="{Binding Comment.Avatar.Sample.URL}"
+													ImageSource="{Binding Comment.BitmapImage}"
 													Stretch="UniformToFill"/>
 											</wpf:ClippingBorder.Background>
 

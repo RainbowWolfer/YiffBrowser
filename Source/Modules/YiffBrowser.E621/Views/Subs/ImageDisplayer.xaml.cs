@@ -9,6 +9,7 @@ using YiffBrowser.BaseFramework.Models;
 using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.BaseFramework.ViewModels;
 using YiffBrowser.E621.Enums;
+using YiffBrowser.E621.Helpers;
 using YiffBrowser.E621.Models.E621;
 
 namespace YiffBrowser.E621.Views.Subs;
@@ -95,9 +96,9 @@ public partial class ImageDisplayer : UserControl, IPostDisplayer {
 		IsFileReady = false;
 		fileSize = post.File?.Size ?? 0;
 
-		preview = GetCache(post.Preview?.URL);
-		sample = LoadSample ? GetCache(post.Sample?.URL) : null;
-		file = GetCache(post.File?.URL);
+		preview = GetCache(post, E621MediaCacheKeys.Preview, post.Preview?.URL);
+		sample = LoadSample ? GetCache(post, E621MediaCacheKeys.Sample, post.Sample?.URL) : null;
+		file = GetCache(post, E621MediaCacheKeys.File, post.File?.URL);
 
 		Bind();
 
@@ -121,11 +122,11 @@ public partial class ImageDisplayer : UserControl, IPostDisplayer {
 		ContinueAfterPreview();
 	}
 
-	private static BitmapCacheItem? GetCache(string? url) {
+	private static BitmapCacheItem? GetCache(E621Post post, string variant, string? url) {
 		if (url.IsBlank()) {
 			return null;
 		}
-		BitmapCacheItem item = BitmapCacheService.Get(url);
+		BitmapCacheItem item = BitmapCacheService.Get(url, E621MediaCacheKeys.For(post, variant, url));
 		return item.IsNull ? null : item;
 	}
 

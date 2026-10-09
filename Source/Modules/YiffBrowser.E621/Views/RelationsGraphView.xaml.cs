@@ -2,13 +2,17 @@ using DevExpress.Mvvm;
 using RW.Base.WPF.Extensions;
 using RW.Common.Helpers;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using YiffBrowser.BaseFramework.Models;
 using YiffBrowser.BaseFramework.Services;
+using YiffBrowser.E621.Helpers;
 using YiffBrowser.E621.Models;
 using YiffBrowser.E621.Models.E621;
 using YiffBrowser.E621.ViewModels;
@@ -570,12 +574,41 @@ internal class RelationsGraphViewModel : ViewModelBase, IDisposable {
 	}
 }
 
-internal sealed class RelationGraphNodeVm {
+internal sealed class RelationGraphNodeVm : INotifyPropertyChanged {
+	public event PropertyChangedEventHandler? PropertyChanged;
+
 	public RelationGraphNodeVm(RelationTreeNode node, int seedId) {
 		Post = node.Post;
 		Depth = node.Depth;
 		IsSeed = node.Post.ID == seedId;
 		HasParent = node.Depth > 0;
+		LoadPreview();
+	}
+
+	private void LoadPreview() {
+		string? url = Post.Preview?.URL;
+		if (url.IsBlank()) {
+			return;
+		}
+
+		BitmapCacheItem item = BitmapCacheService.Get(url, E621MediaCacheKeys.For(Post, E621MediaCacheKeys.Preview, url));
+		item.Updated += PreviewUpdated;
+		item.Initialize();
+		if (item.HasCompleted && item.Image != null) {
+			item.Updated -= PreviewUpdated;
+			PreviewImage = item.Image;
+		}
+	}
+
+	private void PreviewUpdated(BitmapCacheItem sender, CacheLoadingModel args) {
+		if (!args.HasCompleted && !args.HasError) {
+			return;
+		}
+
+		sender.Updated -= PreviewUpdated;
+		if (args.HasCompleted && sender.Image != null) {
+			PreviewImage = sender.Image;
+		}
 	}
 
 	public E621Post Post { get; }
@@ -588,6 +621,14 @@ internal sealed class RelationGraphNodeVm {
 
 	public string Title => $"#{Post.ID}";
 	public string? PreviewUrl => Post.Preview?.URL;
+
+	public BitmapImage? PreviewImage {
+		get;
+		private set {
+			field = value;
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PreviewImage)));
+		}
+	}
 
 	public string Badge => IsSeed
 		? "current"

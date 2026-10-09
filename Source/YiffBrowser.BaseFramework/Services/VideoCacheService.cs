@@ -3,8 +3,6 @@ using RW.Common.Helpers;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
-using System.Net.Http;
-using YiffBrowser.BaseFramework.Helpers;
 using YiffBrowser.BaseFramework.Models;
 
 namespace YiffBrowser.BaseFramework.Services;
@@ -12,109 +10,187 @@ namespace YiffBrowser.BaseFramework.Services;
 public static class VideoCacheService {
 	private static ConcurrentDictionary<string, VideoCacheItem> Pool { get; } = [];
 
-	public static VideoCacheItem Get(string? url, long fileSize) {
+	public static VideoCacheItem Get(string? url, long fileSize, MediaCacheKey? cacheKey = null) {
 		if (url.IsBlank()) {
 			return VideoCacheItem.Null;
 		}
-		Debug.WriteLine(url);
-		if (Pool.TryGetValue(url, out VideoCacheItem? found)) {
-			return found;
-		} else {
-			VideoCacheItem item = new(url, (int)fileSize);
-			return Pool[url] = item;
+
+		VideoCacheItem item = Pool.GetOrAdd(url, key => new VideoCacheItem(key, fileSize));
+		item.AttachKey(cacheKey);
+		return item;
+	}
+
+	/// <summary>
+	/// Writes media that was decoded before the disk cache was turned on.
+	/// Already-open videos are copied from memory; anything else is downloaded again.
+	/// </summary>
+	public static void BackfillDisk() {
+		if (!MediaDiskCache.IsEnabled) {
+			return;
+		}
+
+		foreach (VideoCacheItem item in Pool.Values) {
+			item.BackfillDisk();
 		}
 	}
 
-
 }
 
-public class VideoCacheItem(string? url, int fileSize) {
+public class VideoCacheItem(string? url, long fileSize) {
 	public event TypedEventHandler<VideoCacheItem, CacheLoadingModel>? Updated;
-
 
 	public bool IsNull => UrlString is null;
 	public string? UrlString { get; } = url;
 	public Guid ID { get; } = Guid.NewGuid();
 	public Uri? Uri { get; } = url.IsBlank() ? null : new Uri(url);
 
-
 	public bool HasError { get; private set; } = false;
 	public bool HasCompleted { get; private set; } = false;
+	public bool IsLoading { get; private set; } = false;
+
+	/// <summary>Set when the bytes live in the disk cache. Prefer this over <see cref="MemoryStream"/>.</summary>
+	public string? LocalPath { get; private set; }
 
 	private MemoryStream? cacheStream;
 	public MemoryStream? MemoryStream => cacheStream;
 
-	private readonly CancellationTokenSource cts = new();
+	private MediaCacheKey? cacheKey;
+	private int generation;
+	public long FileSize { get; } = fileSize;
 
-	public async void Initialize() {
-		if (cacheStream != null) {
-			return;
+	public void AttachKey(MediaCacheKey? key) {
+		if (key != null && cacheKey == null) {
+			cacheKey = key;
 		}
+	}
 
+	public void Initialize() {
 		if (Uri is null) {
 			return;
 		}
 
-		CancellationToken token = cts.Token;
-
-		try {
-			using HttpClient client = ProxySettingsHelper.CreateHttpClient();
-			using HttpResponseMessage response = await client.GetAsync(UrlString, HttpCompletionOption.ResponseHeadersRead, token);
-			response.EnsureSuccessStatusCode();
-
-			long totalBytes = response.Content.Headers.ContentLength ?? fileSize;
-
-			using Stream contentStream = await response.Content.ReadAsStreamAsync(token);
-
-			byte[] buffer = new byte[8192];
-			long totalRead = 0;
-			int read;
-
-			cacheStream = new MemoryStream(fileSize);
-			while ((read = await contentStream.ReadAsync(buffer, token)) > 0) {
-				await cacheStream.WriteAsync(buffer.AsMemory(0, read), token);
-				totalRead += read;
-
-				double progress = (double)totalRead / totalBytes;
-
-				DownloadProgress((int)(progress * 100));
-
-				token.ThrowIfCancellationRequested();
-			}
-
-			DownloadCompleted();
-		} catch (OperationCanceledException) {
-
-		} catch (Exception ex) {
-			DownloadFailed(ex);
-		} finally {
-
+		if (HasCompleted) {
+			Raise(new CacheLoadingModel(true, false, true, 100));
+			return;
 		}
 
+		if (IsLoading) {
+			Raise(new CacheLoadingModel(true, false, false, 0));
+			return;
+		}
+
+		if (HasError) {
+			Clear();
+		}
+
+		if (cacheKey != null && MediaDiskCache.TryGetExistingFile(cacheKey, FileSize, out string existing)) {
+			LocalPath = existing;
+			Complete();
+			return;
+		}
+
+		IsLoading = true;
+		Raise(new CacheLoadingModel(false, false, false, 0));
+		_ = LoadAsync(Uri, generation);
 	}
 
+	private async Task LoadAsync(Uri uri, int startedGeneration) {
+		try {
+			if (cacheKey != null && MediaDiskCache.IsEnabled) {
+				string? path = await MediaDiskCache.DownloadToFileAsync(cacheKey, uri, FileSize, OnProgress).ConfigureAwait(false);
+				if (startedGeneration != generation) {
+					return;
+				}
 
+				if (path != null) {
+					LocalPath = path;
+					Complete();
+					return;
+				}
+			}
 
-	private void DownloadProgress(int progress) {
-		Updated?.Invoke(this, new CacheLoadingModel(true, false, false, progress));
+			byte[] data = await MediaDownloadService.DownloadAsync(uri, OnProgress).ConfigureAwait(false);
+			if (startedGeneration != generation) {
+				return;
+			}
+
+			cacheStream = new MemoryStream(data, writable: false);
+			Complete();
+		} catch (Exception ex) {
+			Debug.WriteLine(ex);
+			if (startedGeneration == generation) {
+				Fail(ex);
+			}
+		}
 	}
 
-	private void DownloadFailed(Exception ex) {
+	private void OnProgress(int progress) {
+		Raise(new CacheLoadingModel(true, false, false, progress));
+	}
+
+	private void Fail(Exception ex) {
+		IsLoading = false;
 		HasError = true;
-		Updated?.Invoke(this, new CacheLoadingModel(true, true, false, 0, ex));
+		Raise(new CacheLoadingModel(true, true, false, 0, ex));
 	}
 
-	private void DownloadCompleted() {
+	private void Complete() {
+		IsLoading = false;
+		HasError = false;
 		HasCompleted = true;
-		Updated?.Invoke(this, new CacheLoadingModel(true, false, true, 100));
+		Raise(new CacheLoadingModel(true, false, true, 100));
+	}
+
+	private void Raise(CacheLoadingModel model) {
+		Updated?.Invoke(this, model);
+	}
+
+	/// <summary>Drops the file so the next <see cref="Initialize"/> downloads it again.</summary>
+	public void DiscardDisk() {
+		if (cacheKey != null) {
+			MediaDiskCache.Delete(cacheKey);
+		}
+		Clear();
+	}
+
+	public void BackfillDisk() {
+		if (cacheKey == null || Uri == null || IsNull || !MediaDiskCache.IsEnabled) {
+			return;
+		}
+
+		if (MediaDiskCache.TryGetExistingFile(cacheKey, FileSize, out _)) {
+			return;
+		}
+
+		if (cacheStream != null) {
+			MediaDiskCache.TryStore(cacheKey, cacheStream.ToArray());
+			return;
+		}
+
+		if (!HasCompleted) {
+			return;
+		}
+
+		Uri uri = Uri;
+		MediaCacheKey key = cacheKey;
+		long size = FileSize;
+		_ = Task.Run(async () => {
+			try {
+				await MediaDiskCache.DownloadToFileAsync(key, uri, size, null).ConfigureAwait(false);
+			} catch (Exception ex) {
+				Debug.WriteLine(ex);
+			}
+		});
 	}
 
 	public void Clear() {
+		generation++;
 		cacheStream?.Dispose();
 		cacheStream = null;
+		LocalPath = null;
 		HasCompleted = false;
 		HasError = false;
-		//Updated?.Invoke(this, new CacheLoadingModel(false, false, false, 0));
+		IsLoading = false;
 	}
 
 	public static VideoCacheItem Null => new(null, 0);

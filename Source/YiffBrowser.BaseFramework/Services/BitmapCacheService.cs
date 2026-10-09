@@ -13,13 +13,26 @@ namespace YiffBrowser.BaseFramework.Services;
 public static class BitmapCacheService {
 	private static ConcurrentDictionary<string, BitmapCacheItem> Pool { get; } = [];
 
-	public static BitmapCacheItem Get(string? url) {
+	public static BitmapCacheItem Get(string? url, MediaCacheKey? cacheKey = null) {
 		if (url.IsBlank()) {
 			return BitmapCacheItem.Null;
 		}
 		// GetOrAdd keeps every view on the same item; two items for one url would download twice
 		// and each would only notify its own subscribers.
-		return Pool.GetOrAdd(url, static key => new BitmapCacheItem(key));
+		BitmapCacheItem item = Pool.GetOrAdd(url, static key => new BitmapCacheItem(key));
+		item.AttachKey(cacheKey);
+		return item;
+	}
+
+	/// <summary>Downloads again, to disk only, for images already decoded while the cache was off.</summary>
+	public static void BackfillDisk() {
+		if (!MediaDiskCache.IsEnabled) {
+			return;
+		}
+
+		foreach (BitmapCacheItem item in Pool.Values) {
+			item.BackfillDisk();
+		}
 	}
 
 }
@@ -47,6 +60,35 @@ public class BitmapCacheItem(string? url) {
 
 	/// <summary>Bumped by <see cref="Clear"/> so a download started before it is discarded.</summary>
 	private int generation = 0;
+
+	private MediaCacheKey? cacheKey;
+
+	public void AttachKey(MediaCacheKey? key) {
+		if (key != null && cacheKey == null) {
+			cacheKey = key;
+		}
+	}
+
+	public void BackfillDisk() {
+		if (!HasCompleted || cacheKey == null || Uri == null || IsNull || !MediaDiskCache.IsEnabled) {
+			return;
+		}
+
+		if (MediaDiskCache.TryGetExistingFile(cacheKey, 0, out _)) {
+			return;
+		}
+
+		Uri uri = Uri;
+		MediaCacheKey key = cacheKey;
+		_ = Task.Run(async () => {
+			try {
+				byte[] data = await MediaDownloadService.DownloadAsync(uri).ConfigureAwait(false);
+				MediaDiskCache.TryStore(key, data);
+			} catch (Exception ex) {
+				Debug.WriteLine(ex);
+			}
+		});
+	}
 
 	/// <summary>
 	/// Items are shared per url, so this can be called by any number of views at any point of the
@@ -81,26 +123,48 @@ public class BitmapCacheItem(string? url) {
 	}
 
 	private async Task LoadAsync(Uri uri, int startedGeneration) {
-		try {
-			byte[] data = await MediaDownloadService.DownloadAsync(uri, OnProgress).ConfigureAwait(false);
+		bool retriedDisk = false;
 
-			if (startedGeneration != generation) {
+		while (true) {
+			bool fromDisk = false;
+			try {
+				byte[] data;
+				if (!retriedDisk && cacheKey != null && MediaDiskCache.TryRead(cacheKey, out byte[] cached)) {
+					data = cached;
+					fromDisk = true;
+				} else {
+					data = await MediaDownloadService.DownloadAsync(uri, OnProgress).ConfigureAwait(false);
+					if (cacheKey != null) {
+						MediaDiskCache.TryStore(cacheKey, data);
+					}
+				}
+
+				if (startedGeneration != generation) {
+					return;
+				}
+
+				if (IsGif) {
+					GifImage gifImage = new(uri);
+					gifImage.Load(data);
+					GifImage = gifImage;
+				} else {
+					Image = CreateFrozenImage(data);
+				}
+
+				Complete();
 				return;
-			}
+			} catch (Exception ex) {
+				Debug.WriteLine(ex);
+				if (fromDisk && cacheKey != null && !retriedDisk) {
+					MediaDiskCache.Delete(cacheKey);
+					retriedDisk = true;
+					continue;
+				}
 
-			if (IsGif) {
-				GifImage gifImage = new(uri);
-				gifImage.Load(data);
-				GifImage = gifImage;
-			} else {
-				Image = CreateFrozenImage(data);
-			}
-
-			Complete();
-		} catch (Exception ex) {
-			Debug.WriteLine(ex);
-			if (startedGeneration == generation) {
-				Fail(ex);
+				if (startedGeneration == generation) {
+					Fail(ex);
+				}
+				return;
 			}
 		}
 	}

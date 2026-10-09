@@ -3,6 +3,7 @@ using YiffBrowser.BaseFramework.Models;
 using YiffBrowser.BaseFramework.Services;
 using RW.Common;
 using System.Windows.Media.Imaging;
+using YiffBrowser.E621.Helpers;
 using YiffBrowser.E621.Models.E621;
 
 namespace YiffBrowser.E621.Models;
@@ -23,8 +24,8 @@ public class PostImageLoader : IDisposable {
 		AppSettingsService.Instance.Model.PreviewQuality == PreviewQuality.Sample;
 
 	public PostImageLoader(E621Post post) {
-		Preview = BitmapCacheService.Get(post.Preview?.URL);
-		Sample = BitmapCacheService.Get(post.Sample?.URL);
+		Preview = BitmapCacheService.Get(post.Preview?.URL, E621MediaCacheKeys.For(post, E621MediaCacheKeys.Preview, post.Preview?.URL));
+		Sample = BitmapCacheService.Get(post.Sample?.URL, E621MediaCacheKeys.For(post, E621MediaCacheKeys.Sample, post.Sample?.URL));
 
 		Preview.Updated += Preview_Updated;
 		Sample.Updated += Sample_Updated;
