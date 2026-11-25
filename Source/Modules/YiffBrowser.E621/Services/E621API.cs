@@ -80,7 +80,7 @@ public class E621API(ModuleType moduleType) {
 		if (parameters.Page <= 0) {
 			parameters.Page = 1;
 		}
-		string url = $"https://{GetHost()}/posts.json?page={parameters.Page}{($"&limit={parameters.PageLimit}")}";
+		string url = $"https://{GetHost()}/posts.json?page={parameters.Page}&limit={parameters.PageLimit}&mode=extended";
 
 		IEnumerable<string> tags = parameters.Tags.Where(x => x.IsNotBlank());
 		if (tags.IsNotEmpty()) {
@@ -91,7 +91,7 @@ public class E621API(ModuleType moduleType) {
 		HttpResult<string> result = await ReadURLAsync(url, token: token);
 
 		if (result.Result == HttpResultType.Success) {
-			return JsonDeserialize<E621PostsRoot>(result.Content)?.Posts?.ToArray() ?? [];
+			return E621PostJson.ReadMany(result.Content);
 		} else {
 			return [];
 		}
@@ -101,11 +101,10 @@ public class E621API(ModuleType moduleType) {
 		if (postID == null) {
 			return null;
 		}
-		string url = $"https://{GetHost()}/posts/{postID.Value}.json";
+		string url = $"https://{GetHost()}/posts/{postID.Value}.json?mode=extended";
 		HttpResult<string> result = await ReadURLAsync(url, token: token);
 		if (result.Result == HttpResultType.Success) {
-			E621Post? post = JsonDeserialize<E621PostsRoot?>(result.Content)?.Post;
-			return post;
+			return E621PostJson.ReadOne(result.Content);
 		} else {
 			return null;
 		}
