@@ -3,7 +3,6 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 using XamlAnimatedGif;
 
 namespace YiffBrowser.BaseFramework.Controls;
@@ -94,56 +93,5 @@ public class ImageExtend : Image {
 	public void Clear() {
 		ClearValue(AnimationBehavior.SourceStreamProperty);
 		Source = null;
-	}
-
-	private DispatcherTimer ResizeTimer { get; } = new() {
-		Interval = TimeSpan.FromMilliseconds(200),
-	};
-
-	private bool HasLoaded { get; set; } = false;
-
-	public ImageExtend() {
-		ResizeTimer.Tick += ResizeTimer_Tick;
-		Loaded += ImageExtend_Loaded;
-		Unloaded += ImageExtend_Unloaded;
-		IsVisibleChanged += ImageExtend_IsVisibleChanged;
-
-		//AnimationBehavior.SetCacheFramesInMemory(this, true);
-	}
-
-	private void ImageExtend_SizeChanged(object sender, SizeChangedEventArgs e) {
-		Animator animator = AnimationBehavior.GetAnimator(this);
-		if (animator is null) {
-			return;
-		}
-		ResizeTimer.Stop();
-		ResizeTimer.Start();
-		Dispatcher.Invoke(() => {
-			AnimationBehavior.SetCacheFramesInMemory(this, true);
-		}, DispatcherPriority.Loaded);
-	}
-
-	private void ResizeTimer_Tick(object? sender, EventArgs e) {
-		ResizeTimer.Stop();
-		Dispatcher.Invoke(() => {
-			AnimationBehavior.SetCacheFramesInMemory(this, false);
-		}, DispatcherPriority.Loaded);
-	}
-
-
-	private void ImageExtend_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e) {
-
-	}
-
-	private void ImageExtend_Unloaded(object sender, RoutedEventArgs e) {
-
-	}
-
-	private void ImageExtend_Loaded(object sender, RoutedEventArgs e) {
-		if (!HasLoaded) {
-			Window window = Window.GetWindow(this);
-			window?.SizeChanged += ImageExtend_SizeChanged;
-		}
-		HasLoaded = true;
 	}
 }

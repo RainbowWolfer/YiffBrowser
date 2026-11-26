@@ -523,13 +523,20 @@ internal class PostsViewModel(
 				if (post.HasNoValidURLs()) {
 					continue;
 				}
-				PostCardControl card = new(this, ViewConfigService, post);
-				card.IsDownloaded = IsPostDownloaded(post);
-				Items.Add(card);
-				TabItem.Posts.Add(post);
+
+				try {
+					PostCardControl card = new(this, ViewConfigService, post);
+					card.IsDownloaded = IsPostDownloaded(post);
+					Items.Add(card);
+					TabItem.Posts.Add(post);
+				} catch (Exception ex) {
+					Debug.WriteLine(ex);
+				}
 			}
 
-			PostsListBoxService.Object.Items.Refresh();
+			if (PostsListBoxService.Object is { } list) {
+				list.Items.Refresh();
+			}
 			DownloadIndexVersion++;
 			RaisePropertyChanged(() => PoolHeaderVisible);
 
@@ -537,7 +544,9 @@ internal class PostsViewModel(
 		} catch (OperationCanceledException) {
 			TabItem.LoadingStatus.Done();
 		} catch (Exception ex) {
-			TabItem.LoadingStatus.Error(ex.Message);
+			Debug.WriteLine(ex);
+			// Error() leaves ShowLoading set, which also disables refresh, so the bar never leaves.
+			TabItem.LoadingStatus.ErrorClose(ex.Message);
 		}
 	}
 

@@ -206,9 +206,18 @@ internal class PostCardControl : ContentControl, IVariableSizedGridItem, IDispos
 
 	private void CalculateSpans() {
 		Vector2 size = Post.GetSize();
+		if (size.X <= 0 || size.Y <= 0 || viewConfigService.PostItemHeight <= 0) {
+			ColSpan = 1;
+			RowSpan = 1;
+			return;
+		}
+
 		double ratio = size.X / size.Y;
 		double h = viewConfigService.PostItemWidth / ratio / viewConfigService.PostItemHeight;
 		int h2 = (int)Math.Ceiling(h);
+		if (h2 < 1) {
+			h2 = 1;
+		}
 
 		ColSpan = 1;
 		RowSpan = h2;

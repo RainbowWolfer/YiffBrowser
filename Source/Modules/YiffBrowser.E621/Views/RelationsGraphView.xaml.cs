@@ -505,7 +505,7 @@ internal class RelationsGraphViewModel : ViewModelBase, IDisposable {
 			Debug.WriteLine(ex);
 			StatusText = ex.Message;
 			EmptyVisibility = Visibility.Visible;
-			TabItem.LoadingStatus.Error(ex.Message);
+			TabItem.LoadingStatus.ErrorClose(ex.Message);
 		} finally {
 			if (!token.IsCancellationRequested) {
 				LoadingVisibility = Visibility.Collapsed;
@@ -592,6 +592,10 @@ internal sealed class RelationGraphNodeVm : INotifyPropertyChanged {
 		}
 
 		BitmapCacheItem item = BitmapCacheService.Get(url, E621MediaCacheKeys.For(Post, E621MediaCacheKeys.Preview, url));
+		if (item.IsNull) {
+			return;
+		}
+
 		item.Updated += PreviewUpdated;
 		item.Initialize();
 		if (item.HasCompleted && item.Image != null) {

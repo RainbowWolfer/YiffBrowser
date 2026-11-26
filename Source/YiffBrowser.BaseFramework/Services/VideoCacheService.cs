@@ -11,7 +11,7 @@ public static class VideoCacheService {
 	private static ConcurrentDictionary<string, VideoCacheItem> Pool { get; } = [];
 
 	public static VideoCacheItem Get(string? url, long fileSize, MediaCacheKey? cacheKey = null) {
-		if (url.IsBlank()) {
+		if (url.IsBlank() || !Uri.TryCreate(url, UriKind.Absolute, out _)) {
 			return VideoCacheItem.Null;
 		}
 
@@ -42,7 +42,15 @@ public class VideoCacheItem(string? url, long fileSize) {
 	public bool IsNull => UrlString is null;
 	public string? UrlString { get; } = url;
 	public Guid ID { get; } = Guid.NewGuid();
-	public Uri? Uri { get; } = url.IsBlank() ? null : new Uri(url);
+	public Uri? Uri { get; } = TryAbsolute(url);
+
+	private static Uri? TryAbsolute(string? url) {
+		if (url.IsBlank()) {
+			return null;
+		}
+
+		return Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) ? uri : null;
+	}
 
 	public bool HasError { get; private set; } = false;
 	public bool HasCompleted { get; private set; } = false;

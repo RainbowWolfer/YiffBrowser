@@ -238,6 +238,11 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 			LoadingStatus.Initialize();
 
 			videoCacheItem = VideoCacheService.Get(url, post.File.Size, E621MediaCacheKeys.For(post, E621MediaCacheKeys.File, url));
+			if (videoCacheItem.IsNull) {
+				LoadingStatus.ErrorClose("Invalid media URL");
+				return;
+			}
+
 			videoCacheItem.Initialize();
 
 			if (videoCacheItem.HasCompleted) {

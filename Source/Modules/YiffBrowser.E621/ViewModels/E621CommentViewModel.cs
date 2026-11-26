@@ -62,6 +62,11 @@ public class E621CommentViewModel(E621Comment comment, ModuleType moduleType) : 
 
 			UnbindAvatar();
 			bitmapCacheItem = BitmapCacheService.Get(avatarUrl, E621MediaCacheKeys.For(Avatar, E621MediaCacheKeys.Sample, avatarUrl));
+			if (bitmapCacheItem.IsNull) {
+				LoadingStatus.Done();
+				return;
+			}
+
 			bitmapCacheItem.Updated += AvatarUpdated;
 			bitmapCacheItem.Initialize();
 			if (bitmapCacheItem.HasCompleted) {

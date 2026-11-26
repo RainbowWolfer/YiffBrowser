@@ -14,7 +14,7 @@ public static class BitmapCacheService {
 	private static ConcurrentDictionary<string, BitmapCacheItem> Pool { get; } = [];
 
 	public static BitmapCacheItem Get(string? url, MediaCacheKey? cacheKey = null) {
-		if (url.IsBlank()) {
+		if (url.IsBlank() || !Uri.TryCreate(url, UriKind.Absolute, out _)) {
 			return BitmapCacheItem.Null;
 		}
 		// GetOrAdd keeps every view on the same item; two items for one url would download twice
@@ -43,7 +43,15 @@ public class BitmapCacheItem(string? url) {
 	public bool IsNull => UrlString is null;
 	public string? UrlString { get; } = url;
 	public Guid ID { get; } = Guid.NewGuid();
-	public Uri? Uri { get; } = url.IsBlank() ? null : new Uri(url);
+	public Uri? Uri { get; } = TryAbsolute(url);
+
+	private static Uri? TryAbsolute(string? url) {
+		if (url.IsBlank()) {
+			return null;
+		}
+
+		return Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) ? uri : null;
+	}
 
 	public bool IsGif { get; } = url != null && url.EndsWith(".gif");
 

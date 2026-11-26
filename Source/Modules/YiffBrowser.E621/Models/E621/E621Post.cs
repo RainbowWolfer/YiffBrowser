@@ -98,10 +98,14 @@ public class E621Post {
 		}
 		E621FileType type = this.GetFileType();
 		if (type.IsGif()) {
-			return Preview.URL.IsBlank() || File.URL.IsBlank();
+			return !IsAbsoluteUrl(Preview.URL) || !IsAbsoluteUrl(File.URL);
 		} else {
-			return Preview.URL.IsBlank() || Sample.URL.IsBlank() || File.URL.IsBlank();
+			return !IsAbsoluteUrl(Preview.URL) || !IsAbsoluteUrl(Sample.URL) || !IsAbsoluteUrl(File.URL);
 		}
+	}
+
+	private static bool IsAbsoluteUrl(string? url) {
+		return url.IsNotBlank() && Uri.TryCreate(url, UriKind.Absolute, out _);
 	}
 
 	public override string ToString() {
