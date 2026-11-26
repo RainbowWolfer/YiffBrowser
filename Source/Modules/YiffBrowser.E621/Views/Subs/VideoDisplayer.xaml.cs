@@ -11,6 +11,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 using YiffBrowser.BaseFramework.Helpers;
+using YiffBrowser.E621.Views;
 using YiffBrowser.BaseFramework.Models;
 using YiffBrowser.BaseFramework.Services;
 using YiffBrowser.BaseFramework.ViewModels;
@@ -107,6 +108,7 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 	private bool videoOpenRetried;
 
 	private VideoCacheItem? videoCacheItem;
+	private bool? publishedPlaying;
 
 	public Player? Player { get; private set; }
 	public Config? Config { get; private set; }
@@ -202,10 +204,21 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 	}
 
 	private void Tick(object? sender, EventArgs e) {
+		PublishPlaying(Player?.Status == Status.Playing);
 		if (IsVisible) {
 			Raise("Player.CurTime");
 			Raise("CurTime");
 			QuickProgressBar.Value = Player?.CurTime ?? 0;
+		}
+	}
+
+	private void PublishPlaying(bool playing) {
+		if (publishedPlaying == playing) {
+			return;
+		}
+		publishedPlaying = playing;
+		if (VisualHelper.GetParent<PostDetailView>(this)?.DataContext is PostDetailViewModel detail) {
+			detail.ParentViewModel?.SetDetailVideoPlaying(playing);
 		}
 	}
 
@@ -311,6 +324,7 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 
 	private void ClearVideo() {
 		Player?.Stop();
+		PublishPlaying(false);
 		//Player?.Open(null);
 	}
 

@@ -9,15 +9,19 @@ namespace YiffBrowser.BaseFramework.Models;
 /// </summary>
 public class GifImage(Uri uri) : IDisposable {
 	private bool disposedValue;
-	private MemoryStream? memoryStream;
+	private byte[]? bytes;
 
 	public Uri Uri { get; } = uri;
 
+	/// <summary>
+	/// A new stream positioned at the start, over the same bytes. Callers do not share a cursor,
+	/// so a thumbnail and the detail view can decode the same gif at the same time.
+	/// </summary>
 	public MemoryStream? GetMemoryStream() {
-		if (memoryStream != null) {
-			memoryStream.Position = 0;
+		if (bytes == null) {
+			return null;
 		}
-		return memoryStream;
+		return new MemoryStream(bytes, writable: false);
 	}
 
 	public int Width { get; private set; }
@@ -39,31 +43,22 @@ public class GifImage(Uri uri) : IDisposable {
 			Height = 0;
 		}
 
-		memoryStream = new MemoryStream(data, writable: false);
+		bytes = data;
 		IsInitialized = true;
 	}
 
 	protected virtual void Dispose(bool disposing) {
 		if (!disposedValue) {
 			if (disposing) {
-				memoryStream?.Dispose();
-				memoryStream = null;
+				bytes = null;
 			}
 
 			disposedValue = true;
 		}
 	}
 
-	// override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-	~GifImage() {
-		// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-		Dispose(disposing: false);
-	}
-
 	void IDisposable.Dispose() {
-		// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
 		Dispose(disposing: true);
-		GC.SuppressFinalize(this);
 	}
 
 }

@@ -55,6 +55,7 @@ public static class ImageExtension {
 				AnimationBehavior.GetAnimator(image)?.Pause();
 				image.MouseEnter += Image_MouseEnter;
 				image.MouseLeave += Image_MouseLeave;
+				image.IsVisibleChanged += Image_HoverVisibilityChanged;
 				break;
 			case GifAutoPlayType.Always:
 				AttachViewportTracking(image);
@@ -68,6 +69,19 @@ public static class ImageExtension {
 	private static void DetachHoverHandlers(Image image) {
 		image.MouseEnter -= Image_MouseEnter;
 		image.MouseLeave -= Image_MouseLeave;
+		image.IsVisibleChanged -= Image_HoverVisibilityChanged;
+	}
+
+	private static void Image_HoverVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e) {
+		if (sender is not Image image) {
+			return;
+		}
+
+		if (!image.IsVisible) {
+			AnimationBehavior.GetAnimator(image)?.Pause();
+		} else if (image.IsMouseOver) {
+			AnimationBehavior.GetAnimator(image)?.Play();
+		}
 	}
 
 	private static void Image_MouseLeave(object sender, MouseEventArgs e) {

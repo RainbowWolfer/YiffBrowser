@@ -797,6 +797,21 @@
 																	Visibility="{Binding LoadingStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}"/>
 															</Border>
 
+															<!-- display only when video playing -->
+															<Border Margin="4,0,0,0" DockPanel.Dock="Left" Visibility="{Binding IsVideoPlaying, Converter={StaticResource Boolean2VisibilityConverter}}">
+																<wpf:FontIcon FontSize="14" Text="&#xE994;"/>
+															</Border>
+
+															<!-- display only when viewing detail of picture -->
+															<Border Margin="4,0,0,0" DockPanel.Dock="Left" Visibility="{Binding IsViewingImageDetail, Converter={StaticResource Boolean2VisibilityConverter}}">
+																<wpf:FontIcon FontSize="14" Text="&#xE91B;"/>
+															</Border>
+
+															<!-- display only when viewing detail of video (not playing) -->
+															<Border Margin="4,0,0,0" DockPanel.Dock="Left" Visibility="{Binding IsViewingVideoDetail, Converter={StaticResource Boolean2VisibilityConverter}}">
+																<wpf:FontIcon FontSize="14" Text="&#xE714;"/>
+															</Border>
+
 															<StackPanel Name="buttonPanel" DockPanel.Dock="Right" Visibility="Visible">
 																<Button Name="CloseTabButton"
 																	Style="{DynamicResource CustomButtonStyle.Danger}"
@@ -920,14 +935,8 @@
 											<Setter Property="ContextMenu">
 												<Setter.Value>
 													<ContextMenu>
-														<MenuItem
-															bf:IconExtension.Glyph="&#xE70D;"
-															Command="{StaticResource CollapseDockPanelCommand}"
-															Header="Collapse Panel"/>
-														<MenuItem
-															bf:IconExtension.Glyph="&#xE70E;"
-															Command="{StaticResource ExpandDockPanelCommand}"
-															Header="Expand Panel"/>
+														<MenuItem bf:IconExtension.Glyph="&#xE70D;" Command="{StaticResource CollapseDockPanelCommand}" Header="Collapse Panel"/>
+														<MenuItem bf:IconExtension.Glyph="&#xE70E;" Command="{StaticResource ExpandDockPanelCommand}" Header="Expand Panel"/>
 														<Separator/>
 														<MenuItem
 															bf:IconExtension.Glyph="&#xE8BB;"
@@ -1028,19 +1037,10 @@
 
 							<GridSplitter.ContextMenu>
 								<ContextMenu>
-									<MenuItem
-										bf:IconExtension.Glyph="&#xE70D;"
-										Command="{StaticResource CollapseDockPanelCommand}"
-										Header="Collapse Panel"/>
-									<MenuItem
-										bf:IconExtension.Glyph="&#xE70E;"
-										Command="{StaticResource ExpandDockPanelCommand}"
-										Header="Expand Panel"/>
+									<MenuItem bf:IconExtension.Glyph="&#xE70D;" Command="{StaticResource CollapseDockPanelCommand}" Header="Collapse Panel"/>
+									<MenuItem bf:IconExtension.Glyph="&#xE70E;" Command="{StaticResource ExpandDockPanelCommand}" Header="Expand Panel"/>
 									<Separator/>
-									<MenuItem
-										bf:IconExtension.Glyph="&#xE8BB;"
-										Command="{Binding Source={StaticResource ViewModel}, Path=Data.CloseAllDockPanelsCommand}"
-										Header="Close All Panels"/>
+									<MenuItem bf:IconExtension.Glyph="&#xE8BB;" Command="{Binding Source={StaticResource ViewModel}, Path=Data.CloseAllDockPanelsCommand}" Header="Close All Panels"/>
 								</ContextMenu>
 							</GridSplitter.ContextMenu>
 

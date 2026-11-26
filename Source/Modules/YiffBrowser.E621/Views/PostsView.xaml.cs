@@ -162,8 +162,27 @@ internal class PostsViewModel(
 		set {
 			SetProperty(() => CurrentPost, value);
 			RaisePropertyChanged(() => CurrentHasPost);
+			detailVideoPlaying = false;
+			SyncTabDetailIndicator();
 			CurrentPostChanged?.Invoke(this, value);
 		}
+	}
+
+	private bool detailVideoPlaying;
+
+	internal void SetDetailVideoPlaying(bool playing) {
+		if (CurrentPost?.GetFileType().IsVideo() != true) {
+			playing = false;
+		}
+		if (detailVideoPlaying == playing) {
+			return;
+		}
+		detailVideoPlaying = playing;
+		SyncTabDetailIndicator();
+	}
+
+	private void SyncTabDetailIndicator() {
+		TabItem?.UpdateDetailIndicator(CurrentPost, detailVideoPlaying);
 	}
 
 	public E621Post? LastViewedPost {

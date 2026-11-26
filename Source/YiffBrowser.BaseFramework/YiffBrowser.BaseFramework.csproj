@@ -9,7 +9,7 @@
 		<PackageReference Include="RW.Common" Version="$(RW_Common_Version)" />
 		<PackageReference Include="RW.Common.WPF" Version="$(RW_Common_Version)" />
 
-		<PackageReference Include="RW.XamlAnimatedGif" Version="3.0.0" />
+		<PackageReference Include="RW.XamlAnimatedGif" Version="3.0.2" />
 	</ItemGroup>
 
 	<ItemGroup>

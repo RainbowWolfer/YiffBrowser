@@ -70,6 +70,30 @@ internal class PostTabItem : BindableBase, IDisposable {
 		set => SetProperty(() => CurrentPage, Math.Max(1, value));
 	}
 
+	public bool IsVideoPlaying {
+		get => GetProperty(() => IsVideoPlaying);
+		private set => SetProperty(() => IsVideoPlaying, value);
+	}
+
+	public bool IsViewingImageDetail {
+		get => GetProperty(() => IsViewingImageDetail);
+		private set => SetProperty(() => IsViewingImageDetail, value);
+	}
+
+	public bool IsViewingVideoDetail {
+		get => GetProperty(() => IsViewingVideoDetail);
+		private set => SetProperty(() => IsViewingVideoDetail, value);
+	}
+
+	internal void UpdateDetailIndicator(E621Post? post, bool videoPlaying) {
+		E621FileType type = post?.GetFileType() ?? E621FileType.Unknown;
+		bool isVideo = type.IsVideo();
+		bool isImage = type.IsImage();
+		IsVideoPlaying = isVideo && videoPlaying;
+		IsViewingVideoDetail = isVideo && !videoPlaying;
+		IsViewingImageDetail = isImage;
+	}
+
 	public PostTabItem(E621MainViewModel parentViewModel, string[] tags, int initialPage = 1)
 		: this(parentViewModel, PostTabKind.Search, tags, poolId: null, relationsRootPostId: null, initialPage) {
 	}
