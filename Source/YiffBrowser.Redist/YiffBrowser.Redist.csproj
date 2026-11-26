@@ -5,25 +5,28 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Content Include="FFmpeg\avcodec-62.dll">
+		<Content Include="FFmpeg\avcodec-63.dll">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Include="FFmpeg\avdevice-62.dll">
+		<Content Include="FFmpeg\avdevice-63.dll">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Include="FFmpeg\avfilter-11.dll">
+		<Content Include="FFmpeg\avfilter-12.dll">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Include="FFmpeg\avformat-62.dll">
+		<Content Include="FFmpeg\avformat-63.dll">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Include="FFmpeg\avutil-60.dll">
+		<Content Include="FFmpeg\avutil-61.dll">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Include="FFmpeg\swresample-6.dll">
+		<Content Include="FFmpeg\swresample-7.dll">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Include="FFmpeg\swscale-9.dll">
+		<Content Include="FFmpeg\swscale-10.dll">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="FFmpeg\LICENSE.txt">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>

@@ -469,11 +469,8 @@ public partial class App : ApplicationBase {
 			"GongSolutions",
 			"ControlzEx",
 			"Flyleaf",
-			"Dragablz",
-			"MaterialDesign",
 			"SharpGen",
 			"Vortice",
-			"WpfColorFontDialog",
 			"LiteDB",
 			"HtmlAgilityPack",
 		];

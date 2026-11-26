@@ -321,8 +321,8 @@
 									Maximum="{Binding Player.Duration}"
 									Background="#01FFFFFF"
 									IsMoveToPointEnabled="True"
-									LargeChange="{Binding Player.Config.Player.SeekOffset2}"
-									SmallChange="{Binding Player.Config.Player.SeekOffset}"
+									LargeChange="{Binding Player.Config.Playback.SeekOffset2}"
+									SmallChange="{Binding Player.Config.Playback.SeekOffset}"
 									Value="{Binding CurTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 							</Border>
 

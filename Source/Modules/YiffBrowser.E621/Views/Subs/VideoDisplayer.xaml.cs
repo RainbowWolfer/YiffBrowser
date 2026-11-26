@@ -143,11 +143,11 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 
 		Player = new Player(Config) {
 			LoopPlayback = true,
+			Stats = true,
 		};
 
-		Config.Player.AutoPlay = true;
-		Config.Player.SeekAccurate = true;
-		Config.Player.Stats = true;
+		Config.Playback.AutoPlay = true;
+		Config.Playback.SeekAccurate = true;
 
 		// Keep track of error messages
 		Player.OpenCompleted += (o, e) => {
