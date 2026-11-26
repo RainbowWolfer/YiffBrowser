@@ -26,6 +26,7 @@ using YiffBrowser.E621.Helpers;
 using YiffBrowser.E621.Models.E621;
 using YiffBrowser.E621.Services;
 using YiffBrowser.E621.ViewModels;
+using YiffBrowser.E621.Views.Subs;
 
 namespace YiffBrowser.E621.Views;
 
@@ -41,6 +42,7 @@ internal partial class PostsView : UserControl, IPostTabContent {
 	}
 
 	public void Dispose() {
+		VideoDisplayer.ReleaseIn(this);
 		viewModel.Dispose();
 	}
 

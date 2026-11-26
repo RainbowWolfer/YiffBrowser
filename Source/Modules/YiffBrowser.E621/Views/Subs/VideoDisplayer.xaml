@@ -93,10 +93,20 @@
 						<RowDefinition Height="auto"/>
 					</Grid.RowDefinitions>
 
-					<Image
-						Grid.RowSpan="3"
-						Source="{Binding Post.Sample.URL}"
-						Visibility="{Binding IsFileReady, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
+					<Image Grid.RowSpan="3">
+						<Image.Style>
+							<Style TargetType="Image">
+								<Setter Property="Source" Value="{Binding Post.Sample.URL}"/>
+								<Setter Property="Visibility" Value="Visible"/>
+								<Style.Triggers>
+									<DataTrigger Binding="{Binding IsFileReady}" Value="True">
+										<Setter Property="Source" Value="{x:Null}"/>
+										<Setter Property="Visibility" Value="Collapsed"/>
+									</DataTrigger>
+								</Style.Triggers>
+							</Style>
+						</Image.Style>
+					</Image>
 
 					<Border Style="{StaticResource ControlBarContainer}">
 

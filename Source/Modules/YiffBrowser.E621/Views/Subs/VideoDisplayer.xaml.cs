@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using YiffBrowser.BaseFramework.Helpers;
 using YiffBrowser.E621.Views;
@@ -101,11 +102,19 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 	public static readonly DependencyProperty IsFileReadyProperty = IsFileReadyPropertyKey.DependencyProperty;
 
 
+	private static readonly List<WeakReference<VideoDisplayer>> activePlayers = [];
+
 	private readonly DispatcherTimer dispatcherTimer;
 
 	private long fileSize = 0;
 	private int openedPostId;
 	private bool videoOpenRetried;
+	private int playerToken;
+	private bool surfaceHooksReady;
+	private bool playbackShown;
+	private bool resumeWhenVisible;
+	private bool registered;
+	private bool sawPlaying;
 
 	private VideoCacheItem? videoCacheItem;
 	private bool? publishedPlaying;
@@ -116,68 +125,219 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 	public VideoDisplayer() {
 		InitializeComponent();
 
-		dispatcherTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(10), DispatcherPriority.Normal, Tick, Dispatcher) {
+		dispatcherTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Normal, Tick, Dispatcher) {
 			IsEnabled = false,
 		};
 
 		Loaded += VideoDisplayer_Loaded;
 		Unloaded += VideoDisplayer_Unloaded;
-
-		Loaded += VideoDisplayer_LoadedOnce;
+		IsVisibleChanged += VideoDisplayer_IsVisibleChanged;
 	}
 
 	private void VideoDisplayer_Loaded(object sender, RoutedEventArgs e) {
-		dispatcherTimer.Start();
+		if (IsVisible) {
+			ShowPlayback();
+		}
 	}
 
 	private void VideoDisplayer_Unloaded(object sender, RoutedEventArgs e) {
-		dispatcherTimer.Stop();
+		HidePlayback();
 	}
 
-	private void VideoDisplayer_LoadedOnce(object sender, RoutedEventArgs e) {
-		Loaded -= VideoDisplayer_LoadedOnce;
+	private void VideoDisplayer_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e) {
+		if (IsVisible) {
+			ShowPlayback();
+		} else {
+			HidePlayback();
+		}
+	}
 
-		//if (ViewHelper.IsInDesignerMode) {
-		//	return;
-		//}
+	private void ShowPlayback() {
+		if (playbackShown && Player != null) {
+			return;
+		}
 
-		Config = new Config();
-
-		Player = new Player(Config) {
-			LoopPlayback = true,
-			Stats = true,
-		};
-
-		Config.Playback.AutoPlay = true;
-		Config.Playback.SeekAccurate = true;
-
-		// Keep track of error messages
-		Player.OpenCompleted += (o, e) => {
-			if (e.Error.IsNotBlank()) {
-				Debug.WriteLine("Player.OpenCompleted" + e.Error);
-				Dispatcher.BeginInvoke(() => HandleVideoOpenError(e.Error));
+		playbackShown = true;
+		bool created = Player == null;
+		EnsurePlayer();
+		if (!dispatcherTimer.IsEnabled) {
+			dispatcherTimer.Start();
+		}
+		if (created) {
+			if (!LoadingStatus.ShowLoading) {
+				Update(Post);
 			}
+			return;
+		}
+
+		// The player and its position stay. Resume only when this page was playing before it was hidden.
+		if (resumeWhenVisible) {
+			PlayExclusive();
+		}
+	}
+
+	private void HidePlayback() {
+		if (!playbackShown) {
+			return;
+		}
+
+		playbackShown = false;
+		if (Player != null) {
+			bool playing = IsPlayerPlaying(Player);
+			if (playing || Player.Status is Status.Paused or Status.Ended or Status.Stopped) {
+				resumeWhenVisible = playing;
+			}
+			if (playing) {
+				Player.Pause();
+			}
+		}
+
+		dispatcherTimer.Stop();
+		PublishPlaying(false);
+		sawPlaying = false;
+		HideSurface();
+	}
+
+	private void PlayExclusive() {
+		if (Player == null || !IsVisible) {
+			resumeWhenVisible = false;
+			return;
+		}
+
+		PauseOthers();
+		Player.Play();
+		resumeWhenVisible = true;
+		PublishPlaying(true);
+	}
+
+	private void PauseOthers() {
+		for (int i = activePlayers.Count - 1; i >= 0; i--) {
+			if (!activePlayers[i].TryGetTarget(out VideoDisplayer? other)) {
+				activePlayers.RemoveAt(i);
+				continue;
+			}
+			if (ReferenceEquals(other, this) || other.Player == null || !IsPlayerPlaying(other.Player)) {
+				continue;
+			}
+			other.Player.Pause();
+			other.PublishPlaying(false);
+		}
+	}
+
+	private void RegisterPlayer() {
+		if (registered) {
+			return;
+		}
+		registered = true;
+		activePlayers.Add(new WeakReference<VideoDisplayer>(this));
+	}
+
+	private static bool IsPlayerPlaying(Player player) => player.IsPlaying || player.Status == Status.Playing;
+
+	private void EnsurePlayer() {
+		if (Player != null) {
+			AttachSurfaceHooks();
+			return;
+		}
+
+		int token = ++playerToken;
+		Config = new Config();
+		Player player = new(Config) {
+			LoopPlayback = true,
+			Stats = false,
 		};
-		Player.BufferingCompleted += (o, e) => {
-			if (e.Error.IsNotBlank()) {
+		Config.Playback.AutoPlay = false;
+		Config.Playback.SeekAccurate = false;
+
+		player.OpenCompleted += (o, e) => {
+			if (token != playerToken || e.Error.IsBlank()) {
+				return;
+			}
+			Debug.WriteLine("Player.OpenCompleted" + e.Error);
+			Dispatcher.BeginInvoke(() => {
+				if (token == playerToken) {
+					HandleVideoOpenError(e.Error);
+				}
+			});
+		};
+		player.BufferingCompleted += (o, e) => {
+			if (token == playerToken && e.Error.IsNotBlank()) {
 				Debug.WriteLine("Player.BufferingCompleted" + e.Error);
 			}
 		};
 
-		FlyleafHost.Player = Player;
-
-		FlyleafHost.Surface.Title = $"{Guid.NewGuid()}";
-		FlyleafHost.Surface.MouseDown += Surface_MouseDown;
-		FlyleafHost.Surface.MouseDoubleClick += Surface_MouseDoubleClick;
-		FlyleafHost.Surface.ContextMenu = CreateContextMenu();
-
-		Player.Stop();
+		Player = player;
+		FlyleafHost.Player = player;
+		RegisterPlayer();
+		AttachSurfaceHooks();
+		player.Stop();
 
 		Raise(nameof(Config));
 		Raise(nameof(Player));
+	}
 
-		if (!LoadingStatus.ShowLoading) {
-			Update(Post);
+	private void DisposePlayer() {
+		Player? player = Player;
+		if (player == null) {
+			return;
+		}
+
+		playerToken++;
+		Player = null;
+		Config = null;
+		FlyleafHost.Player = null;
+		try {
+			player.Stop();
+		} catch (Exception ex) {
+			Debug.WriteLine(ex.Message);
+		}
+		try {
+			player.Dispose();
+		} catch (Exception ex) {
+			Debug.WriteLine(ex.Message);
+		}
+		Raise(nameof(Config));
+		Raise(nameof(Player));
+	}
+
+	internal void ReleasePlayer() {
+		playbackShown = false;
+		resumeWhenVisible = false;
+		sawPlaying = false;
+		dispatcherTimer.Stop();
+		videoCacheItem?.Updated -= Item_Updated;
+		PublishPlaying(false);
+		DisposePlayer();
+		HideSurface();
+	}
+
+	internal static void ReleaseIn(DependencyObject root) {
+		int count = VisualTreeHelper.GetChildrenCount(root);
+		for (int i = 0; i < count; i++) {
+			DependencyObject child = VisualTreeHelper.GetChild(root, i);
+			if (child is VideoDisplayer video) {
+				video.ReleasePlayer();
+			}
+			ReleaseIn(child);
+		}
+	}
+
+	private void AttachSurfaceHooks() {
+		if (surfaceHooksReady || FlyleafHost.Surface == null) {
+			return;
+		}
+		surfaceHooksReady = true;
+		FlyleafHost.Surface.MouseDown += Surface_MouseDown;
+		FlyleafHost.Surface.MouseDoubleClick += Surface_MouseDoubleClick;
+		FlyleafHost.Surface.ContextMenu = CreateContextMenu();
+	}
+
+	private void HideSurface() {
+		try {
+			FlyleafHost.Overlay?.Hide();
+			FlyleafHost.Surface?.Hide();
+		} catch (Exception ex) {
+			Debug.WriteLine(ex.Message);
 		}
 	}
 
@@ -204,11 +364,16 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 	}
 
 	private void Tick(object? sender, EventArgs e) {
-		PublishPlaying(Player?.Status == Status.Playing);
-		if (IsVisible) {
+		bool playing = Player != null && IsPlayerPlaying(Player);
+		if (playing && !sawPlaying) {
+			PauseOthers();
+		}
+		sawPlaying = playing;
+		PublishPlaying(playing);
+		if (IsVisible && Player != null) {
 			Raise("Player.CurTime");
 			Raise("CurTime");
-			QuickProgressBar.Value = Player?.CurTime ?? 0;
+			QuickProgressBar.Value = Player.CurTime;
 		}
 	}
 
@@ -276,6 +441,10 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 			return;
 		}
 
+		if (Player == null) {
+			return;
+		}
+
 		if (args.HasCompleted) {
 			LoadingStatus.Done();
 			OpenCached(sender);
@@ -305,9 +474,12 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 	}
 
 	private void OpenCached(VideoCacheItem item) {
+		if (Player == null) {
+			return;
+		}
 		if (item.LocalPath.IsNotBlank()) {
-			_ = Player?.Open(item.LocalPath);
-			Player?.Play();
+			_ = Player.Open(item.LocalPath);
+			PlayExclusive();
 			return;
 		}
 
@@ -315,11 +487,11 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 	}
 
 	private void SetVideo(MemoryStream? memoryStream) {
-		if (memoryStream is null) {
+		if (memoryStream is null || Player == null) {
 			return;
 		}
-		_ = Player?.Open(memoryStream);
-		Player?.Play();
+		_ = Player.Open(memoryStream);
+		PlayExclusive();
 	}
 
 	private void ClearVideo() {

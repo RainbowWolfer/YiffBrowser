@@ -50,22 +50,34 @@ public class PlaybackControl : ContentControl, INotifyPropertyChanged {
 
 	private bool wasPlayingBeforeDrag = false;
 	private bool isHandingDragStarted = false;
+	private bool isScrubbing = false;
+	private bool? publishedPlaying;
 
 	private TextBlock? playTimeText;
 	private readonly DispatcherTimer dispatcherTimer;
 
 	public PlaybackControl() {
-		dispatcherTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(10), DispatcherPriority.Normal, Tick, Dispatcher);
-		dispatcherTimer.Start();
+		dispatcherTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Normal, Tick, Dispatcher) {
+			IsEnabled = false,
+		};
+		Loaded += (_, _) => dispatcherTimer.IsEnabled = IsVisible;
+		Unloaded += (_, _) => dispatcherTimer.Stop();
+		IsVisibleChanged += (_, _) => dispatcherTimer.IsEnabled = IsVisible;
 	}
 
 	private void Tick(object? sender, EventArgs e) {
-		if (IsVisible) {
-			Raise(nameof(IsPlaying));
-			Raise(nameof(CurTime));
-			Raise("Player.CurTime");
-			UpdatePlayTimeText();
+		if (!IsVisible || Player == null) {
+			return;
 		}
+
+		bool playing = Player.IsPlaying;
+		if (publishedPlaying != playing) {
+			publishedPlaying = playing;
+			Raise(nameof(IsPlaying));
+		}
+		Raise(nameof(CurTime));
+		Raise("Player.CurTime");
+		UpdatePlayTimeText();
 	}
 
 	public override void OnApplyTemplate() {
@@ -114,12 +126,15 @@ public class PlaybackControl : ContentControl, INotifyPropertyChanged {
 		long duration = Player?.Duration ?? 0;
 		TimeProgressFormat format = VideoControlsParameters?.TimeProgressFormat ?? TimeProgressFormat.Time_Total;
 
-		playTimeText.Text = format switch {
+		string text = format switch {
 			TimeProgressFormat.Time_Ramaining => $"{FormatTime(cur)} / -{FormatTime(Math.Max(0, duration - cur))}",
 			TimeProgressFormat.Frame_Total => $"{FormatFrame(cur)} / {FormatFrame(duration)}",
 			TimeProgressFormat.Frame_Ramaining => $"{FormatFrame(cur)} / -{FormatFrame(Math.Max(0, duration - cur))}",
 			_ => $"{FormatTime(cur)} / {FormatTime(duration)}",
 		};
+		if (playTimeText.Text != text) {
+			playTimeText.Text = text;
+		}
 	}
 
 	private static string FormatTime(long ticks) {
@@ -138,25 +153,30 @@ public class PlaybackControl : ContentControl, INotifyPropertyChanged {
 			return;
 		}
 		isHandingDragStarted = true;
+		isScrubbing = true;
 		wasPlayingBeforeDrag = Player.IsPlaying;
 		Dispatcher.BeginInvoke(() => {
-			Player.Pause();
+			Player?.Pause();
 			isHandingDragStarted = false;
 		}, DispatcherPriority.Normal);
 	}
 
 	private void Slider_DragCompleted(object sender, MouseButtonEventArgs e) {
-		if (Player is null) {
-			return;
-		}
-		if (wasPlayingBeforeDrag) {
-			Player.Play();
-		}
+		FinishScrub();
 	}
 
 	private void Slider_LostMouseCapture(object sender, MouseEventArgs e) {
-		if (Player is null) {
+		FinishScrub();
+	}
+
+	private void FinishScrub() {
+		if (!isScrubbing || Player is null) {
 			return;
+		}
+		isScrubbing = false;
+		if (Player.Duration > 0) {
+			int milliseconds = (int)Math.Min(int.MaxValue, Math.Max(0, Player.CurTime / TimeSpan.TicksPerMillisecond));
+			Player.SeekAccurate(milliseconds);
 		}
 		if (wasPlayingBeforeDrag) {
 			Player.Play();

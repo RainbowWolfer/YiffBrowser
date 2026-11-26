@@ -16,6 +16,7 @@ using YiffBrowser.E621.Helpers;
 using YiffBrowser.E621.Models;
 using YiffBrowser.E621.Models.E621;
 using YiffBrowser.E621.ViewModels;
+using YiffBrowser.E621.Views.Subs;
 
 namespace YiffBrowser.E621.Views;
 
@@ -63,6 +64,7 @@ internal partial class RelationsGraphView : UserControl, IPostTabContent {
 	}
 
 	public void Dispose() {
+		VideoDisplayer.ReleaseIn(this);
 		viewModel.LayoutReady -= OnLayoutReady;
 		viewModel.Dispose();
 	}
