@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using YiffBrowser.BaseFramework.Helpers;
+using YiffBrowser.E621.Services;
 using YiffBrowser.E621.Views;
 using YiffBrowser.BaseFramework.Models;
 using YiffBrowser.BaseFramework.Services;
@@ -115,6 +116,7 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 	private bool resumeWhenVisible;
 	private bool registered;
 	private bool sawPlaying;
+	private int mediaTimelineTick;
 
 	private VideoCacheItem? videoCacheItem;
 	private bool? publishedPlaying;
@@ -174,6 +176,7 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 		if (resumeWhenVisible) {
 			PlayExclusive();
 		}
+		WindowsMediaSession.Update(this, claim: true);
 	}
 
 	private void HidePlayback() {
@@ -196,6 +199,7 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 		PublishPlaying(false);
 		sawPlaying = false;
 		HideSurface();
+		WindowsMediaSession.Update(this, claim: false);
 	}
 
 	private void PlayExclusive() {
@@ -208,6 +212,7 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 		Player.Play();
 		resumeWhenVisible = true;
 		PublishPlaying(true);
+		WindowsMediaSession.Update(this, claim: true);
 	}
 
 	private void PauseOthers() {
@@ -309,6 +314,7 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 		PublishPlaying(false);
 		DisposePlayer();
 		HideSurface();
+		WindowsMediaSession.Close(this);
 	}
 
 	internal static void ReleaseIn(DependencyObject root) {
@@ -368,13 +374,64 @@ public partial class VideoDisplayer : UserControl, INotifyPropertyChanged, IPost
 		if (playing && !sawPlaying) {
 			PauseOthers();
 		}
+		bool stateChanged = playing != sawPlaying;
 		sawPlaying = playing;
 		PublishPlaying(playing);
 		if (IsVisible && Player != null) {
 			Raise("Player.CurTime");
 			Raise("CurTime");
 			QuickProgressBar.Value = Player.CurTime;
+			if (stateChanged || mediaTimelineTick >= 10) {
+				mediaTimelineTick = 0;
+				WindowsMediaSession.Update(this, claim: false);
+			} else {
+				mediaTimelineTick++;
+			}
 		}
+	}
+
+	internal bool IsMediaPlaying => Player != null && IsPlayerPlaying(Player);
+
+	internal long MediaPosition => Player?.CurTime ?? 0;
+
+	internal long MediaDuration => Player?.Duration ?? 0;
+
+	internal E621Post? MediaPost => Post;
+
+	internal void PlayFromSystem() {
+		if (Player == null) {
+			return;
+		}
+		if (Player.Status == Status.Ended) {
+			Player.CurTime = 0;
+		}
+		PauseOthers();
+		Player.Play();
+		resumeWhenVisible = true;
+		sawPlaying = true;
+		PublishPlaying(true);
+		WindowsMediaSession.Update(this, claim: true);
+	}
+
+	internal void PauseFromSystem() {
+		if (Player == null) {
+			return;
+		}
+		Player.Pause();
+		resumeWhenVisible = false;
+		sawPlaying = false;
+		PublishPlaying(false);
+		WindowsMediaSession.Update(this, claim: true);
+	}
+
+	internal void SeekFromSystem(TimeSpan position) {
+		if (Player == null || Player.Duration <= 0) {
+			return;
+		}
+		long ticks = Math.Clamp(position.Ticks, 0, Player.Duration);
+		Player.CurTime = ticks;
+		mediaTimelineTick = 0;
+		WindowsMediaSession.Update(this, claim: true);
 	}
 
 	private void PublishPlaying(bool playing) {
