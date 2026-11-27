@@ -7,7 +7,6 @@ public static class ProjectDependencies {
 	// dotnet list package --include-transitive
 
 	public static readonly DependencyDescriptor[] AllDependencies = [.. new DependencyDescriptor[]{
-		new("ControlzEx", "7.0.2", "https://github.com/ControlzEx/ControlzEx"),
 		new("Flyleaf.FFmpeg.ABI", "9.1.0", "https://github.com/SuRGeoNix/Flyleaf"),
 		new("FlyleafLib", "3.12.3", "https://github.com/SuRGeoNix/Flyleaf"),
 		new("gong-wpf-dragdrop", "4.0.0", "https://github.com/punker76/gong-wpf-dragdrop"),

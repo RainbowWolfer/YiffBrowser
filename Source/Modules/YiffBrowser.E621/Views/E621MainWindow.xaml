@@ -13,7 +13,7 @@
 	DataContext="{b:DISource Type=local:E621MainWindowViewModel}"
 	Width="1270"
 	Height="800"
-	ResizeMode="CanResizeWithGrip"
+	ResizeMode="CanResize"
 	WindowStartupLocation="CenterScreen"
 	mc:Ignorable="d">
 

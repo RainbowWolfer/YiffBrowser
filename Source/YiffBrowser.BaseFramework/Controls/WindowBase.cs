@@ -1,18 +1,13 @@
-﻿using ControlzEx;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 
 namespace YiffBrowser.BaseFramework.Controls;
 
-public class WindowBase : WindowChromeWindow {
+public class WindowBase : Window {
 
 	public nint WindowHandle { get; private set; }
 	public HwndSource? HwndSource { get; private set; }
-
-	static WindowBase() {
-		DefaultStyleKeyProperty.OverrideMetadata(typeof(WindowBase), new FrameworkPropertyMetadata(typeof(WindowBase)));
-	}
 
 	public Window? CenterToOwner {
 		get => (Window?)GetValue(CenterToOwnerProperty);
@@ -26,12 +21,6 @@ public class WindowBase : WindowChromeWindow {
 		new PropertyMetadata(null)
 	);
 
-	public ResizeMode? MyResizeMode { get; set; }
-
-	public WindowBase() {
-
-	}
-
 	protected override void OnMouseDown(MouseButtonEventArgs e) {
 		base.OnMouseDown(e);
 
@@ -40,15 +29,12 @@ public class WindowBase : WindowChromeWindow {
 		}
 	}
 
-	public override void OnApplyTemplate() {
-		base.OnApplyTemplate();
-	}
-
 	protected override void OnSourceInitialized(EventArgs e) {
 		base.OnSourceInitialized(e);
 
 		WindowHandle = new WindowInteropHelper(this).Handle;
 		HwndSource = HwndSource.FromHwnd(WindowHandle);
+		WindowFrameTheme.Apply(WindowHandle, WindowFrameTheme.IsDark());
 
 		if (CenterToOwner != null) {
 			double ownerLeft = CenterToOwner.Left;
@@ -59,11 +45,6 @@ public class WindowBase : WindowChromeWindow {
 			Left = ownerLeft + ((ownerWidth - ActualWidth) / 2);
 			Top = ownerTop + ((ownerHeight - ActualHeight) / 2);
 		}
-
-		if (MyResizeMode != null) {
-			ResizeMode = MyResizeMode.Value;
-		}
-
 	}
 
 }

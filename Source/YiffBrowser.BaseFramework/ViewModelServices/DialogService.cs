@@ -155,10 +155,8 @@ public class DialogService : ServiceBase, IDialogServiceEx {
 
 			if (SetOwner) {
 				window.Owner = owner;
-			} else {
-				if (owner != null && window is WindowBase windowBase) {
-					windowBase.CenterToOwner = owner;
-				}
+			} else if (owner != null && window is WindowBase windowBase) {
+				windowBase.CenterToOwner = owner;
 			}
 
 			window.SetBinding(Window.TitleProperty, new Binding(nameof(dialogViewModel.DialogTitle)) { Source = dialogViewModel });
@@ -167,11 +165,7 @@ public class DialogService : ServiceBase, IDialogServiceEx {
 			}
 
 			dialogViewModel.DialogWindowParameter.Do(it => {
-				if (window is WindowBase windowBase) {
-					windowBase.MyResizeMode = it.ResizeMode;// to make ResizeMode working properly
-				} else {
-					window.ResizeMode = it.ResizeMode;
-				}
+				window.ResizeMode = it.ResizeMode;
 				window.WindowStyle = it.WindowStyle;
 				window.SizeToContent = it.SizeToContent;
 				window.WindowStartupLocation = it.WindowStartupLocation;

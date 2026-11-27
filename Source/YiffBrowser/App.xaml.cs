@@ -467,7 +467,6 @@ public partial class App : ApplicationBase {
 		private readonly string[] skipSet = [
 			"XamlAnimatedGif",
 			"GongSolutions",
-			"ControlzEx",
 			"Flyleaf",
 			"SharpGen",
 			"Vortice",

@@ -18,8 +18,6 @@
 
 		<PackageReference Include="gong-wpf-dragdrop" Version="4.0.0" />
 
-		<PackageReference Include="ControlzEx" Version="7.0.4" />
-
 		<PackageReference Include="HandyControls" Version="3.6.0" />
 
 		<PackageReference Include="FlyleafLib" Version="3.12.3" />

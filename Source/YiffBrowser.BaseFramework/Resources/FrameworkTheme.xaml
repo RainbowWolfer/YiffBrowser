@@ -3,7 +3,6 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:base="RW.Base.WPF"
 	xmlns:c="clr-namespace:YiffBrowser.BaseFramework.Controls"
-	xmlns:controlzEx="urn:controlzex"
 	xmlns:conv="clr-namespace:YiffBrowser.BaseFramework.Converters"
 	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
 	xmlns:e="clr-namespace:YiffBrowser.BaseFramework.Extensions"
@@ -284,26 +283,14 @@
 		<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
 	</Style>
 
-	<Style x:Key="WindowBaseStyle" TargetType="c:WindowBase" BasedOn="{StaticResource {x:Type controlzEx:WindowChromeWindow}}">
+	<Style x:Key="WindowBaseStyle" TargetType="c:WindowBase">
 		<Setter Property="Icon" Value="{DynamicResource YiffBrowserIcon_PNG}"/>
-		<Setter Property="controlzEx:WindowBackdropManager.BackdropType" Value="Mica"/>
-		<Setter Property="UseNativeCaptionButtons" Value="True"/>
-		<Setter Property="CaptionColor" Value="Transparent"/>
-		<Setter Property="CornerPreference" Value="Round"/>
-		<Setter Property="NCActiveBrush" Value="Transparent"/>
-		<Setter Property="NCNonActiveBrush" Value="Transparent"/>
-		<Setter Property="GlowColor" Value="{DynamicResource BorderColor}"/>
-		<Setter Property="NonActiveGlowColor" Value="{DynamicResource BorderColor}"/>
-
+		<Setter Property="WindowStyle" Value="SingleBorderWindow"/>
+		<Setter Property="ResizeMode" Value="CanResize"/>
+		<Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
 		<Setter Property="SnapsToDevicePixels" Value="True"/>
 		<Setter Property="UseLayoutRounding" Value="True"/>
-
 		<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
-
-		<!--<Setter Property="Focusable" Value="True"/>
-		<Setter Property="IsTabStop" Value="False"/>
-		<Setter Property="FocusVisualStyle" Value="{x:Null}"/>-->
-
 	</Style>
 
 	<Style TargetType="c:WindowBase" BasedOn="{StaticResource WindowBaseStyle}"/>
@@ -320,59 +307,15 @@
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="c:WindowContent">
-
-					<Grid SnapsToDevicePixels="True">
-						<Grid.RowDefinitions>
-							<RowDefinition Height="30"/>
-							<RowDefinition Height="*"/>
-						</Grid.RowDefinitions>
-
-						<Grid Grid.Row="0" controlzEx:NonClientControlProperties.HitTestResult="CAPTION" controlzEx:WindowChrome.IsHitTestVisibleInChrome="False">
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition/>
-								<ColumnDefinition Width="Auto"/>
-							</Grid.ColumnDefinitions>
-
-							<Grid Grid.Column="0" Background="Transparent">
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="Auto"/>
-									<ColumnDefinition Width="Auto"/>
-									<ColumnDefinition/>
-								</Grid.ColumnDefinitions>
-								<Button Name="ButtonIcon"
-									Style="{StaticResource ButtonCustom}"
-									Margin="10,0,0,0"
-									VerticalAlignment="Center"
-									controlzEx:WindowChrome.IsHitTestVisibleInChrome="True"
-									Background="Transparent">
-									<Image
-										Width="16"
-										Height="16"
-										VerticalAlignment="Center"
-										IsHitTestVisible="False"
-										Source="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Icon}"/>
-								</Button>
-								<TextBlock
-									Grid.Column="1"
-									Padding="10,0,0,0"
-									VerticalAlignment="Center"
-									Foreground="{DynamicResource PrimaryTextBrush}"
-									Text="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Title}"/>
-							</Grid>
-
-						</Grid>
-
-						<Border Grid.Row="1" Background="{TemplateBinding Background}">
-							<ContentPresenter
-								HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-								VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-								Content="{TemplateBinding Content}"
-								ContentStringFormat="{TemplateBinding ContentStringFormat}"
-								ContentTemplate="{TemplateBinding ContentTemplate}"
-								RecognizesAccessKey="True"/>
-						</Border>
-					</Grid>
-
+					<Border Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+						<ContentPresenter
+							HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+							VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+							Content="{TemplateBinding Content}"
+							ContentStringFormat="{TemplateBinding ContentStringFormat}"
+							ContentTemplate="{TemplateBinding ContentTemplate}"
+							RecognizesAccessKey="True"/>
+					</Border>
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>
