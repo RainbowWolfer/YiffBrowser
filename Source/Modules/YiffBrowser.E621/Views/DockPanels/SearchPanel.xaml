@@ -43,23 +43,30 @@
 
 						<hc:ComboBox wpf:EnumBindingExtension.SelectedEnum="{Binding TagsSearchService.SortBy}" ItemsSource="{wpf:EnumBindingMarkup EnumType=enums:SortBy, Converter={StaticResource EnumDisplayConverter}}"/>
 
-						<hc:ComboBox>
-							<ComboBoxItem Content="Rating: All"/>
-							<ComboBoxItem Content="Rating: Safe"/>
-							<ComboBoxItem Content="Rating: Questionable"/>
-							<ComboBoxItem Content="Rating: Explicit"/>
-						</hc:ComboBox>
+						<hc:ComboBox wpf:EnumBindingExtension.SelectedEnum="{Binding TagsSearchService.Rating}" ItemsSource="{wpf:EnumBindingMarkup EnumType=enums:SearchRating, Converter={StaticResource EnumDisplayConverter}}"/>
 
-						<hc:ComboBox wpf:EnumBindingExtension.SelectedEnum="{Binding TagsSearchService.FileType}" ItemsSource="{wpf:EnumBindingMarkup EnumType=enums:E621FileType, Converter={StaticResource EnumDisplayConverter}, AllowNull=True, NullDisplay='dwqqwdqwd'}"/>
+						<hc:ComboBox SelectedValue="{Binding TagsSearchService.FileType, Mode=TwoWay}" SelectedValuePath="Value" ItemsSource="{wpf:EnumBindingMarkup EnumType=enums:E621FileType, Converter={StaticResource EnumDisplayConverter}, AllowNull=True, NullDisplay='All'}"/>
 
 						<Button Name="ButtonScore" Content="Score"/>
 						<Button Name="ButtonFavoriteCount" Content="Favorite Count"/>
 
 						<Button Name="ButtonRandomTags" Content="Get Random Tags"/>
 
-						<ToggleButton Style="{StaticResource ToggleButtonSwitch}" HorizontalContentAlignment="Left" Content="Is In Pool"/>
-						<ToggleButton Style="{StaticResource ToggleButtonSwitch}" HorizontalContentAlignment="Left" Content="Is Child Post"/>
-						<ToggleButton Style="{StaticResource ToggleButtonSwitch}" HorizontalContentAlignment="Left" Content="Is Parent Post"/>
+						<ToggleButton
+							Style="{StaticResource ToggleButtonSwitch.Small}"
+							HorizontalContentAlignment="Left"
+							Content="Is In Pool"
+							IsChecked="{Binding TagsSearchService.InPool, Mode=TwoWay}"/>
+						<ToggleButton
+							Style="{StaticResource ToggleButtonSwitch.Small}"
+							HorizontalContentAlignment="Left"
+							Content="Is Child Post"
+							IsChecked="{Binding TagsSearchService.IsChildPost, Mode=TwoWay}"/>
+						<ToggleButton
+							Style="{StaticResource ToggleButtonSwitch.Small}"
+							HorizontalContentAlignment="Left"
+							Content="Is Parent Post"
+							IsChecked="{Binding TagsSearchService.IsParentPost, Mode=TwoWay}"/>
 
 					</wpf:SpacingStackPanel>
 				</hc:ScrollViewer>
@@ -68,29 +75,34 @@
 					<Border Style="{DynamicResource ButtonPopupBorder}" Width="200">
 						<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
 							<hc:ButtonGroup Style="{StaticResource ButtonGroupSolid}">
-								<RadioButton Content="="/>
-								<RadioButton Content="≥"/>
-								<RadioButton Content="≤"/>
-								<RadioButton Content="[ ... ]"/>
+								<RadioButton Content="=" GroupName="ScoreCompare" IsChecked="{Binding TagsSearchService.ScoreCompare, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Equal}"/>
+								<RadioButton Content="≥" GroupName="ScoreCompare" IsChecked="{Binding TagsSearchService.ScoreCompare, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=GreaterOrEqual}"/>
+								<RadioButton Content="≤" GroupName="ScoreCompare" IsChecked="{Binding TagsSearchService.ScoreCompare, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=LessOrEqual}"/>
+								<RadioButton Content="[ ... ]" GroupName="ScoreCompare" IsChecked="{Binding TagsSearchService.ScoreCompare, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Range}"/>
 							</hc:ButtonGroup>
-
-							<Border
-								Height="28"
-								Padding="4"
-								BorderThickness="1"
-								BorderBrush="{DynamicResource BorderBrush}"
-								CornerRadius="{DynamicResource DefaultCornerRadius}">
-								<Slider VerticalAlignment="Center"/>
-							</Border>
-
-							<Border
-								Height="28"
-								Padding="4"
-								BorderThickness="1"
-								BorderBrush="{DynamicResource BorderBrush}"
-								CornerRadius="{DynamicResource DefaultCornerRadius}">
-								<TextBlock Padding="6,0" VerticalAlignment="Center" Text="20~100"/>
-							</Border>
+							<hc:NumericUpDown
+								Minimum="-999999"
+								Maximum="999999"
+								DecimalPlaces="0"
+								Increment="10"
+								Value="{Binding TagsSearchService.ScoreFrom, UpdateSourceTrigger=PropertyChanged}"/>
+							<hc:NumericUpDown
+								Minimum="-999999"
+								Maximum="999999"
+								DecimalPlaces="0"
+								Increment="10"
+								Value="{Binding TagsSearchService.ScoreTo, UpdateSourceTrigger=PropertyChanged}">
+								<hc:NumericUpDown.Style>
+									<Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource {x:Type hc:NumericUpDown}}">
+										<Setter Property="Visibility" Value="Collapsed"/>
+										<Style.Triggers>
+											<DataTrigger Binding="{Binding TagsSearchService.ScoreCompare}" Value="{x:Static enums:MetaCompare.Range}">
+												<Setter Property="Visibility" Value="Visible"/>
+											</DataTrigger>
+										</Style.Triggers>
+									</Style>
+								</hc:NumericUpDown.Style>
+							</hc:NumericUpDown>
 						</wpf:SpacingStackPanel>
 					</Border>
 				</wpf:ButtonPopup>
@@ -99,29 +111,34 @@
 					<Border Style="{DynamicResource ButtonPopupBorder}" Width="200">
 						<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
 							<hc:ButtonGroup Style="{StaticResource ButtonGroupSolid}">
-								<RadioButton Content="="/>
-								<RadioButton Content="≥"/>
-								<RadioButton Content="≤"/>
-								<RadioButton Content="[ ... ]"/>
+								<RadioButton Content="=" GroupName="FavCompare" IsChecked="{Binding TagsSearchService.FavCompare, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Equal}"/>
+								<RadioButton Content="≥" GroupName="FavCompare" IsChecked="{Binding TagsSearchService.FavCompare, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=GreaterOrEqual}"/>
+								<RadioButton Content="≤" GroupName="FavCompare" IsChecked="{Binding TagsSearchService.FavCompare, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=LessOrEqual}"/>
+								<RadioButton Content="[ ... ]" GroupName="FavCompare" IsChecked="{Binding TagsSearchService.FavCompare, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Range}"/>
 							</hc:ButtonGroup>
-
-							<Border
-								Height="28"
-								Padding="4"
-								BorderThickness="1"
-								BorderBrush="{DynamicResource BorderBrush}"
-								CornerRadius="{DynamicResource DefaultCornerRadius}">
-								<Slider VerticalAlignment="Center"/>
-							</Border>
-
-							<Border
-								Height="28"
-								Padding="4"
-								BorderThickness="1"
-								BorderBrush="{DynamicResource BorderBrush}"
-								CornerRadius="{DynamicResource DefaultCornerRadius}">
-								<TextBlock Padding="6,0" VerticalAlignment="Center" Text="20~100"/>
-							</Border>
+							<hc:NumericUpDown
+								Minimum="0"
+								Maximum="999999"
+								DecimalPlaces="0"
+								Increment="10"
+								Value="{Binding TagsSearchService.FavFrom, UpdateSourceTrigger=PropertyChanged}"/>
+							<hc:NumericUpDown
+								Minimum="0"
+								Maximum="999999"
+								DecimalPlaces="0"
+								Increment="10"
+								Value="{Binding TagsSearchService.FavTo, UpdateSourceTrigger=PropertyChanged}">
+								<hc:NumericUpDown.Style>
+									<Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource {x:Type hc:NumericUpDown}}">
+										<Setter Property="Visibility" Value="Collapsed"/>
+										<Style.Triggers>
+											<DataTrigger Binding="{Binding TagsSearchService.FavCompare}" Value="{x:Static enums:MetaCompare.Range}">
+												<Setter Property="Visibility" Value="Visible"/>
+											</DataTrigger>
+										</Style.Triggers>
+									</Style>
+								</hc:NumericUpDown.Style>
+							</hc:NumericUpDown>
 						</wpf:SpacingStackPanel>
 					</Border>
 				</wpf:ButtonPopup>

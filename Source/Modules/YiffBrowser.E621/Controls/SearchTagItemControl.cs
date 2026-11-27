@@ -59,7 +59,7 @@ public class SearchTagItemControl : Control {
 			Color color = E621Tag.GetCategoryColor(AutoComplete.Category);
 			MainBrush = new SolidColorBrush(color);
 
-			CountString = AutoComplete.PostCount.NumberToK();
+			CountString = AutoComplete.PostCount < 0 ? string.Empty : AutoComplete.PostCount.NumberToK();
 			if (AutoComplete.AntecedentName.IsBlank()) {
 				FromName = AutoComplete.Name ?? string.Empty;
 				ToName = string.Empty;

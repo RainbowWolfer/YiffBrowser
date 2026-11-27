@@ -198,6 +198,10 @@ internal class SearchPanelViewModel(IEventAggregator eventAggregator) : DockPane
 						string[] randomTags = [.. tags.Distinct().OrderBy(x => RandomHelper.Shared.Next()).Take(countToTake)];
 
 						RandomTagText = string.Join(Environment.NewLine, randomTags);
+						string joined = string.Join(' ', randomTags);
+						TagsSearchService.SearchText = TagsSearchService.SearchText.IsBlank()
+							? joined
+							: $"{TagsSearchService.SearchText.Trim()} {joined}";
 					}
 
 				}

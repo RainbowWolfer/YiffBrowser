@@ -59,7 +59,9 @@ internal class TagsSearchService : BindableBase {
 		get => GetProperty(() => SortBy);
 		set {
 			SetProperty(() => SortBy, value);
-			ReplaceMeta("order:", value.GetMeta());
+			if (!updatingMeta) {
+				ReplaceMeta("order:", value.GetMeta());
+			}
 		}
 	}
 
@@ -67,7 +69,82 @@ internal class TagsSearchService : BindableBase {
 		get => GetProperty(() => FileType);
 		set {
 			SetProperty(() => FileType, value);
-			ReplaceMeta("type:", value.GetMeta());
+			if (!updatingMeta) {
+				ReplaceMeta("type:", value.GetMeta());
+			}
+		}
+	}
+
+	public SearchRating Rating {
+		get => GetProperty(() => Rating);
+		set {
+			SetProperty(() => Rating, value);
+			if (!updatingMeta) {
+				ReplaceMeta("rating:", value.GetMeta());
+			}
+		}
+	}
+
+	public bool InPool {
+		get => GetProperty(() => InPool);
+		set => SetFlag(() => InPool, value, "inpool:", "inpool:true");
+	}
+
+	public bool IsChildPost {
+		get => GetProperty(() => IsChildPost);
+		set => SetFlag(() => IsChildPost, value, "parent:", "parent:any");
+	}
+
+	public bool IsParentPost {
+		get => GetProperty(() => IsParentPost);
+		set => SetFlag(() => IsParentPost, value, "child:", "child:any");
+	}
+
+	public MetaCompare ScoreCompare {
+		get => GetProperty(() => ScoreCompare);
+		set {
+			SetProperty(() => ScoreCompare, value);
+			WriteCount("score:", value, ScoreFrom, ScoreTo);
+		}
+	}
+
+	public int ScoreFrom {
+		get => GetProperty(() => ScoreFrom);
+		set {
+			SetProperty(() => ScoreFrom, value);
+			WriteCount("score:", ScoreCompare, value, ScoreTo);
+		}
+	}
+
+	public int ScoreTo {
+		get => GetProperty(() => ScoreTo);
+		set {
+			SetProperty(() => ScoreTo, value);
+			WriteCount("score:", ScoreCompare, ScoreFrom, value);
+		}
+	}
+
+	public MetaCompare FavCompare {
+		get => GetProperty(() => FavCompare);
+		set {
+			SetProperty(() => FavCompare, value);
+			WriteCount("favcount:", value, FavFrom, FavTo);
+		}
+	}
+
+	public int FavFrom {
+		get => GetProperty(() => FavFrom);
+		set {
+			SetProperty(() => FavFrom, value);
+			WriteCount("favcount:", FavCompare, value, FavTo);
+		}
+	}
+
+	public int FavTo {
+		get => GetProperty(() => FavTo);
+		set {
+			SetProperty(() => FavTo, value);
+			WriteCount("favcount:", FavCompare, FavFrom, value);
 		}
 	}
 
@@ -76,7 +153,32 @@ internal class TagsSearchService : BindableBase {
 	public TagsSearchService() {
 		SortBy = SortBy.Default;
 		FileType = null;
+		Rating = SearchRating.All;
+		ScoreCompare = MetaCompare.None;
+		FavCompare = MetaCompare.None;
+		ScoreFrom = 20;
+		ScoreTo = 100;
+		FavFrom = 20;
+		FavTo = 100;
+	}
 
+	private void SetFlag<T>(System.Linq.Expressions.Expression<Func<T>> expression, T value, string root, string token) {
+		SetProperty(expression, value);
+		if (updatingMeta) {
+			return;
+		}
+		if (value is true) {
+			ReplaceMeta(root, token);
+		} else {
+			RemoveMeta(root);
+		}
+	}
+
+	private void WriteCount(string root, MetaCompare compare, int from, int to) {
+		if (updatingMeta) {
+			return;
+		}
+		ReplaceMeta(root, CountTag.Format(root, compare, from, to));
 	}
 
 	private void OnSearchTextChanged() {
@@ -101,13 +203,7 @@ internal class TagsSearchService : BindableBase {
 		} else {
 			AlternativeHintText = string.Empty;
 			Word = GetCurrentWord();
-
-			if (Word.Length <= 2 || Word.Contains(':')) {
-				AutoCompletes.Clear();
-				CancelLoading();
-			} else {
-				LoadAutoSuggestionAsync(Word);
-			}
+			Suggest(Word);
 
 			CalculateCurrentTags();
 		}
@@ -135,13 +231,7 @@ internal class TagsSearchService : BindableBase {
 		string current = GetCurrentWord();
 		if (current != Word) {
 			Word = current;
-
-			if (current.Length <= 2 || current.Contains(':')) {
-				AutoCompletes.Clear();
-				CancelLoading();
-			} else {
-				LoadAutoSuggestionAsync(Word);
-			}
+			Suggest(current);
 		}
 
 		CalculateCurrentTags();
@@ -153,14 +243,40 @@ internal class TagsSearchService : BindableBase {
 		IsLoading = false;
 	}
 
+	private void Suggest(string word) {
+		if (QueriesTags(word)) {
+			LoadAutoSuggestionAsync(word);
+			return;
+		}
+
+		CancelLoading();
+		ShowCompletes(E621MetaCompletions.Match(word));
+	}
+
+	private static bool QueriesTags(string word) {
+		string body = word.Trim().TrimStart('-');
+		return body.Length > 2 && !body.Contains(':');
+	}
+
+	private void ShowCompletes(IEnumerable<E621AutoComplete> items) {
+		AutoCompletes.Clear();
+		foreach (E621AutoComplete item in items) {
+			AutoCompletes.Add(new SearchTagItem(item));
+		}
+	}
+
 	private async void LoadAutoSuggestionAsync(string tag) {
 		if (Api is null) {
+			ShowCompletes(E621MetaCompletions.Match(tag));
 			return;
 		}
 
 		cts?.Cancel();
 		CancellationTokenSource _cts = new();
 		cts = _cts;
+
+		E621AutoComplete[] meta = E621MetaCompletions.Match(tag);
+		ShowCompletes(meta);
 
 		try {
 			await Task.Delay(500, _cts.Token);
@@ -171,11 +287,6 @@ internal class TagsSearchService : BindableBase {
 
 		IsLoading = true;
 
-		AutoCompletes.Clear();
-
-		//todo: add static type auto completes
-		// type: ...
-		// ...
 		E621AutoComplete[] completes = await Api.GetE621AutoCompleteAsync(tag, _cts.Token);
 
 		if (_cts.IsCancellationRequested) {
@@ -183,9 +294,7 @@ internal class TagsSearchService : BindableBase {
 			return;
 		}
 
-		foreach (E621AutoComplete item in completes) {
-			AutoCompletes.Add(new SearchTagItem(item));
-		}
+		ShowCompletes(meta.Concat(completes));
 
 		IsLoading = false;
 	}
@@ -315,50 +424,56 @@ internal class TagsSearchService : BindableBase {
 		}
 		InternalChange = true;
 		string? found = FindMeta(root);
-		if (found.IsNotBlank()) {
+		if (target.IsBlank()) {
+			if (found.IsNotBlank()) {
+				SearchText = RemoveToken(SearchText, found);
+			}
+		} else if (found.IsNotBlank()) {
 			SearchText = SearchText.Replace(found, target).Trim();
 		} else {
-			if (target.IsNotBlank()) {
-				SearchText = (SearchText.Trim() + " " + target).Trim();
-			}
+			SearchText = (SearchText.Trim() + " " + target).Trim();
 		}
-		//FocusSearchBox();
 		PutSelectionAtTheEnd();
+	}
+
+	private void RemoveMeta(string root) {
+		ReplaceMeta(root, "");
+	}
+
+	private static string RemoveToken(string text, string token) {
+		string[] parts = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+		return string.Join(' ', parts.Where(part => !part.Equals(token, StringComparison.OrdinalIgnoreCase)));
 	}
 
 	private void UpdateMetaProperties() {
 		updatingMeta = true;
 		try {
 			SortBy = CurrentTags.GetSortBy();
-
 			FileType = CurrentTags.GetFileType();
-
-			//if (CurrentTags.Contains("type:jpg")) {
-			//	TypeDropDownText = "JPG";
-			//} else if (CurrentTags.Contains("type:png")) {
-			//	TypeDropDownText = "PNG";
-			//} else if (CurrentTags.Contains("type:gif")) {
-			//	TypeDropDownText = "GIF";
-			//} else if (CurrentTags.Contains("type:webm")) {
-			//	TypeDropDownText = "WEBM";
-			//} else if (CurrentTags.Contains("type:anim")) {
-			//	TypeDropDownText = "ANIM";
-			//} else {
-			//	TypeDropDownText = "Type";
-			//}
-
-			//if (CurrentTags.Contains("rating:safe")) {
-			//	RatingDropDownText = "Safe";
-			//} else if (CurrentTags.Contains("rating:questionable")) {
-			//	RatingDropDownText = "Questionable";
-			//} else if (CurrentTags.Contains("rating:explicit")) {
-			//	RatingDropDownText = "Explicit";
-			//} else {
-			//	RatingDropDownText = "Rating";
-			//}
+			Rating = CurrentTags.GetSearchRating();
+			InPool = CurrentTags.Contains("inpool:true");
+			IsChildPost = CurrentTags.Contains("parent:any");
+			IsParentPost = CurrentTags.Contains("child:any");
+			ApplyCount("score:", CurrentTags, compare => ScoreCompare = compare, value => ScoreFrom = value, value => ScoreTo = value);
+			ApplyCount("favcount:", CurrentTags, compare => FavCompare = compare, value => FavFrom = value, value => FavTo = value);
 		} finally {
 			updatingMeta = false;
 		}
+	}
+
+	private static void ApplyCount(string root, IEnumerable<string> tags, Action<MetaCompare> setCompare, Action<int> setFrom, Action<int> setTo) {
+		foreach (string tag in tags) {
+			if (!CountTag.TryParse(tag, root, out MetaCompare compare, out int from, out int to)) {
+				continue;
+			}
+			setCompare(compare);
+			setFrom(from);
+			if (compare == MetaCompare.Range) {
+				setTo(to);
+			}
+			return;
+		}
+		setCompare(MetaCompare.None);
 	}
 
 }

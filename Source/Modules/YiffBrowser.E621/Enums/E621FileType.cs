@@ -25,7 +25,7 @@ public static class E621FileTypeExtension {
 			return E621FileType.GIF;
 		} else if (set.Contains("type:webm")) {
 			return E621FileType.WEBM;
-		} else if (set.Contains("type:swf")) {
+		} else if (set.Contains("type:swf") || set.Contains("type:anim")) {
 			return E621FileType.SWF;
 		}else if (set.Contains("type:mp4")) {
 			return E621FileType.MP4;
