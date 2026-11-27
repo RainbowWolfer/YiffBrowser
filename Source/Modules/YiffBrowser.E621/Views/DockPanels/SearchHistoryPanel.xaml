@@ -74,7 +74,8 @@
 					IsReadOnly="True"
 					SelectionMode="Extended"
 					SelectionUnit="FullRow"
-					ItemsSource="{Binding RecordList}">
+					ItemsSource="{Binding RecordList}"
+					d:ItemsSource="{d:SampleData ItemCount=8}">
 
 					<DataGrid.Columns>
 						<DataGridTextColumn Width="180" Binding="{Binding DateTime}" Header="Date Time"/>

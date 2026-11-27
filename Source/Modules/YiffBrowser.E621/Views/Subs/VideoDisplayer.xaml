@@ -57,10 +57,7 @@
 			<RowDefinition Height="auto"/>
 		</Grid.RowDefinitions>
 
-		<Border
-			Style="{StaticResource ControlBarContainer}"
-			DataContext="{Binding RelativeSource={RelativeSource AncestorType=local:VideoDisplayer}}"
-			Visibility="{Binding VideoControlsParameters.AlwaysShowControls, Converter={StaticResource Boolean2VisibilityConverter}}">
+		<Border Style="{StaticResource ControlBarContainer}" DataContext="{Binding RelativeSource={RelativeSource AncestorType=local:VideoDisplayer}}" Visibility="{Binding VideoControlsParameters.AlwaysShowControls, Converter={StaticResource Boolean2VisibilityConverter}}">
 			<bf:PlaybackControl
 				Style="{StaticResource ControlBar}"
 				Player="{Binding Player}"
@@ -80,10 +77,7 @@
 			<Border DataContext="{Binding HostDataContext}" Background="Transparent">
 
 				<Border.ContextMenu>
-					<c:PostDisplayerContextMenu
-						Displayer="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}"
-						IsVideo="True"
-						VideoControlsParameters="{Binding PlacementTarget.DataContext.VideoControlsParameters, RelativeSource={RelativeSource Self}}"/>
+					<c:PostDisplayerContextMenu Displayer="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}" IsVideo="True" VideoControlsParameters="{Binding PlacementTarget.DataContext.VideoControlsParameters, RelativeSource={RelativeSource Self}}"/>
 				</Border.ContextMenu>
 
 				<Grid>

@@ -54,9 +54,9 @@
 						<DockPanel>
 							<Border
 								Padding="8,6"
-								Background="{DynamicResource RegionBrush}"
-								BorderBrush="{DynamicResource BorderBrush}"
 								BorderThickness="0,0,0,1"
+								BorderBrush="{DynamicResource BorderBrush}"
+								Background="{DynamicResource RegionBrush}"
 								DockPanel.Dock="Top"
 								Visibility="{Binding PoolHeaderVisible, Converter={StaticResource Boolean2VisibilityConverter}}">
 								<StackPanel>
@@ -72,12 +72,12 @@
 										<Run Text=" posts"/>
 									</TextBlock>
 									<TextBlock
+										MaxHeight="72"
 										Margin="0,4,0,0"
 										Opacity="0.9"
 										Text="{Binding TabItem.Pool.Description}"
-										TextWrapping="Wrap"
-										MaxHeight="72"
-										TextTrimming="CharacterEllipsis"/>
+										TextTrimming="CharacterEllipsis"
+										TextWrapping="Wrap"/>
 								</StackPanel>
 							</Border>
 

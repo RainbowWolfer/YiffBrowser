@@ -13,11 +13,13 @@
 	xmlns:hc="https://handyorg.github.io/handycontrol"
 	xmlns:i="clr-namespace:YiffBrowser.E621.Interfaces"
 	xmlns:local="clr-namespace:YiffBrowser.E621.Views"
-	xmlns:vm="clr-namespace:YiffBrowser.E621.ViewModels"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:subs="clr-namespace:YiffBrowser.E621.Views.Subs"
+	xmlns:vm="clr-namespace:YiffBrowser.E621.ViewModels"
 	xmlns:wpf="RW.Common.WPF"
 	d:DataContext="{d:DesignInstance Type=vm:E621MainViewModel}"
+	d:DesignHeight="610"
+	d:DesignWidth="900"
 	mc:Ignorable="d">
 	<UserControl.Resources>
 		<wpf:CommandProxy x:Key="CloseTabCommand" Command="{Binding CloseTabCommand}"/>
@@ -28,196 +30,194 @@
 		<wpf:CommandProxy x:Key="SelectTabCardCommand" Command="{Binding SelectTabCardCommand}"/>
 		<wpf:CommandProxy x:Key="AddTabToBookmarksCommand" Command="{Binding AddTabToBookmarksCommand}"/>
 	</UserControl.Resources>
-									<Border BorderThickness="1,1,0,1" BorderBrush="{DynamicResource BorderBrush}">
-										<DockPanel>
+	<Border BorderThickness="1,1,0,1" BorderBrush="{DynamicResource BorderBrush}">
+		<DockPanel>
 
-											<Border
-												Padding="4"
-												BorderThickness="0,0,0,1"
-												BorderBrush="{DynamicResource BorderBrush}"
-												DockPanel.Dock="Top">
-												<Grid>
-													<Grid.ColumnDefinitions>
-														<ColumnDefinition Width="auto"/>
-														<ColumnDefinition Width="*"/>
-														<ColumnDefinition Width="auto"/>
-													</Grid.ColumnDefinitions>
+			<Border
+				Padding="4"
+				BorderThickness="0,0,0,1"
+				BorderBrush="{DynamicResource BorderBrush}"
+				DockPanel.Dock="Top">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="auto"/>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="auto"/>
+					</Grid.ColumnDefinitions>
 
-													<wpf:SpacingStackPanel Style="{DynamicResource CustomHorizontalPanel2}" Grid.Column="0">
-														<Button Command="{Binding BackToTabsCommand}" Content="Back"/>
-														<ToggleButton
-															Style="{StaticResource ToggleButton.Custom.Soild}"
-															Width="28"
-															Height="28"
-															IsChecked="{Binding IsTabsManageSelecting, Mode=TwoWay}"
-															ToolTip="Toggle selection mode">
-															<wpf:FontIcon Text="&#xE762;"/>
-														</ToggleButton>
-													</wpf:SpacingStackPanel>
+					<wpf:SpacingStackPanel Style="{DynamicResource CustomHorizontalPanel2}" Grid.Column="0">
+						<Button Command="{Binding BackToTabsCommand}" Content="Back"/>
+						<ToggleButton
+							Style="{StaticResource ToggleButton.Custom.Soild}"
+							Width="28"
+							Height="28"
+							IsChecked="{Binding IsTabsManageSelecting, Mode=TwoWay}"
+							ToolTip="Toggle selection mode">
+							<wpf:FontIcon Text="&#xE762;"/>
+						</ToggleButton>
+					</wpf:SpacingStackPanel>
 
-													<wpf:SpacingStackPanel Style="{DynamicResource CustomHorizontalPanel2}" Grid.Column="2">
-														<ToggleButton IsChecked="{Binding ShowBookmarksPanel, Mode=TwoWay}" ToolTip="Toggle bookmarks panel">
-															<wpf:FontIcon Text="&#xE8A5;"/>
-														</ToggleButton>
-													</wpf:SpacingStackPanel>
+					<wpf:SpacingStackPanel Style="{DynamicResource CustomHorizontalPanel2}" Grid.Column="2">
+						<ToggleButton IsChecked="{Binding ShowBookmarksPanel, Mode=TwoWay}" ToolTip="Toggle bookmarks panel">
+							<wpf:FontIcon Text="&#xE8A5;"/>
+						</ToggleButton>
+					</wpf:SpacingStackPanel>
 
-												</Grid>
-											</Border>
+				</Grid>
+			</Border>
 
-											<Border>
-												<Grid>
-													<Grid.ColumnDefinitions>
-														<ColumnDefinition Width="*"/>
-														<ColumnDefinition Width="{Binding BookmarksPanelWidth}"/>
-													</Grid.ColumnDefinitions>
+			<Border>
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="{Binding BookmarksPanelWidth}"/>
+					</Grid.ColumnDefinitions>
 
-													<Border Grid.Column="0">
-														<hc:ScrollViewer hc:ScrollViewerAttach.AutoHide="False">
-															<ItemsControl
-																dd:DragDrop.IsDragSource="True"
-																dd:DragDrop.IsDropTarget="True"
-																dd:DragDrop.UseDefaultDragAdorner="True"
-																ItemsSource="{Binding Tabs}"
-																d:ItemsSource="{d:SampleData ItemCount=15}">
+					<Border Grid.Column="0">
+						<hc:ScrollViewer hc:ScrollViewerAttach.AutoHide="False">
+							<ItemsControl
+								dd:DragDrop.IsDragSource="True"
+								dd:DragDrop.IsDropTarget="True"
+								dd:DragDrop.UseDefaultDragAdorner="True"
+								ItemsSource="{Binding Tabs}"
+								d:ItemsSource="{d:SampleData ItemCount=15}">
 
-																<ItemsControl.ItemsPanel>
-																	<ItemsPanelTemplate>
-																		<wpf:SpacingStackPanel
-																			Margin="4"
-																			ChildWrapping="True"
-																			HorizontalSpacing="4"
-																			Orientation="Horizontal"
-																			VerticalSpacing="4"/>
-																	</ItemsPanelTemplate>
-																</ItemsControl.ItemsPanel>
+								<ItemsControl.ItemsPanel>
+									<ItemsPanelTemplate>
+										<wpf:SpacingStackPanel
+											Margin="4"
+											ChildWrapping="True"
+											HorizontalSpacing="4"
+											Orientation="Horizontal"
+											VerticalSpacing="4"/>
+									</ItemsPanelTemplate>
+								</ItemsControl.ItemsPanel>
 
-																<ItemsControl.ItemTemplate>
-																	<DataTemplate>
-																		<Button
-																			Width="200"
-																			Height="220"
-																			Padding="0"
-																			HorizontalContentAlignment="Stretch"
-																			VerticalContentAlignment="Stretch"
-																			Command="{StaticResource TabCardClickCommand}"
-																			CommandParameter="{Binding}">
+								<ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<Button
+											Width="200"
+											Height="220"
+											Padding="0"
+											HorizontalContentAlignment="Stretch"
+											VerticalContentAlignment="Stretch"
+											Command="{StaticResource TabCardClickCommand}"
+											CommandParameter="{Binding}">
 
-																			<Button.Style>
-																				<Style TargetType="Button" BasedOn="{StaticResource ButtonDefault}">
-																					<Setter Property="BorderThickness" Value="1"/>
-																					<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-																					<Style.Triggers>
-																						<DataTrigger Binding="{Binding IsManageSelected}" Value="True">
-																							<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
-																							<Setter Property="BorderThickness" Value="2"/>
-																						</DataTrigger>
-																					</Style.Triggers>
-																				</Style>
-																			</Button.Style>
+											<Button.Style>
+												<Style TargetType="Button" BasedOn="{StaticResource ButtonDefault}">
+													<Setter Property="BorderThickness" Value="1"/>
+													<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+													<Style.Triggers>
+														<DataTrigger Binding="{Binding IsManageSelected}" Value="True">
+															<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+															<Setter Property="BorderThickness" Value="2"/>
+														</DataTrigger>
+													</Style.Triggers>
+												</Style>
+											</Button.Style>
 
-																			<Button.ContextMenu>
-																				<ContextMenu>
-																					<MenuItem Command="{StaticResource CloseTabCommand}" CommandParameter="{Binding}" Header="Close"/>
-																					<MenuItem Command="{StaticResource CloneTabCommand}" CommandParameter="{Binding}" Header="Clone"/>
-																					<MenuItem Command="{StaticResource RefresgTabCommand}" CommandParameter="{Binding}" Header="Refresh"/>
-																					<MenuItem Command="{StaticResource MoveTabToFrontCommand}" CommandParameter="{Binding}" Header="Move to Front"/>
-																					<Separator/>
-																					<MenuItem Command="{StaticResource SelectTabCardCommand}" CommandParameter="{Binding}" Header="Select"/>
-																					<MenuItem Command="{StaticResource AddTabToBookmarksCommand}" CommandParameter="{Binding}" Header="Add to Bookmarks"/>
-																				</ContextMenu>
-																			</Button.ContextMenu>
+											<Button.ContextMenu>
+												<ContextMenu>
+													<MenuItem Command="{StaticResource CloseTabCommand}" CommandParameter="{Binding}" Header="Close"/>
+													<MenuItem Command="{StaticResource CloneTabCommand}" CommandParameter="{Binding}" Header="Clone"/>
+													<MenuItem Command="{StaticResource RefresgTabCommand}" CommandParameter="{Binding}" Header="Refresh"/>
+													<MenuItem Command="{StaticResource MoveTabToFrontCommand}" CommandParameter="{Binding}" Header="Move to Front"/>
+													<Separator/>
+													<MenuItem Command="{StaticResource SelectTabCardCommand}" CommandParameter="{Binding}" Header="Select"/>
+													<MenuItem Command="{StaticResource AddTabToBookmarksCommand}" CommandParameter="{Binding}" Header="Add to Bookmarks"/>
+												</ContextMenu>
+											</Button.ContextMenu>
 
-																			<Grid>
-																				<Grid.RowDefinitions>
-																					<RowDefinition Height="auto"/>
-																					<RowDefinition Height="*"/>
-																				</Grid.RowDefinitions>
+											<Grid>
+												<Grid.RowDefinitions>
+													<RowDefinition Height="auto"/>
+													<RowDefinition Height="*"/>
+												</Grid.RowDefinitions>
 
-																				<wpf:ClippingBorder Grid.Row="0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource BorderBrush}">
-																					<Border.Style>
-																						<Style TargetType="Border">
-																							<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
-																							<Style.Triggers>
-																								<DataTrigger Binding="{Binding IsManageSelected}" Value="True">
-																									<Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
-																								</DataTrigger>
-																							</Style.Triggers>
-																						</Style>
-																					</Border.Style>
-																					<DockPanel>
-																						<Border
-																							MinWidth="20"
-																							VerticalAlignment="Stretch"
-																							BorderThickness="0,0,0,0"
-																							BorderBrush="{DynamicResource BorderBrush}"
-																							CornerRadius="0,4,0,0"
-																							DockPanel.Dock="Right">
-																							<Border.Background>
-																								<SolidColorBrush Opacity="0.3" Color="Black"/>
-																							</Border.Background>
-																							<TextBlock
-																								Margin="4,0"
-																								VerticalAlignment="Center"
-																								DockPanel.Dock="Right"
-																								FontSize="11"
-																								Opacity="0.8"
-																								Text="{Binding CurrentPage, StringFormat=P{0}}"/>
-																						</Border>
-																						<TextBlock
-																							Margin="4,2"
-																							VerticalAlignment="Center"
-																							Text="{Binding Title}"
-																							TextTrimming="CharacterEllipsis"/>
-																					</DockPanel>
-																				</wpf:ClippingBorder>
+												<wpf:ClippingBorder Grid.Row="0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource BorderBrush}">
+													<Border.Style>
+														<Style TargetType="Border">
+															<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+															<Style.Triggers>
+																<DataTrigger Binding="{Binding IsManageSelected}" Value="True">
+																	<Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+																</DataTrigger>
+															</Style.Triggers>
+														</Style>
+													</Border.Style>
+													<DockPanel>
+														<Border
+															MinWidth="20"
+															VerticalAlignment="Stretch"
+															BorderThickness="0,0,0,0"
+															BorderBrush="{DynamicResource BorderBrush}"
+															CornerRadius="0,4,0,0"
+															DockPanel.Dock="Right">
+															<Border.Background>
+																<SolidColorBrush Opacity="0.3" Color="Black"/>
+															</Border.Background>
+															<TextBlock
+																Margin="4,0"
+																VerticalAlignment="Center"
+																DockPanel.Dock="Right"
+																FontSize="11"
+																Opacity="0.8"
+																Text="{Binding CurrentPage, StringFormat=P{0}}"/>
+														</Border>
+														<TextBlock
+															Margin="4,2"
+															VerticalAlignment="Center"
+															Text="{Binding Title}"
+															TextTrimming="CharacterEllipsis"/>
+													</DockPanel>
+												</wpf:ClippingBorder>
 
-																				<Border Grid.Row="1" Background="{DynamicResource ThirdlyRegionBrush}">
-																					<ItemsControl ItemsSource="{Binding CoverPreviewUrls}">
-																						<ItemsControl.ItemsPanel>
-																							<ItemsPanelTemplate>
-																								<UniformGrid Columns="2" Rows="2"/>
-																							</ItemsPanelTemplate>
-																						</ItemsControl.ItemsPanel>
-																						<ItemsControl.ItemTemplate>
-																							<DataTemplate>
-																								<Border Margin="0.5" Background="{DynamicResource SecondaryRegionBrush}">
-																									<Border Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
-																										<Border.Background>
-																											<ImageBrush
-																												d:ImageSource="{StaticResource Temp1_JPG}"
-																												AlignmentX="Center"
-																												AlignmentY="Center"
-																												ImageSource="{Binding}"
-																												Stretch="UniformToFill"/>
-																										</Border.Background>
-																									</Border>
-																								</Border>
-																							</DataTemplate>
-																						</ItemsControl.ItemTemplate>
-																					</ItemsControl>
-																				</Border>
+												<Border Grid.Row="1" Background="{DynamicResource ThirdlyRegionBrush}">
+													<ItemsControl ItemsSource="{Binding CoverPreviewUrls}" d:ItemsSource="{d:SampleData ItemCount=4}">
+														<ItemsControl.ItemsPanel>
+															<ItemsPanelTemplate>
+																<UniformGrid Columns="2" Rows="2"/>
+															</ItemsPanelTemplate>
+														</ItemsControl.ItemsPanel>
+														<ItemsControl.ItemTemplate>
+															<DataTemplate>
+																<Border Margin="0.5" Background="{DynamicResource SecondaryRegionBrush}">
+																	<Border Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
+																		<Border.Background>
+																			<ImageBrush
+																				d:ImageSource="{StaticResource Temp1_JPG}"
+																				AlignmentX="Center"
+																				AlignmentY="Center"
+																				ImageSource="{Binding}"
+																				Stretch="UniformToFill"/>
+																		</Border.Background>
+																	</Border>
+																</Border>
+															</DataTemplate>
+														</ItemsControl.ItemTemplate>
+													</ItemsControl>
+												</Border>
 
-																			</Grid>
-																		</Button>
-																	</DataTemplate>
-																</ItemsControl.ItemTemplate>
+											</Grid>
+										</Button>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
 
-															</ItemsControl>
-														</hc:ScrollViewer>
-													</Border>
+							</ItemsControl>
+						</hc:ScrollViewer>
+					</Border>
 
-													<local:BookmarkPaneView
-														Grid.Column="1"
-														Visibility="{Binding ShowBookmarksPanel, Converter={StaticResource Boolean2VisibilityConverter}}"/>
-													<GridSplitter
-														Width="1"
-														HorizontalAlignment="Right"
-														VerticalAlignment="Stretch"
-														Background="{DynamicResource BorderBrush}"
-														Visibility="{Binding ShowBookmarksPanel, Converter={StaticResource Boolean2VisibilityConverter}}"/>
-												</Grid>
-											</Border>
+					<local:BookmarkPaneView Grid.Column="1" Visibility="{Binding ShowBookmarksPanel, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+					<GridSplitter
+						Width="1"
+						HorizontalAlignment="Right"
+						VerticalAlignment="Stretch"
+						Background="{DynamicResource BorderBrush}"
+						Visibility="{Binding ShowBookmarksPanel, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+				</Grid>
+			</Border>
 
-										</DockPanel>
-									</Border>
+		</DockPanel>
+	</Border>
 </UserControl>

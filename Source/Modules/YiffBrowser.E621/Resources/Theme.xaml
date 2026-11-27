@@ -219,14 +219,11 @@
 				<ControlTemplate TargetType="c:PostCardListBoxItem">
 					<Border
 						Padding="{TemplateBinding Padding}"
-						Background="{TemplateBinding Background}"
-						BorderBrush="{TemplateBinding BorderBrush}"
 						BorderThickness="{TemplateBinding BorderThickness}"
+						BorderBrush="{TemplateBinding BorderBrush}"
+						Background="{TemplateBinding Background}"
 						SnapsToDevicePixels="True">
-						<ContentPresenter
-							HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-							VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-							SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+						<ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
 					</Border>
 				</ControlTemplate>
 			</Setter.Value>
@@ -1425,10 +1422,7 @@
 									<TextBlock FontSize="18" Text="{Binding Comment.Comment.CreatorName}"/>
 									<TextBlock FontSize="14" Text="{Binding Comment.User.LevelString}"/>
 									<Grid Margin="0,4,0,0">
-										<wpf:ClippingBorder
-											Height="100"
-											CornerRadius="4"
-											Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
+										<wpf:ClippingBorder Height="100" CornerRadius="4" Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
 											<wpf:ClippingBorder.Background>
 												<ImageBrush
 													AlignmentX="Center"

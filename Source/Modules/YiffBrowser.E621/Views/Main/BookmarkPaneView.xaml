@@ -13,11 +13,13 @@
 	xmlns:hc="https://handyorg.github.io/handycontrol"
 	xmlns:i="clr-namespace:YiffBrowser.E621.Interfaces"
 	xmlns:local="clr-namespace:YiffBrowser.E621.Views"
-	xmlns:vm="clr-namespace:YiffBrowser.E621.ViewModels"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:subs="clr-namespace:YiffBrowser.E621.Views.Subs"
+	xmlns:vm="clr-namespace:YiffBrowser.E621.ViewModels"
 	xmlns:wpf="RW.Common.WPF"
 	d:DataContext="{d:DesignInstance Type=vm:E621MainViewModel}"
+	d:DesignHeight="560"
+	d:DesignWidth="260"
 	mc:Ignorable="d">
 	<UserControl.Resources>
 		<wpf:CommandProxy x:Key="OpenBookmarkCommand" Command="{Binding OpenBookmarkCommand}"/>
@@ -30,153 +32,152 @@
 		<wpf:CommandProxy x:Key="ConfirmEditBookmarkCommand" Command="{Binding ConfirmEditBookmarkCommand}"/>
 		<wpf:CommandProxy x:Key="CancelEditBookmarkCommand" Command="{Binding CancelEditBookmarkCommand}"/>
 	</UserControl.Resources>
-													<Border
-														BorderThickness="1,0,0,0"
-														BorderBrush="{DynamicResource BorderBrush}">
-														<DockPanel>
-															<Border
-																Padding="4"
-																BorderThickness="0,0,0,1"
-																BorderBrush="{DynamicResource BorderBrush}"
-																DockPanel.Dock="Top">
-																<wpf:SpacingStackPanel Style="{DynamicResource CustomHorizontalPanel2}">
-																	<Button Padding="4,2" Command="{Binding NewBookmarkFolderCommand}" ToolTip="New Folder">
-																		<wpf:FontIcon Text="&#xE8F4;"/>
-																	</Button>
-																	<Button Padding="4,2" Command="{Binding DeleteBookmarkCommand}" ToolTip="Delete selected">
-																		<wpf:FontIcon Text="&#xE74D;"/>
-																	</Button>
-																	<Button Padding="4,2" Command="{Binding OpenBookmarkCommand}" ToolTip="Open selected bookmark as tab">
-																		<wpf:FontIcon Text="&#xE8A5;"/>
-																	</Button>
-																</wpf:SpacingStackPanel>
-															</Border>
+	<Border BorderThickness="1,0,0,0" BorderBrush="{DynamicResource BorderBrush}">
+		<DockPanel>
+			<Border
+				Padding="4"
+				BorderThickness="0,0,0,1"
+				BorderBrush="{DynamicResource BorderBrush}"
+				DockPanel.Dock="Top">
+				<wpf:SpacingStackPanel Style="{DynamicResource CustomHorizontalPanel2}">
+					<Button Padding="4,2" Command="{Binding NewBookmarkFolderCommand}" ToolTip="New Folder">
+						<wpf:FontIcon Text="&#xE8F4;"/>
+					</Button>
+					<Button Padding="4,2" Command="{Binding DeleteBookmarkCommand}" ToolTip="Delete selected">
+						<wpf:FontIcon Text="&#xE74D;"/>
+					</Button>
+					<Button Padding="4,2" Command="{Binding OpenBookmarkCommand}" ToolTip="Open selected bookmark as tab">
+						<wpf:FontIcon Text="&#xE8A5;"/>
+					</Button>
+				</wpf:SpacingStackPanel>
+			</Border>
 
-															<TreeView
-																Style="{StaticResource TreeView.Small}"
-																BorderThickness="0"
-																dd:DragDrop.DropHandler="{Binding BookmarkDropHandler}"
-																dd:DragDrop.IsDragSource="True"
-																dd:DragDrop.IsDropTarget="True"
-																dd:DragDrop.UseDefaultDragAdorner="True"
-																SelectedItemChanged="BookmarkTree_SelectedItemChanged"
-																ItemsSource="{Binding BookmarkRoots}">
-																<TreeView.ContextMenu>
-																	<ContextMenu>
-																		<MenuItem Command="{StaticResource NewBookmarkFolderCommand}" Header="New Folder"/>
-																	</ContextMenu>
-																</TreeView.ContextMenu>
-																<TreeView.ItemTemplate>
-																	<HierarchicalDataTemplate ItemsSource="{Binding Children}">
-																		<Border x:Name="BookmarkRowRoot" Padding="0,1" Background="Transparent">
-																			<Border.ContextMenu>
-																				<ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-																					<MenuItem
-																						Command="{StaticResource OpenBookmarkCommand}"
-																						CommandParameter="{Binding}"
-																						Header="Open"
-																						Visibility="{Binding IsBookmark, Converter={StaticResource Boolean2VisibilityConverter}}"/>
-																					<MenuItem
-																						Command="{StaticResource BeginEditBookmarkCommand}"
-																						CommandParameter="{Binding}"
-																						Header="Edit"
-																						Visibility="{Binding IsBookmark, Converter={StaticResource Boolean2VisibilityConverter}}"/>
-																					<MenuItem
-																						Command="{StaticResource BeginRenameBookmarkCommand}"
-																						CommandParameter="{Binding}"
-																						Header="Rename"
-																						Visibility="{Binding IsFolder, Converter={StaticResource Boolean2VisibilityConverter}}"/>
-																					<MenuItem Command="{StaticResource NewBookmarkFolderCommand}" CommandParameter="{Binding}" Header="New Folder"/>
-																					<Separator/>
-																					<MenuItem Command="{StaticResource DeleteBookmarkCommand}" CommandParameter="{Binding}" Header="Delete"/>
-																				</ContextMenu>
-																			</Border.ContextMenu>
+			<TreeView
+				Style="{StaticResource TreeView.Small}"
+				BorderThickness="0"
+				dd:DragDrop.DropHandler="{Binding BookmarkDropHandler}"
+				dd:DragDrop.IsDragSource="True"
+				dd:DragDrop.IsDropTarget="True"
+				dd:DragDrop.UseDefaultDragAdorner="True"
+				SelectedItemChanged="BookmarkTree_SelectedItemChanged"
+				ItemsSource="{Binding BookmarkRoots}"
+				d:ItemsSource="{d:SampleData ItemCount=8}">
+				<TreeView.ContextMenu>
+					<ContextMenu>
+						<MenuItem Command="{StaticResource NewBookmarkFolderCommand}" Header="New Folder"/>
+					</ContextMenu>
+				</TreeView.ContextMenu>
+				<TreeView.ItemTemplate>
+					<HierarchicalDataTemplate ItemsSource="{Binding Children}">
+						<Border x:Name="BookmarkRowRoot" Padding="0,1" Background="Transparent">
+							<Border.ContextMenu>
+								<ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+									<MenuItem
+										Command="{StaticResource OpenBookmarkCommand}"
+										CommandParameter="{Binding}"
+										Header="Open"
+										Visibility="{Binding IsBookmark, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+									<MenuItem
+										Command="{StaticResource BeginEditBookmarkCommand}"
+										CommandParameter="{Binding}"
+										Header="Edit"
+										Visibility="{Binding IsBookmark, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+									<MenuItem
+										Command="{StaticResource BeginRenameBookmarkCommand}"
+										CommandParameter="{Binding}"
+										Header="Rename"
+										Visibility="{Binding IsFolder, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+									<MenuItem Command="{StaticResource NewBookmarkFolderCommand}" CommandParameter="{Binding}" Header="New Folder"/>
+									<Separator/>
+									<MenuItem Command="{StaticResource DeleteBookmarkCommand}" CommandParameter="{Binding}" Header="Delete"/>
+								</ContextMenu>
+							</Border.ContextMenu>
 
-																			<Grid>
-																				<StackPanel Orientation="Horizontal">
-																					<wpf:FontIcon Margin="0,0,4,0" FontSize="12">
-																						<wpf:FontIcon.Style>
-																							<Style TargetType="wpf:FontIcon" BasedOn="{StaticResource {x:Type wpf:FontIcon}}">
-																								<Setter Property="Text" Value="&#xE8B7;"/>
-																								<Style.Triggers>
-																									<DataTrigger Binding="{Binding IsBookmark}" Value="True">
-																										<Setter Property="Text" Value="&#xE8A5;"/>
-																									</DataTrigger>
-																								</Style.Triggers>
-																							</Style>
-																						</wpf:FontIcon.Style>
-																					</wpf:FontIcon>
-																					<TextBlock Text="{Binding DisplayText}" TextTrimming="CharacterEllipsis"/>
-																				</StackPanel>
+							<Grid>
+								<StackPanel Orientation="Horizontal">
+									<wpf:FontIcon Margin="0,0,4,0" FontSize="12">
+										<wpf:FontIcon.Style>
+											<Style TargetType="wpf:FontIcon" BasedOn="{StaticResource {x:Type wpf:FontIcon}}">
+												<Setter Property="Text" Value="&#xE8B7;"/>
+												<Style.Triggers>
+													<DataTrigger Binding="{Binding IsBookmark}" Value="True">
+														<Setter Property="Text" Value="&#xE8A5;"/>
+													</DataTrigger>
+												</Style.Triggers>
+											</Style>
+										</wpf:FontIcon.Style>
+									</wpf:FontIcon>
+									<TextBlock Text="{Binding DisplayText}" TextTrimming="CharacterEllipsis"/>
+								</StackPanel>
 
-																				<wpf:CustomPopup
-																					IsOpen="{Binding IsRenamePopupOpen, Mode=TwoWay}"
-																					Placement="Bottom"
-																					PlacementTarget="{Binding ElementName=BookmarkRowRoot}"
-																					StaysOpen="True">
-																					<Border Style="{DynamicResource ButtonPopupBorder}" MinWidth="220">
-																						<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
-																							<TextBlock Text="Rename Folder"/>
-																							<TextBox Text="{Binding DraftName, UpdateSourceTrigger=PropertyChanged}"/>
-																							<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Right">
-																								<Button
-																									Padding="8,2"
-																									bf:ButtonPopupExtension.CloseOnClick="True"
-																									Command="{StaticResource CancelRenameBookmarkCommand}"
-																									CommandParameter="{Binding}"
-																									Content="Cancel"/>
-																								<Button
-																									Padding="8,2"
-																									bf:ButtonPopupExtension.CloseOnClick="True"
-																									Command="{StaticResource ConfirmRenameBookmarkCommand}"
-																									CommandParameter="{Binding}"
-																									Content="Confirm"/>
-																							</wpf:SpacingStackPanel>
-																						</wpf:SpacingStackPanel>
-																					</Border>
-																				</wpf:CustomPopup>
+								<wpf:CustomPopup
+									IsOpen="{Binding IsRenamePopupOpen, Mode=TwoWay}"
+									Placement="Bottom"
+									PlacementTarget="{Binding ElementName=BookmarkRowRoot}"
+									StaysOpen="True">
+									<Border Style="{DynamicResource ButtonPopupBorder}" MinWidth="220">
+										<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
+											<TextBlock Text="Rename Folder"/>
+											<TextBox Text="{Binding DraftName, UpdateSourceTrigger=PropertyChanged}"/>
+											<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Right">
+												<Button
+													Padding="8,2"
+													bf:ButtonPopupExtension.CloseOnClick="True"
+													Command="{StaticResource CancelRenameBookmarkCommand}"
+													CommandParameter="{Binding}"
+													Content="Cancel"/>
+												<Button
+													Padding="8,2"
+													bf:ButtonPopupExtension.CloseOnClick="True"
+													Command="{StaticResource ConfirmRenameBookmarkCommand}"
+													CommandParameter="{Binding}"
+													Content="Confirm"/>
+											</wpf:SpacingStackPanel>
+										</wpf:SpacingStackPanel>
+									</Border>
+								</wpf:CustomPopup>
 
-																				<wpf:CustomPopup
-																					IsOpen="{Binding IsEditPopupOpen, Mode=TwoWay}"
-																					Placement="Bottom"
-																					PlacementTarget="{Binding ElementName=BookmarkRowRoot}"
-																					StaysOpen="True">
-																					<Border Style="{DynamicResource ButtonPopupBorder}" MinWidth="260">
-																						<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
-																							<TextBlock Text="Edit Bookmark"/>
-																							<TextBlock Opacity="0.75" Text="Tags"/>
-																							<TextBox AcceptsReturn="False" Text="{Binding DraftTagsText, UpdateSourceTrigger=PropertyChanged}"/>
-																							<TextBlock Opacity="0.75" Text="Page"/>
-																							<hc:NumericUpDown Minimum="1" Value="{Binding DraftPage, UpdateSourceTrigger=PropertyChanged}"/>
-																							<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Right">
-																								<Button
-																									Padding="8,2"
-																									bf:ButtonPopupExtension.CloseOnClick="True"
-																									Command="{StaticResource CancelEditBookmarkCommand}"
-																									CommandParameter="{Binding}"
-																									Content="Cancel"/>
-																								<Button
-																									Padding="8,2"
-																									bf:ButtonPopupExtension.CloseOnClick="True"
-																									Command="{StaticResource ConfirmEditBookmarkCommand}"
-																									CommandParameter="{Binding}"
-																									Content="Confirm"/>
-																							</wpf:SpacingStackPanel>
-																						</wpf:SpacingStackPanel>
-																					</Border>
-																				</wpf:CustomPopup>
-																			</Grid>
-																		</Border>
-																	</HierarchicalDataTemplate>
-																</TreeView.ItemTemplate>
-																<TreeView.ItemContainerStyle>
-																	<Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemBaseStyle.Small}">
-																		<EventSetter Event="MouseDoubleClick" Handler="BookmarkTree_MouseDoubleClick"/>
-																		<Setter Property="IsExpanded" Value="True"/>
-																		<Setter Property="Padding" Value="2"/>
-																	</Style>
-																</TreeView.ItemContainerStyle>
-															</TreeView>
-														</DockPanel>
-													</Border>
+								<wpf:CustomPopup
+									IsOpen="{Binding IsEditPopupOpen, Mode=TwoWay}"
+									Placement="Bottom"
+									PlacementTarget="{Binding ElementName=BookmarkRowRoot}"
+									StaysOpen="True">
+									<Border Style="{DynamicResource ButtonPopupBorder}" MinWidth="260">
+										<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
+											<TextBlock Text="Edit Bookmark"/>
+											<TextBlock Opacity="0.75" Text="Tags"/>
+											<TextBox AcceptsReturn="False" Text="{Binding DraftTagsText, UpdateSourceTrigger=PropertyChanged}"/>
+											<TextBlock Opacity="0.75" Text="Page"/>
+											<hc:NumericUpDown Minimum="1" Value="{Binding DraftPage, UpdateSourceTrigger=PropertyChanged}"/>
+											<wpf:SpacingStackPanel Style="{StaticResource CustomHorizontalPanel2}" HorizontalAlignment="Right">
+												<Button
+													Padding="8,2"
+													bf:ButtonPopupExtension.CloseOnClick="True"
+													Command="{StaticResource CancelEditBookmarkCommand}"
+													CommandParameter="{Binding}"
+													Content="Cancel"/>
+												<Button
+													Padding="8,2"
+													bf:ButtonPopupExtension.CloseOnClick="True"
+													Command="{StaticResource ConfirmEditBookmarkCommand}"
+													CommandParameter="{Binding}"
+													Content="Confirm"/>
+											</wpf:SpacingStackPanel>
+										</wpf:SpacingStackPanel>
+									</Border>
+								</wpf:CustomPopup>
+							</Grid>
+						</Border>
+					</HierarchicalDataTemplate>
+				</TreeView.ItemTemplate>
+				<TreeView.ItemContainerStyle>
+					<Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemBaseStyle.Small}">
+						<EventSetter Event="MouseDoubleClick" Handler="BookmarkTree_MouseDoubleClick"/>
+						<Setter Property="IsExpanded" Value="True"/>
+						<Setter Property="Padding" Value="2"/>
+					</Style>
+				</TreeView.ItemContainerStyle>
+			</TreeView>
+		</DockPanel>
+	</Border>
 </UserControl>

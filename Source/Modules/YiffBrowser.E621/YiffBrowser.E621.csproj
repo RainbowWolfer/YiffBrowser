@@ -8,4 +8,11 @@
 		<Folder Include="ViewModelServices\" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<Page Update="Properties\DesignTimeResources.xaml">
+			<ContainsDesignTimeResources>true</ContainsDesignTimeResources>
+			<SubType>Designer</SubType>
+		</Page>
+	</ItemGroup>
+
 </Project>

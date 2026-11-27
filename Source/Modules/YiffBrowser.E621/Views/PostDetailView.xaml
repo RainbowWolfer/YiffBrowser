@@ -127,10 +127,7 @@
 
 						<Border Style="{StaticResource HorizontalSeparator}"/>
 
-						<Button
-							Width="30"
-							Height="30"
-							Command="{Binding DownloadPostCommand}">
+						<Button Width="30" Height="30" Command="{Binding DownloadPostCommand}">
 							<Button.Style>
 								<Style TargetType="Button" BasedOn="{StaticResource Button.Custom.Icon}">
 									<Setter Property="ToolTip" Value="Quick Download"/>
@@ -208,7 +205,7 @@
 								Url="{Binding Preview.URL}">
 								<c:SlidePanelImageControl.IsDownloaded>
 									<MultiBinding Converter="{StaticResource PostIsDownloadedMultiConverter}">
-										<Binding />
+										<Binding/>
 										<Binding Path="DataContext.ParentViewModel.DownloadIndexVersion" RelativeSource="{RelativeSource AncestorType=local:PostDetailView}"/>
 										<Binding Path="DataContext.ParentViewModel" RelativeSource="{RelativeSource AncestorType=local:PostDetailView}"/>
 									</MultiBinding>

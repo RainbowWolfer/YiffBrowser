@@ -10,54 +10,30 @@
 	DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}"
 	mc:Ignorable="d">
 
-	<MenuItem
-		f:IconExtension.Glyph="&#xE8C8;"
-		Command="{Binding Displayer.DataContext.CopyPostUrlCommand}"
-		Header="Copy Post URL"/>
-	<MenuItem
-		f:IconExtension.Glyph="&#xE774;"
-		Command="{Binding Displayer.DataContext.OpenPostInBrowserCommand}"
-		Header="Open in Browser"/>
+	<MenuItem f:IconExtension.Glyph="&#xE8C8;" Command="{Binding Displayer.DataContext.CopyPostUrlCommand}" Header="Copy Post URL"/>
+	<MenuItem f:IconExtension.Glyph="&#xE774;" Command="{Binding Displayer.DataContext.OpenPostInBrowserCommand}" Header="Open in Browser"/>
 
 	<Separator/>
 
-	<MenuItem
-		f:IconExtension.Glyph="&#xE896;"
-		Command="{Binding Displayer.DataContext.DownloadPostCommand}"
-		Header="Quick Download"/>
+	<MenuItem f:IconExtension.Glyph="&#xE896;" Command="{Binding Displayer.DataContext.DownloadPostCommand}" Header="Quick Download"/>
 	<MenuItem
 		f:IconExtension.Glyph="&#xE762;"
 		Header="Toggle Select"
 		IsCheckable="True"
 		IsChecked="{Binding Displayer.DataContext.IsCurrentPostSelected, Mode=TwoWay}"/>
-	<MenuItem
-		f:IconExtension.Glyph="&#xE72C;"
-		Command="{Binding Displayer.ReloadCommand}"
-		Header="Reload"/>
+	<MenuItem f:IconExtension.Glyph="&#xE72C;" Command="{Binding Displayer.ReloadCommand}" Header="Reload"/>
 
 	<Separator/>
 
-	<MenuItem
-		f:IconExtension.Glyph="&#xE72B;"
-		Command="{Binding Displayer.DataContext.ParentViewModel.PreviousPostCommand}"
-		Header="Previous Post"/>
-	<MenuItem
-		f:IconExtension.Glyph="&#xE72A;"
-		Command="{Binding Displayer.DataContext.ParentViewModel.NextPostCommand}"
-		Header="Next Post"/>
-	<MenuItem
-		f:IconExtension.Glyph="&#xE76B;"
-		Command="{Binding Displayer.DataContext.ParentViewModel.QuitPostDetailViewCommand}"
-		Header="Back to List"/>
+	<MenuItem f:IconExtension.Glyph="&#xE72B;" Command="{Binding Displayer.DataContext.ParentViewModel.PreviousPostCommand}" Header="Previous Post"/>
+	<MenuItem f:IconExtension.Glyph="&#xE72A;" Command="{Binding Displayer.DataContext.ParentViewModel.NextPostCommand}" Header="Next Post"/>
+	<MenuItem f:IconExtension.Glyph="&#xE76B;" Command="{Binding Displayer.DataContext.ParentViewModel.QuitPostDetailViewCommand}" Header="Back to List"/>
 
 	<Separator/>
 
 	<MenuItem Command="{Binding Displayer.DataContext.ToggleLeftPanelCommand}" Header="Toggle Left Panel"/>
 	<MenuItem Command="{Binding Displayer.DataContext.ToggleRightPanelCommand}" Header="Toggle Right Panel"/>
-	<MenuItem
-		Header="Toggle Slide Panel"
-		IsCheckable="True"
-		IsChecked="{Binding Displayer.DataContext.ShowSlidePanel, Mode=TwoWay}"/>
+	<MenuItem Header="Toggle Slide Panel" IsCheckable="True" IsChecked="{Binding Displayer.DataContext.ShowSlidePanel, Mode=TwoWay}"/>
 
 	<Separator Visibility="{Binding IsVideo, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
 
@@ -84,18 +60,9 @@
 		IsCheckable="True"
 		IsChecked="{Binding VideoControlsParameters.AlwaysShowControls, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
 		Visibility="{Binding IsVideo, Converter={StaticResource Boolean2VisibilityConverter}}"/>
-	<MenuItem
-		f:IconExtension.Glyph="&#xE75A;"
-		Header="Control Location"
-		Visibility="{Binding IsVideo, Converter={StaticResource Boolean2VisibilityConverter}}">
-		<MenuItem
-			Header="Top"
-			IsCheckable="True"
-			IsChecked="{Binding VideoControlsParameters.ControlLocation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Top, Mode=TwoWay}"/>
-		<MenuItem
-			Header="Bottom"
-			IsCheckable="True"
-			IsChecked="{Binding VideoControlsParameters.ControlLocation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Bottom, Mode=TwoWay}"/>
+	<MenuItem f:IconExtension.Glyph="&#xE75A;" Header="Control Location" Visibility="{Binding IsVideo, Converter={StaticResource Boolean2VisibilityConverter}}">
+		<MenuItem Header="Top" IsCheckable="True" IsChecked="{Binding VideoControlsParameters.ControlLocation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Top, Mode=TwoWay}"/>
+		<MenuItem Header="Bottom" IsCheckable="True" IsChecked="{Binding VideoControlsParameters.ControlLocation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Bottom, Mode=TwoWay}"/>
 	</MenuItem>
 
 	<MenuItem
@@ -103,63 +70,24 @@
 		IsCheckable="True"
 		IsChecked="{Binding VideoControlsParameters.ShowScrubberBar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
 		Visibility="{Binding IsVideo, Converter={StaticResource Boolean2VisibilityConverter}}"/>
-	<MenuItem
-		f:IconExtension.Glyph="&#xE90E;"
-		Header="Scrubber Bar Location"
-		Visibility="{Binding IsVideo, Converter={StaticResource Boolean2VisibilityConverter}}">
-		<MenuItem
-			Header="Top"
-			IsCheckable="True"
-			IsChecked="{Binding VideoControlsParameters.ScrubberBarLocation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Top, Mode=TwoWay}"/>
-		<MenuItem
-			Header="Bottom"
-			IsCheckable="True"
-			IsChecked="{Binding VideoControlsParameters.ScrubberBarLocation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Bottom, Mode=TwoWay}"/>
+	<MenuItem f:IconExtension.Glyph="&#xE90E;" Header="Scrubber Bar Location" Visibility="{Binding IsVideo, Converter={StaticResource Boolean2VisibilityConverter}}">
+		<MenuItem Header="Top" IsCheckable="True" IsChecked="{Binding VideoControlsParameters.ScrubberBarLocation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Top, Mode=TwoWay}"/>
+		<MenuItem Header="Bottom" IsCheckable="True" IsChecked="{Binding VideoControlsParameters.ScrubberBarLocation, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Bottom, Mode=TwoWay}"/>
 	</MenuItem>
 
-	<MenuItem
-		f:IconExtension.Glyph="&#xE121;"
-		Header="Time Display"
-		Visibility="{Binding IsVideo, Converter={StaticResource Boolean2VisibilityConverter}}">
-		<MenuItem
-			Header="Elapsed / Total"
-			IsCheckable="True"
-			IsChecked="{Binding VideoControlsParameters.TimeProgressFormat, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Time_Total, Mode=TwoWay}"/>
-		<MenuItem
-			Header="Elapsed / Remaining"
-			IsCheckable="True"
-			IsChecked="{Binding VideoControlsParameters.TimeProgressFormat, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Time_Ramaining, Mode=TwoWay}"/>
-		<MenuItem
-			Header="Frame / Total"
-			IsCheckable="True"
-			IsChecked="{Binding VideoControlsParameters.TimeProgressFormat, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Frame_Total, Mode=TwoWay}"/>
-		<MenuItem
-			Header="Frame / Remaining"
-			IsCheckable="True"
-			IsChecked="{Binding VideoControlsParameters.TimeProgressFormat, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Frame_Ramaining, Mode=TwoWay}"/>
+	<MenuItem f:IconExtension.Glyph="&#xE121;" Header="Time Display" Visibility="{Binding IsVideo, Converter={StaticResource Boolean2VisibilityConverter}}">
+		<MenuItem Header="Elapsed / Total" IsCheckable="True" IsChecked="{Binding VideoControlsParameters.TimeProgressFormat, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Time_Total, Mode=TwoWay}"/>
+		<MenuItem Header="Elapsed / Remaining" IsCheckable="True" IsChecked="{Binding VideoControlsParameters.TimeProgressFormat, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Time_Ramaining, Mode=TwoWay}"/>
+		<MenuItem Header="Frame / Total" IsCheckable="True" IsChecked="{Binding VideoControlsParameters.TimeProgressFormat, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Frame_Total, Mode=TwoWay}"/>
+		<MenuItem Header="Frame / Remaining" IsCheckable="True" IsChecked="{Binding VideoControlsParameters.TimeProgressFormat, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Frame_Ramaining, Mode=TwoWay}"/>
 	</MenuItem>
 
 	<MenuItem Header="Controls" Visibility="{Binding IsVideo, Converter={StaticResource Boolean2VisibilityConverter}}">
-		<MenuItem
-			Header="Time Display"
-			IsCheckable="True"
-			IsChecked="{Binding VideoControlsParameters.ShowTimeDisplay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-		<MenuItem
-			Header="Next/Previous Frame Button"
-			IsCheckable="True"
-			IsChecked="{Binding VideoControlsParameters.NextPreviousFrameButton, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-		<MenuItem
-			Header="Loop Button"
-			IsCheckable="True"
-			IsChecked="{Binding VideoControlsParameters.LoopButton, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-		<MenuItem
-			Header="Reverse Playback Button"
-			IsCheckable="True"
-			IsChecked="{Binding VideoControlsParameters.ReversePlaybackButton, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-		<MenuItem
-			Header="Volume Button"
-			IsCheckable="True"
-			IsChecked="{Binding VideoControlsParameters.VolumeButton, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+		<MenuItem Header="Time Display" IsCheckable="True" IsChecked="{Binding VideoControlsParameters.ShowTimeDisplay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+		<MenuItem Header="Next/Previous Frame Button" IsCheckable="True" IsChecked="{Binding VideoControlsParameters.NextPreviousFrameButton, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+		<MenuItem Header="Loop Button" IsCheckable="True" IsChecked="{Binding VideoControlsParameters.LoopButton, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+		<MenuItem Header="Reverse Playback Button" IsCheckable="True" IsChecked="{Binding VideoControlsParameters.ReversePlaybackButton, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+		<MenuItem Header="Volume Button" IsCheckable="True" IsChecked="{Binding VideoControlsParameters.VolumeButton, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 	</MenuItem>
 
 </ContextMenu>

@@ -1,0 +1,13 @@
+<ResourceDictionary
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<ResourceDictionary.MergedDictionaries>
+		<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml"/>
+		<ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Basic/Colors/Dark.xaml"/>
+		<ResourceDictionary Source="pack://application:,,,/YiffBrowser.BaseFramework;component/Resources/FrameworkTheme.xaml"/>
+		<ResourceDictionary Source="pack://application:,,,/YiffBrowser.E621;component/Resources/Theme.xaml"/>
+		<ResourceDictionary Source="pack://application:,,,/YiffBrowser.Resources;component/Dark.xaml"/>
+	</ResourceDictionary.MergedDictionaries>
+
+</ResourceDictionary>

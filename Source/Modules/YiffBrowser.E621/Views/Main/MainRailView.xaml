@@ -13,11 +13,13 @@
 	xmlns:hc="https://handyorg.github.io/handycontrol"
 	xmlns:i="clr-namespace:YiffBrowser.E621.Interfaces"
 	xmlns:local="clr-namespace:YiffBrowser.E621.Views"
-	xmlns:vm="clr-namespace:YiffBrowser.E621.ViewModels"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:subs="clr-namespace:YiffBrowser.E621.Views.Subs"
+	xmlns:vm="clr-namespace:YiffBrowser.E621.ViewModels"
 	xmlns:wpf="RW.Common.WPF"
 	d:DataContext="{d:DesignInstance Type=vm:E621MainViewModel}"
+	d:DesignHeight="650"
+	d:DesignWidth="48"
 	mc:Ignorable="d">
 	<UserControl.Resources>
 		<Style x:Key="ButtonDynamicStyle" TargetType="Button" BasedOn="{StaticResource ButtonDefault}">
@@ -30,175 +32,175 @@
 		</Style>
 		<wpf:BindingProxy x:Key="ViewModel" Data="{Binding}"/>
 	</UserControl.Resources>
-<Grid>
-			<Border Padding="4" Background="{DynamicResource RegionBrush}">
-				<Grid>
+	<Grid>
+		<Border Padding="4" Background="{DynamicResource RegionBrush}">
+			<Grid>
 
-					<Grid.RowDefinitions>
-						<RowDefinition Height="*"/>
-						<RowDefinition Height="auto"/>
-					</Grid.RowDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="*"/>
+					<RowDefinition Height="auto"/>
+				</Grid.RowDefinitions>
 
-					<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
-						<Button x:Name="SiteButton"
-							Style="{StaticResource Button.Custom.Icon.Vertical}"
-							Width="32"
-							Height="32"
-							Padding="0"
-							ToolTip="Click to switch site">
-							<Button.Background>
-								<ImageBrush d:ImageSource="{StaticResource E621_PNG}" ImageSource="{Binding ViewParameter.ModuleType, Converter={StaticResource ModuleTypeIconConverter}}"/>
-							</Button.Background>
-						</Button>
+				<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}">
+					<Button x:Name="SiteButton"
+						Style="{StaticResource Button.Custom.Icon.Vertical}"
+						Width="32"
+						Height="32"
+						Padding="0"
+						ToolTip="Click to switch site">
+						<Button.Background>
+							<ImageBrush d:ImageSource="{StaticResource E621_PNG}" ImageSource="{Binding ViewParameter.ModuleType, Converter={StaticResource ModuleTypeIconConverter}}"/>
+						</Button.Background>
+					</Button>
 
-						<Border Style="{StaticResource VerticalSeparator}"/>
+					<Border Style="{StaticResource VerticalSeparator}"/>
 
-						<Button x:Name="SearchButton"
-							Style="{DynamicResource Button.Custom.Icon.Vertical.Primary}"
-							Width="32"
-							Height="32"
-							ToolTip="Search">
-							<wpf:FontIcon Text="&#xE721;"/>
-						</Button>
+					<Button x:Name="SearchButton"
+						Style="{DynamicResource Button.Custom.Icon.Vertical.Primary}"
+						Width="32"
+						Height="32"
+						ToolTip="Search">
+						<wpf:FontIcon Text="&#xE721;"/>
+					</Button>
 
-						<Button
-							Style="{DynamicResource Button.Custom.Icon.Vertical}"
-							Width="32"
-							Height="32"
-							Command="{Binding OpenTagsManagementPanelCommand}"
-							ToolTip="Open Tags Management Panel">
-							<wpf:FontIcon Text="&#xE912;"/>
-						</Button>
+					<Button
+						Style="{DynamicResource Button.Custom.Icon.Vertical}"
+						Width="32"
+						Height="32"
+						Command="{Binding OpenTagsManagementPanelCommand}"
+						ToolTip="Open Tags Management Panel">
+						<wpf:FontIcon Text="&#xE912;"/>
+					</Button>
 
-						<Border Style="{StaticResource VerticalSeparator}"/>
+					<Border Style="{StaticResource VerticalSeparator}"/>
 
-						<Button
-							Style="{DynamicResource Button.Custom.Icon.Vertical}"
-							Width="32"
-							Height="32"
-							Command="{Binding OpenDownloadCommand}"
-							ToolTip="Open Download Panel">
-							<Grid Width="16" Height="16">
-								<wpf:FontIcon Text="&#xE896;">
-									<wpf:FontIcon.Style>
-										<Style TargetType="wpf:FontIcon" BasedOn="{StaticResource {x:Type wpf:FontIcon}}">
-											<Setter Property="Opacity" Value="1"/>
-											<Style.Triggers>
-												<DataTrigger Binding="{Binding IsDownloadButtonFeedbackActive}" Value="True">
-													<Setter Property="Opacity" Value="0"/>
-												</DataTrigger>
-											</Style.Triggers>
-										</Style>
-									</wpf:FontIcon.Style>
-								</wpf:FontIcon>
-								<wpf:FontIcon RenderTransformOrigin="0.5,0.5" Text="&#xE73E;">
-									<wpf:FontIcon.RenderTransform>
-										<ScaleTransform ScaleX="1" ScaleY="1"/>
-									</wpf:FontIcon.RenderTransform>
-									<wpf:FontIcon.Style>
-										<Style TargetType="wpf:FontIcon" BasedOn="{StaticResource {x:Type wpf:FontIcon}}">
-											<Setter Property="Opacity" Value="0"/>
-											<Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
-											<Style.Triggers>
-												<DataTrigger Binding="{Binding IsDownloadButtonFeedbackActive}" Value="True">
-													<Setter Property="Opacity" Value="1"/>
-													<DataTrigger.EnterActions>
-														<BeginStoryboard>
-															<Storyboard RepeatBehavior="3x">
-																<DoubleAnimation
-																	Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-																	From="0.7"
-																	To="1.2"
-																	AutoReverse="True"
-																	Duration="0:0:0.22">
-																	<DoubleAnimation.EasingFunction>
-																		<QuadraticEase EasingMode="EaseOut"/>
-																	</DoubleAnimation.EasingFunction>
-																</DoubleAnimation>
-																<DoubleAnimation
-																	Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-																	From="0.7"
-																	To="1.2"
-																	AutoReverse="True"
-																	Duration="0:0:0.22">
-																	<DoubleAnimation.EasingFunction>
-																		<QuadraticEase EasingMode="EaseOut"/>
-																	</DoubleAnimation.EasingFunction>
-																</DoubleAnimation>
-															</Storyboard>
-														</BeginStoryboard>
-													</DataTrigger.EnterActions>
-												</DataTrigger>
-											</Style.Triggers>
-										</Style>
-									</wpf:FontIcon.Style>
-								</wpf:FontIcon>
-							</Grid>
-						</Button>
+					<Button
+						Style="{DynamicResource Button.Custom.Icon.Vertical}"
+						Width="32"
+						Height="32"
+						Command="{Binding OpenDownloadCommand}"
+						ToolTip="Open Download Panel">
+						<Grid Width="16" Height="16">
+							<wpf:FontIcon Text="&#xE896;">
+								<wpf:FontIcon.Style>
+									<Style TargetType="wpf:FontIcon" BasedOn="{StaticResource {x:Type wpf:FontIcon}}">
+										<Setter Property="Opacity" Value="1"/>
+										<Style.Triggers>
+											<DataTrigger Binding="{Binding IsDownloadButtonFeedbackActive}" Value="True">
+												<Setter Property="Opacity" Value="0"/>
+											</DataTrigger>
+										</Style.Triggers>
+									</Style>
+								</wpf:FontIcon.Style>
+							</wpf:FontIcon>
+							<wpf:FontIcon RenderTransformOrigin="0.5,0.5" Text="&#xE73E;">
+								<wpf:FontIcon.RenderTransform>
+									<ScaleTransform ScaleX="1" ScaleY="1"/>
+								</wpf:FontIcon.RenderTransform>
+								<wpf:FontIcon.Style>
+									<Style TargetType="wpf:FontIcon" BasedOn="{StaticResource {x:Type wpf:FontIcon}}">
+										<Setter Property="Opacity" Value="0"/>
+										<Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+										<Style.Triggers>
+											<DataTrigger Binding="{Binding IsDownloadButtonFeedbackActive}" Value="True">
+												<Setter Property="Opacity" Value="1"/>
+												<DataTrigger.EnterActions>
+													<BeginStoryboard>
+														<Storyboard RepeatBehavior="3x">
+															<DoubleAnimation
+																Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+																From="0.7"
+																To="1.2"
+																AutoReverse="True"
+																Duration="0:0:0.22">
+																<DoubleAnimation.EasingFunction>
+																	<QuadraticEase EasingMode="EaseOut"/>
+																</DoubleAnimation.EasingFunction>
+															</DoubleAnimation>
+															<DoubleAnimation
+																Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+																From="0.7"
+																To="1.2"
+																AutoReverse="True"
+																Duration="0:0:0.22">
+																<DoubleAnimation.EasingFunction>
+																	<QuadraticEase EasingMode="EaseOut"/>
+																</DoubleAnimation.EasingFunction>
+															</DoubleAnimation>
+														</Storyboard>
+													</BeginStoryboard>
+												</DataTrigger.EnterActions>
+											</DataTrigger>
+										</Style.Triggers>
+									</Style>
+								</wpf:FontIcon.Style>
+							</wpf:FontIcon>
+						</Grid>
+					</Button>
 
-						<Button
-							Style="{DynamicResource Button.Custom.Icon.Vertical}"
-							Width="32"
-							Height="32"
-							ToolTip="Open Subscription Panel">
-							<wpf:FontIcon Text="&#xE728;"/>
-						</Button>
+					<Button
+						Style="{DynamicResource Button.Custom.Icon.Vertical}"
+						Width="32"
+						Height="32"
+						ToolTip="Open Subscription Panel">
+						<wpf:FontIcon Text="&#xE728;"/>
+					</Button>
 
-					</wpf:SpacingStackPanel>
+				</wpf:SpacingStackPanel>
 
-					<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}" Grid.Row="1">
+				<wpf:SpacingStackPanel Style="{StaticResource CustomVerticalPanel2}" Grid.Row="1">
 
-						<Button
-							Style="{DynamicResource Button.Custom.Icon.Vertical}"
-							Width="32"
-							Height="32"
-							Command="{Binding SwitchThemeCommand}"
-							ToolTip="Switch Theme">
-							<wpf:FontIcon Text="&#xF08C;"/>
-						</Button>
+					<Button
+						Style="{DynamicResource Button.Custom.Icon.Vertical}"
+						Width="32"
+						Height="32"
+						Command="{Binding SwitchThemeCommand}"
+						ToolTip="Switch Theme">
+						<wpf:FontIcon Text="&#xF08C;"/>
+					</Button>
 
-						<Button x:Name="UserButton"
-							Style="{DynamicResource Button.Custom.Icon.Vertical}"
-							Width="32"
-							Height="32"
-							ToolTip="User">
-							<Grid>
-								<wpf:FontIcon d:Text="&#xEA8C;" Visibility="{Binding UserService.IsUserLoading, Converter={StaticResource Boolean2VisibilityReConverter}}">
-									<wpf:FontIcon.Style>
-										<Style TargetType="wpf:FontIcon" BasedOn="{StaticResource FontIconBase}">
-											<Style.Triggers>
-												<DataTrigger Binding="{Binding IsLoggedIn}" Value="True">
-													<Setter Property="Text" Value="&#xEA8C;"/>
-												</DataTrigger>
-												<DataTrigger Binding="{Binding IsLoggedIn}" Value="False">
-													<Setter Property="Text" Value="&#xE77B;"/>
-												</DataTrigger>
-											</Style.Triggers>
-										</Style>
-									</wpf:FontIcon.Style>
-								</wpf:FontIcon>
-								<Border Visibility="{Binding UserService.IsUserLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
-									<!--<ProgressBar
+					<Button x:Name="UserButton"
+						Style="{DynamicResource Button.Custom.Icon.Vertical}"
+						Width="32"
+						Height="32"
+						ToolTip="User">
+						<Grid>
+							<wpf:FontIcon d:Text="&#xEA8C;" Visibility="{Binding UserService.IsUserLoading, Converter={StaticResource Boolean2VisibilityReConverter}}">
+								<wpf:FontIcon.Style>
+									<Style TargetType="wpf:FontIcon" BasedOn="{StaticResource FontIconBase}">
+										<Style.Triggers>
+											<DataTrigger Binding="{Binding IsLoggedIn}" Value="True">
+												<Setter Property="Text" Value="&#xEA8C;"/>
+											</DataTrigger>
+											<DataTrigger Binding="{Binding IsLoggedIn}" Value="False">
+												<Setter Property="Text" Value="&#xE77B;"/>
+											</DataTrigger>
+										</Style.Triggers>
+									</Style>
+								</wpf:FontIcon.Style>
+							</wpf:FontIcon>
+							<Border Visibility="{Binding UserService.IsUserLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
+								<!--<ProgressBar
 										Width="20"
 										Height="8"
 										BorderThickness="0"
 										Background="White"
 										IsIndeterminate="True"/>-->
-									<hc:CircleProgressBar Width="20" Height="20" IsIndeterminate="True"/>
-								</Border>
-							</Grid>
-						</Button>
+								<hc:CircleProgressBar Width="20" Height="20" IsIndeterminate="True"/>
+							</Border>
+						</Grid>
+					</Button>
 
-						<Button
-							Style="{DynamicResource Button.Custom.Icon.Vertical}"
-							Width="32"
-							Height="32"
-							Command="{Binding ShowAppSettingsDialogCommand}"
-							ToolTip="Settings">
-							<wpf:FontIcon Text="&#xE713;"/>
-						</Button>
+					<Button
+						Style="{DynamicResource Button.Custom.Icon.Vertical}"
+						Width="32"
+						Height="32"
+						Command="{Binding ShowAppSettingsDialogCommand}"
+						ToolTip="Settings">
+						<wpf:FontIcon Text="&#xE713;"/>
+					</Button>
 
-						<!--<Button
+					<!--<Button
 							Style="{DynamicResource Button.Custom.Icon.Vertical}"
 							Width="32"
 							Height="32"
@@ -207,24 +209,24 @@
 							<wpf:FontIcon Text="&#xE946;"/>
 						</Button>-->
 
-						<StackPanel TextBlock.Foreground="{DynamicResource PrimaryTextBrush}">
-							<!-- Text="{Binding Source={x:Static bf:AppConfig.Version}}" -->
-							<TextBlock
-								d:Text="1.0.0"
-								FontSize="10"
-								Text="{Binding AppManager.AppVersion.ShortVersion}"
-								TextAlignment="Center"/>
-							<TextBlock
-								FontSize="10"
-								Text="Debug"
-								TextAlignment="Center"
-								Visibility="{Binding Source={x:Static bf:AppConfig.IsRelease}, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
-						</StackPanel>
+					<StackPanel TextBlock.Foreground="{DynamicResource PrimaryTextBrush}">
+						<!-- Text="{Binding Source={x:Static bf:AppConfig.Version}}" -->
+						<TextBlock
+							d:Text="1.0.0"
+							FontSize="10"
+							Text="{Binding AppManager.AppVersion.ShortVersion}"
+							TextAlignment="Center"/>
+						<TextBlock
+							FontSize="10"
+							Text="Debug"
+							TextAlignment="Center"
+							Visibility="{Binding Source={x:Static bf:AppConfig.IsRelease}, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
+					</StackPanel>
 
-					</wpf:SpacingStackPanel>
+				</wpf:SpacingStackPanel>
 
-				</Grid>
-			</Border>
+			</Grid>
+		</Border>
 		<wpf:ButtonPopup
 			HorizontalOffset="8"
 			Placement="Right"
@@ -347,5 +349,5 @@
 				</wpf:SpacingStackPanel>
 			</Border>
 		</wpf:ButtonPopup>
-</Grid>
+	</Grid>
 </UserControl>

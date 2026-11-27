@@ -13,132 +13,134 @@
 	xmlns:hc="https://handyorg.github.io/handycontrol"
 	xmlns:i="clr-namespace:YiffBrowser.E621.Interfaces"
 	xmlns:local="clr-namespace:YiffBrowser.E621.Views"
-	xmlns:vm="clr-namespace:YiffBrowser.E621.ViewModels"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:subs="clr-namespace:YiffBrowser.E621.Views.Subs"
+	xmlns:vm="clr-namespace:YiffBrowser.E621.ViewModels"
 	xmlns:wpf="RW.Common.WPF"
 	d:DataContext="{d:DesignInstance Type=vm:E621MainViewModel}"
+	d:DesignHeight="24"
+	d:DesignWidth="752"
 	mc:Ignorable="d">
-					<Border Padding="6,4" Background="{DynamicResource SecondaryRegionBrush}">
-						<Grid>
-							<Grid.Style>
-								<Style TargetType="Grid">
-									<Setter Property="Margin" Value="0,0,20,0"/>
-									<Style.Triggers>
-										<DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=WindowState}" Value="{x:Static WindowState.Maximized}">
-											<Setter Property="Margin" Value="0,0,2,0"/>
-										</DataTrigger>
-									</Style.Triggers>
-								</Style>
-							</Grid.Style>
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="*"/>
-								<ColumnDefinition Width="auto"/>
-								<ColumnDefinition Width="*"/>
-							</Grid.ColumnDefinitions>
+	<Border Padding="6,4" Background="{DynamicResource SecondaryRegionBrush}">
+		<Grid>
+			<Grid.Style>
+				<Style TargetType="Grid">
+					<Setter Property="Margin" Value="0,0,20,0"/>
+					<Style.Triggers>
+						<DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=WindowState}" Value="{x:Static WindowState.Maximized}">
+							<Setter Property="Margin" Value="0,0,2,0"/>
+						</DataTrigger>
+					</Style.Triggers>
+				</Style>
+			</Grid.Style>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="auto"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
 
-							<Border Grid.Column="0">
-								<TextBlock Text="Hint Info"/>
-							</Border>
+			<Border Grid.Column="0">
+				<TextBlock Text="Hint Info"/>
+			</Border>
 
-							<Border Grid.Column="2" HorizontalAlignment="Right">
-								<StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-									<Border
-										Margin="0,0,8,0"
-										Padding="8,2"
-										VerticalAlignment="Center"
-										Background="{DynamicResource PrimaryBrush}"
-										CornerRadius="3">
-										<Border.Style>
-											<Style TargetType="Border">
-												<Setter Property="Opacity" Value="0"/>
-												<Setter Property="Visibility" Value="Collapsed"/>
-												<Style.Triggers>
-													<DataTrigger Binding="{Binding ShowDownloadAddedToast}" Value="True">
-														<DataTrigger.EnterActions>
-															<BeginStoryboard>
-																<Storyboard>
-																	<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility">
-																		<DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}"/>
-																	</ObjectAnimationUsingKeyFrames>
-																	<DoubleAnimation
-																		Storyboard.TargetProperty="Opacity"
-																		From="0"
-																		To="1"
-																		Duration="0:0:0.28">
-																		<DoubleAnimation.EasingFunction>
-																			<QuadraticEase EasingMode="EaseOut"/>
-																		</DoubleAnimation.EasingFunction>
-																	</DoubleAnimation>
-																</Storyboard>
-															</BeginStoryboard>
-														</DataTrigger.EnterActions>
-														<DataTrigger.ExitActions>
-															<BeginStoryboard>
-																<Storyboard>
-																	<DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.4">
-																		<DoubleAnimation.EasingFunction>
-																			<QuadraticEase EasingMode="EaseIn"/>
-																		</DoubleAnimation.EasingFunction>
-																	</DoubleAnimation>
-																	<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility">
-																		<DiscreteObjectKeyFrame KeyTime="0:0:0.4" Value="{x:Static Visibility.Collapsed}"/>
-																	</ObjectAnimationUsingKeyFrames>
-																</Storyboard>
-															</BeginStoryboard>
-														</DataTrigger.ExitActions>
-													</DataTrigger>
-												</Style.Triggers>
-											</Style>
-										</Border.Style>
-										<TextBlock
-											VerticalAlignment="Center"
-											FontSize="11"
-											Foreground="White"
-											Text="{Binding DownloadAddedToastText}"/>
-									</Border>
-
-									<Button
-										Style="{StaticResource ButtonDefault.Small}"
-										Padding="6,2"
-										BorderThickness="0"
-										Background="Transparent"
-										Command="{Binding OpenDownloadCommand}"
-										ToolTip="Open Download Manager">
-										<StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-											<StackPanel VerticalAlignment="Center" Orientation="Horizontal" Visibility="{Binding DownloadService.OverallStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
-												<TextBlock
-													d:Text="3.2 MB/s"
-													VerticalAlignment="Center"
-													Foreground="{DynamicResource PrimaryTextBrush}"
-													Opacity="0.75"
-													Text="{Binding DownloadService.OverallStatus.SpeedText}"/>
-												<TextBlock
-													d:Text="45%"
-													Margin="8,0,0,0"
-													VerticalAlignment="Center"
-													Foreground="{DynamicResource PrimaryTextBrush}"
-													Text="{Binding DownloadService.OverallStatus.Progress, StringFormat={}{0:0}%, TargetNullValue=—}"/>
-												<hc:CircleProgressBar
-													Width="16"
-													Height="16"
-													Margin="8,0,0,0"
-													wpf:ProgressBarExtension.Progress="{Binding DownloadService.OverallStatus.Progress}"
-													ArcThickness="2"
-													Background="{DynamicResource RegionBrush}"
-													ShowText="False"/>
-											</StackPanel>
-
-											<wpf:FontIcon
-												FontSize="12"
-												Foreground="{DynamicResource PrimaryTextBrush}"
-												Text="&#xE896;"
-												Visibility="{Binding DownloadService.OverallStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
-										</StackPanel>
-									</Button>
-								</StackPanel>
-							</Border>
-
-						</Grid>
+			<Border Grid.Column="2" HorizontalAlignment="Right">
+				<StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+					<Border
+						Margin="0,0,8,0"
+						Padding="8,2"
+						VerticalAlignment="Center"
+						Background="{DynamicResource PrimaryBrush}"
+						CornerRadius="3">
+						<Border.Style>
+							<Style TargetType="Border">
+								<Setter Property="Opacity" Value="0"/>
+								<Setter Property="Visibility" Value="Collapsed"/>
+								<Style.Triggers>
+									<DataTrigger Binding="{Binding ShowDownloadAddedToast}" Value="True">
+										<DataTrigger.EnterActions>
+											<BeginStoryboard>
+												<Storyboard>
+													<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility">
+														<DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}"/>
+													</ObjectAnimationUsingKeyFrames>
+													<DoubleAnimation
+														Storyboard.TargetProperty="Opacity"
+														From="0"
+														To="1"
+														Duration="0:0:0.28">
+														<DoubleAnimation.EasingFunction>
+															<QuadraticEase EasingMode="EaseOut"/>
+														</DoubleAnimation.EasingFunction>
+													</DoubleAnimation>
+												</Storyboard>
+											</BeginStoryboard>
+										</DataTrigger.EnterActions>
+										<DataTrigger.ExitActions>
+											<BeginStoryboard>
+												<Storyboard>
+													<DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.4">
+														<DoubleAnimation.EasingFunction>
+															<QuadraticEase EasingMode="EaseIn"/>
+														</DoubleAnimation.EasingFunction>
+													</DoubleAnimation>
+													<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility">
+														<DiscreteObjectKeyFrame KeyTime="0:0:0.4" Value="{x:Static Visibility.Collapsed}"/>
+													</ObjectAnimationUsingKeyFrames>
+												</Storyboard>
+											</BeginStoryboard>
+										</DataTrigger.ExitActions>
+									</DataTrigger>
+								</Style.Triggers>
+							</Style>
+						</Border.Style>
+						<TextBlock
+							VerticalAlignment="Center"
+							FontSize="11"
+							Foreground="White"
+							Text="{Binding DownloadAddedToastText}"/>
 					</Border>
+
+					<Button
+						Style="{StaticResource ButtonDefault.Small}"
+						Padding="6,2"
+						BorderThickness="0"
+						Background="Transparent"
+						Command="{Binding OpenDownloadCommand}"
+						ToolTip="Open Download Manager">
+						<StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+							<StackPanel VerticalAlignment="Center" Orientation="Horizontal" Visibility="{Binding DownloadService.OverallStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityConverter}}">
+								<TextBlock
+									d:Text="3.2 MB/s"
+									VerticalAlignment="Center"
+									Foreground="{DynamicResource PrimaryTextBrush}"
+									Opacity="0.75"
+									Text="{Binding DownloadService.OverallStatus.SpeedText}"/>
+								<TextBlock
+									d:Text="45%"
+									Margin="8,0,0,0"
+									VerticalAlignment="Center"
+									Foreground="{DynamicResource PrimaryTextBrush}"
+									Text="{Binding DownloadService.OverallStatus.Progress, StringFormat={}{0:0}%, TargetNullValue=—}"/>
+								<hc:CircleProgressBar
+									Width="16"
+									Height="16"
+									Margin="8,0,0,0"
+									wpf:ProgressBarExtension.Progress="{Binding DownloadService.OverallStatus.Progress}"
+									ArcThickness="2"
+									Background="{DynamicResource RegionBrush}"
+									ShowText="False"/>
+							</StackPanel>
+
+							<wpf:FontIcon
+								FontSize="12"
+								Foreground="{DynamicResource PrimaryTextBrush}"
+								Text="&#xE896;"
+								Visibility="{Binding DownloadService.OverallStatus.ShowLoading, Converter={StaticResource Boolean2VisibilityReConverter}}"/>
+						</StackPanel>
+					</Button>
+				</StackPanel>
+			</Border>
+
+		</Grid>
+	</Border>
 </UserControl>

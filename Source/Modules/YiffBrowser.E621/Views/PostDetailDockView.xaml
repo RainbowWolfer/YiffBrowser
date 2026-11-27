@@ -56,7 +56,8 @@
 								Padding="0"
 								BorderThickness="0"
 								ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-								ItemsSource="{Binding SourceURLs}">
+								ItemsSource="{Binding SourceURLs}"
+								d:ItemsSource="{d:SampleData ItemCount=3}">
 								<ListBox.ItemContainerStyle>
 									<Style TargetType="ListBoxItem" BasedOn="{StaticResource ListBoxItemBaseStyle.Small}">
 										<Setter Property="Padding" Value="0"/>
@@ -157,16 +158,16 @@
 							FontWeight="SemiBold"
 							Text="Parent"
 							Visibility="{Binding ParentItems.Count, Converter={StaticResource IListToVisibilityConverter}}"/>
-						<ItemsControl Margin="0,0,0,12" ItemsSource="{Binding ParentItems}">
+						<ItemsControl Margin="0,0,0,12" ItemsSource="{Binding ParentItems}" d:ItemsSource="{d:SampleData ItemCount=2}">
 							<ItemsControl.ItemTemplate>
 								<DataTemplate>
 									<Border
 										Width="120"
 										Margin="0,0,8,8"
 										Padding="4"
-										Background="{DynamicResource RegionBrush}"
-										BorderBrush="{DynamicResource BorderBrush}"
 										BorderThickness="1"
+										BorderBrush="{DynamicResource BorderBrush}"
+										Background="{DynamicResource RegionBrush}"
 										CornerRadius="4"
 										Cursor="Hand"
 										MouseLeftButtonUp="RelationNeighbor_Click">
@@ -177,7 +178,11 @@
 												</Border.Background>
 											</Border>
 											<TextBlock Margin="0,4,0,0" HorizontalAlignment="Center" Text="{Binding Title}"/>
-											<TextBlock HorizontalAlignment="Center" FontSize="11" Opacity="0.7" Text="{Binding Role}"/>
+											<TextBlock
+												HorizontalAlignment="Center"
+												FontSize="11"
+												Opacity="0.7"
+												Text="{Binding Role}"/>
 										</StackPanel>
 									</Border>
 								</DataTemplate>
@@ -194,16 +199,16 @@
 							FontWeight="SemiBold"
 							Text="Children"
 							Visibility="{Binding ChildItems.Count, Converter={StaticResource IListToVisibilityConverter}}"/>
-						<ItemsControl Margin="0,0,0,12" ItemsSource="{Binding ChildItems}">
+						<ItemsControl Margin="0,0,0,12" ItemsSource="{Binding ChildItems}" d:ItemsSource="{d:SampleData ItemCount=4}">
 							<ItemsControl.ItemTemplate>
 								<DataTemplate>
 									<Border
 										Width="120"
 										Margin="0,0,8,8"
 										Padding="4"
-										Background="{DynamicResource RegionBrush}"
-										BorderBrush="{DynamicResource BorderBrush}"
 										BorderThickness="1"
+										BorderBrush="{DynamicResource BorderBrush}"
+										Background="{DynamicResource RegionBrush}"
 										CornerRadius="4"
 										Cursor="Hand"
 										MouseLeftButtonUp="RelationNeighbor_Click">
@@ -214,7 +219,11 @@
 												</Border.Background>
 											</Border>
 											<TextBlock Margin="0,4,0,0" HorizontalAlignment="Center" Text="{Binding Title}"/>
-											<TextBlock HorizontalAlignment="Center" FontSize="11" Opacity="0.7" Text="{Binding Role}"/>
+											<TextBlock
+												HorizontalAlignment="Center"
+												FontSize="11"
+												Opacity="0.7"
+												Text="{Binding Role}"/>
 										</StackPanel>
 									</Border>
 								</DataTemplate>
@@ -231,7 +240,7 @@
 							FontWeight="SemiBold"
 							Text="Pools"
 							Visibility="{Binding HasPools, Converter={StaticResource Boolean2VisibilityConverter}}"/>
-						<ItemsControl ItemsSource="{Binding PoolItems}">
+						<ItemsControl ItemsSource="{Binding PoolItems}" d:ItemsSource="{d:SampleData ItemCount=2}">
 							<ItemsControl.ItemTemplate>
 								<DataTemplate>
 									<Button

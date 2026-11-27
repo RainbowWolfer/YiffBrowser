@@ -54,7 +54,8 @@
 				IsReadOnly="True"
 				SelectionMode="Single"
 				SelectionUnit="FullRow"
-				ItemsSource="{Binding RecordList}">
+				ItemsSource="{Binding RecordList}"
+				d:ItemsSource="{d:SampleData ItemCount=8}">
 
 				<DataGrid.Columns>
 					<DataGridTextColumn Width="160" Binding="{Binding ClosedAt, StringFormat=G}" Header="Closed At"/>

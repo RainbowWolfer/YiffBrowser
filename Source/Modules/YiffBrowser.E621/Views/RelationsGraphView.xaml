@@ -29,9 +29,9 @@
 
 			<Border
 				Padding="8,6"
-				Background="{DynamicResource RegionBrush}"
-				BorderBrush="{DynamicResource BorderBrush}"
 				BorderThickness="0,0,0,1"
+				BorderBrush="{DynamicResource BorderBrush}"
+				Background="{DynamicResource RegionBrush}"
 				DockPanel.Dock="Top">
 				<Grid>
 					<StackPanel VerticalAlignment="Center">
@@ -42,9 +42,7 @@
 							Opacity="0.75"
 							Text="{Binding StatusText}"/>
 					</StackPanel>
-					<StackPanel
-						HorizontalAlignment="Right"
-						Orientation="Horizontal">
+					<StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
 						<TextBlock
 							Margin="0,0,8,0"
 							VerticalAlignment="Center"
@@ -53,26 +51,26 @@
 							Opacity="0.65"
 							Text="{Binding ElementName=WorldScale, Path=ScaleX, StringFormat={}{0:P0}}"/>
 						<Button
+							Style="{StaticResource Button.Custom.Icon}"
 							Width="30"
 							Height="30"
 							Click="FitView_Click"
-							Style="{StaticResource Button.Custom.Icon}"
 							ToolTip="Fit to view (Home)">
 							<wpf:FontIcon Text="&#xE740;"/>
 						</Button>
 						<Button
+							Style="{StaticResource Button.Custom.Icon}"
 							Width="30"
 							Height="30"
 							Click="ResetZoom_Click"
-							Style="{StaticResource Button.Custom.Icon}"
 							ToolTip="Reset zoom to 100% (Ctrl+0)">
 							<wpf:FontIcon Text="&#xE71E;"/>
 						</Button>
 						<Button
+							Style="{StaticResource Button.Custom.Icon}"
 							Width="30"
 							Height="30"
 							Command="{Binding RefreshCommand}"
-							Style="{StaticResource Button.Custom.Icon}"
 							ToolTip="Refresh">
 							<wpf:FontIcon Text="&#xE72C;"/>
 						</Button>
@@ -88,23 +86,21 @@
 
 			<Grid>
 				<!-- Blender-like viewport: wheel zoom toward cursor, middle-drag pan. -->
-				<Border
-					x:Name="Viewport"
+				<Border x:Name="Viewport"
 					Background="Transparent"
 					ClipToBounds="True"
 					Cursor="Arrow"
-					Focusable="True"
 					FocusVisualStyle="{x:Null}"
+					Focusable="True"
+					MouseLeave="Viewport_MouseLeave"
+					MouseWheel="Viewport_MouseWheel"
 					PreviewMouseDown="Viewport_PreviewMouseDown"
 					PreviewMouseMove="Viewport_PreviewMouseMove"
 					PreviewMouseUp="Viewport_PreviewMouseUp"
-					MouseLeave="Viewport_MouseLeave"
-					MouseWheel="Viewport_MouseWheel"
 					SizeChanged="Viewport_SizeChanged">
 
 					<!-- World space: grid + graph share one transform (WPF transforms are single-parent). -->
-					<Grid
-						x:Name="World"
+					<Grid x:Name="World"
 						HorizontalAlignment="Left"
 						VerticalAlignment="Top"
 						RenderTransformOrigin="0,0">
@@ -117,8 +113,7 @@
 
 						<Canvas x:Name="GridCanvas" IsHitTestVisible="False"/>
 
-						<Grid
-							x:Name="GraphHost"
+						<Grid x:Name="GraphHost"
 							Width="{Binding GraphWidth}"
 							Height="{Binding GraphHeight}"
 							HorizontalAlignment="Left"
@@ -160,8 +155,8 @@
 											Width="132"
 											Height="156"
 											Padding="5"
-											Cursor="Hand"
 											CornerRadius="6"
+											Cursor="Hand"
 											MouseLeftButtonDown="NodeCard_MouseLeftButtonDown"
 											MouseLeftButtonUp="NodeCard_MouseLeftButtonUp"
 											ToolTip="{Binding ToolTipText}">
@@ -184,20 +179,18 @@
 
 											<DockPanel>
 												<TextBlock
+													HorizontalAlignment="Center"
 													DockPanel.Dock="Bottom"
 													FontSize="10"
-													HorizontalAlignment="Center"
 													Opacity="0.7"
 													Text="{Binding Badge}"/>
 												<TextBlock
+													HorizontalAlignment="Center"
 													DockPanel.Dock="Bottom"
 													FontFamily="Cascadia Mono"
 													FontWeight="SemiBold"
-													HorizontalAlignment="Center"
 													Text="{Binding Title}"/>
-												<wpf:ClippingBorder
-													Background="{DynamicResource SecondaryRegionBrush}"
-													CornerRadius="4">
+												<wpf:ClippingBorder Background="{DynamicResource SecondaryRegionBrush}" CornerRadius="4">
 													<Border Visibility="{Binding Source={x:Static bf:AppConfig.SafeMode}, Converter={StaticResource Boolean2VisibilityReConverter}}">
 														<Image Source="{Binding PreviewImage, TargetNullValue={x:Null}}" Stretch="UniformToFill"/>
 													</Border>
@@ -231,8 +224,10 @@
 		</DockPanel>
 
 		<Border Visibility="{Binding DetailVisibility}">
-			<!-- PostDetailView overrides its own DataContext (DISource), so the parent view
-			model has to be reached through the proxy instead of a plain {Binding}. -->
+			<!--
+				PostDetailView overrides its own DataContext (DISource), so the parent view
+				model has to be reached through the proxy instead of a plain {Binding}.
+			-->
 			<local:PostDetailView dxmvvm:ViewModelExtensions.ParentViewModel="{Binding Source={StaticResource ViewModel}, Path=Data.PostsHost}"/>
 		</Border>
 	</Grid>
