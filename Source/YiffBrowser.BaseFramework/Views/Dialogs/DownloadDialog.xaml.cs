@@ -100,10 +100,7 @@ internal class DownloadDialogViewModel(IDownloadService downloadService) : Dialo
 		UpdateSummary();
 	}
 
-	public override DialogWindowParameter DialogWindowParameter => base.DialogWindowParameter with {
-		ResizeMode = ResizeMode.CanResizeWithGrip,
-		SizeToContent = SizeToContent.Manual,
-	};
+	public override DialogWindowParameter DialogWindowParameter => DialogWindowParameter.Resizable;
 
 	public override void OnWindowInitialized(Window window) {
 		base.OnWindowInitialized(window);

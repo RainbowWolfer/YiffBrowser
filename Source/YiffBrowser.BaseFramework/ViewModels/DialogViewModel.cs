@@ -95,6 +95,12 @@ public interface IDialogOwnerSetter {
 	Window? Owner { get; }
 }
 
+public enum DialogCaptionButtons {
+	Unchanged,
+	HideMinimize,
+	HideMinimizeAndMaximize,
+}
+
 public record class DialogWindowParameter(
 	WindowStartupLocation WindowStartupLocation = WindowStartupLocation.CenterOwner,
 	ResizeMode ResizeMode = ResizeMode.NoResize,
@@ -104,13 +110,15 @@ public record class DialogWindowParameter(
 	bool AllowsTransparency = false,
 	bool AllowDrop = true,
 	bool TopMost = false,
-	bool EscapeToClose = true
+	bool EscapeToClose = true,
+	DialogCaptionButtons CaptionButtons = DialogCaptionButtons.Unchanged
 ) {
 	public static DialogWindowParameter Default { get; } = new();
 
-	//todo 
 	public static DialogWindowParameter Resizable { get; } = Default with {
-
+		ResizeMode = ResizeMode.CanResize,
+		SizeToContent = SizeToContent.Manual,
+		CaptionButtons = DialogCaptionButtons.HideMinimize,
 	};
 }
 

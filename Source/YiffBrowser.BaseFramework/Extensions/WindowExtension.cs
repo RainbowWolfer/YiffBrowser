@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Media;
 
 namespace YiffBrowser.BaseFramework.Extensions;
 
@@ -20,18 +21,43 @@ public static class WindowExtension {
     public static extern int SetWindowLong(IntPtr hwnd, int index, int value);
 
     public static void HideMinimizeAndMaximizeButtons(this Window window) {
-        IntPtr hwnd = new WindowInteropHelper(window).Handle;
+        IntPtr hwnd = HandleOf(window);
+        if (hwnd == IntPtr.Zero) {
+            return;
+        }
         int currentStyle = GetWindowLong(hwnd, GWL_STYLE);
-
         SetWindowLong(hwnd, GWL_STYLE, currentStyle & ~WS_MAXIMIZEBOX & ~WS_MINIMIZEBOX);
+        RefreshFrame(hwnd);
     }
 
     public static void HideMinimizeButton(this Window window) {
-        IntPtr hwnd = new WindowInteropHelper(window).Handle;
+        IntPtr hwnd = HandleOf(window);
+        if (hwnd == IntPtr.Zero) {
+            return;
+        }
         int currentStyle = GetWindowLong(hwnd, GWL_STYLE);
-
         SetWindowLong(hwnd, GWL_STYLE, currentStyle & ~WS_MINIMIZEBOX);
+        RefreshFrame(hwnd);
     }
+
+    private static IntPtr HandleOf(Window window) {
+        if (PresentationSource.FromVisual(window) is HwndSource source && source.Handle != IntPtr.Zero) {
+            return source.Handle;
+        }
+        return new WindowInteropHelper(window).EnsureHandle();
+    }
+
+    private static void RefreshFrame(IntPtr hwnd) {
+        SetWindowPos(hwnd, IntPtr.Zero, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+    }
+
+    private const uint SWP_NOSIZE = 0x0001;
+    private const uint SWP_NOMOVE = 0x0002;
+    private const uint SWP_NOZORDER = 0x0004;
+    private const uint SWP_FRAMECHANGED = 0x0020;
+
+    [DllImport("user32.dll")]
+    private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint flags);
 
     [DllImport("user32.dll")]
     public static extern bool EnableWindow(IntPtr hWnd, bool bEnable);

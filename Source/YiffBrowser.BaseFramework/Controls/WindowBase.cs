@@ -1,6 +1,8 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
+using YiffBrowser.BaseFramework.Extensions;
+using YiffBrowser.BaseFramework.ViewModels;
 
 namespace YiffBrowser.BaseFramework.Controls;
 
@@ -21,6 +23,10 @@ public class WindowBase : Window {
 		new PropertyMetadata(null)
 	);
 
+	public ResizeMode? MyResizeMode { get; set; }
+
+	public DialogCaptionButtons CaptionButtons { get; set; }
+
 	protected override void OnMouseDown(MouseButtonEventArgs e) {
 		base.OnMouseDown(e);
 
@@ -32,8 +38,8 @@ public class WindowBase : Window {
 	protected override void OnSourceInitialized(EventArgs e) {
 		base.OnSourceInitialized(e);
 
-		WindowHandle = new WindowInteropHelper(this).Handle;
-		HwndSource = HwndSource.FromHwnd(WindowHandle);
+		HwndSource = PresentationSource.FromVisual(this) as HwndSource;
+		WindowHandle = HwndSource?.Handle ?? new WindowInteropHelper(this).EnsureHandle();
 		WindowFrameTheme.Apply(WindowHandle, WindowFrameTheme.IsDark());
 
 		if (CenterToOwner != null) {
@@ -44,6 +50,20 @@ public class WindowBase : Window {
 
 			Left = ownerLeft + ((ownerWidth - ActualWidth) / 2);
 			Top = ownerTop + ((ownerHeight - ActualHeight) / 2);
+		}
+
+		if (MyResizeMode != null) {
+			ResizeMode = MyResizeMode.Value;
+		}
+
+		// Setting ResizeMode puts the minimize and maximize buttons back.
+		switch (CaptionButtons) {
+			case DialogCaptionButtons.HideMinimize:
+				this.HideMinimizeButton();
+				break;
+			case DialogCaptionButtons.HideMinimizeAndMaximize:
+				this.HideMinimizeAndMaximizeButtons();
+				break;
 		}
 	}
 
