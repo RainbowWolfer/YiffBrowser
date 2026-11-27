@@ -339,7 +339,12 @@
 
 													<wpf:SpacingStackPanel Style="{DynamicResource CustomHorizontalPanel2}" Grid.Column="0">
 														<Button Command="{Binding BackToTabsCommand}" Content="Back"/>
-														<ToggleButton IsChecked="{Binding IsTabsManageSelecting, Mode=TwoWay}" ToolTip="Toggle selection mode">
+														<ToggleButton
+															Style="{StaticResource ToggleButton.Custom.Soild}"
+															Width="28"
+															Height="28"
+															IsChecked="{Binding IsTabsManageSelecting, Mode=TwoWay}"
+															ToolTip="Toggle selection mode">
 															<wpf:FontIcon Text="&#xE762;"/>
 														</ToggleButton>
 													</wpf:SpacingStackPanel>
@@ -422,19 +427,28 @@
 																					<RowDefinition Height="*"/>
 																				</Grid.RowDefinitions>
 
-																				<wpf:ClippingBorder
-																					Grid.Row="0"
-																					BorderThickness="0,0,0,1"
-																					BorderBrush="{DynamicResource BorderBrush}"
-																					Background="{DynamicResource SecondaryRegionBrush}">
+																				<wpf:ClippingBorder Grid.Row="0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource BorderBrush}">
+																					<Border.Style>
+																						<Style TargetType="Border">
+																							<Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+																							<Style.Triggers>
+																								<DataTrigger Binding="{Binding IsManageSelected}" Value="True">
+																									<Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+																								</DataTrigger>
+																							</Style.Triggers>
+																						</Style>
+																					</Border.Style>
 																					<DockPanel>
 																						<Border
 																							MinWidth="20"
 																							VerticalAlignment="Stretch"
-																							BorderThickness="1,0,0,0"
+																							BorderThickness="0,0,0,0"
 																							BorderBrush="{DynamicResource BorderBrush}"
-																							Background="{DynamicResource ThirdlyRegionBrush}"
+																							CornerRadius="0,4,0,0"
 																							DockPanel.Dock="Right">
+																							<Border.Background>
+																								<SolidColorBrush Opacity="0.3" Color="Black"/>
+																							</Border.Background>
 																							<TextBlock
 																								Margin="4,0"
 																								VerticalAlignment="Center"
