@@ -1,6 +1,5 @@
 using GongSolutions.Wpf.DragDrop;
 using System.Windows;
-using YiffBrowser.E621.Views;
 
 namespace YiffBrowser.E621.ViewModels;
 

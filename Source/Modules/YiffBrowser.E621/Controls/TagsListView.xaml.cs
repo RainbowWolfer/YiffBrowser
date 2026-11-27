@@ -14,6 +14,7 @@ using YiffBrowser.BaseFramework.Helpers;
 using YiffBrowser.E621.Enums;
 using YiffBrowser.E621.Models.E621;
 using YiffBrowser.E621.Services;
+using YiffBrowser.E621.ViewModels;
 using YiffBrowser.E621.Views;
 
 namespace YiffBrowser.E621.Controls;

@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Windows;
 using YiffBrowser.E621.Interfaces;
 using YiffBrowser.E621.Parameters;
-using YiffBrowser.E621.Views;
+using YiffBrowser.E621.ViewModels;
 
 namespace YiffBrowser.E621.Services;
 

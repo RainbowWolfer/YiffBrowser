@@ -1,7 +1,6 @@
 ﻿using DevExpress.Mvvm;
 using YiffBrowser.E621.Interfaces;
 using YiffBrowser.E621.Parameters;
-using YiffBrowser.E621.Views;
 
 namespace YiffBrowser.E621.ViewModels;
 

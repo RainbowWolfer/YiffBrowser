@@ -1,0 +1,148 @@
+<UserControl
+	x:Class="YiffBrowser.E621.Views.MainDockView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:b="RW.Base.WPF"
+	xmlns:bf="YiffBrowser.BaseFramework"
+	xmlns:c="clr-namespace:YiffBrowser.E621.Controls"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:dd="urn:gong-wpf-dragdrop"
+	xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+	xmlns:enums="clr-namespace:YiffBrowser.E621.Enums"
+	xmlns:ex="clr-namespace:YiffBrowser.E621.Extensions"
+	xmlns:hc="https://handyorg.github.io/handycontrol"
+	xmlns:i="clr-namespace:YiffBrowser.E621.Interfaces"
+	xmlns:local="clr-namespace:YiffBrowser.E621.Views"
+	xmlns:vm="clr-namespace:YiffBrowser.E621.ViewModels"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:subs="clr-namespace:YiffBrowser.E621.Views.Subs"
+	xmlns:wpf="RW.Common.WPF"
+	d:DataContext="{d:DesignInstance Type=vm:E621MainViewModel}"
+	mc:Ignorable="d">
+	<UserControl.Resources>
+		<wpf:CommandProxy x:Key="CloseDockPanelCommand" Command="{Binding CloseDockPanelCommand}"/>
+		<wpf:CommandProxy x:Key="CollapseDockPanelCommand" Command="{Binding CollapseDockPanelCommand}"/>
+		<wpf:CommandProxy x:Key="ExpandDockPanelCommand" Command="{Binding ExpandDockPanelCommand}"/>
+		<wpf:CommandProxy x:Key="DockPanelTabItemHeaderDoubleClickCommand" Command="{Binding DockPanelTabItemHeaderDoubleClickCommand}"/>
+		<wpf:BindingProxy x:Key="ViewModel" Data="{Binding}"/>
+	</UserControl.Resources>
+						<Border
+							BorderThickness="0,0,0,0"
+							BorderBrush="{DynamicResource BorderBrush}"
+							Visibility="{Binding DockPanelManager.HasDockPanels, Converter={StaticResource Boolean2VisibilityConverter}}">
+							<Grid>
+								<TabControl
+									dd:DragDrop.IsDragSource="True"
+									dd:DragDrop.IsDropTarget="True"
+									SelectedItem="{Binding SelectedDockPanelItem}"
+									TabStripPlacement="Bottom"
+									ItemsSource="{Binding DockPanelManager.DockPanels}">
+
+									<TabControl.Style>
+										<Style TargetType="TabControl" BasedOn="{StaticResource TabControl.Custom.DockPanel}">
+											<Setter Property="BorderThickness" Value="1,0,0,1"/>
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding IsDockPanelCollapsed}" Value="True">
+													<Setter Property="BorderThickness" Value="1,0,0,0"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</TabControl.Style>
+
+									<TabControl.ItemTemplate>
+										<DataTemplate DataType="{x:Type i:IDockPanel}">
+											<DockPanel>
+												<wpf:FontIcon Margin="0,0,8,0" Text="{Binding Icon}"/>
+												<TextBlock Text="{Binding Name}"/>
+											</DockPanel>
+										</DataTemplate>
+									</TabControl.ItemTemplate>
+
+									<TabControl.ItemContainerStyle>
+										<Style TargetType="TabItem" BasedOn="{StaticResource TabItem.Custom.DockPanel}">
+											<Setter Property="wpf:ControlExtension.MouseDoubleClickCommand" Value="{StaticResource DockPanelTabItemHeaderDoubleClickCommand}"/>
+											<Setter Property="ContextMenu">
+												<Setter.Value>
+													<ContextMenu>
+														<MenuItem bf:IconExtension.Glyph="&#xE70D;" Command="{StaticResource CollapseDockPanelCommand}" Header="Collapse Panel"/>
+														<MenuItem bf:IconExtension.Glyph="&#xE70E;" Command="{StaticResource ExpandDockPanelCommand}" Header="Expand Panel"/>
+														<Separator/>
+														<MenuItem
+															bf:IconExtension.Glyph="&#xE8BB;"
+															Command="{StaticResource CloseDockPanelCommand}"
+															CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+															Header="Close Panel"/>
+													</ContextMenu>
+												</Setter.Value>
+											</Setter>
+										</Style>
+									</TabControl.ItemContainerStyle>
+
+									<TabControl.ContentTemplate>
+										<DataTemplate DataType="{x:Type i:IDockPanel}">
+											<Border Visibility="{Binding Source={StaticResource ViewModel}, Path=Data.IsDockPanelCollapsed, Converter={StaticResource Boolean2VisibilityReConverter}}">
+												<DockPanel>
+													<Border
+														Height="20"
+														BorderThickness="0,0,0,1"
+														BorderBrush="{DynamicResource BorderBrush}"
+														Background="{DynamicResource SecondaryRegionBrush}"
+														DockPanel.Dock="Top">
+
+														<Grid>
+															<Grid.ColumnDefinitions>
+																<ColumnDefinition Width="*"/>
+																<ColumnDefinition Width="auto"/>
+															</Grid.ColumnDefinitions>
+															<Border Padding="6,0">
+																<TextBlock VerticalAlignment="Center" Text="{Binding Name}"/>
+															</Border>
+
+															<StackPanel Grid.Column="1" Orientation="Horizontal">
+
+																<Button
+																	Width="20"
+																	Height="20"
+																	Padding="0"
+																	BorderThickness="1,0,0,0"
+																	hc:BorderElement.CornerRadius="0"
+																	Command="{StaticResource CollapseDockPanelCommand}">
+																	<wpf:FontIcon FontSize="10" Text="&#xE70D;"/>
+																</Button>
+
+																<Button
+																	Width="20"
+																	Height="20"
+																	Padding="0"
+																	BorderThickness="1,0,0,0"
+																	hc:BorderElement.CornerRadius="0"
+																	Command="{StaticResource CloseDockPanelCommand}"
+																	CommandParameter="{Binding}">
+																	<wpf:FontIcon FontSize="10" Text="&#xE8BB;"/>
+																</Button>
+															</StackPanel>
+
+														</Grid>
+													</Border>
+													<ContentControl Content="{Binding Content}"/>
+												</DockPanel>
+											</Border>
+										</DataTemplate>
+									</TabControl.ContentTemplate>
+
+								</TabControl>
+
+								<StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal">
+									<Button
+										Width="30"
+										Height="30"
+										Padding="0"
+										BorderThickness="1,0,0,0"
+										hc:BorderElement.CornerRadius="0"
+										Command="{Binding CloseAllDockPanelsCommand}">
+										<wpf:FontIcon FontSize="12" Foreground="{DynamicResource DangerBrush}" Text="&#xE8BB;"/>
+									</Button>
+								</StackPanel>
+							</Grid>
+						</Border>
+</UserControl>
